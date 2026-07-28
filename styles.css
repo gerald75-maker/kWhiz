@@ -6185,3 +6185,174 @@ body.light .compare-pricing-badge.is-discount {
     height: 26px;
     border-radius: 7px;
 }
+
+/* Opérateurs — harmonisation avec « Mon choix » */
+#tab-operators.active,
+#tab-operators .operators-compact,
+#tab-operators .operators-grid {
+    gap: 18px;
+}
+
+#tab-operators .operators-page-heading {
+    gap: 18px;
+    margin-bottom: 0;
+}
+
+#tab-operators .operators-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+    min-height: 58px;
+    padding: 10px 14px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+    border-radius: 18px;
+    background: var(--bg-card);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+}
+
+#tab-operators .operators-page-count {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#tab-operators .view-toggle {
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#tab-operators .operator-compact,
+#tab-operators .operator-card {
+    padding: 18px;
+    border-radius: 18px;
+}
+
+#tab-operators .formula-compact {
+    padding-inline: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+#tab-operators .formula-compact + .formula-compact {
+    margin-top: 0;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 62%, transparent);
+}
+
+#tab-operators .formula-compact-header-row {
+    padding-inline: 0;
+}
+
+#tab-operators .formula-meta {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: .68rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0;
+}
+
+#tab-operators .formula-meta .formula-source {
+    display: inline;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: inherit;
+    font-weight: 600;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    text-underline-offset: 2px;
+}
+
+#tab-operators .loyalty-badge,
+#tab-operators .izivia-badge,
+#tab-operators .ionity-badge {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+@media (max-width: 560px) {
+    #tab-operators .operator-badge {
+        display: inline-flex;
+        min-height: 22px;
+        padding: 3px 7px;
+        font-size: .62rem;
+    }
+}
+
+/* Opérateurs — alignement et hiérarchie typographique */
+#tab-operators .operator-compact-name,
+#tab-operators .operator-name {
+    font-size: 1.04rem;
+}
+
+#tab-operators .formula-compact {
+    align-items: baseline;
+}
+
+#tab-operators .formula-compact-name,
+#tab-operators .formula-compact-rate,
+#tab-operators .cb-effective-rate,
+#tab-operators .formula-name,
+#tab-operators .formula-kwh {
+    font-size: .94rem;
+    line-height: 1.35;
+}
+
+#tab-operators .formula-compact-rate,
+#tab-operators .cb-effective-rate {
+    flex: 0 0 72px;
+    width: 72px;
+    min-width: 72px;
+    margin-inline: 9px;
+    padding-top: 0;
+    text-align: right;
+    justify-self: end;
+    font-variant-numeric: tabular-nums lining-nums;
+}
+
+#tab-operators .formula-compact-threshold {
+    flex: 0 0 92px;
+    width: 92px;
+    min-width: 92px;
+    padding-top: 0;
+    text-align: right;
+    justify-self: end;
+}
+
+#tab-operators .formula-sub,
+#tab-operators .formula-note,
+#tab-operators .formula-cost,
+#tab-operators .result-km,
+#tab-operators .benefit-copy {
+    font-size: .8rem;
+    line-height: 1.4;
+}
+
+#tab-operators .formula-compact-header-row,
+#tab-operators .tarif-table th,
+#tab-operators .formula-meta,
+#tab-operators .formula-meta--detailed {
+    font-size: .7rem;
+}
+
+#tab-operators .formula-meta {
+    width: 100%;
+    white-space: normal;
+}
+
+#tab-operators .cb-struck {
+    color: var(--text-muted);
+    opacity: .58;
+}
+
+#tab-operators .tarif-table td {
+    vertical-align: top;
+}
