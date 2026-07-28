@@ -353,7 +353,7 @@
 <section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
 <div class="app-status-card__heading">
 <div>
-<p class="app-status-card__eyebrow">Données personnelles</p>
+<p class="app-status-card__eyebrow">Données locales</p>
 <h2 id="data-backup-title">Sauvegarder vos réglages</h2>
 </div>
 </div>
@@ -364,6 +364,41 @@
 <input accept="application/json,.json" hidden="" id="about-import-data-file" type="file"/>
 </div>
 <p aria-live="polite" class="data-backup-status" id="about-data-status"></p>
+</section>
+<section aria-labelledby="privacy-title" class="app-status-card">
+<div class="app-status-card__heading">
+<div>
+<p class="app-status-card__eyebrow">Confidentialité</p>
+<h2 id="privacy-title">Vos données dans kWhiz</h2>
+</div>
+</div>
+<dl class="app-status-list">
+<div>
+<dt>Sur l’appareil</dt>
+<dd>kWhiz conserve dans le stockage local du navigateur le thème, l’introduction déjà vue, la part de recharge rapide, les favoris, jusqu’à cinq scénarios enregistrés, le cache des tarifs et jusqu’à douze relevés tarifaires. Ces données restent sur cet appareil et peuvent toutes être supprimées en effaçant les données du site dans les réglages du navigateur.</dd>
+</div>
+<div>
+<dt>Mode hors ligne</dt>
+<dd>La PWA met en cache des fichiers de l’application, des icônes, des polices et les tarifs nécessaires au fonctionnement hors ligne. Ce cache technique ne contient ni favoris, ni scénarios, ni valeurs saisies.</dd>
+</div>
+<div>
+<dt>Mesure d’audience</dt>
+<dd>Umami mesure sans cookie les pages consultées, les sessions et leur durée, le site référent, le navigateur, le système d’exploitation, le type d’appareil, la langue, la taille d’écran et une localisation approximative par pays. L’application lui signale également la disponibilité de l’installation PWA, son acceptation ou son refus, la réussite de l’installation et le lancement en mode application. Aucun favori, scénario ou valeur saisie dans le calculateur ne lui est envoyé.</dd>
+</div>
+<div>
+<dt>Présence</dt>
+<dd>À chaque ouverture, kwhiz.aubard.net journalise la date et l’heure, le type mobile ou ordinateur, les 80 premiers caractères du User-Agent et un identifiant de huit caractères calculé à partir de l’adresse IP et du User-Agent. L’adresse IP brute n’est pas écrite dans ce journal.</dd>
+</div>
+<div>
+<dt>Non collecté</dt>
+<dd>kWhiz ne crée aucun compte et ne demande ni nom, ni adresse e-mail, ni position précise. L’application n’utilise ni cookie, ni sessionStorage, ni IndexedDB. Les kilomètres, la consommation et les recherches restent en mémoire, sauf lorsqu’un scénario est volontairement enregistré sur l’appareil.</dd>
+</div>
+<div>
+<dt>Conservation</dt>
+<dd>Le code de kWhiz ne programme aucune suppression automatique du journal de présence. La durée de conservation des mesures Umami dépend de la configuration de son serveur. Ces mesures servent uniquement à suivre la fréquentation et l’installation de l’application ; elles ne sont ni vendues ni utilisées à des fins publicitaires.</dd>
+</div>
+</dl>
+<p class="about-desc about-desc--flush">Pour toute question sur ces données : <a href="mailto:kwhiz@aubard.net">kwhiz@aubard.net</a>.</p>
 </section>
 <div class="about-origin about-actions">
 <a class="about-apps-link" href="https://apps.aubard.net" rel="noopener" target="_blank">
