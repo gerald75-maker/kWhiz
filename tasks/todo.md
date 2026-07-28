@@ -1,5 +1,13 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Stabilisation console JavaScript — release/2.19 (2026-07-28)
+
+- [x] Reproduire le parcours complet et consigner les deux erreurs avec Playwright
+- [x] Identifier leurs causes exactes et appliquer uniquement les corrections minimales
+- [x] Rejouer strictement le parcours et confirmer 0 erreur sans nouveau warning
+- [x] Exécuter `npm test`, `npm run build` et `git diff --check`
+- [x] Créer le commit `fix: eliminate remaining console errors`
+
 ## Correctifs responsive ciblés — audit Playwright (2026-07-28)
 
 - [x] Capturer l’état initial pertinent à 390 px et sur la navigation mobile

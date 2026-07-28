@@ -609,4 +609,12 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 // Chargement initial des tarifs + ping de présence
 loadTarifs();
-fetch(CONFIG.pingUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+if (!import.meta.env.DEV) {
+    const analyticsScript = document.createElement('script');
+    analyticsScript.dataset.websiteId = '780056eb-cb42-459a-8d94-8614d36fd172';
+    analyticsScript.defer = true;
+    analyticsScript.src = 'https://umami.aubard.net/script.js';
+    document.head.append(analyticsScript);
+
+    fetch(CONFIG.pingUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+}
