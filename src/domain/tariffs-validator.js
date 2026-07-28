@@ -1,10 +1,21 @@
 const VALID_PERIODS = new Set(['monthly', 'annual', 'none']);
 const VALID_PRICING_TYPES = new Set(['fixed', 'range', 'discount', 'station']);
 const VALID_CALCULATION_BASES = new Set(['official', 'midpoint', 'estimate']);
-const HTTPS_URL = /^https:\/\//i;
 
 function isFiniteNonNegative(value) {
     return Number.isFinite(value) && value >= 0;
+}
+
+function normalizeHttpsUrl(value) {
+    if (value == null || value === '') return null;
+    if (typeof value !== 'string') return null;
+    if (/[\u0000-\u0020"'<>`\\]/.test(value)) return null;
+    try {
+        const url = new URL(value);
+        return url.protocol === 'https:' ? url.href : null;
+    } catch {
+        return null;
+    }
 }
 
 export function validateTariffs(rawData, { validColors = null } = {}) {
@@ -28,9 +39,15 @@ export function validateTariffs(rawData, { validColors = null } = {}) {
             sanitized.color = '';
         }
 
-        if (operator.mapUrl && !HTTPS_URL.test(String(operator.mapUrl))) {
-            errors.push(`${operatorKey}: mapUrl non HTTPS`);
-            sanitized.mapUrl = '';
+        for (const field of ['mapUrl', 'sourceUrl']) {
+            if (!operator[field]) continue;
+            const normalizedUrl = normalizeHttpsUrl(operator[field]);
+            if (!normalizedUrl) {
+                errors.push(`${operatorKey}: ${field} non HTTPS ou invalide`);
+                sanitized[field] = '';
+            } else {
+                sanitized[field] = normalizedUrl;
+            }
         }
 
         const formulas = [];
@@ -50,7 +67,7 @@ export function validateTariffs(rawData, { validColors = null } = {}) {
                 if (!VALID_PRICING_TYPES.has(pricingType)) formulaErrors.push(`pricingType invalide « ${formula.pricingType} »`);
                 if (!VALID_CALCULATION_BASES.has(calculationBasis)) formulaErrors.push(`calculationBasis invalide « ${formula.calculationBasis} »`);
                 if (formula.verifiedAt && Number.isNaN(new Date(`${formula.verifiedAt}T12:00:00`).getTime())) formulaErrors.push('verifiedAt invalide');
-                if (formula.sourceUrl && !HTTPS_URL.test(String(formula.sourceUrl))) formulaErrors.push('sourceUrl non HTTPS');
+                if (formula.sourceUrl && !normalizeHttpsUrl(formula.sourceUrl)) formulaErrors.push('sourceUrl non HTTPS ou invalide');
                 if (pricingType === 'range' || pricingType === 'discount') {
                     if (!isFiniteNonNegative(formula.rateMin) || !isFiniteNonNegative(formula.rateMax) || formula.rateMin > formula.rateMax) formulaErrors.push('plage tarifaire invalide');
                 }
@@ -66,7 +83,9 @@ export function validateTariffs(rawData, { validColors = null } = {}) {
                 pricingType: formula.pricingType ?? 'fixed',
                 calculationBasis: formula.calculationBasis ?? 'official',
                 verifiedAt: formula.verifiedAt ?? operator.verifiedAt ?? null,
-                sourceUrl: formula.sourceUrl ?? operator.sourceUrl ?? null
+                sourceUrl: formula.sourceUrl
+                    ? normalizeHttpsUrl(formula.sourceUrl)
+                    : sanitized.sourceUrl || null
             });
         }
 

@@ -9,8 +9,14 @@ export function escapeHtml(value) {
 }
 
 export function safeUrl(url) {
-    if (!url || !String(url).startsWith('https://')) return '';
-    return escapeHtml(url);
+    if (typeof url !== 'string' || !url) return '';
+    if (/[\u0000-\u0020"'<>`\\]/.test(url)) return '';
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:' ? escapeHtml(parsed.href) : '';
+    } catch {
+        return '';
+    }
 }
 
 export function formatNumber(number, decimals = 0) {

@@ -221,13 +221,51 @@ function detailIcon(type) {
     return icons[type] || '';
 }
 
+function detailElement(tagName, className = '', text = null) {
+    const element = document.createElement(tagName);
+    if (className) element.className = className;
+    if (text !== null) element.textContent = text;
+    return element;
+}
+
+function appendDetailBadge(container, className, text) {
+    container.appendChild(detailElement('span', `detail-badge ${className}`, text));
+}
+
+function appendDetailStat(container, type, label, value) {
+    const item = detailElement('div', `detail-stat detail-stat--${type}`);
+    const icon = detailElement('span', 'detail-stat-icon');
+    icon.innerHTML = detailIcon(type);
+    const content = document.createElement('span');
+    content.append(
+        detailElement('dt', '', label),
+        detailElement('dd', '', value)
+    );
+    item.append(icon, content);
+    container.appendChild(item);
+}
+
+function createDetailExternalLink(url, className, leadingText, trailingText) {
+    const link = detailElement('a', className);
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    if (leadingText) {
+        const leading = detailElement('span', '', leadingText);
+        leading.setAttribute('aria-hidden', 'true');
+        link.append(leading, document.createTextNode(' '));
+    }
+    link.appendChild(document.createTextNode(trailingText));
+    const arrow = detailElement('span', '', leadingText ? '›' : '↗');
+    arrow.setAttribute('aria-hidden', 'true');
+    link.append(document.createTextNode(' '), arrow);
+    return link;
+}
+
 function openFormulaDetail(formula, trigger) {
     const body = document.getElementById('formula-detail-body');
     const title = document.getElementById('formula-detail-title');
     if (!body || !title || !formula) return;
-    const logo = LOGOS[formula.opKey]
-        ? `<img src="${LOGOS[formula.opKey]}" class="formula-detail-logo" alt="">`
-        : '';
     const subscription = formula.cost > 0
         ? `${formula.cost.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/${formula.period === 'monthly' ? 'mois' : 'an'}`
         : 'Sans abonnement';
@@ -236,47 +274,97 @@ function openFormulaDetail(formula, trigger) {
     const rateDelta = evolution.deltaRate
         ? `${evolution.deltaRate > 0 ? '+' : ''}${evolution.deltaRate.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`
         : 'Aucune variation';
-    const historyRows = historyEntries.slice(-4).reverse().map(entry => {
-        const date = entry.updatedAt || entry.capturedAt;
-        const parsedDate = date ? new Date(date) : null;
-        const dateLabel = parsedDate && !Number.isNaN(parsedDate.getTime())
-            ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(parsedDate)
-            : (entry.updatedAt || 'Date inconnue');
-        return `<li><time>${dateLabel}</time><strong>${Number(entry.rate).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh</strong></li>`;
-    }).join('');
+
     title.textContent = `${formula.operator} - ${displayFormulaName(formula.name)}`;
-    const verifiedBadge = formula.verifiedAt ? `<span class="detail-badge detail-badge--verified">Vérifié le ${formatVerifiedDate(formula.verifiedAt)}</span>` : '';
-    const chargebackBadge = formula.chargebackRate !== null ? '<span class="detail-badge detail-badge--chargeback">ChargeBack</span>' : '';
-    body.innerHTML = `
-        <header class="formula-detail-header">
-            ${logo}
-            <div class="formula-detail-heading">
-                <p class="formula-detail-operator">${formula.operator}</p>
-                <p class="formula-detail-name">${displayFormulaName(formula.name)}</p>
-                <div class="formula-detail-badges"><span class="detail-badge detail-badge--type">${formulaTypeLabel(formula)}</span>${verifiedBadge}${chargebackBadge}</div>
-            </div>
-        </header>
-        ${formula.badge ? `<p class="formula-detail-power">Réseau : ${formula.badge}</p>` : ''}
-        <dl class="formula-detail-grid">
-            <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>Prix de l’énergie</dt><dd>${formulaPricingLabel(formula)}</dd></span></div>
-            <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>Abonnement</dt><dd>${subscription}</dd></span></div>
-            <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>Coût estimé</dt><dd>${formula.costPer100km.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/100 km</dd></span></div>
-            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>Seuil de rentabilité</dt><dd>${formula.km === 0 ? 'Sans seuil' : formula.km === Infinity ? 'Non rentable' : `${Math.round(formula.km).toLocaleString('fr-FR')} km/mois`}</dd></span></div>
-        </dl>
-        <section class="formula-history" data-state="${evolution.state}">
-            <div class="formula-history-heading"><h3>Historique tarifaire</h3><span>${rateDelta}</span></div>
-            <p>${evolution.label}</p>
-            ${historyRows ? `<ul>${historyRows}</ul>` : ''}
-        </section>
-        <section class="formula-source">
-            <p><strong>${formulaTypeLabel(formula)}</strong></p>
-            <p>Vérifié le ${formatVerifiedDate(formula.verifiedAt)}</p>
-            ${formula.validUntil ? `<p>Conditions valables jusqu’au ${formatVerifiedDate(formula.validUntil)}</p>` : ''}
-            ${formula.calculationBasis !== 'official' ? '<p>Le classement utilise une estimation, pas un prix garanti.</p>' : ''}
-            ${formula.sourceUrl ? `<a href="${formula.sourceUrl}" target="_blank" rel="noopener noreferrer">Consulter la source officielle <span aria-hidden="true">↗</span></a>` : ''}
-        </section>
-        ${formula.note ? `<p class="formula-detail-note">${formula.note}</p>` : ''}
-        ${formula.mapUrl ? `<a class="formula-detail-link" href="${formula.mapUrl}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⌖</span> Voir les bornes de l’opérateur <span aria-hidden="true">›</span></a>` : ''}`;
+    body.replaceChildren();
+
+    const header = detailElement('header', 'formula-detail-header');
+    if (LOGOS[formula.opKey]) {
+        const logo = detailElement('img', 'formula-detail-logo');
+        logo.src = LOGOS[formula.opKey];
+        logo.alt = '';
+        header.appendChild(logo);
+    }
+    const heading = detailElement('div', 'formula-detail-heading');
+    heading.append(
+        detailElement('p', 'formula-detail-operator', formula.operator),
+        detailElement('p', 'formula-detail-name', displayFormulaName(formula.name))
+    );
+    const badges = detailElement('div', 'formula-detail-badges');
+    appendDetailBadge(badges, 'detail-badge--type', formulaTypeLabel(formula));
+    if (formula.verifiedAt) appendDetailBadge(badges, 'detail-badge--verified', `Vérifié le ${formatVerifiedDate(formula.verifiedAt)}`);
+    if (formula.chargebackRate !== null) appendDetailBadge(badges, 'detail-badge--chargeback', 'ChargeBack');
+    heading.appendChild(badges);
+    header.appendChild(heading);
+    body.appendChild(header);
+
+    if (formula.badge) body.appendChild(detailElement('p', 'formula-detail-power', `Réseau : ${formula.badge}`));
+
+    const grid = detailElement('dl', 'formula-detail-grid');
+    appendDetailStat(grid, 'energy', 'Prix de l’énergie', formulaPricingLabel(formula));
+    appendDetailStat(grid, 'subscription', 'Abonnement', subscription);
+    appendDetailStat(grid, 'cost', 'Coût estimé', `${formula.costPer100km.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/100 km`);
+    appendDetailStat(
+        grid,
+        'threshold',
+        'Seuil de rentabilité',
+        formula.km === 0
+            ? 'Sans seuil'
+            : formula.km === Infinity
+                ? 'Non rentable'
+                : `${Math.round(formula.km).toLocaleString('fr-FR')} km/mois`
+    );
+    body.appendChild(grid);
+
+    const history = detailElement('section', 'formula-history');
+    history.dataset.state = evolution.state;
+    const historyHeading = detailElement('div', 'formula-history-heading');
+    historyHeading.append(
+        detailElement('h3', '', 'Historique tarifaire'),
+        detailElement('span', '', rateDelta)
+    );
+    history.append(historyHeading, detailElement('p', '', evolution.label));
+    if (historyEntries.length) {
+        const list = document.createElement('ul');
+        historyEntries.slice(-4).reverse().forEach(entry => {
+            const date = entry.updatedAt || entry.capturedAt;
+            const parsedDate = date ? new Date(date) : null;
+            const dateLabel = parsedDate && !Number.isNaN(parsedDate.getTime())
+                ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(parsedDate)
+                : (entry.updatedAt || 'Date inconnue');
+            const item = document.createElement('li');
+            item.append(
+                detailElement('time', '', dateLabel),
+                detailElement('strong', '', `${Number(entry.rate).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`)
+            );
+            list.appendChild(item);
+        });
+        history.appendChild(list);
+    }
+    body.appendChild(history);
+
+    const source = detailElement('section', 'formula-source');
+    const type = document.createElement('p');
+    type.appendChild(detailElement('strong', '', formulaTypeLabel(formula)));
+    source.append(
+        type,
+        detailElement('p', '', `Vérifié le ${formatVerifiedDate(formula.verifiedAt)}`)
+    );
+    if (formula.validUntil) source.appendChild(detailElement('p', '', `Conditions valables jusqu’au ${formatVerifiedDate(formula.validUntil)}`));
+    if (formula.calculationBasis !== 'official') source.appendChild(detailElement('p', '', 'Le classement utilise une estimation, pas un prix garanti.'));
+    if (formula.sourceUrl) source.appendChild(createDetailExternalLink(formula.sourceUrl, '', '', 'Consulter la source officielle'));
+    body.appendChild(source);
+
+    if (formula.note) body.appendChild(detailElement('p', 'formula-detail-note', formula.note));
+    if (formula.mapUrl) {
+        body.appendChild(createDetailExternalLink(
+            formula.mapUrl,
+            'formula-detail-link',
+            '⌖',
+            'Voir les bornes de l’opérateur'
+        ));
+    }
+
     openModal('formula-detail-overlay', trigger);
 }
 

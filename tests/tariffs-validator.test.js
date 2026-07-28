@@ -29,4 +29,49 @@ describe('validation des tarifs', () => {
         }, { validColors: new Set(['demo']) });
         assert.equal(result.data.demo, undefined);
     });
+
+    it('normalise les URL HTTPS valides', () => {
+        const result = validateTariffs({
+            demo: {
+                color: 'demo',
+                mapUrl: 'https://example.com/map?q=borne',
+                sourceUrl: 'https://example.com/source',
+                formulas: [{ name: 'Direct', period: 'none', rate: 0.39, cost: 0, ref: 0.39 }]
+            }
+        }, { validColors: new Set(['demo']) });
+
+        assert.equal(result.data.demo.mapUrl, 'https://example.com/map?q=borne');
+        assert.equal(result.data.demo.formulas[0].sourceUrl, 'https://example.com/source');
+        assert.equal(result.errors.length, 0);
+    });
+
+    it('neutralise les URL opérateur non HTTPS ou injectées', () => {
+        const result = validateTariffs({
+            demo: {
+                color: 'demo',
+                mapUrl: 'javascript:alert(1)',
+                sourceUrl: 'https://example.com\" onmouseover=\"alert(1)',
+                formulas: [{ name: 'Direct', period: 'none', rate: 0.39, cost: 0, ref: 0.39 }]
+            }
+        }, { validColors: new Set(['demo']) });
+
+        assert.equal(result.data.demo.mapUrl, '');
+        assert.equal(result.data.demo.formulas[0].sourceUrl, null);
+        assert.equal(result.errors.length, 2);
+    });
+
+    it('rejette une formule dont la source URL est invalide', () => {
+        const result = validateTariffs({
+            demo: {
+                color: 'demo',
+                formulas: [
+                    { name: 'Injectée', period: 'none', rate: 0.39, cost: 0, ref: 0.39, sourceUrl: 'https://example.com\" onclick=\"alert(1)' },
+                    { name: 'Valide', period: 'none', rate: 0.49, cost: 0, ref: 0.49 }
+                ]
+            }
+        }, { validColors: new Set(['demo']) });
+
+        assert.deepEqual(result.data.demo.formulas.map(formula => formula.name), ['Valide']);
+        assert.match(result.errors[0], /sourceUrl non HTTPS ou invalide/);
+    });
 });
