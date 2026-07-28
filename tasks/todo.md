@@ -1,5 +1,15 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Polissage ergonomique mobile et tablette (2026-07-28)
+
+- [x] Auditer les vues de 320 à 430 px et les largeurs tablette
+- [x] Vérifier espacements, marges, hauteurs, alignements et débordements
+- [x] Vérifier les zones tactiles, contrastes, focus et scrolls internes
+- [x] Vérifier la fermeture du menu au second clic (correctif déjà présent dans la source et le bundle)
+- [x] Réduire les animations sans bénéfice UX et respecter `prefers-reduced-motion`
+- [ ] Contrôler visuellement les vues corrigées sur mobile et tablette — navigateur intégré indisponible dans cette session
+- [x] Exécuter `npm test`, `npm run build` et examiner le diff final
+
 ## Relecture éditoriale et FAQ (2026-07-28)
 
 - [x] Auditer tous les textes visibles et fixer les conventions de vocabulaire et de typographie

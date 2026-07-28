@@ -71,6 +71,19 @@
 .update-popup__btn:hover  { opacity: 0.88; }
 .update-popup__btn:active { transform: scale(0.97); }
 
+@media (prefers-reduced-motion: reduce) {
+  .update-popup-overlay,
+  .update-popup,
+  .update-popup__btn {
+    transition: none;
+  }
+
+  .update-popup,
+  .update-popup__btn:active {
+    transform: none;
+  }
+}
+
 
 /* ============================================================
    Thème : Light Mode

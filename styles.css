@@ -5797,3 +5797,203 @@ body.light .page-overlay-sheet {
         transition: none;
     }
 }
+
+/* =========================================================
+   Polissage ergonomique mobile et tablette
+   ========================================================= */
+
+/* Contrastes de texte conformes sur les deux thèmes. */
+:root {
+    --text-faint: var(--text-secondary);
+}
+
+body.light {
+    --text-faint: #64748b;
+    --accent-text: #006b8f;
+}
+
+body.light .scenario-reset,
+body.light .scenario-save,
+body.light .phm-share-btn,
+body.light .app-status-check-btn,
+body.light .formula-source a,
+body.light .formula-detail-link {
+    color: var(--accent-text);
+}
+
+body.light .compare-verified,
+body.light .app-status-badge[data-state="current"] {
+    color: #087a55;
+}
+
+body.light .compare-pricing-badge.is-variable,
+body.light .app-status-badge[data-state="offline"],
+body.light .app-status-badge[data-state="error"] {
+    color: #855600;
+}
+
+body.light .compare-pricing-badge.is-discount {
+    color: #5736ad;
+}
+
+/* Toutes les actions tactiles atteignent au moins 44 × 44 px. */
+.menu-drawer-close,
+.page-close,
+.map-link,
+.cb-info-btn,
+.favorite-btn,
+.phm-share-btn,
+.scenario-reset,
+.scenario-presets button,
+.scenario-history-heading button,
+.scenario-history-delete,
+.app-status-check-btn,
+.km-chip,
+.update-popup__btn {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.menu-drawer-close,
+.page-close,
+.map-link,
+.cb-info-btn,
+.scenario-history-delete {
+    width: 44px;
+    height: 44px;
+}
+
+.favorite-btn {
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+}
+
+.favorite-btn--shortlist {
+    margin: 0;
+}
+
+.store-badges a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+}
+
+.toggle-switch {
+    width: 44px;
+    height: 44px;
+}
+
+.toggle-slider {
+    top: 10px;
+    bottom: 10px;
+}
+
+.loyalty-badge .cb-info-btn,
+.izivia-badge .cb-info-btn,
+.ionity-badge .cb-info-btn {
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+}
+
+.menu-drawer-chevron {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    line-height: 1;
+}
+
+/* Rythme régulier, sans changer la structure des composants. */
+#tab-profile .profile-page-heading,
+#tab-profile .profile-hero--unified,
+#tab-profile .profile-best-card {
+    margin-bottom: var(--space-3);
+}
+
+.operators-compact,
+.comparison-list,
+.profile-shortlist-list {
+    gap: var(--space-2);
+}
+
+.operator-compact,
+.operator-card,
+.compare-item,
+.profile-shortlist-item {
+    scroll-margin-top: calc(var(--sticky-top-height, 0px) + var(--space-2));
+}
+
+/* Les libellés longs restent contenus sur les écrans étroits. */
+.formula-source {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.formula-detail-name,
+.formula-detail-note,
+.menu-drawer-copy,
+.profile-shortlist-name,
+.formula-compact-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Un seul conteneur défile dans la modale de détail. */
+#formula-detail-overlay {
+    overflow: hidden;
+}
+
+.formula-detail-modal {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* L’entrée d’onglet doublonnait une autre transition de vue. */
+.tab-content.active {
+    animation: none;
+}
+
+@media (max-width: 560px) {
+    .loyalty-badge,
+    .izivia-badge,
+    .ionity-badge {
+        grid-template-columns: 20px minmax(0, 1fr) 44px;
+    }
+
+    .profile-km-chips,
+    .scenario-presets {
+        scroll-snap-type: x proximity;
+        scroll-padding-inline: 2px;
+    }
+
+    .km-chip,
+    .scenario-presets button {
+        scroll-snap-align: start;
+    }
+
+    .page-body,
+    .profile-recommendation-card,
+    .profile-settings-card,
+    .scenario-card,
+    .comparison-card,
+    .operator-card {
+        padding-inline: var(--space-3);
+    }
+}
+
+@media (min-width: 700px) and (max-width: 1023px) {
+    .container {
+        padding-inline: var(--space-4);
+    }
+
+    .profile-recommendation-card,
+    .profile-settings-card,
+    .scenario-card,
+    .comparison-card,
+    .operator-card {
+        padding: var(--space-4);
+    }
+}
