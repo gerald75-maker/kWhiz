@@ -6121,3 +6121,67 @@ body.light .compare-pricing-badge.is-discount {
         transition: none;
     }
 }
+
+/* Mon choix — harmonisation visuelle */
+#tab-profile.active {
+    gap: 18px;
+}
+
+#tab-profile .profile-page-heading,
+#tab-profile .profile-hero--unified,
+#tab-profile .profile-best-card,
+#tab-profile .profile-shortlist,
+#tab-profile .profile-comparison-details {
+    margin-block: 0;
+}
+
+#tab-profile .profile-hero--unified,
+#tab-profile .profile-best-card,
+#tab-profile .profile-shortlist,
+#tab-profile .profile-comparison-details {
+    padding: 18px;
+    border-radius: 18px;
+}
+
+#tab-profile .profile-hero--unified,
+#tab-profile .profile-best-card {
+    background: var(--bg-card);
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--border-color));
+    box-shadow:
+        0 0 0 9px var(--bg-card),
+        0 8px 24px rgba(0, 0, 0, .08);
+}
+
+#tab-profile .phm-header--plain {
+    padding: 0 0 18px;
+}
+
+#tab-profile .phm-price-hero--compact {
+    padding: 18px 0;
+}
+
+#tab-profile .phm-gap {
+    margin: 0 0 18px;
+    padding: 18px;
+}
+
+#tab-profile .phm-details > summary {
+    padding-inline: 0;
+}
+
+#tab-profile .phm-details-content {
+    padding: 0 0 18px;
+}
+
+#tab-profile .profile-fast-btn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+}
+
+#tab-profile .profile-shortlist-logo {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+}
