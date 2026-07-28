@@ -30,7 +30,7 @@ function buildInfoBtns(operator) {
         html += `<button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours Izivia">${uiIcon('info')}</button>`;
     }
     if (operator.ionityRewards) {
-        html += `<button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus kWh gratuits Ionity">${uiIcon('info')}</button>`;
+        html += `<button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus de kWh gratuits IONITY">${uiIcon('info')}</button>`;
     }
     return html;
 }
@@ -47,13 +47,13 @@ function buildLoyaltyBadge(operator, detailed) {
 function buildIziviaBadge(operator, detailed) {
     if (!operator.iziviaInfo) return '';
     const cls = detailed ? 'izivia-badge izivia-badge--detailed' : 'izivia-badge';
-    return `<div class="${cls}">${uiIcon('clock', 'benefit-icon')}<strong>Happy Hours</strong><span class="benefit-copy">0,30 €/kWh (9h–11h30 &amp; 15h–18h) — 0,35 €/kWh hors plages</span><button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours">${uiIcon('info')}</button></div>`;
+    return `<div class="${cls}">${uiIcon('clock', 'benefit-icon')}<strong>Happy Hours</strong><span class="benefit-copy">0,30 €/kWh (9 h–11 h 30 et 15 h–18 h) — 0,35 €/kWh en dehors de ces plages</span><button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours">${uiIcon('info')}</button></div>`;
 }
 
 function buildIonityRewardsBadge(operator, detailed) {
     if (!operator.ionityRewards) return '';
     const cls = detailed ? 'ionity-badge ionity-badge--detailed' : 'ionity-badge';
-    return `<div class="${cls}">${uiIcon('gift', 'benefit-icon')}<strong>Rewards</strong><span class="benefit-copy">Jusqu'à 5 kWh offerts en débranchant avant 85% (9h–17h) ou en rechargeant la nuit (22 h–6 h)</span><button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus kWh gratuits Ionity">${uiIcon('info')}</button></div>`;
+    return `<div class="${cls}">${uiIcon('gift', 'benefit-icon')}<strong>Rewards</strong><span class="benefit-copy">Jusqu’à 5 kWh offerts en débranchant avant 85 % (9 h–17 h) ou en rechargeant la nuit (22 h–6 h)</span><button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus de kWh gratuits IONITY">${uiIcon('info')}</button></div>`;
 }
 
 function formatVerificationDate(value) {
@@ -67,7 +67,7 @@ function buildFormulaMeta(formula, detailed = false) {
     const labels = {
         fixed: 'Tarif fixe',
         station: 'Tarif variable selon la station',
-        range: 'Fourchette de prix',
+        range: 'Fourchette tarifaire',
         discount: 'Remise sur le tarif public'
     };
     const typeLabel = labels[formula.pricingType] || (formula.calculationBasis === 'estimate' ? 'Prix estimé' : 'Tarif publié');
@@ -122,20 +122,20 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
                     : `≥${formatNumber(cbKm)} km`;
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${formatNumber(formula.cost, 2)}€/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)}€)</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
-                        <span class="formula-compact-rate ${escapeHtml(operator.color)} cb-struck">${formatNumber(formula.rate, 2)}€</span>
+                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${formatNumber(formula.cost, 2)} €/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)} €)</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-rate ${escapeHtml(operator.color)} cb-struck">${formatNumber(formula.rate, 2)} €</span>
                         <span class="formula-compact-threshold cb-struck">${thresholdDisplay}</span>
                     </div>
                     <div class="formula-compact cb-effective-compact">
                         <span class="formula-compact-name"></span>
-                        <span class="atlante cb-effective-rate">${formatNumber(cbRate, 3)}€</span>
+                        <span class="atlante cb-effective-rate">${formatNumber(cbRate, 3)} €</span>
                         <span class="formula-compact-threshold">${cbThreshold}</span>
                     </div>`;
             } else {
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${formatNumber(formula.cost, 2)}€/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)}€)</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
-                        <span class="formula-compact-rate ${escapeHtml(operator.color)}">${formatNumber(formula.rate, 2)}€</span>
+                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${formatNumber(formula.cost, 2)} €/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)} €)</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-rate ${escapeHtml(operator.color)}">${formatNumber(formula.rate, 2)} €</span>
                         <span class="formula-compact-threshold">${thresholdDisplay}</span>
                     </div>`;
             }
@@ -192,8 +192,8 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
         for (const formula of operator.formulas) {
             const result = calculateBreakeven(formula, consumption);
             const costDisplay = formula.period === PERIOD.NONE ? '—'
-                : formula.period === PERIOD.ANNUAL ? `${formatNumber(formula.cost)}€/an`
-                : `${formatNumber(formula.cost, 2)}€/mois${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)}€)</span>` : ''}`;
+                : formula.period === PERIOD.ANNUAL ? `${formatNumber(formula.cost)} €/an`
+                : `${formatNumber(formula.cost, 2)} €/mois${formula.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(formula.previousCost, 2)} €)</span>` : ''}`;
             const thresholdDisplay = result.km === 0 ? '—'
                 : result.km === Infinity ? 'Non rentable'
                 : `${formatNumber(result.km)} km/mois`;
@@ -208,11 +208,11 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
                     <tr class="cb-struck-row">
                         <td class="formula-name" rowspan="2"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost" rowspan="2">${costDisplay}</td>
-                        <td class="formula-kwh ${escapeHtml(operator.color)} cb-struck">${formatNumber(formula.rate, 2)}€</td>
+                        <td class="formula-kwh ${escapeHtml(operator.color)} cb-struck">${formatNumber(formula.rate, 2)} €</td>
                         <td class="result-km cb-struck">${thresholdDisplay}</td>
                     </tr>
                     <tr class="cb-effective-row">
-                        <td class="atlante cb-effective-rate">${formatNumber(cbRate, 3)}€</td>
+                        <td class="atlante cb-effective-rate">${formatNumber(cbRate, 3)} €</td>
                         <td class="result-km">${cbThreshold}</td>
                     </tr>`;
             } else {
@@ -220,7 +220,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
                     <tr>
                         <td class="formula-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.note ? `<br><span class="formula-note">${escapeHtml(formula.note)}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost">${costDisplay}</td>
-                        <td class="formula-kwh ${escapeHtml(operator.color)}">${formatNumber(formula.rate, 2)}€</td>
+                        <td class="formula-kwh ${escapeHtml(operator.color)}">${formatNumber(formula.rate, 2)} €</td>
                         <td class="result-km">${thresholdDisplay}</td>
                     </tr>`;
             }
@@ -276,4 +276,3 @@ export function renderOperatorsViews({ operators, consumption, logos, onModal, f
     renderOperatorsCompact(operators, consumption, logos, onModal, favorites, onToggleFavorite);
     renderOperatorsDetailed(operators, consumption, logos, onModal, favorites, onToggleFavorite);
 }
-

@@ -1,5 +1,7 @@
 # kWhiz — Leçons
 
+[2026-07-28] | Les textes visibles ne se trouvent pas uniquement dans `index.html` : certaines chaînes sont générées dans les vues JavaScript, proviennent de `public/tarifs.json`, du manifeste PWA ou de pseudo-éléments CSS | Pour tout audit éditorial, inventorier séparément les textes statiques, dynamiques, accessibles (`aria-label`, `alt`, `title`), les données affichées et les contenus CSS avant de corriger ; préserver les identifiants et les constantes qui participent à la logique.
+
 [2026-06-22] | Remplacement de couleurs par `sed`/regex en aveugle peut corrompre des valeurs hex qui partagent un préfixe (ex. `#22c55e` est préfixe de `#22c55e22`, une couleur 8 chiffres avec alpha utilisée dans `.planner-badge`) | Avant tout remplacement en masse d'une couleur hex, grep d'abord toutes les occurrences de cette chaîne (y compris en sous-chaîne) et les couleurs de marque opérateur qui pourraient coïncider, puis traiter les cas ambigus avec des Edit ciblés plutôt qu'un remplacement global.
 
 [2026-06-22] | Une maquette/preview approuvée peut impliquer une restructuration de rendu (ex. tableau → grille de cartes) qui n'est pas explicitement demandée et peut être disproportionnée par rapport au reste du changement | Avant d'implémenter fidèlement un détail visuel de preview, vérifier s'il nécessite un nouveau chemin de rendu (JS) ou si l'objectif peut être atteint en CSS sur la structure existante ; privilégier la seconde option et le signaler clairement à l'utilisateur plutôt que de décider en silence.

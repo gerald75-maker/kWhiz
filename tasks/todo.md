@@ -1,5 +1,15 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Relecture éditoriale et FAQ (2026-07-28)
+
+- [x] Auditer tous les textes visibles et fixer les conventions de vocabulaire et de typographie
+- [x] Corriger les textes statiques de l’interface et les libellés d’accessibilité
+- [x] Harmoniser les textes générés par JavaScript et les notes tarifaires affichées
+- [x] Enrichir la page Aide avec une FAQ complète sans modifier les composants existants
+- [x] Vérifier l’absence de changement de logique métier ou de design
+- [x] Exécuter les tests et `npm run build`
+- [x] Examiner le diff final et documenter les enseignements
+
 ## Statut : terminé (v2.1.0)
 
 ## Normalisation neutres vers design system canonique partagé (2026-06-22, suite)

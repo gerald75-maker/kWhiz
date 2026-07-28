@@ -1,7 +1,7 @@
 {
   "name": "kWhiz",
   "short_name": "kWhiz",
-  "description": "Le comparateur des tarifs de recharge VE",
+  "description": "Le comparateur de tarifs de recharge rapide",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0F172A",

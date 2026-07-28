@@ -200,7 +200,7 @@ function formulaPricingLabel(formula) {
 }
 
 function displayFormulaName(value) {
-    return String(value || '').replace(/\s*[—–]\s*/g, ' - ');
+    return String(value || '').replace(/\s*[—–]\s*/g, ' – ');
 }
 
 function formulaTypeLabel(formula) {

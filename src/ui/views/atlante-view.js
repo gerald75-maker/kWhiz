@@ -18,9 +18,9 @@ export function renderAtlanteChargebackInfo(operators, now = new Date()) {
 
     let phase;
     if (now < changeDate) {
-        phase = { label: `Jusqu'au ${formatDate(new Date(changeDate - 86400000))}`, rate: config.rateBefore };
+        phase = { label: `Jusqu’au ${formatDate(new Date(changeDate - 86400000))}`, rate: config.rateBefore };
     } else if (promoEnd && now <= promoEnd) {
-        phase = { label: `Jusqu'au ${formatDate(promoEnd)}`, rate: config.rateAfter };
+        phase = { label: `Jusqu’au ${formatDate(promoEnd)}`, rate: config.rateAfter };
     } else if (promoEnd) {
         phase = {
             label: 'Taux actuel',
@@ -47,14 +47,14 @@ export function renderAtlanteChargebackInfo(operators, now = new Date()) {
         }
         const details = document.createElement('p');
         details.className = 'cb-phase-details';
-        details.innerHTML = `1 € dépensé → <strong>${Math.round(phase.rate * 100)} Gems</strong> → <strong>${formatCredit(phase.rate)} offert</strong> — effectif : <strong>${formatRate(phase.rate)} €/kWh</strong>`;
+        details.innerHTML = `1 € payé → <strong>${Math.round(phase.rate * 100)} Gems</strong> → <strong>${formatCredit(phase.rate)} de crédit</strong> — prix effectif : <strong>${formatRate(phase.rate)} €/kWh</strong>`;
         step.append(label, details);
         stepsElement.append(step);
     }
 
     const infoElement = document.getElementById('infos-atlante-cb-text');
     if (infoElement) {
-        const promoNote = promoEnd && now <= promoEnd ? ` (promo jusqu'au ${formatDate(promoEnd)})` : '';
-        infoElement.textContent = `1 € payé = ${formatCredit(gemsRate)} offert en Gems (taux ${Math.round(gemsRate * 100)} %)${promoNote} • tarif effectif ~${formatRate(gemsRate)} €/kWh en usage régulier`;
+        const promoNote = promoEnd && now <= promoEnd ? ` (promotion jusqu’au ${formatDate(promoEnd)})` : '';
+        infoElement.textContent = `1 € payé génère ${formatCredit(gemsRate)} de crédit en Gems (taux de ${Math.round(gemsRate * 100)} %)${promoNote} • prix effectif estimé à ${formatRate(gemsRate)} €/kWh en usage régulier`;
     }
 }

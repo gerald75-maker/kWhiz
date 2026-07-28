@@ -4,7 +4,7 @@
   "iecharge": {
     "name": "IECharge",
     "color": "iecharge",
-    "badge": "160-320 kW",
+    "badge": "160–320 kW",
     "mapUrl": "https://iecharge.io/fr/stations/",
     "formulas": [
       {
@@ -26,7 +26,7 @@
   "electra": {
     "name": "Electra",
     "color": "electra",
-    "badge": "50-400 kW",
+    "badge": "50–400 kW",
     "mapUrl": "https://www.go-electra.com/fr/map/overview/",
     "formulas": [
       {
@@ -174,7 +174,7 @@
   "ionity": {
     "name": "IONITY",
     "color": "ionity",
-    "badge": "350-600 kW",
+    "badge": "350–600 kW",
     "mapUrl": "https://www.ionity.eu/fr/reseau",
     "ionityRewards": true,
     "formulas": [
@@ -257,7 +257,7 @@
   "lidl": {
     "name": "Lidl",
     "color": "lidl",
-    "badge": "50-360 kW",
+    "badge": "50–360 kW",
     "mapUrl": "",
     "formulas": [
       {
@@ -386,7 +386,7 @@
   "atlante": {
     "name": "Atlante",
     "color": "atlante",
-    "badge": "60-300 kW",
+    "badge": "60–300 kW",
     "mapUrl": "https://atlante.energy/fr/#mapsBlock",
     "formulas": [
       {

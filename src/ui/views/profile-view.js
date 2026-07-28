@@ -58,7 +58,7 @@ function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate
 	const isProfitable =
     !bestHasSubscription || km >= adjustedThresholdKm;
 
-	let threshold = 'Aucun abonnement';
+	let threshold = 'Sans abonnement';
 	if (bestHasSubscription) {
     	if (adjustedThresholdKm === Infinity) {
         	threshold = 'Seuil non atteignable';
@@ -254,16 +254,16 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
         const diffTier = isBest ? '' : rankTierClass(f.profileMonthlyCost, best);
         const diffHtml = isBest
             ? '<span class="profile-diff profile-diff--best">coût le plus bas</span>'
-            : `<span class="profile-diff ${diffTier}">+${formatNumber(diff, 2)}€</span>`;
+            : `<span class="profile-diff ${diffTier}">+${formatNumber(diff, 2)} €</span>`;
 
         // Affichage tarif (barré si ChargeBack)
         const rateDisplay = f.chargebackRate !== null
-            ? `<span class="cb-struck">${formatNumber(f.rateRaw, 2)}€</span><br><span class="cb-effective-rate">${formatNumber(f.rate, 3)}€</span>`
-            : `${formatNumber(f.rate, 2)}€`;
+            ? `<span class="cb-struck">${formatNumber(f.rateRaw, 2)} €</span><br><span class="cb-effective-rate">${formatNumber(f.rate, 3)} €</span>`
+            : `${formatNumber(f.rate, 2)} €`;
 
         // Abonnement mensuel
         const subDisplay = f.monthlyCost > 0
-            ? `<br><span class="formula-sub">${formatNumber(f.monthlyCost, 2)}€/mois${f.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(f.previousCost, 2)}€)</span>` : ''}</span>`
+            ? `<br><span class="formula-sub">${formatNumber(f.monthlyCost, 2)} €/mois${f.previousCost ? ` <span class="formula-prev-cost">(${formatNumber(f.previousCost, 2)} €)</span>` : ''}</span>`
             : '';
         const noteDisplay = f.note ? `<br><span class="formula-note">${escapeHtml(f.note)}</span>` : '';
 
@@ -274,7 +274,7 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
             <td><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(f.opKey, f.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(f.opKey, f.name))}" aria-label="${favorites.has(formulaFavoriteId(f.opKey, f.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(f.opKey, f.name))}">★</button>${escapeHtml(f.name)}${subDisplay}${noteDisplay}</td>
             <td>${rateDisplay}</td>
             <td class="profile-col-monthly">
-                <strong>${formatNumber(f.profileMonthlyCost, 2)}€</strong>
+                <strong>${formatNumber(f.profileMonthlyCost, 2)} €</strong>
                 ${diffHtml}
             </td>
         `;
