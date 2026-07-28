@@ -5246,7 +5246,7 @@ body.light .page-overlay-sheet {
 
 /* Mon choix: hierarchy less oversized */
 .profile-page-heading h2 {
-    font-size: clamp(1.72rem, 7vw, 2.2rem);
+    font-size: 2.75rem;
     line-height: 1.08;
     max-width: 18ch;
 }
@@ -5757,7 +5757,7 @@ body.light .page-overlay-sheet {
     gap: 5px;
     margin-top: 5px;
     color: var(--text-primary);
-    font-size: clamp(2.05rem, 5vw, 2.65rem);
+    font-size: 3rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums lining-nums;
     line-height: 1;
