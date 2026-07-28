@@ -21,7 +21,7 @@
  * Appelé automatiquement via "npm run build", après inject-build-vars.mjs.
  */
 
-import { readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,6 +29,14 @@ const __dirname  = dirname(fileURLToPath(import.meta.url));
 const root       = resolve(__dirname, '..');
 const indexPath  = resolve(root, 'dist', 'index.html');
 const assetsDir  = resolve(root, 'dist', 'assets');
+const legacyTelemetryHelper = resolve(root, 'dist', 'telemetry-storage.php');
+
+// Le helper PHP est désormais déployé hors du document root. Comme dist/ est
+// conservé entre les builds, supprimer toute copie provenant d'un ancien build.
+if (existsSync(legacyTelemetryHelper)) {
+  unlinkSync(legacyTelemetryHelper);
+  console.log('[prune-old-assets] ✓ Ancien helper PHP public supprimé.');
+}
 
 // Fenêtre de regroupement : les fichiers d'un même build vite sont écrits en
 // quelques secondes. 10 min laisse une marge confortable tout en séparant

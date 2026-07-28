@@ -1,12 +1,19 @@
 <?php
+if (!defined('KWHIZ_PUBLIC_ROOT')) {
+    define('KWHIZ_PUBLIC_ROOT', __DIR__);
+}
+require_once dirname(__DIR__) . '/php/telemetry-storage.php';
+
 // ── No-cache : page d'admin, jamais mise en cache ─────────────────────────────
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
 // ── Lecture du log ────────────────────────────────────────────────────────────
-$logFile = __DIR__ . '/visits.log';
-$lines   = file_exists($logFile) ? file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+$logFile = telemetry_log_path();
+$lines   = $logFile !== null && is_readable($logFile)
+    ? (@file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [])
+    : [];
 
 $total   = count($lines);
 $mobile  = 0;

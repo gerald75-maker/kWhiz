@@ -1,5 +1,10 @@
 Redirect 301 /calculateur https://ve.aubard.net
 
+# Défense en profondeur : ne jamais exposer l’ancien journal historique.
+<Files "visits.log">
+    Require all denied
+</Files>
+
 # Ne jamais cacher sw.js ni index.html — force la détection des mises à jour
 <FilesMatch "^(sw.*\.js|index\.html)$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"

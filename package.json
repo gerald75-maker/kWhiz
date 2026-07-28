@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/inject-build-vars.mjs && node scripts/prune-old-assets.mjs",
+    "release": "npm run build && node scripts/prepare-release.mjs",
     "preview": "vite preview",
     "test": "node --test"
   },

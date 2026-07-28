@@ -1,5 +1,10 @@
 <?php
-$log_file = __DIR__ . '/visits.log';
+if (!defined('KWHIZ_PUBLIC_ROOT')) {
+    define('KWHIZ_PUBLIC_ROOT', __DIR__);
+}
+require_once dirname(__DIR__) . '/php/telemetry-storage.php';
+
+$log_file = telemetry_log_path();
 
 $ua        = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
 $is_mobile = preg_match('/Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i', $ua);
@@ -15,5 +20,11 @@ $date     = date('Y-m-d H:i:s');
 $ua_short = substr($ua, 0, 80);
 $line     = "$date | $device | $ua_short | $visitor\n";
 
-file_put_contents($log_file, $line, FILE_APPEND | LOCK_EX);
+if ($log_file !== null) {
+    if (@file_put_contents($log_file, $line, FILE_APPEND | LOCK_EX) === false) {
+        error_log('[kWhiz] Écriture du journal de télémétrie impossible.');
+    } else {
+        @chmod($log_file, 0640);
+    }
+}
 http_response_code(204);
