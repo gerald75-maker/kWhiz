@@ -6467,3 +6467,29 @@ body.light .compare-pricing-badge.is-discount {
         grid-template-columns: 1fr;
     }
 }
+
+/* Correctifs responsive ciblés — audit Playwright */
+@media (max-width: 767px) {
+    #tab-ranking .compare-sort {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow-x: visible;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    #tab-ranking .compare-sort::-webkit-scrollbar {
+        display: none;
+    }
+
+    #tab-ranking .compare-sort-btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .container {
+        padding-bottom: calc(74px + max(6px, env(safe-area-inset-bottom)) + var(--space-3));
+    }
+}

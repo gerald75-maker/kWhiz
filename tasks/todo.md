@@ -1,5 +1,14 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Correctifs responsive ciblés — audit Playwright (2026-07-28)
+
+- [x] Capturer l’état initial pertinent à 390 px et sur la navigation mobile
+- [x] Corriger en CSS la rangée de tri de Comparer sans scroll horizontal
+- [x] Réserver sous le contenu mobile la hauteur réelle de la navigation et la safe area
+- [x] Valider Mon choix, Opérateurs et Comparer à 320, 390, 430, 768, 1024 et 1440 px
+- [x] Exécuter les tests, le build et les contrôles de diff
+- [x] Créer un commit ciblé uniquement après validation
+
 ## Structure de la page Aide (2026-07-28)
 
 - [x] Remplacer les étapes « Bien démarrer » par une liste ordonnée sémantique

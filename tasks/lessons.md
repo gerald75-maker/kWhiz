@@ -1,5 +1,7 @@
 # kWhiz — Leçons
 
+[2026-07-28] | Une rangée mobile de contrôles `flex: 0 0 auto` peut rendre le dernier bouton inaccessible même si un scroll interne existe | Pour un petit nombre de contrôles indispensables, préférer sous le breakpoint mobile une grille rétractable avec `minmax(0, 1fr)` et réserver explicitement sous le contenu la hauteur de la navigation fixe, son décalage et la safe area.
+
 [2026-07-28] | L’animation de fermeture d’un élément `<details>` ne peut pas reposer uniquement sur une transition du contenu, car le navigateur le retire immédiatement du rendu quand l’attribut `open` disparaît | Pour animer un accordéon natif dans les deux sens, intercepter l’activation du `<summary>`, ouvrir avant l’animation d’expansion et retirer `open` seulement après l’animation de réduction ; conserver une bascule immédiate sous `prefers-reduced-motion`.
 
 [2026-07-28] | Une FAQ statique transformée en accordéon peut rester simple et accessible sans moteur d’accordéon personnalisé : `<details>/<summary>` fournit nativement le clic, le clavier, la fermeture indépendante et l’ouverture simultanée | Pour ce type d’interface, privilégier les éléments HTML natifs, puis ajouter uniquement la synchronisation ARIA explicitement requise et des styles ciblés ; tester que chaque contrôle référence un panneau existant et que tous les éléments sont fermés par défaut.
