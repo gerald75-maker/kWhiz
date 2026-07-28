@@ -1,0 +1,572 @@
+{
+  "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
+  "_updated": "2026-07-27",
+  "iecharge": {
+    "name": "IECharge",
+    "color": "iecharge",
+    "badge": "160-320 kW",
+    "mapUrl": "https://iecharge.io/fr/stations/",
+    "formulas": [
+      {
+        "name": "Tarif unique",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.25,
+        "ref": 0.25,
+        "sourceUrl": "https://iecharge.io/fr/prix/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Tarif national direct confirmé par IECharge."
+      }
+    ],
+    "sourceUrl": "https://iecharge.io/fr/prix/",
+    "verifiedAt": "2026-07-27"
+  },
+  "electra": {
+    "name": "Electra",
+    "color": "electra",
+    "badge": "50-400 kW",
+    "mapUrl": "https://www.go-electra.com/fr/map/overview/",
+    "formulas": [
+      {
+        "name": "Application Electra - prix variable",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.5,
+        "ref": 0.5,
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "range",
+        "calculationBasis": "midpoint",
+        "rateMin": 0.39,
+        "rateMax": 0.61,
+        "note": "Prix variable selon la station et l’affluence. Le calcul utilise le milieu de la plage officielle."
+      },
+      {
+        "name": "Paiement par badge ou carte",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.61,
+        "ref": 0.61,
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Prix dépendant de la station et du moyen de paiement."
+      },
+      {
+        "name": "Electra+ Essential - mensuel",
+        "cost": 1.99,
+        "period": "monthly",
+        "rate": 0.4,
+        "ref": 0.5,
+        "id": "electra-essential",
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "discount",
+        "calculationBasis": "midpoint",
+        "discountPerKwh": 0.1,
+        "rateMin": 0.29,
+        "rateMax": 0.51,
+        "note": "Remise officielle de 0,10 €/kWh sur le tarif Electra variable."
+      },
+      {
+        "name": "Electra+ Essential - annuel",
+        "cost": 19.99,
+        "period": "annual",
+        "rate": 0.4,
+        "ref": 0.5,
+        "id": "electra-essential-annual",
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "discount",
+        "calculationBasis": "midpoint",
+        "discountPerKwh": 0.1,
+        "rateMin": 0.29,
+        "rateMax": 0.51,
+        "note": "Remise officielle de 0,10 €/kWh sur le tarif Electra variable."
+      },
+      {
+        "name": "Electra+ Smart - mensuel",
+        "cost": 4.99,
+        "period": "monthly",
+        "rate": 0.3,
+        "ref": 0.5,
+        "id": "electra-smart",
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "discount",
+        "calculationBasis": "midpoint",
+        "discountPerKwh": 0.2,
+        "rateMin": 0.19,
+        "rateMax": 0.41,
+        "note": "Remise officielle de 0,20 €/kWh sur le tarif Electra variable."
+      },
+      {
+        "name": "Electra+ Smart - annuel",
+        "cost": 49.99,
+        "period": "annual",
+        "rate": 0.3,
+        "ref": 0.5,
+        "id": "electra-smart-annual",
+        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "discount",
+        "calculationBasis": "midpoint",
+        "discountPerKwh": 0.2,
+        "rateMin": 0.19,
+        "rateMax": 0.41,
+        "note": "Remise officielle de 0,20 €/kWh sur le tarif Electra variable."
+      }
+    ],
+    "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
+    "verifiedAt": "2026-07-27"
+  },
+  "tesla": {
+    "name": "Tesla Supercharger",
+    "color": "tesla",
+    "badge": "250 kW",
+    "mapUrl": "https://www.tesla.com/fr_fr/findus?v=2&bounds=51.5%2C8.5%2C42%2C-5&filters=supercharger",
+    "formulas": [
+      {
+        "name": "Sans abonnement",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.5,
+        "ref": 0.5,
+        "sourceUrl": "https://www.tesla.com/fr_fr/support/charging/supercharging-other-evs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la station et parfois l’horaire. Valeur utilisée uniquement comme estimation."
+      },
+      {
+        "name": "Abonnement mensuel",
+        "cost": 9.99,
+        "period": "monthly",
+        "rate": 0.37,
+        "ref": 0.5,
+        "id": "tesla-monthly",
+        "sourceUrl": "https://www.tesla.com/fr_fr/support/charging/supercharging-other-evs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la station et parfois l’horaire. Valeur utilisée uniquement comme estimation."
+      },
+      {
+        "name": "Abonnement annuel",
+        "cost": 100,
+        "period": "annual",
+        "rate": 0.37,
+        "ref": 0.5,
+        "id": "tesla-annual",
+        "sourceUrl": "https://www.tesla.com/fr_fr/support/charging/supercharging-other-evs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la station et parfois l’horaire. Valeur utilisée uniquement comme estimation."
+      }
+    ],
+    "sourceUrl": "https://www.tesla.com/fr_fr/support/charging/supercharging-other-evs",
+    "verifiedAt": "2026-07-27"
+  },
+  "ionity": {
+    "name": "IONITY",
+    "color": "ionity",
+    "badge": "350-600 kW",
+    "mapUrl": "https://www.ionity.eu/fr/reseau",
+    "ionityRewards": true,
+    "formulas": [
+      {
+        "name": "Paiement direct",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.55,
+        "ref": 0.55,
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27"
+      },
+      {
+        "name": "Application IONITY",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.52,
+        "ref": 0.55,
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27"
+      },
+      {
+        "name": "IONITY Motion - mensuel",
+        "cost": 5.99,
+        "period": "monthly",
+        "rate": 0.39,
+        "ref": 0.55,
+        "id": "ionity-motion",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27"
+      },
+      {
+        "name": "IONITY Motion 365 - annuel",
+        "cost": 59.99,
+        "period": "annual",
+        "rate": 0.39,
+        "ref": 0.55,
+        "id": "ionity-motion-annual",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27",
+        "note": "Abonnement annuel avec le même prix du kWh que l’offre mensuelle Motion."
+      },
+      {
+        "name": "IONITY Power - mensuel",
+        "cost": 11.99,
+        "period": "monthly",
+        "rate": 0.31,
+        "ref": 0.55,
+        "id": "ionity-power",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27"
+      },
+      {
+        "name": "IONITY Power 365 - annuel",
+        "cost": 119.99,
+        "period": "annual",
+        "rate": 0.31,
+        "ref": 0.55,
+        "id": "ionity-power-annual",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+        "verifiedAt": "2026-07-27",
+        "note": "Abonnement annuel avec le même prix du kWh que l’offre mensuelle Power."
+      }
+    ],
+    "sourceUrl": "https://www.ionity.eu/fr/abonnements",
+    "verifiedAt": "2026-07-27"
+  },
+  "lidl": {
+    "name": "Lidl",
+    "color": "lidl",
+    "badge": "50-360 kW",
+    "mapUrl": "",
+    "formulas": [
+      {
+        "name": "Recharge rapide DC",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.39,
+        "ref": 0.39,
+        "sourceUrl": "https://www.lidl.fr/c/bornes-de-recharge/s10019864",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul."
+      }
+    ],
+    "sourceUrl": "https://www.lidl.fr/c/bornes-de-recharge/s10019864",
+    "verifiedAt": "2026-07-27"
+  },
+  "statione": {
+    "name": "Stations-e",
+    "color": "statione",
+    "badge": "jusqu’à 50 kW DC",
+    "mapUrl": "https://stations-e.com/fr/network",
+    "formulas": [
+      {
+        "name": "Sans abonnement - paiement direct",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.39,
+        "ref": 0.39,
+        "sourceUrl": "https://www.stations-e.com/fr/particulier",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Paiement sans abonnement. Le tarif dépend du type de borne Stations-e."
+      },
+      {
+        "name": "Express-e - DC jusqu’à 24 kW",
+        "cost": 2.9,
+        "period": "monthly",
+        "rate": 0.32,
+        "ref": 0.39,
+        "id": "statione-express",
+        "sourceUrl": "https://www.stations-e.com/fr/particulier",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
+      },
+      {
+        "name": "Express-e - DC jusqu’à 50 kW",
+        "cost": 2.9,
+        "period": "monthly",
+        "rate": 0.35,
+        "ref": 0.39,
+        "sourceUrl": "https://www.stations-e.com/fr/particulier",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
+      },
+      {
+        "name": "Access-e - DC jusqu’à 24 kW",
+        "cost": 4.9,
+        "period": "monthly",
+        "rate": 0.29,
+        "ref": 0.39,
+        "id": "statione-access",
+        "sourceUrl": "https://www.stations-e.com/fr/particulier",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
+      },
+      {
+        "name": "Access-e - DC jusqu’à 50 kW",
+        "cost": 4.9,
+        "period": "monthly",
+        "rate": 0.35,
+        "ref": 0.39,
+        "sourceUrl": "https://www.stations-e.com/fr/particulier",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
+      }
+    ],
+    "sourceUrl": "https://www.stations-e.com/fr/particulier",
+    "verifiedAt": "2026-07-27"
+  },
+  "iziviafast": {
+    "name": "IZIVIA Fast chez McDonald’s",
+    "color": "izivia",
+    "badge": "recharge rapide DC",
+    "mapUrl": "",
+    "formulas": [
+      {
+        "name": "Happy Hours - heures creuses",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.3,
+        "ref": 0.3,
+        "sourceUrl": "https://izivia.com/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul."
+      },
+      {
+        "name": "Tarif standard",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.35,
+        "ref": 0.35,
+        "sourceUrl": "https://izivia.com/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul."
+      }
+    ],
+    "iziviaInfo": true,
+    "sourceUrl": "https://izivia.com/",
+    "verifiedAt": "2026-07-27"
+  },
+  "atlante": {
+    "name": "Atlante",
+    "color": "atlante",
+    "badge": "60-300 kW",
+    "mapUrl": "https://atlante.energy/fr/#mapsBlock",
+    "formulas": [
+      {
+        "name": "Sans abonnement",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.54,
+        "ref": 0.54,
+        "sourceUrl": "https://atlante.energy/fr/myatlante-app/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif standard dépendant du point de charge et du moyen de paiement."
+      },
+      {
+        "name": "Atlante Go - mensuel",
+        "cost": 9.99,
+        "period": "monthly",
+        "rate": 0.29,
+        "ref": 0.54,
+        "id": "atlante-go",
+        "chargebackEligible": true,
+        "sourceUrl": "https://atlante.energy/fr/myatlante-app/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "validUntil": "2026-07-31",
+        "note": "0,29 €/kWh chez Atlante. ChargeBack à 50 % jusqu’au 31 juillet 2026, puis conditions courantes."
+      }
+    ],
+    "loyalty": {
+      "name": "ChargeBack",
+      "gemsPerEuro": 100,
+      "gemValue": 0.01,
+      "chargebackInfo": true,
+      "description": "Chaque euro payé génère des Green Gems utilisables comme crédit sur une prochaine recharge. Une recharge réglée avec des Gems ne génère pas de nouveaux Gems.",
+      "chargebackConfig": {
+        "enabled": true,
+        "beforeDate": "2026-07-01",
+        "rateBefore": 1.0,
+        "rateAfter": 0.5,
+        "promoEndDate": "2026-07-31",
+        "rateAfterPromo": null,
+        "sessionsPerMonth": 4,
+        "gemsGenerateGems": false
+      }
+    },
+    "sourceUrl": "https://atlante.energy/fr/myatlante-app/",
+    "verifiedAt": "2026-07-27"
+  },
+  "fastned": {
+    "name": "Fastned",
+    "color": "fastned",
+    "badge": "300 kW",
+    "mapUrl": "https://www.fastnedcharging.com/fr/emplacements",
+    "formulas": [
+      {
+        "name": "Tarif standard",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.61,
+        "ref": 0.61,
+        "sourceUrl": "https://www.fastnedcharging.com/fr/recharge/tarifs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official"
+      },
+      {
+        "name": "Application Fastned - remise 10 %",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.55,
+        "ref": 0.61,
+        "sourceUrl": "https://www.fastnedcharging.com/fr/recharge/tarifs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official"
+      },
+      {
+        "name": "Abonnement Gold - remise 30 %",
+        "cost": 5.99,
+        "period": "monthly",
+        "rate": 0.43,
+        "ref": 0.61,
+        "id": "fastned-gold",
+        "note": "Abonnement à 5,99 €/mois jusqu’au 31 août 2026.",
+        "previousCost": 11.99,
+        "sourceUrl": "https://www.fastnedcharging.com/fr/recharge/tarifs",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "validUntil": "2026-08-31"
+      }
+    ],
+    "sourceUrl": "https://www.fastnedcharging.com/fr/recharge/tarifs",
+    "verifiedAt": "2026-07-27"
+  },
+  "electroverse": {
+    "name": "Octopus Electroverse",
+    "color": "electroverse",
+    "badge": "itinérance multiréseaux",
+    "mapUrl": "https://electroverse.com/fr-FR/map",
+    "formulas": [
+      {
+        "name": "Powerdot - AC jusqu’à 22 kW",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.462,
+        "ref": 0.462,
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Recharge en courant alternatif, conservée uniquement dans le détail. Le cœur de kWhiz reste la recharge rapide DC."
+      },
+      {
+        "name": "Powerdot - AC, remise 28 %",
+        "cost": 1.99,
+        "period": "monthly",
+        "rate": 0.333,
+        "ref": 0.462,
+        "id": "electroverse-powerdot-ac",
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Recharge en courant alternatif, conservée uniquement dans le détail. Le cœur de kWhiz reste la recharge rapide DC."
+      },
+      {
+        "name": "Powerdot - DC au-delà de 100 kW",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.568,
+        "ref": 0.568,
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul."
+      },
+      {
+        "name": "Powerdot - DC, remise 28 %",
+        "cost": 1.99,
+        "period": "monthly",
+        "rate": 0.409,
+        "ref": 0.568,
+        "id": "electroverse-powerdot-dc",
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul."
+      },
+      {
+        "name": "IONITY via Electroverse - sans abonnement",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.59,
+        "ref": 0.59,
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Prix dépendant du point de charge et des conditions Electroverse. Valeur indicative pour le calcul."
+      },
+      {
+        "name": "IONITY via Electroverse - remise annoncée",
+        "cost": 11.99,
+        "period": "monthly",
+        "rate": 0.32,
+        "ref": 0.59,
+        "id": "electroverse-ionity",
+        "sourceUrl": "https://electroverse.com/fr/",
+        "verifiedAt": "2026-07-27",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "note": "Prix dépendant du point de charge et des conditions Electroverse. Valeur indicative pour le calcul."
+      }
+    ],
+    "sourceUrl": "https://electroverse.com/fr/",
+    "verifiedAt": "2026-07-27"
+  }
+}

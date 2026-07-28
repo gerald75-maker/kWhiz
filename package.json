@@ -1,0 +1,16 @@
+{
+  "name": "kwhiz",
+  "version": "2.19.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/inject-build-vars.mjs && node scripts/prune-old-assets.mjs",
+    "preview": "vite preview",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5",
+    "vite": "^6.3.5"
+  }
+}

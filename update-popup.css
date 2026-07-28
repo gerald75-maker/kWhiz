@@ -1,0 +1,112 @@
+/* ============================================================
+   update-popup.css
+   Popup "Mise à jour disponible" — PWA kWhiz / Wattlog / Wattway
+   Thèmes : light | glass
+   ============================================================ */
+
+/* --- Overlay ------------------------------------------------ */
+.update-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.update-popup-overlay.is-visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* --- Popup card --------------------------------------------- */
+.update-popup {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 20px;
+  padding: 20px 18px 16px;
+  transform: translateY(8px);
+  transition: transform 0.3s ease;
+}
+
+.update-popup-overlay.is-visible .update-popup {
+  transform: translateY(0);
+}
+
+.update-popup__title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.update-popup__body {
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.update-popup__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.update-popup__btn {
+  padding: 10px 40px;
+  border-radius: 50px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #007AFF;
+  color: #ffffff;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.update-popup__btn:hover  { opacity: 0.88; }
+.update-popup__btn:active { transform: scale(0.97); }
+
+
+/* ============================================================
+   Thème : Light Mode
+   Usage : <div class="update-popup-overlay update-popup-overlay--light">
+   ============================================================ */
+
+.update-popup-overlay--light {
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.update-popup--light {
+  background: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+}
+
+.update-popup--light .update-popup__title { color: #000000; }
+.update-popup--light .update-popup__body  { color: #48484a; }
+
+
+/* ============================================================
+   Thème : Liquid Glass
+   Usage : <div class="update-popup-overlay update-popup-overlay--glass">
+   ============================================================ */
+
+.update-popup-overlay--glass {
+  background: linear-gradient(155deg, #3aad9f 0%, #1e7d73 45%, #0d4f48 100%);
+}
+
+.update-popup--glass {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.update-popup--glass .update-popup__title { color: #ffffff; }
+.update-popup--glass .update-popup__body  { color: rgba(255, 255, 255, 0.72); }

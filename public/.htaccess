@@ -1,0 +1,8 @@
+Redirect 301 /calculateur https://ve.aubard.net
+
+# Ne jamais cacher sw.js ni index.html — force la détection des mises à jour
+<FilesMatch "^(sw.*\.js|index\.html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>
