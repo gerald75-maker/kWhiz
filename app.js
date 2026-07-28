@@ -50,6 +50,7 @@ import { initPullToRefresh } from './src/ui/pull-to-refresh.js';
 import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { initDataBackup } from './src/ui/data-backup.js';
+import { initHelpFaq } from './src/ui/help-faq.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -447,6 +448,7 @@ function initApp() {
     on('install-native-btn', 'click', triggerNativeInstall);
     on('about-check-update', 'click', checkStatusFromAbout);
     initDataBackup({ storageKeys: STORAGE_KEYS });
+    initHelpFaq();
 
     if (navigator.onLine) {
         setApplicationStatus('current', 'Version installée prête à être vérifiée');

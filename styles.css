@@ -5997,3 +5997,127 @@ body.light .compare-pricing-badge.is-discount {
         padding: var(--space-4);
     }
 }
+
+/* Page Aide : liste de démarrage et FAQ repliable. */
+#page-aide .help-start-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    counter-reset: help-step;
+    list-style: none;
+    color: var(--text-secondary);
+    font-size: .88rem;
+    line-height: 1.55;
+}
+
+#page-aide .help-start-list li {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    counter-increment: help-step;
+}
+
+#page-aide .help-start-list li::before {
+    content: counter(help-step);
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    margin-top: 1px;
+    border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border-color));
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    color: var(--accent);
+    font-size: .76rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+#page-aide .help-faq {
+    display: grid;
+    gap: var(--space-2);
+}
+
+#page-aide .help-faq-item {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+    border-radius: var(--control-radius);
+    background: var(--bg-element);
+}
+
+#page-aide .help-faq-item summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    min-height: 44px;
+    gap: var(--space-2);
+    align-items: center;
+    padding: 11px 14px;
+    color: var(--text-primary);
+    font-size: .86rem;
+    font-weight: 750;
+    line-height: 1.4;
+    cursor: pointer;
+    list-style: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#page-aide .help-faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+#page-aide .help-faq-item summary:hover {
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+#page-aide .help-faq-chevron {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    transform: rotate(0);
+    transition: transform var(--transition-fast);
+}
+
+#page-aide .help-faq-item[open] .help-faq-chevron {
+    transform: rotate(180deg);
+}
+
+#page-aide .help-faq-answer {
+    padding: 0 14px 13px;
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: .84rem;
+    line-height: 1.58;
+}
+
+#page-aide .help-faq-answer p {
+    margin: 0;
+}
+
+@media (max-width: 430px) {
+    #page-aide .help-start-list {
+        font-size: .84rem;
+    }
+
+    #page-aide .help-faq-item summary {
+        padding-inline: 12px;
+        font-size: .84rem;
+    }
+
+    #page-aide .help-faq-answer {
+        padding-inline: 12px;
+        font-size: .82rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #page-aide .help-faq-chevron {
+        transition: none;
+    }
+}

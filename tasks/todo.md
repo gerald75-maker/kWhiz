@@ -1,5 +1,15 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Structure de la page Aide (2026-07-28)
+
+- [x] Remplacer les étapes « Bien démarrer » par une liste ordonnée sémantique
+- [x] Transformer la FAQ en accordéons indépendants, fermés par défaut
+- [x] Synchroniser `aria-expanded` et `aria-controls`
+- [x] Adapter les styles aux écrans de 320 à 430 px et à `prefers-reduced-motion`
+- [x] Exécuter `npm test`, `npm run build` et `git diff --check`
+- [x] Présenter les numéros de démarrage dans des pastilles rondes
+- [x] Animer l’ouverture et la fermeture des réponses en 180 ms maximum
+
 ## Polissage ergonomique mobile et tablette (2026-07-28)
 
 - [x] Auditer les vues de 320 à 430 px et les largeurs tablette
