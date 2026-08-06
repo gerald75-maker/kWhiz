@@ -6,13 +6,13 @@ import { openModal } from './modal-manager.js';
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
   fastned: 'Fastned', atlante: 'Atlante', zunder: 'Zunder', iziviafast: 'Izivia Fast',
-  lidl: 'Lidl', statione: 'Station E'
+  lidl: 'Lidl', pluginn: 'Plug Inn fast charge', statione: 'Station E'
 };
 
 const COLORS = {
   ionity: '#6d5dfc', tesla: '#e82127', electra: '#6f4bf2', iecharge: '#16a34a',
   fastned: '#f7c600', atlante: '#00a7a7', zunder: '#4db9e5', iziviafast: '#ef7d00',
-  lidl: '#0050aa', statione: '#0ea5e9'
+  lidl: '#0050aa', pluginn: '#f45b20', statione: '#0ea5e9'
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
@@ -52,10 +52,12 @@ export function initStationsMap() {
   let statusRequest = null;
   let lastStatusFetch = 0;
   let mapPositionReady = false;
+  let routeLayer = null;
+  let routeStationMetrics = null;
   let loaded = false;
 
   function visibleStations() {
-    return stations.filter(station => selected.has(station.operator));
+    return stations.filter(station => selected.has(station.operator) && (!routeStationMetrics || routeStationMetrics.has(station.id)));
   }
 
   function statusFor(station) {
@@ -83,7 +85,9 @@ export function initStationsMap() {
   }
 
   function renderList(items) {
-    let nearby = map
+    let nearby = routeStationMetrics
+      ? [...items].sort((a, b) => routeStationMetrics.get(a.id).progress - routeStationMetrics.get(b.id).progress).slice(0, 60)
+      : map
       ? [...items].sort((a, b) => map.getCenter().distanceTo([a.lat, a.lon]) - map.getCenter().distanceTo([b.lat, b.lon])).slice(0, 12)
       : items.slice(0, 12);
     const selectedStation = selectedStationId ? items.find(station => station.id === selectedStationId) : null;
@@ -159,6 +163,96 @@ export function initStationsMap() {
     return statusRequest;
   }
 
+  function routeMetric(station, coordinates) {
+    let bestDistance = Infinity;
+    let bestProgress = 0;
+    let travelled = 0;
+    for (let index = 1; index < coordinates.length; index++) {
+      const [lonA, latA] = coordinates[index - 1];
+      const [lonB, latB] = coordinates[index];
+      const meanLat = ((latA + latB + station.lat) / 3) * Math.PI / 180;
+      const lonScale = 111.32 * Math.cos(meanLat);
+      const ax = lonA * lonScale;
+      const ay = latA * 111.32;
+      const bx = lonB * lonScale;
+      const by = latB * 111.32;
+      const px = station.lon * lonScale;
+      const py = station.lat * 111.32;
+      const dx = bx - ax;
+      const dy = by - ay;
+      const segmentLengthSquared = dx * dx + dy * dy;
+      const factor = segmentLengthSquared ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / segmentLengthSquared)) : 0;
+      const distance = Math.hypot(px - (ax + factor * dx), py - (ay + factor * dy));
+      const segmentLength = Math.sqrt(segmentLengthSquared);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestProgress = travelled + factor * segmentLength;
+      }
+      travelled += segmentLength;
+    }
+    return { distance: bestDistance, progress: bestProgress };
+  }
+
+  function clearRoute() {
+    routeLayer?.remove();
+    routeLayer = null;
+    routeStationMetrics = null;
+    selectedStationId = null;
+    document.getElementById('map-list-title').textContent = 'Stations proches du centre de la carte';
+    document.getElementById('route-planner-status').textContent = '';
+    document.getElementById('route-clear').hidden = true;
+    renderStations();
+  }
+
+  async function searchRoute() {
+    const startInput = document.getElementById('route-start');
+    const start = startInput.value.trim();
+    const end = document.getElementById('route-end').value.trim();
+    const button = document.getElementById('route-search');
+    const status = document.getElementById('route-planner-status');
+    if (!start || !end || !map) return;
+    button.disabled = true;
+    status.dataset.state = 'loading';
+    status.textContent = 'Calcul de l’itinéraire…';
+    try {
+      const response = await fetch('./route.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        body: JSON.stringify({
+          start,
+          end,
+          startCoordinates: startInput.dataset.lat && startInput.dataset.lon
+            ? [Number(startInput.dataset.lon), Number(startInput.dataset.lat)]
+            : null
+        })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.geometry?.coordinates?.length) throw new Error(payload.error || 'Itinéraire indisponible');
+      routeLayer?.remove();
+      routeLayer = L.geoJSON(payload.geometry, { style: { color: '#00aeea', weight: 5, opacity: 0.86 } }).addTo(map);
+      routeStationMetrics = new Map();
+      stations.forEach(station => {
+        const metric = routeMetric(station, payload.geometry.coordinates);
+        if (metric.distance <= 15) routeStationMetrics.set(station.id, metric);
+      });
+      mapPositionReady = true;
+      selectedStationId = null;
+      document.getElementById('map-list-title').textContent = 'Stations sur votre trajet';
+      document.getElementById('route-clear').hidden = false;
+      const matching = visibleStations().length;
+      status.dataset.state = 'success';
+      status.textContent = `${Math.round(payload.distanceKm).toLocaleString('fr-FR')} km · ${matching.toLocaleString('fr-FR')} station${matching > 1 ? 's' : ''} à moins de 15 km du trajet`;
+      map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
+      renderStations();
+    } catch (error) {
+      status.dataset.state = 'error';
+      status.textContent = error.message || 'Itinéraire momentanément indisponible';
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   function locateUser({ automatic = false } = {}) {
     const button = document.getElementById('map-locate');
     if (userCoordinates && locationMarker) {
@@ -189,8 +283,10 @@ export function initStationsMap() {
         radius: 9, weight: 4, color: '#fff', fillColor: '#00c2ff', fillOpacity: 1
       }).bindPopup('Votre position').addTo(map);
       mapPositionReady = true;
-      map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
-      locationMarker.openPopup();
+      if (!routeStationMetrics) {
+        map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
+        locationMarker.openPopup();
+      }
       button.disabled = false;
       button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
       renderStations();
@@ -329,6 +425,52 @@ export function initStationsMap() {
       return;
     }
     locateUser();
+  });
+
+  document.getElementById('route-planner-form')?.addEventListener('submit', event => {
+    event.preventDefault();
+    void load().then(searchRoute);
+  });
+  document.getElementById('route-clear')?.addEventListener('click', clearRoute);
+  document.getElementById('route-start')?.addEventListener('input', event => {
+    delete event.target.dataset.lat;
+    delete event.target.dataset.lon;
+  });
+  document.getElementById('route-use-location')?.addEventListener('click', () => {
+    const button = document.getElementById('route-use-location');
+    const input = document.getElementById('route-start');
+    const status = document.getElementById('route-planner-status');
+    const applyCoordinates = coordinates => {
+      userCoordinates = coordinates;
+      input.value = 'Ma position actuelle';
+      input.dataset.lat = String(coordinates[0]);
+      input.dataset.lon = String(coordinates[1]);
+      delete status.dataset.state;
+      status.textContent = 'La position actuelle sera utilisée comme départ.';
+      button.disabled = false;
+      button.innerHTML = '<span aria-hidden="true">⌖</span> Ma position';
+    };
+    if (userCoordinates) {
+      applyCoordinates(userCoordinates);
+      return;
+    }
+    if (!navigator.geolocation) {
+      status.dataset.state = 'error';
+      status.textContent = 'La localisation n’est pas disponible sur cet appareil.';
+      return;
+    }
+    button.disabled = true;
+    button.textContent = 'Localisation…';
+    navigator.geolocation.getCurrentPosition(
+      position => applyCoordinates([position.coords.latitude, position.coords.longitude]),
+      () => {
+        button.disabled = false;
+        button.innerHTML = '<span aria-hidden="true">⌖</span> Ma position';
+        status.dataset.state = 'error';
+        status.textContent = 'Position introuvable. Vérifiez l’autorisation de localisation.';
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   });
 
   return {

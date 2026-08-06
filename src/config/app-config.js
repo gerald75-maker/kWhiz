@@ -15,12 +15,13 @@ export const LOGOS = Object.freeze({
     atlante: './logos/atlante.webp',
     fastned: './logos/fastned.webp',
     electroverse: './logos/electroverse.webp',
-    zunder: './logos/zunder.png'
+    zunder: './logos/zunder.png',
+    pluginn: './logos/pluginn.webp'
 });
 
 export const VALID_COLORS = new Set([
     'atlante', 'electra', 'electroverse', 'fastned', 'iecharge',
-    'ionity', 'izivia', 'lidl', 'statione', 'tesla', 'zunder'
+    'ionity', 'izivia', 'lidl', 'pluginn', 'statione', 'tesla', 'zunder'
 ]);
 
 export const STORAGE_KEYS = Object.freeze({

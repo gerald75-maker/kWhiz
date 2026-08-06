@@ -166,14 +166,45 @@ test('Recentrer réutilise immédiatement la position connue sans nouvel appel G
   assert.match(source, /if \(locationPending\) return/);
 });
 
+test('Stations sur mon trajet reste un MVP isolé et filtrable par opérateur', async () => {
+  const [html, source, css, php] = await Promise.all([
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('styles.css', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.match(html, /id="route-planner-form"/);
+  assert.match(html, /Stations sur mon trajet/);
+  assert.match(html, /id="route-use-location"/);
+  assert.match(source, /fetch\('\.\/route\.php'/);
+  assert.match(source, /metric\.distance <= 15/);
+  assert.match(source, /startCoordinates:/);
+  assert.match(source, /input\.value = 'Ma position actuelle'/);
+  assert.match(source, /selected\.has\(station\.operator\).*routeStationMetrics/);
+  assert.match(source, /routeStationMetrics\.get\(a\.id\)\.progress/);
+  assert.match(source, /if \(!routeStationMetrics\)/);
+  assert.match(css, /\.route-planner/);
+  assert.match(css, /\.route-planner-form input \{ font-size:16px; \}/);
+  assert.match(php, /OPENROUTESERVICE_API_KEY/);
+  assert.match(php, /\$validProvidedStart/);
+  assert.match(php, /\$startCacheValue = \$validProvidedStart/);
+  assert.doesNotMatch(source, /openrouteservice.*api[_-]?key/i);
+});
+
 test('l’aide ordonnée couvre localisation, statuts, sélection et itinéraire', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   const mapHelp = html.slice(html.indexOf('🗺️ Utiliser la carte'), html.indexOf('</ol>', html.indexOf('🗺️ Utiliser la carte')));
-  assert.equal((mapHelp.match(/<li>/g) || []).length, 7);
+  assert.equal((mapHelp.match(/<li>/g) || []).length, 8);
   assert.match(mapHelp, /première ouverture/);
   assert.match(mapHelp, /vert/);
   assert.match(mapHelp, /point, un logo ou une fiche/);
   assert.match(mapHelp, /Google Maps ou Waze/);
+  assert.match(mapHelp, /OpenRouteService/);
+  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
+  assert.match(help, /outil de repérage, pas un planificateur de recharge/);
+  assert.match(help, /opérateurs actuellement sélectionnés/);
+  assert.match(help, /ne connaît ni votre batterie ni votre autonomie/);
+  assert.match(help, /lance simplement votre application GPS vers cette borne/);
 });
 
 test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {

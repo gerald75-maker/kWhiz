@@ -643,6 +643,7 @@ body.light .formula-note {
 .statione { color: #22c55e; }
 .izivia { color: #f43f5e; }
 .zunder { color: #4db9e5; }
+.pluginn { color: #f45b20; }
 
 /* Badges loyalty & izivia (remplacent les inline styles dans les templates) */
 .loyalty-badge {
@@ -1691,6 +1692,25 @@ body[data-view="map"] > .container > .app-title,
 body[data-view="map"] > .container > .subtitle { display:none; }
 body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-top)); }
 .map-filter-card { padding:14px; margin-bottom:14px; border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); }
+.route-planner { margin-bottom:12px; border:1px solid var(--border-color); border-radius:16px; background:var(--bg-card); overflow:hidden; }
+.route-planner summary { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; color:var(--text-primary); font-size:.86rem; font-weight:750; cursor:pointer; list-style:none; }
+.route-planner summary::-webkit-details-marker { display:none; }
+.route-planner[open] summary span { transform:rotate(180deg); }
+.route-planner-form { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 14px 14px; }
+.route-planner-form label { display:grid; gap:5px; color:var(--text-secondary); font-size:.72rem; font-weight:700; }
+.route-planner-form input { min-width:0; width:100%; padding:10px 11px; border:1px solid var(--border-color); border-radius:11px; background:var(--bg-element); color:var(--text-primary); font:inherit; font-size:.78rem; }
+.route-planner-form input:focus { outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color:var(--accent); }
+.route-start-field { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px; }
+.route-start-field button { display:flex; align-items:center; gap:4px; border:1px solid var(--accent); border-radius:11px; padding:7px 9px; background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--accent); font:inherit; font-size:.7rem; font-weight:750; white-space:nowrap; cursor:pointer; }
+.route-start-field button:disabled { opacity:.6; cursor:wait; }
+.route-planner-actions { grid-column:1 / -1; display:flex; gap:8px; }
+.route-search-button, .route-clear-button { border:1px solid var(--accent); border-radius:999px; padding:8px 12px; font:inherit; font-size:.74rem; font-weight:750; cursor:pointer; }
+.route-search-button { background:var(--accent); color:#062030; }
+.route-clear-button { background:transparent; color:var(--accent); }
+.route-search-button:disabled { opacity:.6; cursor:wait; }
+.route-planner-status { grid-column:1 / -1; min-height:1.2em; margin:0; color:var(--text-secondary); font-size:.72rem; line-height:1.4; }
+.route-planner-status[data-state="error"] { color:#dc2626; }
+.route-planner-status[data-state="success"] { color:#16a34a; font-weight:650; }
 .map-filter-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .map-filter-heading h3, .map-nearby h3 { margin:0; font-size:.92rem; }
 .map-filter-heading button { border:0; background:transparent; color:var(--accent); font-weight:700; padding:6px 8px; cursor:pointer; }
@@ -1750,6 +1770,12 @@ body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-t
     .map-page-heading > div > p:last-child { font-size:.76rem; line-height:1.35; }
     .map-heading-actions { margin-top:7px; flex-direction:row; align-items:center; justify-content:space-between; }
     .map-filter-card { padding:10px; margin-bottom:10px; border-radius:15px; }
+    .route-planner { margin-bottom:10px; border-radius:15px; }
+    .route-planner-form { grid-template-columns:1fr; gap:8px; padding:0 10px 10px; }
+    .route-planner-actions, .route-planner-status { grid-column:1; }
+    .route-start-field { grid-template-columns:1fr; }
+    .route-start-field button { justify-content:center; }
+    .route-planner-form input { font-size:16px; }
     .map-filter-heading { margin-bottom:6px; }
     .map-operator-chip { padding:5px 8px; }
     .map-operator-chip img { width:20px; height:20px; }

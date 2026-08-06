@@ -14,6 +14,7 @@ const NETWORKS = [
   ['fastned', /\bfastned\b/],
   ['atlante', /\batlante\b/],
   ['zunder', /\bzunder\b/],
+  ['pluginn', /\bplug inn fast charge\b/],
   ['iziviafast', /\bizivia\b/],
   ['lidl', /\blidl\b/],
   ['statione', /\bstation[ -]?e\b/]
@@ -24,6 +25,8 @@ function normalize(value = '') {
 }
 
 function networkFor(row) {
+  const stationId = String(row.id_station_itinerance || row.id_pdc_itinerance || '').trim().toUpperCase();
+  if (stationId.startsWith('FRMFC')) return 'pluginn';
   const haystack = normalize([row.nom_operateur, row.nom_enseigne, row.nom_amenageur, row.nom_station].join(' '));
   return NETWORKS.find(([, pattern]) => pattern.test(haystack))?.[0] ?? null;
 }

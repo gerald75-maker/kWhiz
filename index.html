@@ -151,12 +151,21 @@
 <div><p class="profile-page-kicker">Bornes rapides en France</p><h2>Carte des stations</h2><p>Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
 <div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> Me localiser</button></div>
 </header>
+<details class="route-planner" id="route-planner">
+<summary>Stations sur mon trajet <span aria-hidden="true">⌄</span></summary>
+<form class="route-planner-form" id="route-planner-form">
+<label><span>Départ</span><span class="route-start-field"><input id="route-start" name="start" type="text" autocomplete="street-address" maxlength="160" placeholder="Adresse ou ville de départ" required><button id="route-use-location" type="button"><span aria-hidden="true">⌖</span> Ma position</button></span></label>
+<label><span>Arrivée</span><input id="route-end" name="end" type="text" autocomplete="street-address" maxlength="160" placeholder="Adresse ou ville d’arrivée" required></label>
+<div class="route-planner-actions"><button class="route-search-button" id="route-search" type="submit">Afficher les stations</button><button class="route-clear-button" id="route-clear" type="button" hidden>Effacer le trajet</button></div>
+<p class="route-planner-status" id="route-planner-status" aria-live="polite"></p>
+</form>
+</details>
 <section class="map-filter-card" aria-labelledby="map-filter-title">
 <div class="map-filter-heading"><h3 id="map-filter-title">Opérateurs</h3><div><button id="map-select-all" type="button">Tous</button><button id="map-select-none" type="button">Aucun</button></div></div>
 <div class="map-operator-filters" id="map-operator-filters"></div>
 </section>
 <div class="stations-map" id="stations-map" aria-label="Carte des stations de recharge rapide"></div>
-<section class="map-nearby"><h3>Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
+<section class="map-nearby"><h3 id="map-list-title">Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
 <p class="map-source">Données : Base nationale IRVE, mises à jour le <span id="map-data-date">6 août 2026</span>. La présence d’une station ne garantit pas sa disponibilité en temps réel.</p>
 </div>
 <!-- Mon choix — vue principale -->
@@ -472,7 +481,10 @@
 <li>Lisez le statut de chaque station : <strong>vert</strong> signifie qu’au moins un point est libre, <strong>orange</strong> qu’ils sont occupés ou réservés, <strong>rouge</strong> qu’ils sont hors service et <strong>gris</strong> que l’information est absente, incomplète ou trop ancienne.</li>
 <li>Appuyez sur un point, un logo ou une fiche de la liste pour mettre la station en évidence sur la carte et consulter son état détaillé.</li>
 <li>Utilisez <strong>Itinéraire</strong>, puis choisissez Plans, Google Maps ou Waze pour ouvrir le guidage vers la borne.</li>
+<li>Ouvrez <strong>Stations sur mon trajet</strong>, utilisez <strong>Ma position</strong> ou saisissez un départ, indiquez l’arrivée, puis lancez la recherche. Les adresses ou coordonnées sont transmises à OpenRouteService uniquement pour calculer le tracé. kWhiz affiche ensuite, dans l’ordre du trajet, les stations situées à moins de 15 km et appartenant aux <strong>opérateurs actuellement sélectionnés</strong>.</li>
 </ol>
+<div class="help-note">🧭 <strong>Stations sur mon trajet est un outil de repérage, pas un planificateur de recharge.</strong> Il ne tient compte ni de l’autonomie ou du niveau de batterie, ni de la consommation, du relief, de la météo ou du temps de recharge. Il ne choisit pas vos arrêts et ne garantit pas que les stations proposées seront accessibles ou disponibles à votre arrivée.</div>
+<div class="help-note">🚗 Après avoir choisi une station, appuyez sur <strong>Itinéraire</strong> pour ouvrir Plans, Google Maps ou Waze. Le guidage est alors lancé vers cette station uniquement : l’application de navigation ne reçoit pas automatiquement l’intégralité du trajet ni les autres stations affichées.</div>
 <div class="help-note">📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.</div>
 <div class="help-note">🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.</div>
 <div class="help-note">🕐 Les tarifs sont vérifiés régulièrement, mais confirmez-les toujours dans l’application ou sur le site de l’opérateur avant de recharger.</div>
@@ -488,6 +500,8 @@
 <details><summary>Pourquoi la carte ne trouve-t-elle pas ma position ?</summary><p>Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».</p></details>
 <details><summary>Les bornes affichées sont-elles disponibles ?</summary><p>Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.</p></details>
 <details><summary>Comment interpréter le statut d’une station ?</summary><p>Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.</p></details>
+<details><summary>Comment trouver les stations sur un trajet ?</summary><p>Dans l’onglet Carte, sélectionnez d’abord les opérateurs à afficher. Ouvrez ensuite « Stations sur mon trajet », utilisez votre position ou saisissez le départ, indiquez l’arrivée, puis lancez la recherche. kWhiz montre les stations des réseaux choisis situées à moins de 15 km du tracé. « Effacer le trajet » restaure la carte habituelle.</p></details>
+<details><summary>kWhiz planifie-t-il mes arrêts de recharge ?</summary><p>Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.</p></details>
 <details><summary>À quoi servent les favoris ?</summary><p>L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</p></details>
 <details><summary>Puis-je tester un autre usage sans modifier mon profil ?</summary><p>Oui. Le simulateur de scénario permet de comparer un autre kilométrage ou une autre part de recharge rapide, puis d’enregistrer ce scénario.</p></details>
 <details><summary>Mes réglages sont-ils sauvegardés ?</summary><p>Ils sont conservés localement sur votre appareil. Depuis la page « À propos », vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.</p></details>

@@ -533,6 +533,53 @@
     "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
     "verifiedAt": "2026-08-06"
   },
+  "pluginn": {
+    "name": "Plug Inn fast charge",
+    "color": "pluginn",
+    "badge": "jusqu’à 320 kW",
+    "mapUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
+    "formulas": [
+      {
+        "name": "Carte bancaire",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.59,
+        "ref": 0.59,
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Accessible à toutes les marques. Des frais d’occupation de 0,30 €/min s’appliquent au-delà d’une heure de stationnement."
+      },
+      {
+        "name": "Charge Pass BASIC",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.46,
+        "ref": 0.59,
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/charge-pass.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans abonnement, réservé aux clients Renault, Dacia ou Alpine équipés du Charge Pass. Pour les nouveaux clients, le tarif est annoncé pendant un an après activation. Frais d’occupation : 0,30 €/min au-delà d’une heure."
+      },
+      {
+        "name": "Charge Pass INTENSE",
+        "cost": 5.99,
+        "period": "monthly",
+        "rate": 0.39,
+        "ref": 0.59,
+        "id": "pluginn-intense",
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/charge-pass.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement, réservé aux clients Renault, Dacia ou Alpine équipés du Charge Pass. Le calcul utilise le tarif permanent de 5,99 €/mois et non la promotion temporaire. Frais d’occupation : 0,30 €/min au-delà d’une heure."
+      }
+    ],
+    "sourceUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
+    "verifiedAt": "2026-08-06"
+  },
   "electroverse": {
     "name": "Octopus Electroverse",
     "color": "electroverse",

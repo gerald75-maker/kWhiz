@@ -44,6 +44,7 @@ dist/
 .DS_Store
 .env
 .env.local
+kwhiz-private.php
 npm-debug.log*
 
 # Snowpack dependency directory (https://snowpack.dev/)
