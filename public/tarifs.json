@@ -413,8 +413,7 @@
         "verifiedAt": "2026-07-27",
         "pricingType": "fixed",
         "calculationBasis": "official",
-        "validUntil": "2026-07-31",
-        "note": "0,29 €/kWh chez Atlante. ChargeBack à 50 % jusqu’au 31 juillet 2026, puis conditions courantes."
+        "note": "0,29 €/kWh chez Atlante. ChargeBack à 50 %."
       }
     ],
     "loyalty": {
@@ -422,14 +421,12 @@
       "gemsPerEuro": 100,
       "gemValue": 0.01,
       "chargebackInfo": true,
-      "description": "Chaque euro payé génère des Green Gems utilisables comme crédit sur une prochaine recharge. Une recharge réglée avec des Gems ne génère pas de nouveaux Gems.",
+      "description": "Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.",
       "chargebackConfig": {
         "enabled": true,
         "beforeDate": "2026-07-01",
         "rateBefore": 1.0,
         "rateAfter": 0.5,
-        "promoEndDate": "2026-07-31",
-        "rateAfterPromo": null,
         "sessionsPerMonth": 4,
         "gemsGenerateGems": false
       }
