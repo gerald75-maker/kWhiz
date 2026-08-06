@@ -15,6 +15,8 @@ const COLORS = {
   lidl: '#0050aa', statione: '#0ea5e9'
 };
 
+const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
+
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 }
@@ -71,20 +73,39 @@ export function initStationsMap() {
     markersById = new Map();
     const filtered = visibleStations();
     const bounds = map.getBounds().pad(0.15);
+    const center = map.getCenter();
+    const visibleWidth = map.distance([center.lat, map.getBounds().getWest()], [center.lat, map.getBounds().getEast()]);
+    const showOperatorLogos = visibleWidth <= LOGO_DISTANCE_THRESHOLD_METERS;
     const inView = filtered.filter(station => bounds.contains([station.lat, station.lon]));
     renderedStations = inView;
     markers = inView.map(station => {
       const selected = station.id === selectedStationId;
-      const marker = L.circleMarker([station.lat, station.lon], {
-        renderer: markerRenderer, radius: selected ? 15 : 10, weight: selected ? 5 : 2.5,
-        color: selected ? '#00c2ff' : '#fff', fillColor: COLORS[station.operator], fillOpacity: 0.92
-      }).bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      const marker = (showOperatorLogos || selected)
+        ? L.marker([station.lat, station.lon], { icon: createOperatorIcon(station, selected), riseOnHover: true, bubblingMouseEvents: false })
+        : L.circleMarker([station.lat, station.lon], {
+          renderer: markerRenderer, radius: 10, weight: 2.5,
+          color: '#fff', fillColor: COLORS[station.operator], fillOpacity: 0.92,
+          bubblingMouseEvents: false
+        });
+      marker.bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
     });
     count.textContent = `${filtered.length.toLocaleString('fr-FR')} station${filtered.length > 1 ? 's' : ''} · ${inView.length.toLocaleString('fr-FR')} dans la carte`;
     renderList(filtered);
     if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
+  }
+
+  function createOperatorIcon(station, selected = false) {
+    const size = selected ? 42 : 32;
+    return L.divIcon({
+      className: `map-operator-marker${selected ? ' is-selected' : ''}`,
+      html: `<img src="${LOGOS[station.operator]}" alt="">`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -(size / 2 + 4)]
+    });
   }
 
   function selectStation(id, { centerMap = true } = {}) {
@@ -94,11 +115,20 @@ export function initStationsMap() {
     if (centerMap) map.panTo([station.lat, station.lon]);
     markersById.forEach((marker, markerId) => {
       const selected = markerId === selectedStationId;
-      marker.setRadius(selected ? 15 : 10);
-      marker.setStyle({ weight: selected ? 5 : 2.5, color: selected ? '#00c2ff' : '#fff' });
+      if (typeof marker.setRadius === 'function') {
+        marker.setRadius(selected ? 15 : 10);
+        marker.setStyle({ weight: selected ? 5 : 2.5, color: selected ? '#00c2ff' : '#fff' });
+      } else {
+        const markerStation = stations.find(item => item.id === markerId);
+        if (markerStation) marker.setIcon(createOperatorIcon(markerStation, selected));
+      }
     });
     renderList(visibleStations());
     markersById.get(selectedStationId)?.openPopup();
+    const selectedMarker = markersById.get(selectedStationId);
+    if (selectedMarker && typeof selectedMarker.setRadius === 'function') {
+      window.setTimeout(renderStations, 0);
+    }
   }
 
   function renderFilters(keys) {

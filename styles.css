@@ -1687,6 +1687,9 @@ body.light .bnav-sep { background: rgba(0,0,0,0.08); }
 .map-locate-button { display:flex; align-items:center; gap:6px; border:1px solid var(--accent); border-radius:999px; padding:8px 12px; background:color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color:var(--accent); font:inherit; font-size:.78rem; font-weight:750; cursor:pointer; white-space:nowrap; }
 .map-locate-button:disabled { opacity:.65; cursor:wait; }
 body[data-view="map"] .sticky-top { display:none; }
+body[data-view="map"] > .container > .app-title,
+body[data-view="map"] > .container > .subtitle { display:none; }
+body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-top)); }
 .map-filter-card { padding:14px; margin-bottom:14px; border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); }
 .map-filter-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .map-filter-heading h3, .map-nearby h3 { margin:0; font-size:.92rem; }
@@ -1704,6 +1707,9 @@ body[data-view="map"] .sticky-top { display:none; }
 .map-station-card { cursor:pointer; transition:border-color .18s, background-color .18s, transform .18s, box-shadow .18s; }
 .map-station-card:active { transform:scale(.985); }
 .map-station-card.is-selected { border-color:var(--accent); background:color-mix(in srgb, var(--accent) 9%, var(--bg-card)); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent); }
+.map-operator-marker { display:grid; place-items:center; border:2px solid #fff; border-radius:10px; overflow:hidden; background:#fff; box-shadow:0 3px 10px rgba(0,0,0,.32); }
+.map-operator-marker img { width:100%; height:100%; object-fit:contain; background:#fff; }
+.map-operator-marker.is-selected { z-index:500 !important; border:3px solid var(--accent); border-radius:13px; box-shadow:0 0 0 3px rgba(0,194,255,.25), 0 5px 16px rgba(0,0,0,.4); }
 .map-station-logo { width:42px; height:42px; object-fit:contain; border-radius:10px; background:#fff; }
 .map-station-card div { min-width:0; }
 .map-station-card strong, .map-station-card span, .map-station-card small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -1726,7 +1732,19 @@ body[data-view="map"] .sticky-top { display:none; }
 .route-choice-icon--google { background:linear-gradient(135deg,#4285f4,#34a853); }
 .route-choice-icon--waze { background:#33ccff; color:#102a36; }
 .route-choice-note { margin:14px 2px 0; color:var(--text-secondary); font-size:.72rem; line-height:1.45; }
-@media (max-width:600px) { .map-page-heading { display:block; } .map-heading-actions { margin-top:10px; flex-direction:row; align-items:center; justify-content:space-between; } .stations-map { min-height:360px; } }
+@media (max-width:600px) {
+    .map-page-heading { display:block; margin-bottom:10px; }
+    .map-page-heading .profile-page-kicker { display:none; }
+    .map-page-heading h2 { margin:0 0 3px; font-size:1.35rem; }
+    .map-page-heading > div > p:last-child { font-size:.76rem; line-height:1.35; }
+    .map-heading-actions { margin-top:7px; flex-direction:row; align-items:center; justify-content:space-between; }
+    .map-filter-card { padding:10px; margin-bottom:10px; border-radius:15px; }
+    .map-filter-heading { margin-bottom:6px; }
+    .map-operator-chip { padding:5px 8px; }
+    .map-operator-chip img { width:20px; height:20px; }
+    .stations-map { height:42dvh; min-height:320px; max-height:380px; border-radius:17px; }
+    .map-nearby { margin-top:12px; }
+}
 
 /* ── Menu Drawer ── */
 html.menu-open,

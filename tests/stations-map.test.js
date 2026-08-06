@@ -107,3 +107,24 @@ test('un appui sur la carte sélectionne la station dans une zone tactile élarg
   assert.match(selection, /renderList\(visibleStations\(\)\)/);
   assert.doesNotMatch(selection, /renderStations\(\)/);
 });
+
+test('les logos remplacent les points quand la carte couvre environ 400 km', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  assert.match(source, /LOGO_DISTANCE_THRESHOLD_METERS = 450000/);
+  assert.match(source, /visibleWidth <= LOGO_DISTANCE_THRESHOLD_METERS/);
+  assert.match(source, /L\.divIcon/);
+  assert.match(source, /showOperatorLogos \|\| selected/);
+});
+
+test('la vue Carte compacte son en-tête pour laisser apparaître la liste', async () => {
+  const css = await readFile(new URL('styles.css', root), 'utf8');
+  assert.match(css, /body\[data-view="map"\] > \.container > \.app-title/);
+  assert.match(css, /\.stations-map \{ height:42dvh; min-height:320px; max-height:380px/);
+  assert.match(css, /\.map-nearby \{ margin-top:12px/);
+});
+
+test('les points et les logos sélectionnent directement leur fiche dans la liste', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  assert.match(source, /marker\.on\('click', \(\) => selectStation\(station\.id, \{ centerMap: false \}\)\)/);
+  assert.ok((source.match(/bubblingMouseEvents: false/g) || []).length >= 2);
+});
