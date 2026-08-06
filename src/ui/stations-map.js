@@ -16,6 +16,7 @@ const COLORS = {
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
+const STATUS_COLORS = { available: '#16a34a', busy: '#f59e0b', out_of_service: '#dc2626', unknown: '#94a3b8' };
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
@@ -43,12 +44,42 @@ export function initStationsMap() {
   let markersById = new Map();
   let markerRenderer = null;
   let locationMarker = null;
+  let userCoordinates = null;
+  let locationPending = false;
   let selectedStationId = null;
   let renderedStations = [];
+  let stationStatuses = {};
+  let statusRequest = null;
+  let lastStatusFetch = 0;
+  let mapPositionReady = false;
   let loaded = false;
 
   function visibleStations() {
     return stations.filter(station => selected.has(station.operator));
+  }
+
+  function statusFor(station) {
+    return stationStatuses[station.id] || { status: 'unknown' };
+  }
+
+  function formatStatusAge(observedAt) {
+    const ageMinutes = Math.max(0, Math.floor((Date.now() - Date.parse(observedAt)) / 60000));
+    if (!Number.isFinite(ageMinutes)) return '';
+    return ageMinutes < 1 ? 'à l’instant' : `il y a ${ageMinutes} min`;
+  }
+
+  function statusDescription(station) {
+    const status = statusFor(station);
+    const age = status.observedAt ? ` · ${formatStatusAge(status.observedAt)}` : '';
+    if (status.status === 'available') return { state: 'available', label: `${status.free} libre${status.free > 1 ? 's' : ''} sur ${status.known}${age}` };
+    if (status.status === 'busy') return { state: 'busy', label: `Occupée${status.reserved ? ' ou réservée' : ''}${age}` };
+    if (status.status === 'out_of_service') return { state: 'out_of_service', label: `Hors service${age}` };
+    return { state: 'unknown', label: 'Statut inconnu' };
+  }
+
+  function statusBadge(station, className = '') {
+    const status = statusDescription(station);
+    return `<span class="station-status ${className}" data-status="${status.state}"><i aria-hidden="true"></i>${escapeHtml(status.label)}</span>`;
   }
 
   function renderList(items) {
@@ -62,13 +93,13 @@ export function initStationsMap() {
     list.innerHTML = nearby.map(station => `
       <article class="map-station-card${station.id === selectedStationId ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="Afficher ${escapeHtml(station.name)} sur la carte" aria-pressed="${station.id === selectedStationId}">
         <img src="${LOGOS[station.operator] || ''}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(station.name)}</strong><span>${LABELS[station.operator]} · jusqu’à ${station.power} kW · ${station.connectors} point${station.connectors > 1 ? 's' : ''}</span><small>${escapeHtml(station.address || station.city)}</small></div>
+        <div><strong>${escapeHtml(station.name)}</strong><span>${LABELS[station.operator]} · jusqu’à ${station.power} kW · ${station.connectors} point${station.connectors > 1 ? 's' : ''}</span><small>${escapeHtml(station.address || station.city)}</small>${statusBadge(station)}</div>
         <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</button>
       </article>`).join('') || '<p class="map-empty">Aucune station ne correspond à cette sélection.</p>';
   }
 
   function renderStations() {
-    if (!map) return;
+    if (!map || !mapPositionReady) return;
     markers.forEach(marker => marker.remove());
     markersById = new Map();
     const filtered = visibleStations();
@@ -80,14 +111,15 @@ export function initStationsMap() {
     renderedStations = inView;
     markers = inView.map(station => {
       const selected = station.id === selectedStationId;
+      const currentStatus = statusDescription(station).state;
       const marker = (showOperatorLogos || selected)
         ? L.marker([station.lat, station.lon], { icon: createOperatorIcon(station, selected), riseOnHover: true, bubblingMouseEvents: false })
         : L.circleMarker([station.lat, station.lon], {
           renderer: markerRenderer, radius: 10, weight: 2.5,
-          color: '#fff', fillColor: COLORS[station.operator], fillOpacity: 0.92,
+          color: STATUS_COLORS[currentStatus], fillColor: COLORS[station.operator], fillOpacity: 0.92,
           bubblingMouseEvents: false
         });
-      marker.bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      marker.bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br>${statusBadge(station, 'station-status--popup')}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
@@ -100,12 +132,75 @@ export function initStationsMap() {
   function createOperatorIcon(station, selected = false) {
     const size = selected ? 42 : 32;
     return L.divIcon({
-      className: `map-operator-marker${selected ? ' is-selected' : ''}`,
+      className: `map-operator-marker status-${statusDescription(station).state}${selected ? ' is-selected' : ''}`,
       html: `<img src="${LOGOS[station.operator]}" alt="">`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -(size / 2 + 4)]
     });
+  }
+
+  async function loadStatuses() {
+    if (statusRequest) return statusRequest;
+    statusRequest = (async () => {
+      try {
+        const response = await fetch('./status.php', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        stationStatuses = payload.stations || {};
+        lastStatusFetch = Date.now();
+        renderStations();
+      } catch (_) {
+        // Le statut est une information facultative : la carte statique reste utilisable.
+      } finally {
+        statusRequest = null;
+      }
+    })();
+    return statusRequest;
+  }
+
+  function locateUser({ automatic = false } = {}) {
+    const button = document.getElementById('map-locate');
+    if (userCoordinates && locationMarker) {
+      mapPositionReady = true;
+      map.setView(userCoordinates, Math.max(map.getZoom(), 10), { animate: true });
+      locationMarker.openPopup();
+      button.disabled = false;
+      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      renderStations();
+      return;
+    }
+    if (locationPending) return;
+    if (!navigator.geolocation) {
+      mapPositionReady = true;
+      button.textContent = 'Localisation indisponible';
+      renderStations();
+      return;
+    }
+    locationPending = true;
+    button.disabled = true;
+    button.textContent = 'Localisation…';
+    navigator.geolocation.getCurrentPosition(position => {
+      const coordinates = [position.coords.latitude, position.coords.longitude];
+      userCoordinates = coordinates;
+      locationPending = false;
+      locationMarker?.remove();
+      locationMarker = L.circleMarker(coordinates, {
+        radius: 9, weight: 4, color: '#fff', fillColor: '#00c2ff', fillOpacity: 1
+      }).bindPopup('Votre position').addTo(map);
+      mapPositionReady = true;
+      map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
+      locationMarker.openPopup();
+      button.disabled = false;
+      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      renderStations();
+    }, error => {
+      locationPending = false;
+      mapPositionReady = true;
+      button.disabled = false;
+      button.textContent = error.code === 1 ? 'Me localiser' : 'Position introuvable';
+      renderStations();
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
   }
 
   function selectStation(id, { centerMap = true } = {}) {
@@ -116,8 +211,9 @@ export function initStationsMap() {
     markersById.forEach((marker, markerId) => {
       const selected = markerId === selectedStationId;
       if (typeof marker.setRadius === 'function') {
+        const markerStation = stations.find(item => item.id === markerId);
         marker.setRadius(selected ? 15 : 10);
-        marker.setStyle({ weight: selected ? 5 : 2.5, color: selected ? '#00c2ff' : '#fff' });
+        marker.setStyle({ weight: selected ? 5 : 2.5, color: selected ? '#00c2ff' : STATUS_COLORS[markerStation ? statusDescription(markerStation).state : 'unknown'] });
       } else {
         const markerStation = stations.find(item => item.id === markerId);
         if (markerStation) marker.setIcon(createOperatorIcon(markerStation, selected));
@@ -141,6 +237,7 @@ export function initStationsMap() {
       button.setAttribute('aria-pressed', selected.has(key));
       localStorage.setItem(STORAGE_KEYS.mapOperators, JSON.stringify([...selected]));
       renderStations();
+      void loadStatuses();
     });
     document.getElementById('map-select-all')?.addEventListener('click', () => { selected = new Set(keys); renderFiltersState(); renderStations(); });
     document.getElementById('map-select-none')?.addEventListener('click', () => { selected.clear(); renderFiltersState(); renderStations(); });
@@ -224,33 +321,23 @@ export function initStationsMap() {
   }
 
   document.getElementById('map-locate')?.addEventListener('click', async () => {
-    const button = document.getElementById('map-locate');
-    if (!navigator.geolocation) {
-      button.textContent = 'Localisation indisponible';
-      return;
-    }
-    button.disabled = true;
-    button.textContent = 'Localisation…';
     await load();
     if (!map) {
+      const button = document.getElementById('map-locate');
       button.disabled = false;
       button.textContent = 'Carte indisponible';
       return;
     }
-    navigator.geolocation.getCurrentPosition(position => {
-      const coordinates = [position.coords.latitude, position.coords.longitude];
-      locationMarker?.remove();
-      locationMarker = L.circleMarker(coordinates, {
-        radius: 9, weight: 4, color: '#fff', fillColor: '#00c2ff', fillOpacity: 1
-      }).bindPopup('Votre position').addTo(map);
-      map.flyTo(coordinates, 11, { duration: 0.8 });
-      button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
-    }, error => {
-      button.disabled = false;
-      button.textContent = error.code === 1 ? 'Position non autorisée' : 'Position introuvable';
-    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+    locateUser();
   });
 
-  return { activate() { load().then(() => window.setTimeout(() => map?.invalidateSize(), 80)); } };
+  return {
+    activate() {
+      load().then(() => {
+        window.setTimeout(() => map?.invalidateSize(), 80);
+        if (map && !mapPositionReady) locateUser({ automatic: true });
+        if (Date.now() - lastStatusFetch > 120000) void loadStatuses();
+      });
+    }
+  };
 }

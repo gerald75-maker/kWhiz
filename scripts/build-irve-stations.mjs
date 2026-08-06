@@ -1,7 +1,9 @@
 import { createReadStream, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { parse } from 'csv-parse';
 
 const [input, output = 'public/irve-fast.json'] = process.argv.slice(2);
+const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
 if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json]');
 
 const NETWORKS = [
@@ -27,6 +29,7 @@ function networkFor(row) {
 }
 
 const stations = new Map();
+const stationPointIds = new Map();
 const parser = createReadStream(input).pipe(parse({ columns: true, relax_quotes: true, skip_empty_lines: true }));
 
 for await (const row of parser) {
@@ -40,6 +43,9 @@ for await (const row of parser) {
   // Plusieurs producteurs réutilisent un identifiant de PDC comme identifiant de
   // station. Une clé géographique évite alors d'afficher chaque prise séparément.
   const id = `${operator}:${lat.toFixed(4)}:${lon.toFixed(4)}`;
+  const pointId = String(row.id_pdc_itinerance || '').trim().toUpperCase();
+  if (!stationPointIds.has(id)) stationPointIds.set(id, new Set());
+  if (pointId) stationPointIds.get(id).add(pointId);
   const existing = stations.get(id);
   if (existing) {
     existing.power = Math.max(existing.power, power);
@@ -68,7 +74,13 @@ for await (const row of parser) {
 
 const data = [...stations.values()].sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name));
 writeFileSync(output, JSON.stringify({ updatedAt: '2026-08-06', source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
+const pointToStation = {};
+for (const [stationId, pointIds] of stationPointIds) {
+  for (const pointId of pointIds) pointToStation[pointId] = stationId;
+}
+writeFileSync(statusIndexOutput, JSON.stringify({ updatedAt: '2026-08-06', pointToStation }));
 
 const counts = Object.fromEntries(NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
 console.log(`Generated ${data.length} fast stations in ${output}`);
+console.log(`Generated ${Object.keys(pointToStation).length} status links in ${statusIndexOutput}`);
 console.table(counts);

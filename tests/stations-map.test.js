@@ -119,12 +119,67 @@ test('les logos remplacent les points quand la carte couvre environ 400 km', asy
 test('la vue Carte compacte son en-tête pour laisser apparaître la liste', async () => {
   const css = await readFile(new URL('styles.css', root), 'utf8');
   assert.match(css, /body\[data-view="map"\] > \.container > \.app-title/);
-  assert.match(css, /\.stations-map \{ height:42dvh; min-height:320px; max-height:380px/);
+  assert.match(css, /\.stations-map \{ height:48dvh; min-height:360px; max-height:460px/);
   assert.match(css, /\.map-nearby \{ margin-top:12px/);
+});
+
+test('la carte reste fixe pendant que la liste des stations défile dessous', async () => {
+  const css = await readFile(new URL('styles.css', root), 'utf8');
+  assert.match(css, /\.stations-map \{ position:sticky; top:max\(8px, env\(safe-area-inset-top\)\)/);
+  assert.match(css, /z-index:100; box-shadow:/);
 });
 
 test('les points et les logos sélectionnent directement leur fiche dans la liste', async () => {
   const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
   assert.match(source, /marker\.on\('click', \(\) => selectStation\(station\.id, \{ centerMap: false \}\)\)/);
   assert.ok((source.match(/bubblingMouseEvents: false/g) || []).length >= 2);
+});
+
+test('les statuts dynamiques restent indicatifs, récents et non bloquants', async () => {
+  const [source, php, html, index] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/status.php', root), 'utf8'),
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('public/irve-status-index.json', root), 'utf8')
+  ]);
+  assert.match(source, /fetch\('\.\/status\.php'/);
+  assert.match(source, /Statut inconnu/);
+  assert.match(php, /FRESH_SECONDS = 900/);
+  assert.match(php, /CACHE_SECONDS = 120/);
+  assert.match(php, /\$latestPoints\[\$pointId\]/);
+  assert.match(html, /date de moins de 15 minutes/);
+  assert.ok(Object.keys(JSON.parse(index).pointToStation).length > 10000);
+});
+
+test('la carte attend la localisation avant de dessiner les stations', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  assert.match(source, /if \(!map \|\| !mapPositionReady\) return/);
+  assert.match(source, /locateUser\(\{ automatic: true \}\)/);
+  assert.match(source, /map\.setView\(coordinates, automatic \? 9/);
+});
+
+test('Recentrer réutilise immédiatement la position connue sans nouvel appel GPS', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  assert.match(source, /let userCoordinates = null/);
+  assert.match(source, /if \(userCoordinates && locationMarker\)/);
+  assert.match(source, /map\.setView\(userCoordinates, Math\.max\(map\.getZoom\(\), 10\)/);
+  assert.match(source, /if \(locationPending\) return/);
+});
+
+test('l’aide ordonnée couvre localisation, statuts, sélection et itinéraire', async () => {
+  const html = await readFile(new URL('index.html', root), 'utf8');
+  const mapHelp = html.slice(html.indexOf('🗺️ Utiliser la carte'), html.indexOf('</ol>', html.indexOf('🗺️ Utiliser la carte')));
+  assert.equal((mapHelp.match(/<li>/g) || []).length, 7);
+  assert.match(mapHelp, /première ouverture/);
+  assert.match(mapHelp, /vert/);
+  assert.match(mapHelp, /point, un logo ou une fiche/);
+  assert.match(mapHelp, /Google Maps ou Waze/);
+});
+
+test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {
+  const css = await readFile(new URL('styles.css', root), 'utf8');
+  const noteStyles = css.slice(css.indexOf('.help-note {'), css.indexOf('}', css.indexOf('.help-note {')));
+  assert.match(noteStyles, /font-size: 0\.82rem/);
+  assert.match(noteStyles, /color: var\(--text-secondary\)/);
+  assert.match(noteStyles, /line-height: 1\.5/);
 });
