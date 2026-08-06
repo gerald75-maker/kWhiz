@@ -436,7 +436,8 @@ function initApp() {
     initModalManager([
         { overlayId: 'izivia-overlay', closeId: 'izivia-close' },
         { overlayId: 'ionity-rewards-overlay', closeId: 'ionity-rewards-close' },
-        { overlayId: 'formula-detail-overlay', closeId: 'formula-detail-close' }
+        { overlayId: 'formula-detail-overlay', closeId: 'formula-detail-close' },
+        { overlayId: 'route-choice-overlay', closeId: 'route-choice-close' }
     ]);
 
     consumptionController = initConsumptionController({

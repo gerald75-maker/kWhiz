@@ -75,3 +75,35 @@ test('les parcours de l’aide sont de vraies listes ordonnées', async () => {
   assert.equal((html.match(/<ol class="help-ordered-list">/g) || []).length, 2);
   assert.doesNotMatch(html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"')), /class="help-num"/);
 });
+
+test('un itinéraire propose Plans, Google Maps et Waze', async () => {
+  const [html, source] = await Promise.all([
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8')
+  ]);
+  assert.match(html, /Choisir votre GPS/);
+  assert.match(source, /maps\.apple\.com/);
+  assert.match(source, /google\.com\/maps\/dir/);
+  assert.match(source, /waze\.com\/ul/);
+  assert.doesNotMatch(source, /<a href="https:\/\/www\.google\.com\/maps\/dir/);
+});
+
+test('une station de la liste sélectionne et centre son marqueur', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  assert.match(source, /data-station-id=/);
+  assert.match(source, /map\.panTo\(\[station\.lat, station\.lon\]\)/);
+  assert.match(source, /markersById\.get\(selectedStationId\)\?\.openPopup\(\)/);
+  assert.match(source, /is-selected/);
+});
+
+test('un appui sur la carte sélectionne la station dans une zone tactile élargie', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  const selection = source.slice(source.indexOf('function selectStation'), source.indexOf('function renderFilters'));
+  assert.match(source, /map\.on\('click'/);
+  assert.match(source, /nearestDistance = 29/);
+  assert.match(source, /tolerance: 12/);
+  assert.match(source, /selected \? 15 : 10/);
+  assert.match(selection, /marker\.setRadius/);
+  assert.match(selection, /renderList\(visibleStations\(\)\)/);
+  assert.doesNotMatch(selection, /renderStations\(\)/);
+});

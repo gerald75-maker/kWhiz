@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
+import { openModal } from './modal-manager.js';
 
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
@@ -37,8 +38,11 @@ export function initStationsMap() {
   let stations = [];
   let selected = new Set();
   let markers = [];
+  let markersById = new Map();
   let markerRenderer = null;
   let locationMarker = null;
+  let selectedStationId = null;
+  let renderedStations = [];
   let loaded = false;
 
   function visibleStations() {
@@ -46,28 +50,55 @@ export function initStationsMap() {
   }
 
   function renderList(items) {
-    const nearby = map
+    let nearby = map
       ? [...items].sort((a, b) => map.getCenter().distanceTo([a.lat, a.lon]) - map.getCenter().distanceTo([b.lat, b.lon])).slice(0, 12)
       : items.slice(0, 12);
+    const selectedStation = selectedStationId ? items.find(station => station.id === selectedStationId) : null;
+    if (selectedStation && !nearby.some(station => station.id === selectedStationId)) {
+      nearby = [selectedStation, ...nearby.slice(0, 11)];
+    }
     list.innerHTML = nearby.map(station => `
-      <article class="map-station-card">
+      <article class="map-station-card${station.id === selectedStationId ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="Afficher ${escapeHtml(station.name)} sur la carte" aria-pressed="${station.id === selectedStationId}">
         <img src="${LOGOS[station.operator] || ''}" alt="" class="map-station-logo">
         <div><strong>${escapeHtml(station.name)}</strong><span>${LABELS[station.operator]} · jusqu’à ${station.power} kW · ${station.connectors} point${station.connectors > 1 ? 's' : ''}</span><small>${escapeHtml(station.address || station.city)}</small></div>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lon}" target="_blank" rel="noopener noreferrer" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</a>
+        <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</button>
       </article>`).join('') || '<p class="map-empty">Aucune station ne correspond à cette sélection.</p>';
   }
 
   function renderStations() {
     if (!map) return;
     markers.forEach(marker => marker.remove());
+    markersById = new Map();
     const filtered = visibleStations();
     const bounds = map.getBounds().pad(0.15);
     const inView = filtered.filter(station => bounds.contains([station.lat, station.lon]));
-    markers = inView.map(station => L.circleMarker([station.lat, station.lon], {
-      renderer: markerRenderer, radius: 7, weight: 2, color: '#fff', fillColor: COLORS[station.operator], fillOpacity: 0.92
-    }).bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lon}" target="_blank" rel="noopener">Lancer l’itinéraire</a>`).addTo(map));
+    renderedStations = inView;
+    markers = inView.map(station => {
+      const selected = station.id === selectedStationId;
+      const marker = L.circleMarker([station.lat, station.lon], {
+        renderer: markerRenderer, radius: selected ? 15 : 10, weight: selected ? 5 : 2.5,
+        color: selected ? '#00c2ff' : '#fff', fillColor: COLORS[station.operator], fillOpacity: 0.92
+      }).bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      markersById.set(station.id, marker);
+      return marker;
+    });
     count.textContent = `${filtered.length.toLocaleString('fr-FR')} station${filtered.length > 1 ? 's' : ''} · ${inView.length.toLocaleString('fr-FR')} dans la carte`;
     renderList(filtered);
+    if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
+  }
+
+  function selectStation(id, { centerMap = true } = {}) {
+    const station = stations.find(item => item.id === id);
+    if (!station) return;
+    selectedStationId = id;
+    if (centerMap) map.panTo([station.lat, station.lon]);
+    markersById.forEach((marker, markerId) => {
+      const selected = markerId === selectedStationId;
+      marker.setRadius(selected ? 15 : 10);
+      marker.setStyle({ weight: selected ? 5 : 2.5, color: selected ? '#00c2ff' : '#fff' });
+    });
+    renderList(visibleStations());
+    markersById.get(selectedStationId)?.openPopup();
   }
 
   function renderFilters(keys) {
@@ -90,6 +121,38 @@ export function initStationsMap() {
     localStorage.setItem(STORAGE_KEYS.mapOperators, JSON.stringify([...selected]));
   }
 
+  function openRouteChoice(trigger) {
+    const lat = Number(trigger.dataset.lat);
+    const lon = Number(trigger.dataset.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const station = trigger.dataset.station || 'Station sélectionnée';
+    document.getElementById('route-choice-station').textContent = station;
+    document.getElementById('route-apple').href = `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`;
+    document.getElementById('route-google').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+    document.getElementById('route-waze').href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+    const isAndroid = /Android/i.test(navigator.userAgent || '');
+    document.querySelector('[data-route-app="apple"]').hidden = isAndroid;
+    openModal('route-choice-overlay', trigger);
+  }
+
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('.map-route-trigger');
+    if (trigger) {
+      openRouteChoice(trigger);
+      return;
+    }
+    const stationCard = event.target.closest('.map-station-card');
+    if (stationCard) selectStation(stationCard.dataset.stationId);
+  });
+
+  list.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const stationCard = event.target.closest('.map-station-card');
+    if (!stationCard || event.target.closest('.map-route-trigger')) return;
+    event.preventDefault();
+    selectStation(stationCard.dataset.stationId);
+  });
+
   async function load() {
     if (loaded) return;
     loaded = true;
@@ -105,9 +168,23 @@ export function initStationsMap() {
       map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.
-      markerRenderer = L.canvas({ padding: 0.4 });
+      markerRenderer = L.canvas({ padding: 0.4, tolerance: 12 });
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
       map.on('moveend', renderStations);
+      map.on('click', event => {
+        const touchedPoint = map.latLngToContainerPoint(event.latlng);
+        let nearest = null;
+        let nearestDistance = 29;
+        renderedStations.forEach(station => {
+          const point = map.latLngToContainerPoint([station.lat, station.lon]);
+          const distance = touchedPoint.distanceTo(point);
+          if (distance < nearestDistance) {
+            nearest = station;
+            nearestDistance = distance;
+          }
+        });
+        if (nearest) selectStation(nearest.id, { centerMap: false });
+      });
       renderStations();
     } catch (error) {
       count.textContent = 'Carte indisponible';
