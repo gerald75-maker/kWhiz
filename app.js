@@ -75,6 +75,7 @@ let tariffHistory = (() => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.tariffHistory) || '[]'); }
     catch (_) { return []; }
 })();
+let appInitialized = false;
 
 function setApplicationStatus(state, message) {
     const badge = document.getElementById('about-app-status-badge');
@@ -418,6 +419,9 @@ function openIonityRewardsModal(trigger) { openModal('ionity-rewards-overlay', t
 // ── 5. Initialisation DOM ───────────────────────────────────────────────
 
 function initApp() {
+    if (appInitialized) return;
+    appInitialized = true;
+
     initModalManager([
         { overlayId: 'izivia-overlay', closeId: 'izivia-close' },
         { overlayId: 'cb-overlay', closeId: 'cb-close' },
@@ -494,9 +498,18 @@ function initApp() {
 
     applyInstallOsDetection();
     if (!localStorage.getItem(LANDING_KEY)) showLanding();
+
+    // Charger les données seulement après l'installation de tous les
+    // contrôleurs. En PWA, la réponse peut venir instantanément du cache.
+    loadTarifs();
+    fetch(CONFIG.pingUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp, { once: true });
+} else {
+    initApp();
+}
 
 
 // ── 6. Bootstrap ────────────────────────────────────────────────────────
@@ -516,7 +529,3 @@ document.addEventListener('DOMContentLoaded', initApp);
     update();
     new ResizeObserver(update).observe(wrapper);
 })();
-
-// Chargement initial des tarifs + ping de présence
-loadTarifs();
-fetch(CONFIG.pingUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});

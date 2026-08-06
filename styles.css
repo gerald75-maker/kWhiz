@@ -5120,6 +5120,26 @@ body.light .page-overlay-sheet {
     -webkit-backdrop-filter: blur(20px) saturate(145%);
     box-shadow: 0 14px 38px rgba(0,0,0,.22);
 }
+
+/* iOS standalone peut désynchroniser la zone tactile d'un élément fixed qui
+   combine backdrop-filter et promotion GPU. Dans la PWA, conserver la barre
+   sur le calque principal garantit que sa zone cliquable suit son affichage. */
+@media (display-mode: standalone) {
+    .bottom-nav {
+        transform: none;
+        -webkit-transform: none;
+        will-change: auto;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: var(--bg-card);
+    }
+
+    .bnav-item {
+        position: relative;
+        z-index: 1;
+        touch-action: manipulation;
+    }
+}
 .tab {
     min-height: 54px;
     border-radius: 16px;

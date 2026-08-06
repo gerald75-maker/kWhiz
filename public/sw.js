@@ -8,9 +8,13 @@ if (CACHE_NAME.includes('__')) {
     console.error('[SW] CACHE_HASH non injecté — vérifiez que `npm run build` a bien exécuté inject-build-vars.mjs');
 }
 
+// Remplacé par scripts/inject-build-vars.mjs avec les fichiers Vite hashés.
+const BUILD_ASSETS = __BUILD_ASSETS__;
+
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './tarifs.json',
   './manifest.json',
   './icons/icon-72.png',
   './icons/icon-96.png',
@@ -20,7 +24,8 @@ const STATIC_ASSETS = [
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-384.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  ...BUILD_ASSETS
 ];
 
 // Note : 'app.js' est intentionnellement absent — après build Vite le fichier
@@ -37,6 +42,12 @@ function isPhp(url) {
   return new URL(url).pathname.endsWith('.php');
 }
 
+function cacheKeyFor(request) {
+  const url = new URL(request.url);
+  if (url.pathname.endsWith('/tarifs.json')) url.search = '';
+  return url.toString();
+}
+
 // ── INSTALL ──────────────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
   // Pas de skipWaiting() ici : le nouveau SW reste en état 'waiting' jusqu'à ce que
@@ -45,7 +56,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(STATIC_ASSETS))
-      .catch(err => console.error('[SW] Precache failed:', err))
   );
 });
 
@@ -79,18 +89,19 @@ self.addEventListener('fetch', event => {
 
   // Network First : index.html, racine, sw.js, tarifs.json
   if (isNetworkFirst(event.request.url)) {
+    const cacheKey = cacheKeyFor(event.request);
     event.respondWith(
       fetch(event.request)
         .then(response => {
           if (response && response.status === 200) {
             const clone = response.clone();
             caches.open(CACHE_NAME)
-              .then(cache => cache.put(event.request, clone))
+              .then(cache => cache.put(cacheKey, clone))
               .catch(err => console.warn('[SW] Cache put failed:', err));
           }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(cacheKey))
     );
     return;
   }

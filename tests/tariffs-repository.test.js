@@ -23,8 +23,13 @@ function installLocalStorage(initial = {}) {
 
 test('charge et met en cache des tarifs réseau valides', async () => {
     const store = installLocalStorage();
-    globalThis.fetch = async () => ({ ok: true, json: async () => structuredClone(validPayload) });
+    let requestedUrl = null;
+    globalThis.fetch = async url => {
+        requestedUrl = url;
+        return { ok: true, json: async () => structuredClone(validPayload) };
+    };
     const result = await loadTariffs({ url: './tarifs.json', cacheKey: 'tariffs', validColors: ['electra'] });
+    assert.equal(requestedUrl, './tarifs.json');
     assert.equal(result.source, 'network');
     assert.equal(result.updatedAt, '2026-07-20');
     assert.equal(result.data.electra.formulas[0].rate, 0.49);
@@ -45,4 +50,11 @@ test('rejette un cache qui ne contient aucune formule valide', async () => {
     installLocalStorage({ tariffs: JSON.stringify({ data: { electra: { name: 'Electra', color: 'electra', formulas: [{ name: 'Cassée', rate: 'x', cost: 0, period: 'monthly' }] } } }) });
     globalThis.fetch = async () => { throw new Error('offline'); };
     await assert.rejects(loadTariffs({ url: './tarifs.json', cacheKey: 'tariffs', validColors: ['electra'] }), /Aucune donnée tarifaire valide/);
+});
+
+test('supprime un cache illisible lorsque le réseau échoue', async () => {
+    const store = installLocalStorage({ tariffs: '{cassé' });
+    globalThis.fetch = async () => { throw new Error('offline'); };
+    await assert.rejects(loadTariffs({ url: './tarifs.json', cacheKey: 'tariffs', validColors: ['electra'] }), /offline/);
+    assert.equal(store.has('tariffs'), false);
 });

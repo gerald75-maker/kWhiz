@@ -167,13 +167,7 @@ export function reloadApplication() {
 
 export async function updateApplication() {
     try {
-        const result = await checkForApplicationUpdate();
-        if (!result.updated && 'caches' in window) {
-            const names = await caches.keys();
-            await Promise.all(
-                names.filter(name => name.startsWith('kwhiz-')).map(name => caches.delete(name))
-            );
-        }
+        await checkForApplicationUpdate();
     } finally {
         window.setTimeout(reloadApplication, 300);
     }

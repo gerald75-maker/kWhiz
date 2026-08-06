@@ -30,6 +30,7 @@ const swPath    = resolve(root, 'dist', 'sw.js');
 
 const VERSION_PLACEHOLDER = '__VERSION__';
 const HASH_PLACEHOLDER    = '__CACHE_HASH__';
+const ASSETS_PLACEHOLDER  = '__BUILD_ASSETS__';
 
 // ── 1. Lire package.json → version ───────────────────────────────────────────
 let version;
@@ -93,7 +94,22 @@ if (!swContent.includes(HASH_PLACEHOLDER)) {
 }
 
 // ── 6. Injecter le hash dans dist/sw.js ─────────────────────────────────────
-const swPatched = swContent.replace(HASH_PLACEHOLDER, hash);
+if (!swContent.includes(ASSETS_PLACEHOLDER)) {
+  console.error(`[inject-build-vars] ✗ Placeholder "${ASSETS_PLACEHOLDER}" introuvable dans dist/sw.js`);
+  process.exit(1);
+}
+
+const buildAssets = [...indexPatched.matchAll(/(?:src|href)=["'](?:\.\/|\/)(assets\/[^"']+)["']/g)]
+  .map(match => `./${match[1]}`);
+
+if (buildAssets.length === 0) {
+  console.error('[inject-build-vars] ✗ Aucun asset Vite trouvé dans dist/index.html');
+  process.exit(1);
+}
+
+const swPatched = swContent
+  .replace(HASH_PLACEHOLDER, hash)
+  .replace(ASSETS_PLACEHOLDER, JSON.stringify([...new Set(buildAssets)]));
 
 try {
   writeFileSync(swPath, swPatched, 'utf8');
@@ -103,3 +119,4 @@ try {
 }
 
 console.log(`[inject-build-vars] ✓ CACHE_NAME = 'kwhiz-${hash}'`);
+console.log(`[inject-build-vars] ✓ Assets préchargés : ${buildAssets.length}`);

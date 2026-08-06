@@ -22,7 +22,9 @@ function validatePayload(data, validColors) {
 
 export async function loadTariffs({ url, cacheKey, validColors }) {
     try {
-        const response = await fetch(`${url}?v=${Date.now()}`, { cache: 'no-store' });
+        // Garder une URL stable : le Service Worker peut ainsi retrouver la
+        // dernière réponse mise en cache lorsque le réseau devient indisponible.
+        const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const payload = await response.json();
@@ -45,7 +47,13 @@ export async function loadTariffs({ url, cacheKey, validColors }) {
         const cached = localStorage.getItem(cacheKey);
         if (!cached) throw networkError;
 
-        const parsed = JSON.parse(cached);
+        let parsed;
+        try {
+            parsed = JSON.parse(cached);
+        } catch (_) {
+            localStorage.removeItem(cacheKey);
+            throw networkError;
+        }
         const validatedData = validatePayload(parsed.data, validColors);
         return {
             data: validatedData,

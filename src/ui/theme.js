@@ -35,9 +35,16 @@ export function initTheme() {
     if (saved) applyTheme(saved);
     else if (window.matchMedia('(prefers-color-scheme: light)').matches) applyTheme('light');
 
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', event => {
+    const colorScheme = window.matchMedia('(prefers-color-scheme: light)');
+    const handleColorSchemeChange = event => {
         if (!localStorage.getItem(STORAGE_KEYS.theme)) {
             applyTheme(event.matches ? 'light' : 'dark');
         }
-    });
+    };
+
+    if (typeof colorScheme.addEventListener === 'function') {
+        colorScheme.addEventListener('change', handleColorSchemeChange);
+    } else if (typeof colorScheme.addListener === 'function') {
+        colorScheme.addListener(handleColorSchemeChange);
+    }
 }
