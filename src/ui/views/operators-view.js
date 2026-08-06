@@ -23,9 +23,6 @@ function buildMapLink(opKey, mapUrl, suffix) {
 
 function buildInfoBtns(operator) {
     let html = '';
-    if (operator.loyalty?.chargebackInfo) {
-        html += `<button class="cb-info-btn" data-modal="cb" aria-label="En savoir plus sur le ChargeBack">${uiIcon('info')}</button>`;
-    }
     if (operator.iziviaInfo) {
         html += `<button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours Izivia">${uiIcon('info')}</button>`;
     }
@@ -38,10 +35,7 @@ function buildInfoBtns(operator) {
 function buildLoyaltyBadge(operator, detailed) {
     if (!operator.loyalty) return '';
     const cls = detailed ? 'loyalty-badge loyalty-badge--detailed' : 'loyalty-badge';
-    const cbBtn = operator.loyalty.chargebackInfo
-        ? `<button class="cb-info-btn" data-modal="cb" aria-label="En savoir plus sur le ChargeBack">${uiIcon('info')}</button>`
-        : '';
-    return `<div class="${cls}">${uiIcon('gem', 'benefit-icon')}<strong>${escapeHtml(operator.loyalty.name)}</strong><span class="benefit-copy">${escapeHtml(operator.loyalty.description)}</span>${cbBtn}</div>`;
+    return `<div class="${cls}">${uiIcon('gem', 'benefit-icon')}<strong>${escapeHtml(operator.loyalty.name)}</strong><span class="benefit-copy">${escapeHtml(operator.loyalty.description)}</span></div>`;
 }
 
 function buildIziviaBadge(operator, detailed) {

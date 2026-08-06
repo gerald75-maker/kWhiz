@@ -363,7 +363,6 @@ function handleToggleFavorite(id) {
 }
 
 function openInfoModal(name) {
-    if (name === 'cb') openCbModal();
     if (name === 'izivia') openIziviaModal();
     if (name === 'ionity-rewards') openIonityRewardsModal();
 }
@@ -412,7 +411,6 @@ function hideLanding() {
     localStorage.setItem(LANDING_KEY, '1');
 }
 
-function openCbModal(trigger) { openModal('cb-overlay', trigger); }
 function openIziviaModal(trigger) { openModal('izivia-overlay', trigger); }
 function openIonityRewardsModal(trigger) { openModal('ionity-rewards-overlay', trigger); }
 
@@ -424,7 +422,6 @@ function initApp() {
 
     initModalManager([
         { overlayId: 'izivia-overlay', closeId: 'izivia-close' },
-        { overlayId: 'cb-overlay', closeId: 'cb-close' },
         { overlayId: 'ionity-rewards-overlay', closeId: 'ionity-rewards-close' },
         { overlayId: 'formula-detail-overlay', closeId: 'formula-detail-close' }
     ]);
