@@ -146,6 +146,20 @@
 </div>
 </div>
 <!-- Mon choix — vue principale -->
+<div class="tab-content" id="tab-map">
+<header class="map-page-heading">
+<div><p class="profile-page-kicker">Bornes rapides en France</p><h2>Carte des stations</h2><p>Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
+<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> Me localiser</button></div>
+</header>
+<section class="map-filter-card" aria-labelledby="map-filter-title">
+<div class="map-filter-heading"><h3 id="map-filter-title">Opérateurs</h3><div><button id="map-select-all" type="button">Tous</button><button id="map-select-none" type="button">Aucun</button></div></div>
+<div class="map-operator-filters" id="map-operator-filters"></div>
+</section>
+<div class="stations-map" id="stations-map" aria-label="Carte des stations de recharge rapide"></div>
+<section class="map-nearby"><h3>Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
+<p class="map-source">Données : Base nationale IRVE, mises à jour le <span id="map-data-date">6 août 2026</span>. La présence d’une station ne garantit pas sa disponibilité en temps réel.</p>
+</div>
+<!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">
 <header class="profile-page-heading">
 <p class="profile-page-kicker">Estimation personnalisée</p>
@@ -442,27 +456,39 @@
 <button aria-label="Fermer" class="page-close" id="close-aide" type="button">✕</button>
 </div><div class="page-body">
 <h3 class="help-section-title">⚡ Bien démarrer</h3>
-<div class="help-step"><div class="help-num">1</div><p>Réglez votre <strong>consommation moyenne</strong> en kWh/100 km à l’aide du curseur situé en haut de l’écran.</p></div>
-<div class="help-step"><div class="help-num">2</div><p><strong>Mon choix</strong> affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.</p></div>
-<div class="help-step"><div class="help-num">3</div><p><strong>Comparer</strong> classe tous les opérateurs du moins cher au plus cher, abonnement compris.</p></div>
-<div class="help-step"><div class="help-num">4</div><p><strong>Opérateurs</strong> présente le détail de chaque offre ainsi que son seuil de rentabilité. L’icône <svg class="inline-map-icon" viewbox="0 0 32 32"><defs><lineargradient id="grad-help2" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="100%" stop-color="#06b6d4"></stop></lineargradient></defs><rect class="icon-bg" fill="url(#grad-help2)" height="22" rx="3" transform="rotate(45 16 16)" width="22" x="5" y="5"></rect><path d="M14 11v4h-4v2h4v4l6-5-6-5z" fill="white"></path></svg> affiche la carte des bornes.</p>
-</div>
+<ol class="help-ordered-list">
+<li>Réglez votre <strong>consommation moyenne</strong> en kWh/100 km à l’aide du curseur situé en haut de l’écran.</li>
+<li><strong>Mon choix</strong> affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.</li>
+<li><strong>Comparer</strong> classe tous les opérateurs du moins cher au plus cher, abonnement compris.</li>
+<li><strong>Opérateurs</strong> présente le détail de chaque offre ainsi que son seuil de rentabilité.</li>
+<li><strong>Carte</strong> affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.</li>
+</ol>
+<h3 class="help-section-title">🗺️ Utiliser la carte</h3>
+<ol class="help-ordered-list">
+<li>Appuyez sur les opérateurs pour les afficher ou les masquer. Avec plusieurs choix, kWhiz affiche les stations appartenant à <strong>l’un des réseaux sélectionnés</strong>.</li>
+<li>Utilisez <strong>Tous</strong> pour afficher tous les réseaux disponibles ou <strong>Aucun</strong> pour repartir d’une sélection vide.</li>
+<li>Appuyez sur <strong>Me localiser</strong> pour centrer la carte sur votre position. Votre appareil demandera votre autorisation et vos coordonnées ne sont pas transmises à kWhiz.</li>
+<li>Sélectionnez une station ou utilisez le bouton <strong>Itinéraire</strong> pour ouvrir le guidage vers la borne.</li>
+</ol>
+<div class="help-note">📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.</div>
 <div class="help-note">🕐 Les tarifs sont vérifiés régulièrement, mais confirmez-les toujours dans l’application ou sur le site de l’opérateur avant de recharger.</div>
 <h3 class="help-section-title">❓ FAQ</h3>
-<ul class="notes-list">
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Comment obtenir une recommandation personnalisée ?</strong> Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Que signifie la part de recharge rapide ?</strong> Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Les abonnements sont-ils pris en compte ?</strong> Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Qu’est-ce que le seuil de rentabilité ?</strong> C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Pourquoi le classement change-t-il ?</strong> Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Pourquoi certains tarifs sont-ils indiqués comme variables ou estimés ?</strong> Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Les tarifs sont-ils garantis ?</strong> Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>À quoi servent les favoris ?</strong> L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Puis-je tester un autre usage sans modifier mon profil ?</strong> Oui. Le simulateur de scénario permet de comparer un autre kilométrage ou une autre part de recharge rapide, puis d’enregistrer ce scénario.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Mes réglages sont-ils sauvegardés ?</strong> Ils sont conservés localement sur votre appareil. Depuis la page « À propos », vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>L’application fonctionne-t-elle hors ligne ?</strong> Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Comment actualiser l’application et les tarifs ?</strong> Utilisez « Actualiser les tarifs » dans le menu ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.</li>
-</ul></div></div></div>
+<div class="help-faq" id="help-faq">
+<details><summary>Comment obtenir une recommandation personnalisée ?</summary><p>Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.</p></details>
+<details><summary>Que signifie la part de recharge rapide ?</summary><p>Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.</p></details>
+<details><summary>Les abonnements sont-ils pris en compte ?</summary><p>Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.</p></details>
+<details><summary>Qu’est-ce que le seuil de rentabilité ?</summary><p>C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.</p></details>
+<details><summary>Pourquoi le classement change-t-il ?</summary><p>Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.</p></details>
+<details><summary>Pourquoi certains tarifs sont-ils variables ou estimés ?</summary><p>Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.</p></details>
+<details><summary>Les tarifs sont-ils garantis ?</summary><p>Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.</p></details>
+<details><summary>Pourquoi la carte ne trouve-t-elle pas ma position ?</summary><p>Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».</p></details>
+<details><summary>Les bornes affichées sont-elles disponibles ?</summary><p>Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.</p></details>
+<details><summary>À quoi servent les favoris ?</summary><p>L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</p></details>
+<details><summary>Puis-je tester un autre usage sans modifier mon profil ?</summary><p>Oui. Le simulateur de scénario permet de comparer un autre kilométrage ou une autre part de recharge rapide, puis d’enregistrer ce scénario.</p></details>
+<details><summary>Mes réglages sont-ils sauvegardés ?</summary><p>Ils sont conservés localement sur votre appareil. Depuis la page « À propos », vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.</p></details>
+<details><summary>L’application fonctionne-t-elle hors ligne ?</summary><p>Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.</p></details>
+<details><summary>Comment actualiser l’application et les tarifs ?</summary><p>Utilisez « Actualiser les tarifs » dans le menu ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.</p></details>
+</div></div></div></div>
 <div aria-hidden="true" class="page-overlay aux-drawer" id="page-infos">
 
 
@@ -486,7 +512,7 @@
 <li class="notes-item" id="infos-atlante-cb-li"><span class="notes-bullet">•</span><strong>Atlante ChargeBack</strong> : <span id="infos-atlante-cb-text">1 € payé génère 0,50 € de crédit en Gems, soit un taux de 50 % • prix effectif estimé à 0,193 €/kWh en usage régulier</span></li>
 <li class="notes-item"><span class="notes-bullet">•</span><strong>Lidl</strong> : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus</li>
 <li class="notes-item"><span class="notes-bullet">•</span><strong>Izivia Fast</strong> : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s</li>
-<li class="notes-item"><span class="notes-bullet--faint">•</span><span id="infos-tarifs-date">Tarifs mis à jour le 18 mai 2026</span></li>
+<li class="notes-item"><span class="notes-bullet--faint">•</span><span id="infos-tarifs-date">Tarifs vérifiés le 6 août 2026</span></li>
 </ul>
 </div>
 <div class="about-contact about-contact--left">
@@ -517,17 +543,23 @@
 </div>
 <span class="bnav-label">Mon choix</span>
 </button>
+<button aria-label="Comparer" class="bnav-item" id="bnav-compare" type="button">
+<div class="bnav-icon">
+<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+</div>
+<span class="bnav-label">Comparer</span>
+</button>
 <button aria-label="Opérateurs" class="bnav-item" id="bnav-operators" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
 </div>
 <span class="bnav-label">Opérateurs</span>
 </button>
-<button aria-label="Comparer" class="bnav-item" id="bnav-compare" type="button">
+<button aria-label="Carte des bornes" class="bnav-item" id="bnav-map" type="button">
 <div class="bnav-icon">
-<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"></path><path d="M9 3v15M15 6v15"></path></svg>
 </div>
-<span class="bnav-label">Comparer</span>
+<span class="bnav-label">Carte</span>
 </button>
 <button aria-expanded="false" aria-label="Menu" class="bnav-item" id="bnav-menu" type="button">
 <div class="bnav-icon">

@@ -14,7 +14,7 @@ export function renderTarifsDateBanner(dateText, isError, freshness = null) {
             ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
             : freshness?.state === 'stale'
                 ? '⚠️ ' + freshness.label
-                : 'Tarifs mis à jour le ' + dateText;
+                : 'Tarifs vérifiés le ' + dateText;
 
     const infosDate = document.getElementById('infos-tarifs-date');
     if (infosDate) infosDate.textContent = isError
@@ -23,7 +23,7 @@ export function renderTarifsDateBanner(dateText, isError, freshness = null) {
             ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
             : freshness?.state === 'stale'
                 ? '⚠️ ' + freshness.label
-                : 'Tarifs mis à jour le ' + dateText;
+                : 'Tarifs vérifiés le ' + dateText;
 }
 
 export function rankTierClass(rate, lowest) {

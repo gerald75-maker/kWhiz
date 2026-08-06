@@ -1,6 +1,6 @@
 import { on } from '../shared/dom.js';
 
-const VIEW_TAB = { compare: 'ranking', operators: 'operators', profile: 'profile' };
+const VIEW_TAB = { compare: 'ranking', operators: 'operators', map: 'map', profile: 'profile' };
 
 export function initNavigation({ initialView = 'profile', onViewChange, onRefresh, onToggleTheme, onShowLanding }) {
     let currentView = initialView;
@@ -74,6 +74,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById(`tab-${tabId}`)?.classList.add('active');
         currentView = view;
+        document.body.dataset.view = view;
         setActiveNav(`bnav-${view}`);
         closeAllPages();
         closeDrawer();
@@ -96,6 +97,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
     on('bnav-compare', 'click', () => switchView('compare'));
     on('bnav-operators', 'click', () => switchView('operators'));
     on('bnav-profile', 'click', () => switchView('profile'));
+    on('bnav-map', 'click', () => switchView('map'));
     on('bnav-menu', 'click', event => {
         // La barre inférieure reste au-dessus du backdrop. Empêcher toute propagation
         // évite qu'un même geste ferme le panneau puis déclenche une autre navigation
@@ -200,6 +202,8 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
             switchView(view);
         });
     });
+
+    document.body.dataset.view = currentView;
 
     return {
         getCurrentView: () => currentView,

@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './tarifs.json',
+  './irve-fast.json',
   './manifest.json',
   './icons/icon-72.png',
   './icons/icon-96.png',
@@ -30,7 +31,7 @@ const STATIC_ASSETS = [
 
 // Note : 'app.js' est intentionnellement absent — après build Vite le fichier
 // est hashé (ex: assets/index-XXXXXXXX.js) et n'a donc jamais ce nom en prod.
-const NETWORK_FIRST_PATTERNS = ['index.html', 'sw.js', 'tarifs.json'];
+const NETWORK_FIRST_PATTERNS = ['index.html', 'sw.js', 'tarifs.json', 'irve-fast.json'];
 
 function isNetworkFirst(url) {
   const path = new URL(url).pathname;

@@ -1,6 +1,6 @@
 {
   "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
-  "_updated": "2026-07-27",
+  "_updated": "2026-08-06",
   "iecharge": {
     "name": "IECharge",
     "color": "iecharge",
@@ -480,6 +480,58 @@
     ],
     "sourceUrl": "https://www.fastnedcharging.com/fr/recharge/tarifs",
     "verifiedAt": "2026-07-27"
+  },
+  "zunder": {
+    "name": "Zunder",
+    "color": "zunder",
+    "badge": "jusqu’à 400 kW",
+    "mapUrl": "https://www.zunder.com/fr/carte-des-lieux/",
+    "formulas": [
+      {
+        "name": "Sans forfait",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.59,
+        "ref": 0.59,
+        "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "1 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché."
+      },
+      {
+        "name": "Easy",
+        "cost": 1.99,
+        "period": "monthly",
+        "rate": 0.51,
+        "ref": 0.59,
+        "id": "zunder-easy",
+        "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement. 3 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché."
+      },
+      {
+        "name": "Pro",
+        "cost": 11.99,
+        "period": "monthly",
+        "rate": 0.39,
+        "ref": 0.59,
+        "id": "zunder-pro",
+        "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement. 5 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché."
+      }
+    ],
+    "loyalty": {
+      "name": "Cashback",
+      "description": "Chaque recharge génère du crédit dans l’application : 1 % sans forfait, 3 % avec Easy et 5 % avec Pro."
+    },
+    "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
+    "verifiedAt": "2026-08-06"
   },
   "electroverse": {
     "name": "Octopus Electroverse",

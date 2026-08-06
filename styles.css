@@ -642,6 +642,7 @@ body.light .formula-note {
 .lidl { color: #facc15; }
 .statione { color: #22c55e; }
 .izivia { color: #f43f5e; }
+.zunder { color: #4db9e5; }
 
 /* Badges loyalty & izivia (remplacent les inline styles dans les templates) */
 .loyalty-badge {
@@ -1677,6 +1678,39 @@ body.light .bnav-icon svg { color: var(--text-secondary); }
 }
 body.light .bnav-sep { background: rgba(0,0,0,0.08); }
 
+/* ── Carte des stations rapides ── */
+.map-page-heading { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; margin-bottom:16px; }
+.map-page-heading h2 { margin:2px 0 6px; }
+.map-page-heading p { margin:0; color:var(--text-secondary); }
+.map-station-count { flex:0 0 auto; color:var(--accent); font-weight:700; font-size:.82rem; }
+.map-heading-actions { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.map-locate-button { display:flex; align-items:center; gap:6px; border:1px solid var(--accent); border-radius:999px; padding:8px 12px; background:color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color:var(--accent); font:inherit; font-size:.78rem; font-weight:750; cursor:pointer; white-space:nowrap; }
+.map-locate-button:disabled { opacity:.65; cursor:wait; }
+body[data-view="map"] .sticky-top { display:none; }
+.map-filter-card { padding:14px; margin-bottom:14px; border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); }
+.map-filter-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.map-filter-heading h3, .map-nearby h3 { margin:0; font-size:.92rem; }
+.map-filter-heading button { border:0; background:transparent; color:var(--accent); font-weight:700; padding:6px 8px; cursor:pointer; }
+.map-operator-filters { display:flex; gap:8px; overflow-x:auto; padding:2px 0 4px; scrollbar-width:none; }
+.map-operator-chip { flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid var(--border-color); border-radius:999px; background:transparent; color:var(--text-secondary); font:inherit; font-size:.78rem; cursor:pointer; }
+.map-operator-chip img { width:22px; height:22px; object-fit:contain; border-radius:6px; background:#fff; }
+.map-operator-chip[aria-pressed="true"] { color:var(--text-primary); border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent); box-shadow:inset 0 0 0 1px var(--accent); }
+.stations-map { height:min(54dvh, 520px); min-height:380px; overflow:hidden; border:1px solid var(--border-color); border-radius:20px; background:#dce6e8; z-index:0; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background:var(--bg-card); color:var(--text-primary); }
+.leaflet-popup-content a { color:var(--accent); font-weight:700; }
+.map-nearby { margin-top:18px; }
+.map-station-list { display:grid; gap:9px; margin-top:10px; }
+.map-station-card { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:10px; padding:11px; border:1px solid var(--border-color); border-radius:15px; background:var(--bg-card); }
+.map-station-logo { width:42px; height:42px; object-fit:contain; border-radius:10px; background:#fff; }
+.map-station-card div { min-width:0; }
+.map-station-card strong, .map-station-card span, .map-station-card small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.map-station-card strong { font-size:.84rem; }
+.map-station-card span, .map-station-card small { color:var(--text-secondary); font-size:.72rem; margin-top:2px; }
+.map-station-card a { color:var(--accent); font-size:.72rem; font-weight:700; text-decoration:none; }
+.map-empty, .map-source { color:var(--text-secondary); font-size:.76rem; }
+.map-source { margin:14px 4px 0; }
+@media (max-width:600px) { .map-page-heading { display:block; } .map-heading-actions { margin-top:10px; flex-direction:row; align-items:center; justify-content:space-between; } .stations-map { min-height:360px; } }
+
 /* ── Menu Drawer ── */
 html.menu-open,
 body.menu-open {
@@ -1957,6 +1991,17 @@ body.light .menu-drawer-sep { background: rgba(0,0,0,0.06); }
 .notes-item { padding: 3px 0 3px 14px; position: relative; }
 .notes-bullet { position: absolute; left: 0; color: #fbbf24; }
 .notes-bullet--faint { position: absolute; left: 0; color: var(--text-faint); }
+.help-faq { display:grid; gap:8px; }
+.help-faq details { overflow:hidden; border:1px solid var(--border-color); border-radius:13px; background:var(--bg-card); }
+.help-faq summary { position:relative; padding:13px 42px 13px 14px; color:var(--text-primary); font-size:.82rem; font-weight:700; line-height:1.35; cursor:pointer; list-style:none; }
+.help-faq summary::-webkit-details-marker { display:none; }
+.help-faq summary::after { content:'+'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:1.25rem; font-weight:500; transition:transform .2s; }
+.help-faq details[open] summary::after { transform:translateY(-50%) rotate(45deg); }
+.help-faq details[open] summary { color:var(--accent); border-bottom:1px solid var(--border-color); }
+.help-faq details p { margin:0; padding:12px 14px 14px; color:var(--text-secondary); font-size:.8rem; line-height:1.55; }
+.help-ordered-list { counter-reset:help-step; display:grid; gap:10px; margin:0 0 18px; padding:0; list-style:none; }
+.help-ordered-list li { counter-increment:help-step; position:relative; min-height:34px; padding:9px 10px 9px 46px; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-card); color:var(--text-secondary); font-size:.82rem; line-height:1.5; }
+.help-ordered-list li::before { content:counter(help-step); position:absolute; left:10px; top:9px; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); font-weight:800; }
 
 /* Formules de calcul */
 .formula-code {

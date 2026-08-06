@@ -50,6 +50,7 @@ import { initPullToRefresh } from './src/ui/pull-to-refresh.js';
 import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { initDataBackup } from './src/ui/data-backup.js';
+import { initStationsMap } from './src/ui/stations-map.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -69,6 +70,7 @@ let fastPct = (() => {
 let consumptionController = null;
 let profileControls = null;
 let navigation = null;
+let stationsMap = null;
 let tariffsRequest = null;
 let favorites = loadFavorites(FAVORITES_KEY);
 let tariffHistory = (() => {
@@ -98,6 +100,17 @@ function setTariffsStatus(message, freshness = null) {
         badge.dataset.state = freshness.state;
         badge.textContent = freshness.label;
     }
+}
+
+function formatTariffsUpdateDate(value) {
+    if (!value) return 'date inconnue';
+    const date = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(date);
 }
 
 async function checkStatusFromAbout() {
@@ -159,7 +172,7 @@ async function loadTarifs() {
             try { localStorage.setItem(STORAGE_KEYS.tariffHistory, JSON.stringify(tariffHistory)); } catch (_) {}
             const offline = result.source === 'localStorage';
             const suffix = offline ? ' (hors ligne)' : '';
-            const tariffsLabel = (result.updatedAt || 'cache') + suffix;
+            const tariffsLabel = formatTariffsUpdateDate(result.updatedAt) + suffix;
             const freshness = assessTariffsFreshness(result.updatedAt);
             renderTarifsDateBanner(tariffsLabel, false, freshness);
             setTariffsStatus(`${tariffsLabel} · ${offline ? 'cache local' : 'source en ligne'}`, freshness);
@@ -437,9 +450,13 @@ function initApp() {
         onChange: renderProfile
     });
 
+    stationsMap = initStationsMap();
     navigation = initNavigation({
         initialView: 'profile',
-        onViewChange: view => { if (view === 'profile') renderProfile(); },
+        onViewChange: view => {
+            if (view === 'profile') renderProfile();
+            if (view === 'map') stationsMap?.activate();
+        },
         onRefresh: loadTarifs,
         onToggleTheme: toggleTheme,
         onShowLanding: showLanding

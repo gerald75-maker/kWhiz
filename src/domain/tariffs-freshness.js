@@ -33,5 +33,5 @@ export function assessTariffsFreshness(updatedAt, { now = new Date(), warningDay
     if (ageDays >= warningDays) {
         return { state: 'stale', ageDays, label: `Tarifs à vérifier (${ageDays} jours)` };
     }
-    return { state: 'fresh', ageDays, label: ageDays === 0 ? 'Tarifs mis à jour aujourd’hui' : `Tarifs récents (${ageDays} jours)` };
+    return { state: 'fresh', ageDays, label: ageDays === 0 ? 'Tarifs vérifiés aujourd’hui' : `Tarifs récents (${ageDays} jours)` };
 }

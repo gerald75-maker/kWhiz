@@ -1,6 +1,6 @@
 {
   "name": "kwhiz",
-  "version": "2.19.4",
+  "version": "2.21.5",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,11 @@
     "test": "node --test"
   },
   "devDependencies": {
+    "csv-parse": "^6.1.0",
     "sharp": "^0.34.5",
     "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
   }
 }

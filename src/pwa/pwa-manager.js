@@ -94,15 +94,14 @@ async function activateWaitingWorker(registration, onStatus) {
     onStatus?.('updating');
     const controllerChange = waitForControllerChange();
     worker.postMessage({ type: 'SKIP_WAITING' });
-    await controllerChange;
-    return true;
+    return controllerChange;
 }
 
 function getServiceWorkerRegistration() {
     if (!('serviceWorker' in navigator)) return Promise.resolve(null);
     if (!serviceWorkerRegistrationPromise) {
         serviceWorkerRegistrationPromise = navigator.serviceWorker
-            .register('./sw.js')
+            .register('./sw.js', { updateViaCache: 'none' })
             .catch(error => {
                 serviceWorkerRegistrationPromise = null;
                 throw error;
@@ -129,8 +128,8 @@ export async function checkForApplicationUpdate({ onStatus } = {}) {
         if (!registration) return { supported: false, updated: false };
 
         if (registration.waiting) {
-            await activateWaitingWorker(registration, onStatus);
-            return { supported: true, updated: true };
+            const activated = await activateWaitingWorker(registration, onStatus);
+            return { supported: true, updated: activated };
         }
 
         let discoveredWorker = null;
@@ -166,11 +165,11 @@ export function reloadApplication() {
 }
 
 export async function updateApplication() {
-    try {
-        await checkForApplicationUpdate();
-    } finally {
+    const result = await checkForApplicationUpdate();
+    if (result.updated) {
         window.setTimeout(reloadApplication, 300);
     }
+    return result;
 }
 
 export function initServiceWorker() {
