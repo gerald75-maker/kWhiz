@@ -1,6 +1,14 @@
 import { formatNumber } from '../shared/dom.js';
+import { getLanguage } from '../i18n/i18n.js';
 
 export function buildShareText({ operator, formula, monthlyCost, annualCost, km, fastPercentage }) {
+    if (getLanguage() === 'en') {
+        return [
+            `My kWhiz recommendation: ${operator} · ${formula}`,
+            `${formatNumber(monthlyCost, 2)} €/month, or ${formatNumber(annualCost, 0)} € per year`,
+            `Profile: ${formatNumber(km, 0)} km/month · ${fastPercentage}% fast charging`
+        ].join('\n');
+    }
     return [
         `Mon choix kWhiz : ${operator} · ${formula}`,
         `${formatNumber(monthlyCost, 2)} €/mois, soit ${formatNumber(annualCost, 0)} € par an`,
@@ -32,7 +40,7 @@ export async function shareResult(payload) {
 
     if (navigator.share) {
         try {
-            await navigator.share({ title: 'Mon choix kWhiz', text, url });
+            await navigator.share({ title: getLanguage() === 'en' ? 'My kWhiz recommendation' : 'Mon choix kWhiz', text, url });
             return 'shared';
         } catch (error) {
             if (error?.name === 'AbortError') return 'cancelled';

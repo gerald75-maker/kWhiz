@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
+import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 
 const LABELS = {
@@ -128,7 +129,9 @@ export function initStationsMap() {
       markersById.set(station.id, marker);
       return marker;
     });
-    count.textContent = `${filtered.length.toLocaleString('fr-FR')} station${filtered.length > 1 ? 's' : ''} · ${inView.length.toLocaleString('fr-FR')} dans la carte`;
+    count.textContent = getLanguage() === 'en'
+      ? `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} on the map`
+      : `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} dans la carte`;
     renderList(filtered);
     if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
   }
@@ -243,7 +246,11 @@ export function initStationsMap() {
       const matching = visibleStations().length;
       status.dataset.state = 'success';
       const recognizedPlaces = `${payload.recognizedStart || start} → ${payload.recognizedEnd || end}`;
-      status.textContent = `${recognizedPlaces} · ${Math.round(payload.distanceKm).toLocaleString('fr-FR')} km · ${matching.toLocaleString('fr-FR')} station${matching > 1 ? 's' : ''} à moins de 15 km du trajet`;
+      status.textContent = t('map.route.success', {
+        places: recognizedPlaces,
+        distance: formatDistance(Math.round(payload.distanceKm)),
+        stations: plural('count.station', matching)
+      });
       map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
       renderStations();
     } catch (error) {
@@ -390,7 +397,7 @@ export function initStationsMap() {
       const keys = [...new Set(stations.map(station => station.operator))].sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
       selected = readSelection(keys);
       renderFilters(keys);
-      document.getElementById('map-data-date').textContent = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${payload.updatedAt}T12:00:00`));
+      document.getElementById('map-data-date').textContent = formatDate(payload.updatedAt);
       map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.

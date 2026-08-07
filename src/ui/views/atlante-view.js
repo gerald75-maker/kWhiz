@@ -1,4 +1,5 @@
 import { getAtlanteGemsRate, atlanteSteadyStateRate } from '../../domain/pricing.js';
+import { getLocale } from '../../i18n/i18n.js';
 
 export function renderAtlanteChargebackInfo(operators, now = new Date()) {
     const atlante = operators?.atlante;
@@ -9,7 +10,7 @@ export function renderAtlanteChargebackInfo(operators, now = new Date()) {
     const goFormula = atlante.formulas?.find(formula => formula.id === 'atlante-go');
     const nominalRate = goFormula?.rate ?? 0.29;
     const gemsRate = getAtlanteGemsRate(config, now);
-    const formatDate = date => date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+    const formatDate = date => date.toLocaleDateString(getLocale(), { day: 'numeric', month: 'long' });
     const formatRate = rate => atlanteSteadyStateRate(nominalRate, rate).toFixed(3).replace('.', ',').replace(/0$/, '');
     const formatCredit = rate => rate === 1 ? '1 €' : `${rate} €`.replace('.', ',');
     const promoEnd = config.promoEndDate ? new Date(`${config.promoEndDate}T23:59:59+02:00`) : null;

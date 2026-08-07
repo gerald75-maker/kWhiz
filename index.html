@@ -12,7 +12,7 @@
 <link href="manifest.json" rel="manifest"/>
 <link href="icons/icon-180.png" rel="apple-touch-icon"/>
 <link href="icons/icon-180.png" rel="apple-touch-icon" sizes="180x180"/>
-<meta content="Calculez instantanément le seuil de rentabilité de chaque abonnement de recharge VE. IONITY, Tesla, Electra, Lidl et plus." name="description"/>
+<meta content="Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France." name="description"/>
 <title>kWhiz — Comparateur de recharge rapide VE</title>
 <link href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2E4NTVmNyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3R5bGU9InN0b3AtY29sb3I6I2VjNDg5OSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHBhdGggZD0iTTE4IDRMOCAxOGg2bC0yIDEwIDEwLTE0aC02bDItMTB6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" rel="icon" type="image/svg+xml"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -255,7 +255,7 @@
 <h1 class="landing-heading">Trouvez l’offre de recharge rapide adaptée à votre usage</h1>
 <ol class="landing-pitch landing-steps">
 <li>Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
-<li>Comparez les tarifs et abonnements selon votre usage réel.</li>
+<li>Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
 <li>Localisez les stations autour de vous ou sur votre trajet.</li>
 </ol>
 <button class="landing-btn" id="landing-start" type="button">Commencer</button>
@@ -275,7 +275,7 @@
 </div><div class="page-body" id="about-content">
 <div class="about-hero">
 <p class="about-title">kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.</p>
-<p class="about-desc">L’application se concentre sur une sélection d’opérateurs et d’offres susceptibles de réduire le coût des recharges rapides. Elle ne prétend pas recenser tout le marché.</p>
+<p class="about-desc">kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.</p>
 <p class="about-desc">kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.</p>
 <p class="about-desc">Version __VERSION__</p>
 </div>
@@ -296,6 +296,11 @@
 <span class="page-title" id="page-settings-title">Données et réglages</span>
 <button aria-label="Fermer" class="page-close" id="close-settings" type="button">✕</button>
 </div><div class="page-body">
+<section aria-labelledby="settings-language-title" class="app-status-card language-settings-card">
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Préférences locales</p><h2 data-i18n="settings.language" id="settings-language-title">Langue</h2></div></div>
+<div aria-label="Langue" class="language-choice" role="group"><button data-language="fr" data-i18n="settings.french" type="button">Français</button><button data-language="en" data-i18n="settings.english" type="button">English</button></div>
+<p aria-live="polite" class="data-backup-status" id="language-status"></p>
+</section>
 <section aria-labelledby="app-status-title" class="app-status-card" data-app-version="__VERSION__">
 <div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
 <dl class="app-status-list"><div><dt>Application</dt><dd id="about-app-status">Vérification en cours</dd></div><div><dt>Tarifs</dt><dd id="about-tariffs-status">Chargement…</dd></div><div><dt>Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-state="unknown" id="about-tariffs-freshness">Analyse…</span></dd></div></dl>

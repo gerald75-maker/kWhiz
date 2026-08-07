@@ -34,7 +34,7 @@ import {
     HOME_RATE_KWH
 } from './src/config/app-config.js';
 import { on } from './src/shared/dom.js';
-import { initTheme, toggleTheme } from './src/ui/theme.js';
+import { applyTheme, initTheme, toggleTheme } from './src/ui/theme.js';
 import {
     initPwa,
     triggerNativeInstall,
@@ -52,12 +52,14 @@ import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
+import { initI18n, getLanguage, getLocale, setLanguage, t, onLanguageChange, formatDate, formatNumber, localizeTariffText } from './src/i18n/i18n.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
 const FAST_PCT_KEY = STORAGE_KEYS.fastPercentage;
 const FAVORITES_KEY = STORAGE_KEYS.favorites;
 
+initI18n();
 initTheme();
 initPwa();
 
@@ -105,13 +107,7 @@ function setTariffsStatus(message, freshness = null) {
 
 function formatTariffsUpdateDate(value) {
     if (!value) return 'date inconnue';
-    const date = new Date(`${value}T12:00:00`);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(date);
+    return formatDate(value);
 }
 
 async function checkStatusFromAbout() {
@@ -200,18 +196,18 @@ function formatVerifiedDate(value) {
     if (!value) return 'Date inconnue';
     const date = new Date(`${value}T12:00:00`);
     if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(getLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 }
 
 function formulaPricingLabel(formula) {
     if (formula.pricingType === 'range' || formula.pricingType === 'discount') {
-        const range = `${formula.rateMin.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} à ${formula.rateMax.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/kWh`;
+        const range = `${formula.rateMin.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}–${formula.rateMax.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/kWh`;
         return formula.pricingType === 'discount' && Number.isFinite(formula.discountPerKwh)
-            ? `Remise de ${formula.discountPerKwh.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €/kWh · ${range}`
+            ? `Remise de ${formula.discountPerKwh.toLocaleString(getLocale(), { minimumFractionDigits: 2 })} €/kWh · ${range}`
             : range;
     }
-    if (formula.pricingType === 'station') return `Tarif variable · estimation ${formula.rate.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
-    return `${formula.rate.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
+    if (formula.pricingType === 'station') return `Tarif variable · estimation ${formula.rate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
+    return `${formula.rate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
 }
 
 function displayFormulaName(value) {
@@ -243,20 +239,20 @@ function openFormulaDetail(formula, trigger) {
         ? `<img src="${LOGOS[formula.opKey]}" class="formula-detail-logo" alt="">`
         : '';
     const subscription = formula.cost > 0
-        ? `${formula.cost.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/${formula.period === 'monthly' ? 'mois' : 'an'}`
+        ? `${formula.cost.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/${formula.period === 'monthly' ? (getLanguage() === 'en' ? 'month' : 'mois') : (getLanguage() === 'en' ? 'year' : 'an')}`
         : 'Sans abonnement';
     const historyEntries = getFormulaHistory(tariffHistory, `${formula.opKey}::${formula.name}`);
     const evolution = describeTariffChange(historyEntries);
     const rateDelta = evolution.deltaRate
-        ? `${evolution.deltaRate > 0 ? '+' : ''}${evolution.deltaRate.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`
+        ? `${evolution.deltaRate > 0 ? '+' : ''}${evolution.deltaRate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`
         : 'Aucune variation';
     const historyRows = historyEntries.slice(-4).reverse().map(entry => {
         const date = entry.updatedAt || entry.capturedAt;
         const parsedDate = date ? new Date(date) : null;
         const dateLabel = parsedDate && !Number.isNaN(parsedDate.getTime())
-            ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(parsedDate)
+            ? new Intl.DateTimeFormat(getLocale(), { day: '2-digit', month: 'short', year: 'numeric' }).format(parsedDate)
             : (entry.updatedAt || 'Date inconnue');
-        return `<li><time>${dateLabel}</time><strong>${Number(entry.rate).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh</strong></li>`;
+        return `<li><time>${dateLabel}</time><strong>${Number(entry.rate).toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh</strong></li>`;
     }).join('');
     title.textContent = `${formula.operator} - ${displayFormulaName(formula.name)}`;
     const verifiedBadge = formula.verifiedAt ? `<span class="detail-badge detail-badge--verified">Vérifié le ${formatVerifiedDate(formula.verifiedAt)}</span>` : '';
@@ -274,8 +270,8 @@ function openFormulaDetail(formula, trigger) {
         <dl class="formula-detail-grid">
             <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>Prix de l’énergie</dt><dd>${formulaPricingLabel(formula)}</dd></span></div>
             <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>Abonnement</dt><dd>${subscription}</dd></span></div>
-            <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>Coût estimé</dt><dd>${formula.costPer100km.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/100 km</dd></span></div>
-            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>Seuil de rentabilité</dt><dd>${formula.km === 0 ? 'Sans seuil' : formula.km === Infinity ? 'Non rentable' : `${Math.round(formula.km).toLocaleString('fr-FR')} km/mois`}</dd></span></div>
+            <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>Coût estimé</dt><dd>${formula.costPer100km.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/100 km</dd></span></div>
+            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>Seuil de rentabilité</dt><dd>${formula.km === 0 ? 'Sans seuil' : formula.km === Infinity ? 'Non rentable' : `${Math.round(formula.km).toLocaleString(getLocale())} km/${getLanguage() === 'en' ? 'month' : 'mois'}`}</dd></span></div>
         </dl>
         <section class="formula-history" data-state="${evolution.state}">
             <div class="formula-history-heading"><h3>Historique tarifaire</h3><span>${rateDelta}</span></div>
@@ -465,6 +461,21 @@ function initApp() {
     on('install-native-btn', 'click', triggerNativeInstall);
     on('about-check-update', 'click', checkStatusFromAbout);
     initDataBackup({ storageKeys: STORAGE_KEYS });
+    const updateLanguageButtons = () => document.querySelectorAll('[data-language]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.language === getLanguage()));
+    });
+    updateLanguageButtons();
+    document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => {
+        setLanguage(button.dataset.language);
+        const status = document.getElementById('language-status');
+        if (status) status.textContent = t('language.changed');
+    }));
+    onLanguageChange(() => {
+        updateLanguageButtons();
+        applyTheme(document.body.classList.contains('light') ? 'light' : 'dark');
+        updateCalculations();
+        applyInstallOsDetection();
+    });
 
     if (navigator.onLine) {
         setApplicationStatus('current', 'Version installée prête à être vérifiée');

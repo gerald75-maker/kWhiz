@@ -1,6 +1,7 @@
 import { PERIOD, getAtlanteGemsRate, atlanteSteadyStateRate, chargebackBreakeven, calculateBreakeven } from '../../domain/pricing.js';
 import { escapeHtml, safeUrl, formatNumber } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
+import { getLocale } from '../../i18n/i18n.js';
 
 function uiIcon(name, className = '') {
     const paths = {
@@ -54,7 +55,7 @@ function formatVerificationDate(value) {
     if (!value) return '';
     const date = new Date(`${value}T12:00:00`);
     if (Number.isNaN(date.getTime())) return escapeHtml(value);
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(getLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 }
 
 function buildFormulaMeta(formula, detailed = false) {
@@ -86,7 +87,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
     const sortedOperators = Object.entries(operators).sort((a, b) => {
         const aFav = a[1].formulas.some(formula => favorites.has(formulaFavoriteId(a[0], formula.name)));
         const bFav = b[1].formulas.some(formula => favorites.has(formulaFavoriteId(b[0], formula.name)));
-        return Number(bFav) - Number(aFav) || a[1].name.localeCompare(b[1].name, 'fr');
+        return Number(bFav) - Number(aFav) || a[1].name.localeCompare(b[1].name, getLocale());
     });
     for (const [opKey, operator] of sortedOperators) {
         const card = document.createElement('div');
@@ -172,7 +173,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
     const sortedOperators = Object.entries(operators).sort((a, b) => {
         const aFav = a[1].formulas.some(formula => favorites.has(formulaFavoriteId(a[0], formula.name)));
         const bFav = b[1].formulas.some(formula => favorites.has(formulaFavoriteId(b[0], formula.name)));
-        return Number(bFav) - Number(aFav) || a[1].name.localeCompare(b[1].name, 'fr');
+        return Number(bFav) - Number(aFav) || a[1].name.localeCompare(b[1].name, getLocale());
     });
     for (const [opKey, operator] of sortedOperators) {
         const card = document.createElement('div');

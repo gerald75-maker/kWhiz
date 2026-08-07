@@ -3365,6 +3365,9 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
     font-size: 0.68rem;
     font-weight: 700;
 }
+.language-choice { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.language-choice button { padding:11px 14px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-element); color:var(--text-primary); font:inherit; font-weight:700; cursor:pointer; }
+.language-choice button[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, var(--bg-element)); color:var(--accent); }
 
 /* v2.5.0 — refonte factuelle de « Mon choix » */
 #tab-profile .profile-best-card {

@@ -1,5 +1,6 @@
 import { PERIOD } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
+import { getLocale } from '../../i18n/i18n.js';
 
 export function renderTarifsDateBanner(dateText, isError, freshness = null) {
     const banner = document.getElementById('tarifs-update-banner');
@@ -39,8 +40,8 @@ function compareValues(a, b, column, direction) {
     if (valA === Infinity && valB === Infinity) return 0;
     if (valA === Infinity) return 1;
     if (valB === Infinity) return -1;
-    if (typeof valA === 'string') valA = valA.toLocaleLowerCase('fr-FR');
-    if (typeof valB === 'string') valB = valB.toLocaleLowerCase('fr-FR');
+    if (typeof valA === 'string') valA = valA.toLocaleLowerCase(getLocale());
+    if (typeof valB === 'string') valB = valB.toLocaleLowerCase(getLocale());
     const result = valA > valB ? 1 : valA < valB ? -1 : 0;
     return direction === 'asc' ? result : -result;
 }
@@ -73,9 +74,9 @@ function subscriptionLabel(formula) {
 }
 
 export function renderComparisonTable(formulasData, column, direction, { logos = {}, onModal, onDetail, query = '' } = {}) {
-    const normalizedQuery = query.trim().toLocaleLowerCase('fr-FR');
+    const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
     const data = formulasData
-        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase('fr-FR').includes(normalizedQuery))
+        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery))
         .sort((a, b) => compareValues(a, b, column, direction));
 
     const list = document.getElementById('ranking-list');

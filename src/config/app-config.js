@@ -32,6 +32,7 @@ export const STORAGE_KEYS = Object.freeze({
     scenarioHistory: 'kwhiz_scenario_history',
     tariffHistory: 'kwhiz_tariff_history',
     mapOperators: 'kwhiz_map_operators',
+    language: 'kwhiz_language',
     theme: 'kwhiz_theme',
     legacyTheme: 'crve_theme'
 });

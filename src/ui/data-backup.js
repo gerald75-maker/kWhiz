@@ -59,6 +59,7 @@ export function initDataBackup({ storageKeys }) {
         storageKeys.fastPercentage,
         storageKeys.favorites,
         storageKeys.scenarioHistory,
+        storageKeys.language,
         storageKeys.theme
     ];
     const status = document.getElementById('about-data-status');
@@ -68,8 +69,8 @@ export function initDataBackup({ storageKeys }) {
         const now = new Date();
         const backup = createUserDataBackup(localStorage, keys, now);
         const date = now.toISOString().slice(0, 10);
-        downloadJson(`kwhiz-sauvegarde-${date}.json`, backup);
-        if (status) status.textContent = 'Sauvegarde téléchargée';
+        downloadJson(`kwhiz-backup-${date}.json`, backup);
+        if (status) status.textContent = getLanguage() === 'en' ? 'Backup downloaded' : 'Sauvegarde téléchargée';
     });
 
     document.getElementById('about-import-data')?.addEventListener('click', () => input?.click());
@@ -80,11 +81,14 @@ export function initDataBackup({ storageKeys }) {
         try {
             const backup = JSON.parse(await file.text());
             const restored = restoreUserDataBackup(localStorage, backup, keys);
-            if (status) status.textContent = `${restored} réglage${restored > 1 ? 's' : ''} restauré${restored > 1 ? 's' : ''}. Rechargement…`;
+            if (status) status.textContent = getLanguage() === 'en'
+                ? `${restored} setting${restored === 1 ? '' : 's'} restored. Reloading…`
+                : `${restored} réglage${restored > 1 ? 's' : ''} restauré${restored > 1 ? 's' : ''}. Rechargement…`;
             window.setTimeout(() => window.location.reload(), 500);
         } catch (error) {
-            if (status) status.textContent = error?.message || 'Import impossible';
+            if (status) status.textContent = error?.message || (getLanguage() === 'en' ? 'Unable to import backup' : 'Import impossible');
             input.value = '';
         }
     });
 }
+import { getLanguage, plural } from '../i18n/i18n.js';
