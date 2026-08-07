@@ -36,18 +36,29 @@ function orsRequest(string $url, string $key, ?array $body = null): array {
         $options['content'] = json_encode($body, JSON_UNESCAPED_SLASHES);
     }
     $result = @file_get_contents($url, false, stream_context_create(['http' => $options]));
-    if ($result === false) throw new RuntimeException('Service d’itinéraire indisponible');
+    if ($result === false) throw new RuntimeException('Service d’itinéraire indisponible. Réessayez dans quelques instants.');
     $decoded = json_decode($result, true);
-    if (!is_array($decoded)) throw new RuntimeException('Réponse d’itinéraire invalide');
+    if (!is_array($decoded)) throw new RuntimeException('Service d’itinéraire indisponible. Réessayez dans quelques instants.');
     return $decoded;
 }
 
 function geocode(string $address, string $key): array {
-    $url = ORS_BASE . '/geocode/search?' . http_build_query(['text' => $address, 'size' => 1, 'lang' => 'fr']);
+    $url = ORS_BASE . '/geocode/search?' . http_build_query([
+        'text' => $address,
+        'size' => 1,
+        'lang' => 'fr',
+        'boundary.country' => 'FR'
+    ]);
     $result = orsRequest($url, $key);
     $coordinates = $result['features'][0]['geometry']['coordinates'] ?? null;
-    if (!is_array($coordinates) || count($coordinates) < 2) throw new InvalidArgumentException('Adresse introuvable : ' . $address);
-    return [(float) $coordinates[0], (float) $coordinates[1]];
+    if (!is_array($coordinates) || count($coordinates) < 2) {
+        throw new InvalidArgumentException('Adresse introuvable : ' . $address . '. Précisez une adresse française ou un code postal.');
+    }
+    $label = trim((string) ($result['features'][0]['properties']['label'] ?? $address));
+    return [
+        'coordinates' => [(float) $coordinates[0], (float) $coordinates[1]],
+        'label' => $label !== '' ? $label : $address
+    ];
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') respond(405, ['error' => 'Méthode non autorisée']);
@@ -71,7 +82,7 @@ if ($key === '') respond(503, ['error' => 'Le calcul d’itinéraire n’est pas
 $startCacheValue = $validProvidedStart
     ? sprintf('%.5F,%.5F', (float) $providedStart[0], (float) $providedStart[1])
     : $start;
-$normalizedRoute = function_exists('mb_strtolower') ? mb_strtolower($startCacheValue . '|' . $end) : strtolower($startCacheValue . '|' . $end);
+$normalizedRoute = function_exists('mb_strtolower') ? mb_strtolower('fr-labels-v1|' . $startCacheValue . '|' . $end) : strtolower('fr-labels-v1|' . $startCacheValue . '|' . $end);
 $cacheFile = sys_get_temp_dir() . '/kwhiz-route-' . hash('sha256', $normalizedRoute) . '.json';
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < CACHE_SECONDS) {
     $cached = file_get_contents($cacheFile);
@@ -79,10 +90,12 @@ if (is_file($cacheFile) && time() - filemtime($cacheFile) < CACHE_SECONDS) {
 }
 
 try {
-    $startCoordinates = $validProvidedStart
-        ? [(float) $providedStart[0], (float) $providedStart[1]]
+    $startPlace = $validProvidedStart
+        ? ['coordinates' => [(float) $providedStart[0], (float) $providedStart[1]], 'label' => 'Position actuelle']
         : geocode($start, $key);
-    $endCoordinates = geocode($end, $key);
+    $endPlace = geocode($end, $key);
+    $startCoordinates = $startPlace['coordinates'];
+    $endCoordinates = $endPlace['coordinates'];
     $route = orsRequest(ORS_BASE . '/v2/directions/driving-car/geojson', $key, [
         'coordinates' => [$startCoordinates, $endCoordinates],
         'instructions' => false,
@@ -91,12 +104,16 @@ try {
     $feature = $route['features'][0] ?? null;
     $geometry = $feature['geometry'] ?? null;
     $distance = $feature['properties']['summary']['distance'] ?? null;
-    if (($geometry['type'] ?? '') !== 'LineString' || !is_numeric($distance)) throw new RuntimeException('Aucun itinéraire routier trouvé');
+    if (($geometry['type'] ?? '') !== 'LineString' || !is_numeric($distance)) {
+        throw new InvalidArgumentException('Aucun itinéraire routier trouvé. Vérifiez les lieux reconnus.');
+    }
     $payload = json_encode([
         'geometry' => $geometry,
         'distanceKm' => round(((float) $distance) / 1000, 1),
         'start' => $startCoordinates,
-        'end' => $endCoordinates
+        'end' => $endCoordinates,
+        'recognizedStart' => $startPlace['label'],
+        'recognizedEnd' => $endPlace['label']
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($payload === false) throw new RuntimeException('Itinéraire invalide');
     file_put_contents($cacheFile, $payload, LOCK_EX);

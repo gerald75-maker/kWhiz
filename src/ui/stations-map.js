@@ -242,12 +242,15 @@ export function initStationsMap() {
       document.getElementById('route-clear').hidden = false;
       const matching = visibleStations().length;
       status.dataset.state = 'success';
-      status.textContent = `${Math.round(payload.distanceKm).toLocaleString('fr-FR')} km · ${matching.toLocaleString('fr-FR')} station${matching > 1 ? 's' : ''} à moins de 15 km du trajet`;
+      const recognizedPlaces = `${payload.recognizedStart || start} → ${payload.recognizedEnd || end}`;
+      status.textContent = `${recognizedPlaces} · ${Math.round(payload.distanceKm).toLocaleString('fr-FR')} km · ${matching.toLocaleString('fr-FR')} station${matching > 1 ? 's' : ''} à moins de 15 km du trajet`;
       map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
       renderStations();
     } catch (error) {
       status.dataset.state = 'error';
-      status.textContent = error.message || 'Itinéraire momentanément indisponible';
+      status.textContent = error.message === 'Failed to fetch'
+        ? 'Service d’itinéraire indisponible. Réessayez dans quelques instants.'
+        : error.message || 'Service d’itinéraire indisponible. Réessayez dans quelques instants.';
     } finally {
       button.disabled = false;
     }
@@ -467,7 +470,7 @@ export function initStationsMap() {
         button.disabled = false;
         button.innerHTML = '<span aria-hidden="true">⌖</span> Ma position';
         status.dataset.state = 'error';
-        status.textContent = 'Position introuvable. Vérifiez l’autorisation de localisation.';
+        status.textContent = 'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.';
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );

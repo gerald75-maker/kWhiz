@@ -2,6 +2,14 @@ let installPrompt = null;
 let updateInProgress = false;
 let serviceWorkerRegistrationPromise = null;
 
+export function getInstallEnvironment({ userAgent = '', displayModeStandalone = false, navigatorStandalone = false } = {}) {
+    return {
+        isIos: /iPhone|iPad|iPod/i.test(userAgent),
+        isAndroid: /Android/i.test(userAgent),
+        isStandalone: displayModeStandalone || navigatorStandalone === true
+    };
+}
+
 function setInstallButtonVisibility(visible) {
     const button = document.getElementById('install-native-btn');
     if (button) button.hidden = !visible;

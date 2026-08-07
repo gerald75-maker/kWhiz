@@ -10,7 +10,7 @@ export function applyTheme(theme) {
     const icon = document.getElementById('menu-theme-icon');
     const label = document.getElementById('menu-theme-label');
     if (icon) icon.innerHTML = isLight ? SVG_MOON : SVG_SUN;
-    if (label) label.textContent = isLight ? 'Mode sombre' : 'Mode clair';
+    if (label) label.textContent = isLight ? 'Passer au mode sombre' : 'Passer au mode clair';
 }
 
 export function setTheme(theme) {

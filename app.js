@@ -38,6 +38,7 @@ import { initTheme, toggleTheme } from './src/ui/theme.js';
 import {
     initPwa,
     triggerNativeInstall,
+    getInstallEnvironment,
     checkForApplicationUpdate,
     reloadApplication
 } from './src/pwa/pwa-manager.js';
@@ -403,15 +404,15 @@ function showLanding() {
 
 function applyInstallOsDetection() {
     const userAgent = navigator.userAgent || '';
-    const isIos = /iPhone|iPad|iPod/i.test(userAgent);
-    const isAndroid = /Android/i.test(userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-        || window.navigator.standalone === true;
-    const installBlock = document.getElementById('landing-install');
+    const { isIos, isAndroid, isStandalone } = getInstallEnvironment({
+        userAgent,
+        displayModeStandalone: window.matchMedia('(display-mode: standalone)').matches,
+        navigatorStandalone: window.navigator.standalone
+    });
+    const installSection = document.getElementById('settings-install');
     const iosBlock = document.getElementById('install-ios');
     const androidBlock = document.getElementById('install-android');
-    if (!installBlock) return;
-    installBlock.hidden = isStandalone;
+    if (installSection) installSection.hidden = isStandalone;
     if (isIos && androidBlock) androidBlock.hidden = true;
     if (isAndroid && iosBlock) iosBlock.hidden = true;
 }
@@ -458,9 +459,7 @@ function initApp() {
             if (view === 'profile') renderProfile();
             if (view === 'map') stationsMap?.activate();
         },
-        onRefresh: loadTarifs,
-        onToggleTheme: toggleTheme,
-        onShowLanding: showLanding
+        onToggleTheme: toggleTheme
     });
 
     on('install-native-btn', 'click', triggerNativeInstall);
@@ -500,12 +499,11 @@ function initApp() {
     initNetworkStatus({ onReconnect: loadTarifs });
 
     document.getElementById('landing-start')?.addEventListener('click', hideLanding);
-    document.getElementById('landing-about-link')?.addEventListener('click', event => {
+    document.getElementById('landing-help-link')?.addEventListener('click', event => {
         event.preventDefault();
         hideLanding();
         window.setTimeout(() => {
-            navigation?.closeAllPages();
-            document.getElementById('page-about')?.classList.add('open');
+            navigation?.openPage('page-aide');
         }, 420);
     });
 

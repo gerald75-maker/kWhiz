@@ -191,20 +191,68 @@ test('Stations sur mon trajet reste un MVP isolé et filtrable par opérateur', 
   assert.doesNotMatch(source, /openrouteservice.*api[_-]?key/i);
 });
 
-test('l’aide ordonnée couvre localisation, statuts, sélection et itinéraire', async () => {
+test('le géocodage des itinéraires est limité à la France', async () => {
+  const php = await readFile(new URL('public/route.php', root), 'utf8');
+  const geocode = php.slice(php.indexOf('function geocode'), php.indexOf("if ($_SERVER['REQUEST_METHOD']"));
+  assert.match(geocode, /'boundary\.country'\s*=>\s*'FR'/);
+  assert.match(geocode, /Précisez une adresse française ou un code postal/);
+  assert.match(geocode, /'coordinates'\s*=>\s*\[\(float\) \$coordinates\[0\], \(float\) \$coordinates\[1\]\]/);
+});
+
+test('Bayonne est conservée en longitude, latitude près du Pays basque français', async () => {
+  const php = await readFile(new URL('public/route.php', root), 'utf8');
+  const orsBayonneFeature = {
+    geometry: { coordinates: [-1.4748, 43.4929] }
+  };
+  const [longitude, latitude] = orsBayonneFeature.geometry.coordinates;
+
+  assert.ok(Math.abs(longitude - (-1.47)) < 0.02);
+  assert.ok(Math.abs(latitude - 43.49) < 0.02);
+  assert.match(php, /'coordinates'\s*=>\s*\[\$startCoordinates, \$endCoordinates\]/);
+  assert.match(php, /'start'\s*=>\s*\$startCoordinates/);
+  assert.match(php, /'end'\s*=>\s*\$endCoordinates/);
+});
+
+test('le formulaire précise la saisie française et affiche les lieux reconnus', async () => {
+  const [html, source, php] = await Promise.all([
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.equal((html.match(/placeholder="Ville, adresse ou code postal en France"/g) || []).length, 2);
+  assert.match(php, /'recognizedStart'\s*=>\s*\$startPlace\['label'\]/);
+  assert.match(php, /'recognizedEnd'\s*=>\s*\$endPlace\['label'\]/);
+  assert.match(source, /payload\.recognizedStart \|\| start/);
+  assert.match(source, /payload\.recognizedEnd \|\| end/);
+});
+
+test('les erreurs d’itinéraire donnent une action corrective', async () => {
+  const [source, php] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.match(php, /Précisez une adresse française ou un code postal/);
+  assert.match(php, /Aucun itinéraire routier trouvé\. Vérifiez les lieux reconnus/);
+  assert.match(php, /Service d’itinéraire indisponible\. Réessayez dans quelques instants/);
+  assert.match(source, /Vérifiez les réglages de localisation de votre navigateur/);
+});
+
+test('l’aide en accordéons couvre localisation, statuts, sélection et itinéraire', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
-  const mapHelp = html.slice(html.indexOf('🗺️ Utiliser la carte'), html.indexOf('</ol>', html.indexOf('🗺️ Utiliser la carte')));
-  assert.equal((mapHelp.match(/<li>/g) || []).length, 8);
+  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
+  for (const title of ['Bien démarrer', 'Comprendre les résultats', 'Utiliser la carte', 'Stations sur mon trajet', 'Questions fréquentes']) {
+    assert.match(help, new RegExp(`<summary>${title}`));
+  }
+  const mapHelp = help.slice(help.indexOf('<summary>Utiliser la carte'), help.indexOf('</details>', help.indexOf('<summary>Utiliser la carte')));
   assert.match(mapHelp, /première ouverture/);
   assert.match(mapHelp, /vert/);
   assert.match(mapHelp, /point, un logo ou une fiche/);
   assert.match(mapHelp, /Google Maps ou Waze/);
-  assert.match(mapHelp, /OpenRouteService/);
-  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
-  assert.match(help, /outil de repérage, pas un planificateur de recharge/);
-  assert.match(help, /opérateurs actuellement sélectionnés/);
-  assert.match(help, /ne connaît ni votre batterie ni votre autonomie/);
-  assert.match(help, /lance simplement votre application GPS vers cette borne/);
+  assert.match(help, /OpenRouteService/);
+  assert.match(help, /repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie/);
+  assert.match(help, /Sélectionnez les opérateurs/);
+  assert.match(help, /ne tient compte ni de l’autonomie, ni du niveau de batterie/);
+  assert.match(help, /ouvre le guidage vers une seule station/);
 });
 
 test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {
