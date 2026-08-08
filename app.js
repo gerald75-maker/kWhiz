@@ -7,7 +7,7 @@ import {
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
-import { renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
+import { nextSortDirection, renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
 import { renderProfileView } from './src/ui/views/profile-view.js';
 import { renderOperatorsViews } from './src/ui/views/operators-view.js';
 
@@ -64,7 +64,7 @@ initTheme();
 initPwa();
 
 let OPERATORS = {};
-let currentSort = { column: 'rate', direction: 'asc' };
+let currentSort = { column: 'costPer100km', direction: 'asc' };
 let allFormulasData = [];
 let fastPct = (() => {
     const saved = parseInt(localStorage.getItem(FAST_PCT_KEY), 10);
@@ -492,7 +492,7 @@ function initApp() {
     document.querySelectorAll('.compare-sort-btn').forEach(button => {
         button.addEventListener('click', () => {
             const column = button.dataset.sort;
-            const direction = currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
+            const direction = nextSortDirection(currentSort, column);
             const query = document.getElementById('compare-search')?.value || '';
             currentSort = renderComparisonTable(allFormulasData, column, direction, { logos: LOGOS, onModal: openInfoModal, onDetail: openFormulaDetail, query });
         });

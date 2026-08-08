@@ -1,6 +1,11 @@
 import { PERIOD } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
-import { getLocale } from '../../i18n/i18n.js';
+import { getLanguage, getLocale } from '../../i18n/i18n.js';
+
+const SORT_LABELS = {
+    fr: { costPer100km: 'Coût aux 100 km', monthlyCost: 'Abonnement', operator: 'Opérateur', km: 'Seuil' },
+    en: { costPer100km: 'Cost per 100 km', monthlyCost: 'Subscription', operator: 'Network', km: 'Break-even point' }
+};
 
 export function renderTarifsDateBanner(dateText, isError, freshness = null) {
     const banner = document.getElementById('tarifs-update-banner');
@@ -34,9 +39,9 @@ export function rankTierClass(rate, lowest) {
     return gapPct <= 15 ? 'rank-mid' : 'rank-high';
 }
 
-function compareValues(a, b, column, direction) {
-    let valA = a[column];
-    let valB = b[column];
+export function compareComparisonValues(a, b, column, direction) {
+    let valA = column === 'monthlyCost' ? (Number.isFinite(a.monthlyCost) ? a.monthlyCost : 0) : a[column];
+    let valB = column === 'monthlyCost' ? (Number.isFinite(b.monthlyCost) ? b.monthlyCost : 0) : b[column];
     if (valA === Infinity && valB === Infinity) return 0;
     if (valA === Infinity) return 1;
     if (valB === Infinity) return -1;
@@ -44,6 +49,14 @@ function compareValues(a, b, column, direction) {
     if (typeof valB === 'string') valB = valB.toLocaleLowerCase(getLocale());
     const result = valA > valB ? 1 : valA < valB ? -1 : 0;
     return direction === 'asc' ? result : -result;
+}
+
+export function sortComparisonFormulas(formulas, column, direction) {
+    return [...formulas].sort((a, b) => compareComparisonValues(a, b, column, direction));
+}
+
+export function nextSortDirection(currentSort, column) {
+    return currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
 }
 
 
@@ -75,9 +88,9 @@ function subscriptionLabel(formula) {
 
 export function renderComparisonTable(formulasData, column, direction, { logos = {}, onModal, onDetail, query = '' } = {}) {
     const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
-    const data = formulasData
-        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery))
-        .sort((a, b) => compareValues(a, b, column, direction));
+    const filteredData = formulasData
+        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery));
+    const data = sortComparisonFormulas(filteredData, column, direction);
 
     const list = document.getElementById('ranking-list');
     const count = document.getElementById('compare-count');
@@ -131,6 +144,16 @@ export function renderComparisonTable(formulasData, column, direction, { logos =
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
         button.dataset.direction = active ? direction : '';
+        const language = getLanguage();
+        const label = SORT_LABELS[language][button.dataset.sort];
+        if (active) {
+            const order = language === 'en'
+                ? (direction === 'asc' ? 'ascending' : 'descending')
+                : (direction === 'asc' ? 'croissant' : 'décroissant');
+            button.setAttribute('aria-label', `${label}, ${language === 'en' ? 'active sort' : 'tri actif'}, ${order}`);
+        } else {
+            button.setAttribute('aria-label', label);
+        }
     });
 
     const openDetail = target => {

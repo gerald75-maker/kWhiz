@@ -57,7 +57,7 @@ const phrases = {
   'Recharge rapide DC': 'DC fast charging', 'Comparer': 'Compare',
   'Les offres classées selon votre consommation de recharge rapide.': 'Plans ranked for your fast-charging usage.',
   'Rechercher un opérateur ou une formule': 'Search for a network or plan', 'Trier les offres': 'Sort plans',
-  'Coût aux 100 km': 'Cost per 100 km', 'Prix du kWh': 'Price per kWh', 'Opérateur': 'Network', 'Opérateurs': 'Networks', 'Seuil': 'Break-even',
+  'Coût aux 100 km': 'Cost per 100 km', 'Prix du kWh': 'Price per kWh', 'Opérateur': 'Network', 'Opérateurs': 'Networks', 'Seuil': 'Break-even point',
   'Réseaux de recharge rapide': 'Fast-charging networks', 'Opérateurs et formules': 'Networks and plans',
   'Consultez les prix publiés, les abonnements et leur seuil de rentabilité.': 'View published prices, subscriptions and their break-even point.',
   'Afficher le détail des prix': 'Show price details', 'Bornes rapides en France': 'Fast chargers in France', 'Carte des stations': 'Charger map',
