@@ -1,10 +1,56 @@
-import { PERIOD } from '../../domain/pricing.js';
+import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
 import { getLanguage, getLocale } from '../../i18n/i18n.js';
 
-const SORT_LABELS = {
-    fr: { costPer100km: 'Coût aux 100 km', monthlyCost: 'Abonnement', operator: 'Opérateur', km: 'Seuil' },
-    en: { costPer100km: 'Cost per 100 km', monthlyCost: 'Subscription', operator: 'Network', km: 'Break-even point' }
+const COPY = {
+    fr: {
+        count: count => `${count} formule${count > 1 ? 's' : ''}`,
+        estimatedCost: 'Coût estimé',
+        fastCharging: 'Recharge rapide',
+        subscription: 'Abonnement',
+        profitability: 'Rentabilité',
+        noSubscription: 'Sans abonnement',
+        notProfitable: 'Abonnement non rentable',
+        noFastCharging: 'Abonnement non pertinent sans recharge rapide',
+        enterMileage: 'Indiquez votre kilométrage mensuel pour comparer les formules.',
+        summary: (km, fast, consumption) => `Calcul pour ${km} km/mois, dont ${fast} % sur des bornes rapides, avec une consommation de ${consumption} kWh/100 km. Le coût de recharge à domicile, identique pour toutes les formules, n’influence pas ce classement. Le seuil de rentabilité est calculé face au tarif de référence de l’opérateur.`,
+        saves: amount => `Vous économisez ${amount} €/mois`,
+        smallSaving: 'Économie inférieure à 0,50 €/mois',
+        costsMore: amount => `L’abonnement vous coûte encore ${amount} €/mois de plus`,
+        referenceUnavailable: 'Comparaison au tarif de référence indisponible',
+        noSubscriptionComparison: 'Tarif sans abonnement',
+        atlanteEstimate: rate => `Tarif nominal et ChargeBack estimé selon 4 sessions : environ ${rate} €/kWh payé. Le résultat dépend du rythme des sessions et n’est pas garanti.`,
+        perMonth: 'mois',
+        perYear: 'an',
+        monthlyEquivalent: 'soit',
+        details: 'Détails tarifaires',
+        viewDetails: 'Voir le détail de',
+        empty: 'Aucune formule ne correspond à cette recherche.'
+    },
+    en: {
+        count: count => `${count} plan${count === 1 ? '' : 's'}`,
+        estimatedCost: 'Estimated cost',
+        fastCharging: 'Fast charging',
+        subscription: 'Subscription',
+        profitability: 'Break-even',
+        noSubscription: 'No subscription',
+        notProfitable: 'Subscription does not break even',
+        noFastCharging: 'Subscription is not relevant without fast charging',
+        enterMileage: 'Enter your monthly mileage to compare plans.',
+        summary: (km, fast, consumption) => `Calculation for ${km} km/month, including ${fast}% at fast chargers, with an efficiency of ${consumption} kWh/100 km. Home charging costs the same for every plan and does not affect this ranking. Break-even is calculated against the network’s reference price.`,
+        saves: amount => `You save ${amount} €/month`,
+        smallSaving: 'Saving is less than €0.50/month',
+        costsMore: amount => `The subscription still costs you ${amount} €/month more`,
+        referenceUnavailable: 'Reference-price comparison unavailable',
+        noSubscriptionComparison: 'Pay-as-you-go plan',
+        atlanteEstimate: rate => `Nominal price with estimated ChargeBack over 4 sessions: approximately ${rate} €/kWh paid. The result depends on session timing and is not guaranteed.`,
+        perMonth: 'month',
+        perYear: 'year',
+        monthlyEquivalent: 'equivalent to',
+        details: 'Pricing details',
+        viewDetails: 'View details for',
+        empty: 'No plan matches this search.'
+    }
 };
 
 export function renderTarifsDateBanner(dateText, isError, freshness = null) {
@@ -39,24 +85,56 @@ export function rankTierClass(rate, lowest) {
     return gapPct <= 15 ? 'rank-mid' : 'rank-high';
 }
 
-export function compareComparisonValues(a, b, column, direction) {
-    let valA = column === 'monthlyCost' ? (Number.isFinite(a.monthlyCost) ? a.monthlyCost : 0) : a[column];
-    let valB = column === 'monthlyCost' ? (Number.isFinite(b.monthlyCost) ? b.monthlyCost : 0) : b[column];
-    if (valA === Infinity && valB === Infinity) return 0;
-    if (valA === Infinity) return 1;
-    if (valB === Infinity) return -1;
-    if (typeof valA === 'string') valA = valA.toLocaleLowerCase(getLocale());
-    if (typeof valB === 'string') valB = valB.toLocaleLowerCase(getLocale());
-    const result = valA > valB ? 1 : valA < valB ? -1 : 0;
-    return direction === 'asc' ? result : -result;
+export function filterComparisonFormulas(formulas, query) {
+    const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
+    return formulas.filter(formula => !normalizedQuery
+        || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery));
 }
 
-export function sortComparisonFormulas(formulas, column, direction) {
-    return [...formulas].sort((a, b) => compareComparisonValues(a, b, column, direction));
+export function openComparisonRecommendation(navigation) {
+    navigation?.switchView('profile');
 }
 
-export function nextSortDirection(currentSort, column) {
-    return currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
+export function adjustedThreshold(formulaKm, fastPercentage) {
+    if (formulaKm === 0) return 0;
+    if (!Number.isFinite(formulaKm) || fastPercentage <= 0) return Infinity;
+    return Math.ceil(formulaKm / (fastPercentage / 100));
+}
+
+export function buildComparisonRanking(formulas, { monthlyKm, consumption, fastPercentage, homeRate, date = new Date() }) {
+    if (!(monthlyKm > 0)) return [];
+    const fastRatio = Math.min(100, Math.max(0, fastPercentage)) / 100;
+    const fastKm = monthlyKm * fastRatio;
+    const fastKwh = fastKm * consumption;
+    const homeCost = (monthlyKm - fastKm) * consumption * homeRate;
+
+    return formulas.map((formula, catalogIndex) => {
+        const profileCost = computeProfileMonthlyCost(formula, monthlyKm, consumption, { fastPercentage, homeRate, date });
+        const estimatedMonthlyCost = Number.isFinite(profileCost) ? Math.max(0, profileCost - homeCost) : Infinity;
+        const subscriptionCost = Number.isFinite(formula.monthlyCost) ? formula.monthlyCost : 0;
+        const fastChargingCost = Number.isFinite(estimatedMonthlyCost)
+            ? Math.max(0, estimatedMonthlyCost - subscriptionCost)
+            : Infinity;
+        const referenceCost = Number.isFinite(formula.ref) ? fastKwh * formula.ref : Infinity;
+        const subscriptionBenefit = subscriptionCost > 0 && Number.isFinite(referenceCost) && Number.isFinite(estimatedMonthlyCost)
+            ? referenceCost - estimatedMonthlyCost
+            : null;
+        return {
+            ...formula,
+            catalogIndex,
+            fastKm,
+            fastKwh,
+            estimatedMonthlyCost,
+            fastChargingCost,
+            subscriptionBenefit,
+            adjustedThresholdKm: adjustedThreshold(formula.km, fastPercentage)
+        };
+    }).sort((a, b) => {
+        if (!Number.isFinite(a.estimatedMonthlyCost) && !Number.isFinite(b.estimatedMonthlyCost)) return a.catalogIndex - b.catalogIndex;
+        if (!Number.isFinite(a.estimatedMonthlyCost)) return 1;
+        if (!Number.isFinite(b.estimatedMonthlyCost)) return -1;
+        return a.estimatedMonthlyCost - b.estimatedMonthlyCost || a.catalogIndex - b.catalogIndex;
+    });
 }
 
 
@@ -75,46 +153,92 @@ function rateLabel(formula) {
     return `${formatNumber(formula.rate, formula.chargebackRate !== null ? 3 : 2)} €/kWh`;
 }
 
-function thresholdLabel(km) {
-    if (km === 0) return 'Sans seuil';
-    if (km === Infinity) return 'Non rentable';
-    return `Rentable dès ${formatNumber(km)} km/mois`;
+function formatComparisonNumber(value, language, fractionDigits) {
+    return new Intl.NumberFormat(language === 'en' ? 'en-GB' : 'fr-FR', fractionDigits === undefined ? {} : {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+    }).format(value);
 }
 
-function subscriptionLabel(formula) {
-    if (!(formula.cost > 0)) return 'Sans abonnement';
-    return `${formatNumber(formula.cost, 2)} €/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}`;
+export function profileThresholdLabel(formula, fastPercentage, language = getLanguage()) {
+    const copy = COPY[language];
+    if (!(formula.monthlyCost > 0)) return copy.noSubscription;
+    if (fastPercentage <= 0) return copy.noFastCharging;
+    if (!Number.isFinite(formula.adjustedThresholdKm)) return copy.notProfitable;
+    const total = formatComparisonNumber(formula.adjustedThresholdKm, language);
+    const fast = formatComparisonNumber(Math.ceil(formula.km), language);
+    if (fastPercentage >= 100) return `${language === 'en' ? 'Break-even from' : 'Rentable dès'} ${total} km/${copy.perMonth}`;
+    return language === 'en'
+        ? `Break-even from ${total} km/month total, including ${fast} km at fast chargers`
+        : `Rentable dès ${total} km/mois au total, soit ${fast} km rechargés sur bornes rapides`;
 }
 
-export function renderComparisonTable(formulasData, column, direction, { logos = {}, onModal, onDetail, query = '' } = {}) {
-    const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
-    const filteredData = formulasData
-        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery));
-    const data = sortComparisonFormulas(filteredData, column, direction);
+export function subscriptionLabel(formula, language = getLanguage()) {
+    const copy = COPY[language];
+    if (!(formula.cost > 0)) return copy.noSubscription;
+    if (formula.period === PERIOD.ANNUAL) {
+        return `${formatComparisonNumber(formula.cost, language, 2)} €/${copy.perYear}, ${copy.monthlyEquivalent} ${formatComparisonNumber(formula.monthlyCost, language, 2)} €/${copy.perMonth}`;
+    }
+    return `${formatComparisonNumber(formula.cost, language, 2)} €/${copy.perMonth}`;
+}
+
+export function subscriptionBenefitLabel(formula, language = getLanguage()) {
+    const copy = COPY[language];
+    if (!(formula.monthlyCost > 0)) return copy.noSubscriptionComparison;
+    if (formula.fastKwh <= 0) return copy.noFastCharging;
+    if (!Number.isFinite(formula.subscriptionBenefit)) return copy.referenceUnavailable;
+    if (formula.subscriptionBenefit >= 0.5) return copy.saves(formatComparisonNumber(formula.subscriptionBenefit, language, 2));
+    if (formula.subscriptionBenefit >= 0) return copy.smallSaving;
+    return copy.costsMore(formatComparisonNumber(Math.abs(formula.subscriptionBenefit), language, 2));
+}
+
+function chargebackExplanation(formula, language) {
+    if (!formula.chargebackConfig?.enabled || !Number.isFinite(formula.rateRaw) || formula.fastKwh <= 0) return '';
+    const effectivePaidRate = formula.fastChargingCost / formula.fastKwh;
+    return `<p class="compare-chargeback-note">${COPY[language].atlanteEstimate(formatComparisonNumber(effectivePaidRate, language, 3))}</p>`;
+}
+
+export function renderComparisonTable(formulasData, {
+    monthlyKm = 0,
+    consumption = 0.18,
+    fastPercentage = 100,
+    homeRate = 0.20,
+    date = new Date(),
+    logos = {},
+    onModal,
+    onDetail,
+    query = ''
+} = {}) {
+    const language = getLanguage();
+    const copy = COPY[language];
+    const filteredData = filterComparisonFormulas(formulasData, query);
+    const data = monthlyKm > 0
+        ? buildComparisonRanking(filteredData, { monthlyKm, consumption, fastPercentage, homeRate, date })
+        : [];
 
     const list = document.getElementById('ranking-list');
     const count = document.getElementById('compare-count');
-    if (!list) return { column, direction, query };
+    const summary = document.getElementById('compare-summary');
+    if (!list) return { query };
 
-    if (count) count.textContent = `${data.length} formule${data.length > 1 ? 's' : ''}`;
-    const lowestCost = data.reduce((min, formula) => Math.min(min, formula.costPer100km), Infinity);
+    if (summary) summary.textContent = monthlyKm > 0
+        ? copy.summary(formatComparisonNumber(monthlyKm, language), formatComparisonNumber(fastPercentage, language), formatComparisonNumber(consumption * 100, language))
+        : copy.enterMileage;
+    if (count) count.textContent = monthlyKm > 0 ? copy.count(data.length) : '';
+    if (monthlyKm <= 0) {
+        list.innerHTML = `<p class="compare-empty">${copy.enterMileage}</p>`;
+        return { query };
+    }
 
     list.innerHTML = data.length ? data.map((formula, index) => {
         const formulaKey = `${formula.opKey}::${formula.name}`;
         const logo = logos[formula.opKey]
             ? `<img src="${escapeHtml(logos[formula.opKey])}" class="compare-logo" alt="" loading="lazy">`
             : '<span class="compare-logo compare-logo--fallback" aria-hidden="true"></span>';
-        const difference = Number.isFinite(lowestCost) ? formula.costPer100km - lowestCost : 0;
-        const differenceText = difference <= 0.005
-            ? 'Coût le plus bas'
-            : `+${formatNumber(difference, 2)} €/100 km`;
-        const rawRate = formula.chargebackRate !== null && Number.isFinite(formula.rateRaw)
-            ? `<span class="compare-old-rate">${formatNumber(formula.rateRaw, 2)} €</span>`
-            : '';
         const note = formula.note ? `<p class="compare-note">${escapeHtml(formula.note)}</p>` : '';
         const rank = index + 1;
 
-        return `<article class="compare-item${difference <= 0.005 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="Voir le détail de ${escapeHtml(formula.operator)} ${escapeHtml(formula.name)}">
+        return `<article class="compare-item${index === 0 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="${copy.viewDetails} ${escapeHtml(formula.operator)} ${escapeHtml(formula.name)}">
             <div class="compare-rank" aria-hidden="true">${rank}</div>
             <div class="compare-identity">
                 ${logo}
@@ -126,35 +250,21 @@ export function renderComparisonTable(formulasData, column, direction, { logos =
                 </div>
             </div>
             <div class="compare-prices">
-                <strong>${formatNumber(formula.costPer100km, 2)} €</strong>
-                <span>/100 km</span>
-                <small class="${difference <= 0.005 ? 'is-best' : ''}">${differenceText}</small>
+                <span>${copy.estimatedCost}</span>
+                <strong>${formatNumber(formula.estimatedMonthlyCost, 2)} €</strong>
+                <small>/${copy.perMonth}</small>
             </div>
-            <div class="compare-meta" aria-label="Détails tarifaires">
-                <span><small>Tarif</small>${rawRate}${rateLabel(formula)}</span>
-                <span><small>Abonnement</small>${subscriptionLabel(formula)}</span>
-                <span><small>Seuil</small>${thresholdLabel(formula.km)}</span>
+            <div class="compare-meta" aria-label="${copy.details}">
+                <span><small>${copy.fastCharging}</small>${formatNumber(formula.fastChargingCost, 2)} €</span>
+                <span><small>${copy.subscription}</small>${subscriptionLabel(formula, language)}</span>
+                <span><small>Tarif</small>${formula.chargebackConfig?.enabled ? `${formatNumber(formula.rateRaw, 2)} €/kWh nominal` : rateLabel(formula)}</span>
+                <span><small>${copy.profitability}</small>${profileThresholdLabel(formula, fastPercentage, language)}</span>
             </div>
+            <p class="compare-benefit">${subscriptionBenefitLabel(formula, language)}</p>
+            ${chargebackExplanation(formula, language)}
             <svg class="compare-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
         </article>`;
-    }).join('') : '<p class="compare-empty">Aucune formule ne correspond à cette recherche.</p>';
-
-    document.querySelectorAll('.compare-sort-btn').forEach(button => {
-        const active = button.dataset.sort === column;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-pressed', String(active));
-        button.dataset.direction = active ? direction : '';
-        const language = getLanguage();
-        const label = SORT_LABELS[language][button.dataset.sort];
-        if (active) {
-            const order = language === 'en'
-                ? (direction === 'asc' ? 'ascending' : 'descending')
-                : (direction === 'asc' ? 'croissant' : 'décroissant');
-            button.setAttribute('aria-label', `${label}, ${language === 'en' ? 'active sort' : 'tri actif'}, ${order}`);
-        } else {
-            button.setAttribute('aria-label', label);
-        }
-    });
+    }).join('') : `<p class="compare-empty">${copy.empty}</p>`;
 
     const openDetail = target => {
         const card = target.closest('[data-detail]');
@@ -176,5 +286,5 @@ export function renderComparisonTable(formulasData, column, direction, { logos =
         event.preventDefault();
         openDetail(card);
     };
-    return { column, direction, query };
+    return { query };
 }

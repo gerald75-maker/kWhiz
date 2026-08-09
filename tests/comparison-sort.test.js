@@ -1,69 +1,230 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { PERIOD, calculateBreakeven } from '../src/domain/pricing.js';
-import { nextSortDirection, sortComparisonFormulas } from '../src/ui/views/comparison-view.js';
+import { PERIOD, calculateBreakeven, chargebackBreakeven, computeProfileMonthlyCost } from '../src/domain/pricing.js';
+import { initProfileControls } from '../src/ui/controllers/profile-controls.js';
+import {
+    adjustedThreshold,
+    buildComparisonRanking,
+    filterComparisonFormulas,
+    openComparisonRecommendation,
+    profileThresholdLabel,
+    renderComparisonTable,
+    subscriptionBenefitLabel,
+    subscriptionLabel
+} from '../src/ui/views/comparison-view.js';
 
-test('le prix du kWh et le coût aux 100 km produisent le même classement', () => {
-    const consumption = 18;
+const profile = { monthlyKm: 1000, consumption: 0.18, fastPercentage: 100, homeRate: 0.20 };
+
+function formula(name, { rate, ref = rate, monthlyCost = 0, cost = monthlyCost, period = monthlyCost ? PERIOD.MONTHLY : PERIOD.NONE, km = monthlyCost ? 1000 : 0, ...extra }) {
+    return { name, operator: name, rate, ref, monthlyCost, cost, period, km, ...extra };
+}
+
+test('classe automatiquement par coût mensuel rapide réel, abonnement compris', () => {
     const formulas = [
-        { name: 'B', rate: 0.55, costPer100km: 0.55 * consumption },
-        { name: 'A', rate: 0.29, costPer100km: 0.29 * consumption },
-        { name: 'C', rate: 0.69, costPer100km: 0.69 * consumption }
+        formula('Chère', { rate: 0.60 }),
+        formula('Abonnement', { rate: 0.20, ref: 0.60, monthlyCost: 10 }),
+        formula('Intermédiaire', { rate: 0.40 })
     ];
-    assert.deepEqual(
-        sortComparisonFormulas(formulas, 'rate', 'asc').map(item => item.name),
-        sortComparisonFormulas(formulas, 'costPer100km', 'asc').map(item => item.name)
-    );
+    const ranking = buildComparisonRanking(formulas, profile);
+    assert.deepEqual(ranking.map(item => item.name), ['Abonnement', 'Intermédiaire', 'Chère']);
+    assert.equal(ranking[0].estimatedMonthlyCost, 46);
+    assert.equal(ranking[0].fastChargingCost, 36);
+    assert.equal(ranking[0].monthlyCost, 10);
 });
 
-test('le tri Abonnement utilise monthlyCost et diffère du coût aux 100 km', () => {
+test('le rendu marque uniquement la première formule comme meilleure et affiche son abonnement', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    const count = { textContent: '' };
+    const summary = { textContent: '' };
+    globalThis.document = {
+        getElementById: id => ({
+            'ranking-list': list,
+            'compare-count': count,
+            'compare-summary': summary
+        })[id] || null
+    };
     const formulas = [
-        { name: 'Sans abonnement', costPer100km: 12, monthlyCost: 0 },
-        { name: 'Premium', costPer100km: 5, monthlyCost: 10 },
-        { name: 'Intermédiaire', costPer100km: 8, monthlyCost: 4 }
+        formula('Sans abonnement', { rate: 0.60, opKey: 'sans' }),
+        formula('Formule avec abonnement', { rate: 0.20, ref: 0.60, monthlyCost: 9.99, opKey: 'avec' })
     ];
-    assert.deepEqual(sortComparisonFormulas(formulas, 'costPer100km', 'asc').map(item => item.name), ['Premium', 'Intermédiaire', 'Sans abonnement']);
-    assert.deepEqual(sortComparisonFormulas(formulas, 'monthlyCost', 'asc').map(item => item.name), ['Sans abonnement', 'Intermédiaire', 'Premium']);
+
+    assert.doesNotThrow(() => renderComparisonTable(formulas, profile));
+    assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 1);
+    assert.match(list.innerHTML, /compare-item compare-item--best[\s\S]*Formule avec abonnement/);
+    assert.match(list.innerHTML, /9,99 €\/mois/);
 });
 
-test('les abonnements annuels sont ramenés à un coût mensuel', () => {
-    const annual = calculateBreakeven({ rate: 0.3, ref: 0.5, cost: 60, period: PERIOD.ANNUAL }, 0.18);
-    const monthly = calculateBreakeven({ rate: 0.3, ref: 0.5, cost: 6, period: PERIOD.MONTHLY }, 0.18);
-    const none = calculateBreakeven({ rate: 0.5, ref: 0.5, cost: 0, period: PERIOD.NONE }, 0.18);
-    assert.equal(annual.monthlyCost, 5);
-    assert.equal(none.monthlyCost, 0);
-    assert.deepEqual(
-        sortComparisonFormulas([{ name: 'Mensuel', ...monthly }, { name: 'Annuel', ...annual }, { name: 'Sans', ...none }], 'monthlyCost', 'asc').map(item => item.name),
-        ['Sans', 'Annuel', 'Mensuel']
+test('faible kilométrage favorise le sans abonnement et fort kilométrage peut favoriser un abonnement', () => {
+    const formulas = [
+        formula('Sans abonnement', { rate: 0.50 }),
+        formula('Abonnement', { rate: 0.20, ref: 0.50, monthlyCost: 10 })
+    ];
+    assert.equal(buildComparisonRanking(formulas, { ...profile, monthlyKm: 100 })[0].name, 'Sans abonnement');
+    assert.equal(buildComparisonRanking(formulas, { ...profile, monthlyKm: 1000 })[0].name, 'Abonnement');
+});
+
+test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () => {
+    const date = new Date('2026-08-09T12:00:00+02:00');
+    const chargebackConfig = {
+        enabled: true,
+        beforeDate: '2026-07-01',
+        rateBefore: 1,
+        rateAfter: 0.5,
+        sessionsPerMonth: 4
+    };
+    const atlanteGo = formula('Atlante Go - mensuel', {
+        rate: 0.29 / 1.5,
+        rateRaw: 0.29,
+        ref: 0.54,
+        cost: 9.99,
+        monthlyCost: 9.99,
+        km: chargebackBreakeven({ rate: 0.29, ref: 0.54, cost: 9.99, period: PERIOD.MONTHLY }, 0.18, 0.5),
+        chargebackConfig
+    });
+    const payAsYouGo = formula('Sans abonnement', { rate: 0.54 });
+    const options = { ...profile, date };
+    const ranking = buildComparisonRanking([payAsYouGo, atlanteGo], options);
+
+    assert.equal(ranking[0].name, 'Atlante Go - mensuel');
+    assert.equal(ranking[0].monthlyCost, 9.99);
+    assert.equal(
+        ranking[0].estimatedMonthlyCost,
+        computeProfileMonthlyCost(atlanteGo, options.monthlyKm, options.consumption, options)
     );
+    assert.ok(ranking[0].estimatedMonthlyCost < ranking[1].estimatedMonthlyCost);
+    assert.equal(ranking[0].estimatedMonthlyCost.toFixed(2), '47.51');
+    assert.equal(ranking[0].subscriptionBenefit.toFixed(2), '49.69');
+    assert.equal(subscriptionBenefitLabel(ranking[0], 'fr'), 'Vous économisez 49,69 €/mois');
 });
 
-test('un second clic sur le même tri inverse l’ordre', () => {
-    const current = { column: 'monthlyCost', direction: 'asc' };
-    assert.equal(nextSortDirection({ column: 'costPer100km', direction: 'asc' }, 'monthlyCost'), 'asc');
-    assert.equal(nextSortDirection(current, 'monthlyCost'), 'desc');
-    const formulas = [{ name: 'A', monthlyCost: 0 }, { name: 'B', monthlyCost: 8 }];
-    assert.deepEqual(sortComparisonFormulas(formulas, 'monthlyCost', nextSortDirection(current, 'monthlyCost')).map(item => item.name), ['B', 'A']);
+test('un abonnement annuel conserve son prix officiel et son équivalent mensuel', () => {
+    const annualResult = calculateBreakeven({ rate: 0.30, ref: 0.50, cost: 60, period: PERIOD.ANNUAL }, 0.18);
+    const annual = formula('Annuel', { rate: 0.30, ref: 0.50, cost: 60, period: PERIOD.ANNUAL, monthlyCost: annualResult.monthlyCost, km: annualResult.km });
+    const ranked = buildComparisonRanking([annual], profile)[0];
+    assert.equal(ranked.estimatedMonthlyCost, 59);
+    assert.equal(subscriptionLabel(annual, 'fr'), '60,00 €/an, soit 5,00 €/mois');
 });
 
-test('les quatre libellés de tri sont présents et traduits en anglais', async () => {
-    const [html, i18nSource, viewSource, styles] = await Promise.all([
+test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => {
+    const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
+    const adjusted = { ...subscribed, adjustedThresholdKm: adjustedThreshold(subscribed.km, 40) };
+    assert.equal(adjusted.adjustedThresholdKm, 1500);
+    assert.equal(profileThresholdLabel(adjusted, 40, 'fr'), 'Rentable dès 1 500 km/mois au total, soit 600 km rechargés sur bornes rapides');
+    assert.equal(adjustedThreshold(subscribed.km, 0), Infinity);
+    assert.equal(profileThresholdLabel({ ...subscribed, adjustedThresholdKm: Infinity }, 0, 'fr'), 'Abonnement non pertinent sans recharge rapide');
+});
+
+test('un kilométrage nul ne produit aucun classement', () => {
+    assert.deepEqual(buildComparisonRanking([formula('A', { rate: 0.50 })], { ...profile, monthlyKm: 0 }), []);
+});
+
+test('le classement réagit à la consommation et à la part rapide du profil', () => {
+    const plans = [formula('Sans', { rate: 0.50 }), formula('Avec', { rate: 0.20, ref: 0.50, monthlyCost: 10 })];
+    const lowConsumption = buildComparisonRanking(plans, { ...profile, monthlyKm: 200, consumption: 0.13, fastPercentage: 100 });
+    const highConsumption = buildComparisonRanking(plans, { ...profile, monthlyKm: 200, consumption: 0.24, fastPercentage: 100 });
+    const lowFastShare = buildComparisonRanking(plans, { ...profile, monthlyKm: 1000, fastPercentage: 10 });
+    const highFastShare = buildComparisonRanking(plans, { ...profile, monthlyKm: 1000, fastPercentage: 100 });
+    assert.equal(lowConsumption[0].name, 'Sans');
+    assert.equal(highConsumption[0].name, 'Avec');
+    assert.equal(lowFastShare[0].name, 'Sans');
+    assert.equal(highFastShare[0].name, 'Avec');
+});
+
+test('décrit une économie réelle, une économie faible et un surcoût abonnement inclus', () => {
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 8.2 }, 'fr'), 'Vous économisez 8,20 €/mois');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 0.2 }, 'fr'), 'Économie inférieure à 0,50 €/mois');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: -4.1 }, 'fr'), 'L’abonnement vous coûte encore 4,10 €/mois de plus');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'fr'), 'Comparaison au tarif de référence indisponible');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'en'), 'Reference-price comparison unavailable');
+});
+
+test('la recherche reste active et les égalités conservent l’ordre du catalogue', () => {
+    const plans = [formula('Premier', { rate: 0.50 }), formula('Second', { rate: 0.50 })];
+    assert.deepEqual(buildComparisonRanking(plans, profile).map(item => item.name), ['Premier', 'Second']);
+    assert.deepEqual(filterComparisonFormulas(plans, 'second').map(item => item.name), ['Second']);
+});
+
+test('Modifier mon profil utilise navigation.switchView', () => {
+    const calls = [];
+    openComparisonRecommendation({ switchView: view => calls.push(view) });
+    assert.deepEqual(calls, ['profile']);
+});
+
+test('le kilométrage est synchronisé autour de profile-km et les anciens tris ont disparu', async () => {
+    const [html, app, controller, view] = await Promise.all([
+        readFile(new URL('../index.html', import.meta.url), 'utf8'),
+        readFile(new URL('../app.js', import.meta.url), 'utf8'),
+        readFile(new URL('../src/ui/controllers/profile-controls.js', import.meta.url), 'utf8'),
+        readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
+    ]);
+    assert.match(html, /id="compare-km"/);
+    assert.doesNotMatch(html, /<select|Trier par|costPer100km|monthlyCost/);
+    assert.match(app, /profileControls\?\.setMonthlyKm\(event\.target\.value\)/);
+    assert.match(app, /comparisonKm\.value = String\(monthlyKm\)/);
+    assert.match(controller, /getMonthlyKm/);
+    assert.match(controller, /setMonthlyKm/);
+    assert.doesNotMatch(app + view, /currentSort|nextSortDirection|compare-sort-select/);
+});
+
+test('le contrôleur conserve une seule valeur de kilométrage pour Mon choix et Comparer', () => {
+    const classes = () => ({ add() {}, remove() {}, toggle() {} });
+    const profileKm = new EventTarget();
+    profileKm.value = '1000';
+    const chips = { addEventListener() {}, querySelector: () => null, querySelectorAll: () => [] };
+    const elements = {
+        'profile-km': profileKm,
+        'profile-km-chips': chips,
+        'profile-km-other-wrap': { classList: classes() },
+        'km-chip-other': { classList: classes() },
+        'fast-pct-value': { textContent: '' }
+    };
+    globalThis.document = { getElementById: id => elements[id] || null };
+    globalThis.localStorage = { setItem() {} };
+    let changes = 0;
+    const controls = initProfileControls({ onChange: () => { changes += 1; } });
+
+    assert.equal(controls.setMonthlyKm(1450), 1450);
+    assert.equal(profileKm.value, '1450');
+    assert.equal(controls.getMonthlyKm(), 1450);
+    assert.equal(changes, 1);
+});
+
+test('les textes FR et EN expliquent le classement mensuel', async () => {
+    const [html, i18n, view] = await Promise.all([
         readFile(new URL('../index.html', import.meta.url), 'utf8'),
         readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8'),
-        readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8'),
-        readFile(new URL('../styles.css', import.meta.url), 'utf8')
+        readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
     ]);
-    assert.match(html, /data-sort="costPer100km"[^>]*>Coût aux 100 km</);
-    assert.match(html, /data-sort="monthlyCost"[^>]*>Abonnement</);
-    assert.match(html, /data-sort="operator"[^>]*>Opérateur</);
-    assert.match(html, /data-sort="km"[^>]*>Seuil</);
-    assert.doesNotMatch(html, /data-sort="rate"/);
-    assert.match(i18nSource, /'Coût aux 100 km': 'Cost per 100 km'/);
-    assert.match(i18nSource, /'Abonnement': 'Subscription'/);
-    assert.match(i18nSource, /'Opérateur': 'Network'/);
-    assert.match(i18nSource, /'Seuil': 'Break-even point'/);
-    assert.match(viewSource, /button\.setAttribute\('aria-label'/);
-    assert.match(styles, /\.compare-sort-btn\.active::after\s*\{\s*content:\s*"  ↑"/);
-    assert.match(styles, /\.compare-sort-btn\.active\[data-direction="desc"\]::after\s*\{\s*content:\s*"  ↓"/);
+    assert.match(html, /Indiquez votre kilométrage mensuel\. kWhiz estime le coût de chaque formule, abonnement compris/);
+    assert.match(html, /Modifier mon profil/);
+    assert.match(i18n, /Enter your monthly mileage\. kWhiz estimates each plan’s cost, including the subscription/);
+    assert.match(i18n, /'Modifier mon profil': 'Edit my profile'/);
+    assert.match(view, /Estimated cost/);
+    assert.match(view, /Subscription does not break even/);
+});
+
+test('app transmet la référence tarifaire aux données comparées', async () => {
+    const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+    assert.match(app, /ref:\s+formula\.ref,/);
+});
+
+test('les dernières règles mobiles empêchent le débordement et empilent le coût sous l’identité', async () => {
+    const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+    const mobileStart = css.lastIndexOf('@media (max-width: 700px)');
+    const mobileEnd = css.indexOf('@media (max-width: 390px)', mobileStart);
+    const mobile = css.slice(mobileStart, mobileEnd);
+    assert.match(mobile, /grid-template-columns:\s*minmax\(0, 1fr\) 18px/);
+    assert.match(mobile, /"identity chevron"\s*"price chevron"\s*"meta chevron"/);
+    assert.match(mobile, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+    assert.match(mobile, /\.compare-item > \*[\s\S]*min-width:\s*0/);
+    assert.match(mobile, /max-width:\s*100%/);
+    assert.match(mobile, /flex-wrap:\s*wrap/);
+    assert.match(mobile, /overflow-wrap:\s*anywhere/);
+});
+
+test('la carte de consommation cesse d’être sticky uniquement dans Comparer', async () => {
+    const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+    assert.match(css, /body\[data-view="compare"\] \.sticky-top\s*\{\s*position:\s*static;/);
+    assert.doesNotMatch(css, /body\[data-view="profile"\] \.sticky-top[\s\S]*position:\s*static/);
 });

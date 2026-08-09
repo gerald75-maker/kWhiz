@@ -103,20 +103,21 @@
 <header class="compare-heading">
 <div>
 <p class="compare-kicker">Recharge rapide DC</p>
-<h2 id="compare-title">Comparer</h2>
-<p>Les offres classées selon votre consommation de recharge rapide.</p>
+<h2 id="compare-title">Comparer les offres</h2>
+<p>Indiquez votre kilométrage mensuel. kWhiz estime le coût de chaque formule, abonnement compris, selon votre véhicule et votre part de recharge rapide.</p>
 </div>
 <label class="compare-search">
 <span class="sr-only">Rechercher une offre ou un opérateur</span>
 <input autocomplete="off" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
 </label>
 </header>
-<div aria-label="Trier les offres" class="compare-sort" role="group">
-<button class="compare-sort-btn" data-sort="costPer100km" type="button">Coût aux 100 km</button>
-<button class="compare-sort-btn" data-sort="monthlyCost" type="button">Abonnement</button>
-<button class="compare-sort-btn" data-sort="operator" type="button">Opérateur</button>
-<button class="compare-sort-btn" data-sort="km" type="button">Seuil</button>
+<div class="compare-toolbar">
+<label class="compare-km" for="compare-km"><span>Kilométrage mensuel</span>
+<span class="compare-km-input"><input id="compare-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/><span>km/mois</span></span>
+</label>
+<button class="compare-profile-link" id="compare-profile-link" type="button">Modifier mon profil</button>
 </div>
+<p aria-live="polite" class="compare-summary" id="compare-summary"></p>
 <p aria-live="polite" class="compare-count" id="compare-count"></p>
 <div class="comparison-list" id="ranking-list"></div>
 </section>

@@ -7,7 +7,7 @@ import {
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
-import { nextSortDirection, renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
+import { openComparisonRecommendation, renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
 import { renderProfileView } from './src/ui/views/profile-view.js';
 import { renderOperatorsViews } from './src/ui/views/operators-view.js';
 
@@ -64,7 +64,7 @@ initTheme();
 initPwa();
 
 let OPERATORS = {};
-let currentSort = { column: 'costPer100km', direction: 'asc' };
+let currentComparisonQuery = '';
 let allFormulasData = [];
 let fastPct = (() => {
     const saved = parseInt(localStorage.getItem(FAST_PCT_KEY), 10);
@@ -323,6 +323,7 @@ function updateCalculations() {
                 chargebackRate: chargebackEligible ? effectiveRate : null,
                 // Valeurs effectives (pour tri et affichage)
                 rate:           effectiveRate,
+                ref:            formula.ref,
                 km:             effectiveKm,
                 costPer100km:   effectiveCostPer100km,
                 // Valeurs brutes (pour la ligne barrée)
@@ -348,7 +349,20 @@ function updateCalculations() {
             });
         }
     }
-    currentSort = renderComparisonTable(allFormulasData, currentSort.column, currentSort.direction, { logos: LOGOS, onModal: openInfoModal, onDetail: openFormulaDetail });
+    const monthlyKm = profileControls?.getMonthlyKm() ?? Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
+    const fastPercentage = profileControls?.getFastPercentage() ?? fastPct;
+    const comparisonKm = document.getElementById('compare-km');
+    if (comparisonKm && comparisonKm !== document.activeElement) comparisonKm.value = String(monthlyKm);
+    renderComparisonTable(allFormulasData, {
+        monthlyKm,
+        consumption,
+        fastPercentage,
+        homeRate: HOME_RATE_KWH,
+        logos: LOGOS,
+        onModal: openInfoModal,
+        onDetail: openFormulaDetail,
+        query: currentComparisonQuery
+    });
     renderOperatorsViews({
         operators: OPERATORS,
         consumption,
@@ -445,7 +459,7 @@ function initApp() {
     profileControls = initProfileControls({
         initialFastPercentage: fastPct,
         storageKey: FAST_PCT_KEY,
-        onChange: renderProfile
+        onChange: updateCalculations
     });
 
     stationsMap = initStationsMap();
@@ -489,23 +503,15 @@ function initApp() {
         document.getElementById('operators-detailed').hidden = !event.target.checked;
     });
 
-    document.querySelectorAll('.compare-sort-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const column = button.dataset.sort;
-            const direction = nextSortDirection(currentSort, column);
-            const query = document.getElementById('compare-search')?.value || '';
-            currentSort = renderComparisonTable(allFormulasData, column, direction, { logos: LOGOS, onModal: openInfoModal, onDetail: openFormulaDetail, query });
-        });
+    document.getElementById('compare-km')?.addEventListener('input', event => {
+        profileControls?.setMonthlyKm(event.target.value);
     });
 
     document.getElementById('compare-search')?.addEventListener('input', event => {
-        currentSort = renderComparisonTable(allFormulasData, currentSort.column, currentSort.direction, {
-            logos: LOGOS,
-            onModal: openInfoModal,
-            onDetail: openFormulaDetail,
-            query: event.target.value
-        });
+        currentComparisonQuery = event.target.value;
+        updateCalculations();
     });
+    document.getElementById('compare-profile-link')?.addEventListener('click', () => openComparisonRecommendation(navigation));
 
     initNetworkStatus({ onReconnect: loadTarifs });
 
