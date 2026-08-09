@@ -168,6 +168,27 @@ const messages = {
     'operators.happyHoursDescription': '{offPeak}/kWh (9 h–11 h 30 et 15 h–18 h) — {standard}/kWh en dehors de ces plages',
     'operators.ionityRewardsLabel': 'Bonus de kWh gratuits IONITY',
     'operators.ionityRewardsDescription': 'Jusqu’à 5 kWh offerts en débranchant avant 85 % (9 h–17 h) ou en rechargeant la nuit (22 h–6 h)',
+    'izivia.title': '🕐 Izivia Fast — horaires Happy Hours',
+    'izivia.descriptionBefore': 'Les bornes Izivia Fast chez',
+    'izivia.descriptionAfter': 'appliquent un tarif réduit en dehors des heures de pointe.',
+    'izivia.offPeak.short': 'HC',
+    'izivia.offPeak.price': 'Heures creuses : 0,30 €/kWh',
+    'izivia.offPeak.hours': '9 h → 11 h 30  |  15 h → 18 h',
+    'izivia.peak.short': 'HP',
+    'izivia.peak.price': 'Heures pleines : 0,35 €/kWh',
+    'izivia.peak.hours': '11 h 30 → 15 h  |  18 h → 9 h',
+    'izivia.tipLabel': 'Astuce :',
+    'izivia.tip': 'Planifiez votre recharge entre 9 h et 11 h 30 ou entre 15 h et 18 h pour bénéficier du tarif le plus avantageux.',
+    'ionityRewards.title': '🎁 IONITY Rewards',
+    'ionityRewards.introBefore': 'Programme lancé en juillet 2026 pour fluidifier les bornes pendant les grands départs : deux façons de gagner des',
+    'ionityRewards.freeKwh': 'kWh gratuits',
+    'ionityRewards.introAfter': ', cumulables sur votre compte IONITY.',
+    'ionityRewards.fastLane.title': 'Fast Lane Reward : +5 kWh',
+    'ionityRewards.fastLane.condition': 'Débranchez avant 85 % de batterie, pour une recharge démarrée entre 9 h et 17 h.',
+    'ionityRewards.offPeak.title': 'Off-Peak Reward : +5 kWh',
+    'ionityRewards.offPeak.condition': 'Rechargez la nuit, entre 22 h et 6 h, quel que soit le niveau de batterie final.',
+    'ionityRewards.warningBefore': '⚠️ Les deux bonus nécessitent une session d’au moins',
+    'ionityRewards.warningAfter': '. Le crédit est visible dans l’application IONITY (rubrique « Credits & Rewards ») et déduit automatiquement lors de la recharge suivante. Les conditions peuvent varier selon le marché et la période.',
     'pwa.update.title': 'Mise à jour disponible',
     'pwa.update.description': 'Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant ?',
     'pwa.update.refresh': 'Actualiser',
@@ -408,6 +429,27 @@ const messages = {
     'operators.happyHoursDescription': '{offPeak}/kWh (9am–11:30am and 3pm–6pm) — {standard}/kWh outside these times',
     'operators.ionityRewardsLabel': 'IONITY free-kWh rewards',
     'operators.ionityRewardsDescription': 'Up to 5 free kWh when unplugging before 85% (9am–5pm) or charging overnight (10pm–6am)',
+    'izivia.title': '🕐 Izivia Fast — Happy Hours schedule',
+    'izivia.descriptionBefore': 'Izivia Fast chargers at',
+    'izivia.descriptionAfter': 'offer a reduced price outside peak hours.',
+    'izivia.offPeak.short': 'OP',
+    'izivia.offPeak.price': 'Off-peak: €0.30/kWh',
+    'izivia.offPeak.hours': '9am → 11:30am  |  3pm → 6pm',
+    'izivia.peak.short': 'PK',
+    'izivia.peak.price': 'Peak: €0.35/kWh',
+    'izivia.peak.hours': '11:30am → 3pm  |  6pm → 9am',
+    'izivia.tipLabel': 'Tip:',
+    'izivia.tip': 'Charge between 9am and 11:30am or between 3pm and 6pm for the lowest price.',
+    'ionityRewards.title': '🎁 IONITY Rewards',
+    'ionityRewards.introBefore': 'Launched in July 2026 to reduce congestion during busy travel periods, with two ways to earn',
+    'ionityRewards.freeKwh': 'free kWh',
+    'ionityRewards.introAfter': ', which can be combined in your IONITY account.',
+    'ionityRewards.fastLane.title': 'Fast Lane Reward: +5 kWh',
+    'ionityRewards.fastLane.condition': 'Unplug before 85% after starting a session between 9am and 5pm.',
+    'ionityRewards.offPeak.title': 'Off-Peak Reward: +5 kWh',
+    'ionityRewards.offPeak.condition': 'Charge overnight between 10pm and 6am, regardless of the final battery level.',
+    'ionityRewards.warningBefore': '⚠️ Both rewards require a session of at least',
+    'ionityRewards.warningAfter': '. Credit appears in the IONITY app under “Credits & Rewards” and is automatically used on your next charge. Terms may vary by market and period.',
     'pwa.update.title': 'Update available',
     'pwa.update.description': 'A new version is available. Update now?',
     'pwa.update.refresh': 'Update',
@@ -587,16 +629,6 @@ const phrases = {
   ,'Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.': 'Yes, after it has been loaded or installed once. It then uses the latest saved prices and indicates that you are offline.'
   ,'Comment actualiser l’application et les tarifs ?': 'How do I update the app and prices?'
   ,'Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.': 'Open “Data and settings” and use the update button, or pull the page down. If a new version is available, kWhiz will offer to install it.'
-  ,'🕐 Izivia Fast — horaires Happy Hours': '🕐 Izivia Fast — Happy Hours times'
-  ,'Les bornes Izivia Fast chez': 'Izivia Fast chargers at'
-  ,'appliquent un tarif réduit en dehors des heures de pointe.': 'offer a reduced price outside peak hours.'
-  ,'Heures creuses : 0,30 €/kWh': 'Off-peak: €0.30/kWh', 'Heures pleines : 0,35 €/kWh': 'Peak: €0.35/kWh', 'Astuce :': 'Tip:'
-  ,'Planifiez votre recharge entre 9 h et 11 h 30 ou entre 15 h et 18 h pour bénéficier du tarif le plus avantageux.': 'Charge between 9:00–11:30 or 15:00–18:00 for the lowest price.'
-  ,'Programme lancé en juillet 2026 pour fluidifier les bornes pendant les grands départs : deux façons de gagner des': 'Launched in July 2026 to reduce congestion during busy travel periods, with two ways to earn'
-  ,'kWh gratuits': 'free kWh', ', cumulables sur votre compte IONITY.': ', which can be combined in your IONITY account.'
-  ,'Débranchez avant 85 % de batterie, pour une recharge démarrée entre 9 h et 17 h.': 'Unplug before 85% after starting a session between 09:00 and 17:00.'
-  ,'Rechargez la nuit, entre 22 h et 6 h, quel que soit le niveau de batterie final.': 'Charge overnight between 22:00 and 06:00, regardless of the final battery level.'
-  ,'. Le crédit est visible dans l’application IONITY (rubrique « Credits & Rewards ») et déduit automatiquement lors de la recharge suivante. Les conditions peuvent varier selon le marché et la période.': '. Credit appears in the IONITY app under “Credits & Rewards” and is automatically used on your next charge. Terms may vary by market and period.'
   ,'Réglez votre': 'Set your', 'consommation moyenne': 'average consumption', 'en kWh/100 km à l’aide du curseur situé en haut de l’écran.': 'in kWh/100 km using the slider at the top of the screen.'
   ,'affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.': 'immediately shows the best-value plan for your efficiency and monthly mileage.'
   ,'classe tous les opérateurs du moins cher au plus cher, abonnement compris.': 'ranks all networks from lowest to highest total cost, including subscriptions.'

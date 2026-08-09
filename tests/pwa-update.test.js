@@ -9,7 +9,7 @@ test('les dialogues Izivia et IONITY référencent des titres existants', async 
     const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
     for (const id of ['izivia-title', 'ionity-rewards-title']) {
         assert.match(html, new RegExp(`aria-labelledby="${id}"`));
-        assert.match(html, new RegExp(`<h3 id="${id}">`));
+        assert.match(html, new RegExp(`<h3[^>]*id="${id}"[^>]*>`));
     }
 });
 
