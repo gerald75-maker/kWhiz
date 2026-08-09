@@ -78,6 +78,7 @@ test('rend la fiche ChargeBack entièrement localisée en FR et EN', () => {
     assert.match(french, /Bornes 50–400 kW/);
 
     const english = render('en');
+    assert.match(english, /Atlante Go — monthly/);
     assert.match(english, /€9\.99\/month/);
     assert.match(english, /Fixed price/);
     assert.match(english, /Verified on 27 July 2026/);

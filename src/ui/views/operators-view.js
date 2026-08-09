@@ -1,7 +1,7 @@
 import { PERIOD, getAtlanteGemsRate, atlanteSteadyStateRate, chargebackBreakeven, calculateBreakeven } from '../../domain/pricing.js';
 import { escapeHtml, safeUrl, formatNumber } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
-import { formatCurrency, formatTariffsVerifiedOn, getLocale, localizeTariffText, t } from '../../i18n/i18n.js';
+import { formatCurrency, formatTariffsVerifiedOn, getLocale, localizeCommercialLabel, localizeNetworkDescription, localizeTariffText, t } from '../../i18n/i18n.js';
 
 function uiIcon(name, className = '') {
     const paths = {
@@ -122,7 +122,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
                     : `≥${formatNumber(cbKm)} km`;
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
                         <span class="formula-compact-rate ${escapeHtml(operator.color)} cb-struck">${escapeHtml(formatOperatorCurrency(formula.rate))}</span>
                         <span class="formula-compact-threshold cb-struck">${thresholdDisplay}</span>
                     </div>
@@ -134,7 +134,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
             } else {
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
                         <span class="formula-compact-rate ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</span>
                         <span class="formula-compact-threshold">${thresholdDisplay}</span>
                     </div>`;
@@ -145,11 +145,11 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
         card.innerHTML = `
             <div class="operator-compact-header">
                 <span class="operator-compact-name ${escapeHtml(operator.color)}">
-                    ${logoSrc ? `<img src="${logoSrc}" class="operator-logo" alt="${escapeHtml(operator.name)}" loading="lazy">` : ''}
-                    ${escapeHtml(operator.name)}${buildInfoBtns(operator)}
+                    ${logoSrc ? `<img src="${logoSrc}" class="operator-logo" alt="${escapeHtml(localizeCommercialLabel(operator.name))}" loading="lazy">` : ''}
+                    ${escapeHtml(localizeCommercialLabel(operator.name))}${buildInfoBtns(operator)}
                 </span>
                 <div class="operator-card-heading">
-                    ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: operator.badge }))}</span>` : ''}
+                    ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: localizeNetworkDescription(operator.badge) }))}</span>` : ''}
                     ${buildMapLink(opKey, operator.mapUrl, 'C')}
                 </div>
             </div>
@@ -205,7 +205,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
                     : `${formatNumber(cbKm)} km/mois`;
                 rowsHtml += `
                     <tr class="cb-struck-row">
-                        <td class="formula-name" rowspan="2"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
+                        <td class="formula-name" rowspan="2"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost" rowspan="2">${costDisplay}</td>
                         <td class="formula-kwh ${escapeHtml(operator.color)} cb-struck">${escapeHtml(formatOperatorCurrency(formula.rate))}</td>
                         <td class="result-km cb-struck">${thresholdDisplay}</td>
@@ -217,7 +217,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
             } else {
                 rowsHtml += `
                     <tr>
-                        <td class="formula-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(formula.name)}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
+                        <td class="formula-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost">${costDisplay}</td>
                         <td class="formula-kwh ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</td>
                         <td class="result-km">${thresholdDisplay}</td>
@@ -229,11 +229,11 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
         card.innerHTML = `
             <div class="operator-header">
                 <span class="operator-name ${escapeHtml(operator.color)}">
-                    ${logoSrc ? `<img src="${logoSrc}" class="operator-logo" alt="${escapeHtml(operator.name)}" loading="lazy">` : ''}
-                    ${escapeHtml(operator.name)}${buildInfoBtns(operator)}
+                    ${logoSrc ? `<img src="${logoSrc}" class="operator-logo" alt="${escapeHtml(localizeCommercialLabel(operator.name))}" loading="lazy">` : ''}
+                    ${escapeHtml(localizeCommercialLabel(operator.name))}${buildInfoBtns(operator)}
                 </span>
                 <div class="header-right">
-                    ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: operator.badge }))}</span>` : ''}
+                    ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: localizeNetworkDescription(operator.badge) }))}</span>` : ''}
                     ${buildMapLink(opKey, operator.mapUrl, 'D')}
                 </div>
             </div>

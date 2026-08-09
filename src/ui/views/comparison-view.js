@@ -1,6 +1,6 @@
 import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
-import { formatDate, formatTariffsFreshness, formatTariffsVerifiedOn, getLanguage, getLocale, t } from '../../i18n/i18n.js';
+import { formatDate, formatTariffsFreshness, formatTariffsVerifiedOn, getLanguage, getLocale, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 
 const COPY = {
     fr: {
@@ -90,8 +90,11 @@ export function rankTierClass(rate, lowest) {
 
 export function filterComparisonFormulas(formulas, query) {
     const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
-    return formulas.filter(formula => !normalizedQuery
-        || `${formula.operator} ${formula.name}`.toLocaleLowerCase(getLocale()).includes(normalizedQuery));
+    return formulas.filter(formula => {
+        if (!normalizedQuery) return true;
+        return [formula.operator, formula.name, localizeCommercialLabel(formula.operator), localizeCommercialLabel(formula.name)]
+            .some(label => String(label).toLocaleLowerCase(getLocale()).includes(normalizedQuery));
+    });
 }
 
 export function openComparisonRecommendation(navigation) {
@@ -241,14 +244,16 @@ export function renderComparisonTable(formulasData, {
         const note = formula.note ? `<p class="compare-note">${escapeHtml(formula.note)}</p>` : '';
         const rank = index + 1;
         const verifiedLabel = formatTariffsVerifiedOn(formula.verifiedAt);
+        const operatorLabel = localizeCommercialLabel(formula.operator);
+        const formulaLabel = localizeCommercialLabel(formula.name);
 
-        return `<article class="compare-item${index === 0 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="${copy.viewDetails} ${escapeHtml(formula.operator)} ${escapeHtml(formula.name)}">
+        return `<article class="compare-item${index === 0 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="${copy.viewDetails} ${escapeHtml(operatorLabel)} ${escapeHtml(formulaLabel)}">
             <div class="compare-rank" aria-hidden="true">${rank}</div>
             <div class="compare-identity">
                 ${logo}
                 <div class="compare-copy">
-                    <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(formula.operator)}</p>
-                    <h3>${escapeHtml(formula.name)}</h3>
+                    <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(operatorLabel)}</p>
+                    <h3>${escapeHtml(formulaLabel)}</h3>
                     <div class="compare-badges">${pricingBadge(formula)}${verifiedLabel ? `<span class="compare-verified">${verifiedLabel}</span>` : ''}</div>
                     ${note}
                 </div>

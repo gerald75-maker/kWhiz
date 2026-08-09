@@ -105,13 +105,16 @@ test('un changement de langue rerend le détail en place sans remplacer ses él�
     const title = { textContent: '' };
     const bodyReference = body;
     const titleReference = title;
-    const currentFormula = formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly', km: 850 });
+    const currentFormula = formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly', km: 850, badge: 'jusqu’à 50 kW DC' });
     setLanguage('fr', { persist: false, translate: false });
     renderOfferDetail({ body, title, formula: currentFormula });
     assert.match(body.innerHTML, /Abonnement/);
+    assert.match(body.innerHTML, /Réseau : jusqu’à 50 kW DC/);
     setLanguage('en', { persist: false, translate: false });
     renderOfferDetail({ body, title, formula: currentFormula });
     assert.match(body.innerHTML, /Subscription/);
+    assert.match(body.innerHTML, /Network: up to 50 kW DC/);
+    assert.doesNotMatch(body.innerHTML, /jusqu’à/);
     assert.equal(title.textContent, 'Opérateur Officiel - Formule Signature');
     assert.equal(body, bodyReference);
     assert.equal(title, titleReference);

@@ -1,16 +1,18 @@
 import { formatNumber } from '../shared/dom.js';
-import { getLanguage } from '../i18n/i18n.js';
+import { getLanguage, localizeCommercialLabel } from '../i18n/i18n.js';
 
 export function buildShareText({ operator, formula, monthlyCost, annualCost, km, fastPercentage }) {
+    const operatorLabel = localizeCommercialLabel(operator);
+    const formulaLabel = localizeCommercialLabel(formula);
     if (getLanguage() === 'en') {
         return [
-            `My kWhiz recommendation: ${operator} · ${formula}`,
+            `My kWhiz recommendation: ${operatorLabel} · ${formulaLabel}`,
             `${formatNumber(monthlyCost, 2)} €/month, or ${formatNumber(annualCost, 0)} € per year`,
             `Profile: ${formatNumber(km, 0)} km/month · ${fastPercentage}% fast charging`
         ].join('\n');
     }
     return [
-        `Mon choix kWhiz : ${operator} · ${formula}`,
+        `Mon choix kWhiz : ${operatorLabel} · ${formulaLabel}`,
         `${formatNumber(monthlyCost, 2)} €/mois, soit ${formatNumber(annualCost, 0)} € par an`,
         `Profil : ${formatNumber(km, 0)} km/mois · ${fastPercentage} % de recharge rapide`
     ].join('\n');

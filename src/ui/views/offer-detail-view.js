@@ -3,6 +3,8 @@ import {
     formatDate,
     formatNumber,
     formatTariffsVerifiedOn,
+    localizeCommercialLabel,
+    localizeNetworkDescription,
     localizeTariffText,
     t
 } from '../../i18n/i18n.js';
@@ -79,12 +81,13 @@ function detailIcon(type) {
 }
 
 function displayFormulaName(value) {
-    return String(value || '').replace(/\s*[—–]\s*/g, ' – ');
+    return String(value || '');
 }
 
 export function renderOfferDetail({ body, title, formula, logo = '', historyEntries = [], evolution = { state: 'unknown', deltaRate: 0 } }) {
     if (!body || !title || !formula) return false;
-    const formulaName = displayFormulaName(formula.name);
+    const formulaName = displayFormulaName(localizeCommercialLabel(formula.name));
+    const operatorName = localizeCommercialLabel(formula.operator);
     const typeLabel = offerDetailTypeLabel(formula);
     const verifiedBadge = formula.verifiedAt
         ? `<span class="detail-badge detail-badge--verified">${formatTariffsVerifiedOn(formula.verifiedAt)}</span>`
@@ -104,17 +107,17 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
         return `<li><time>${dateLabel}</time><strong>${rate(Number(entry.rate))}</strong></li>`;
     }).join('');
 
-    title.textContent = `${formula.operator} - ${formulaName}`;
+    title.textContent = `${operatorName} - ${formulaName}`;
     body.innerHTML = `
         <header class="formula-detail-header">
             ${logo}
             <div class="formula-detail-heading">
-                <p class="formula-detail-operator" data-i18n-skip>${formula.operator}</p>
+                <p class="formula-detail-operator" data-i18n-skip>${operatorName}</p>
                 <p class="formula-detail-name" data-i18n-skip>${formulaName}</p>
                 <div class="formula-detail-badges"><span class="detail-badge detail-badge--type">${typeLabel}</span>${verifiedBadge}${chargebackBadge}</div>
             </div>
         </header>
-        ${formula.badge ? `<p class="formula-detail-power" data-i18n-skip>${t('offerDetail.network', { power: formula.badge })}</p>` : ''}
+        ${formula.badge ? `<p class="formula-detail-power" data-i18n-skip>${t('offerDetail.network', { power: localizeNetworkDescription(formula.badge) })}</p>` : ''}
         <dl class="formula-detail-grid">
             <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>${t('offerDetail.energyPrice')}</dt><dd>${offerDetailPricingLabel(formula)}</dd></span></div>
             <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>${t('offerDetail.subscription')}</dt><dd>${offerDetailSubscriptionLabel(formula)}</dd></span></div>
