@@ -94,7 +94,7 @@ const phrases = {
   'État de l’application': 'App status', 'Vérification…': 'Checking…', 'Vérification en cours': 'Checking', 'Application': 'Application',
   'Tarifs': 'Prices', 'Chargement…': 'Loading…', 'Fraîcheur': 'Freshness', 'Analyse…': 'Checking…',
   'Actualiser l’application et les tarifs': 'Update app and prices', 'Préférences locales': 'Local preferences',
-  'Exporter ou restaurer': 'Export or restore', 'Exportez vos favoris, scénarios, mode d’affichage et préférences dans un fichier, puis restaurez-les sur un autre appareil.': 'Export your favourites, scenarios, display mode and preferences to a file, then restore them on another device.',
+  'Exporter ou restaurer': 'Export or restore', 'Exportez vos favoris, mode d’affichage et préférences dans un fichier, puis restaurez-les sur un autre appareil.': 'Export your favourites, display mode and preferences to a file, then restore them on another device.',
   'Exporter': 'Export', 'Restaurer': 'Restore', 'Installer kWhiz': 'Install kWhiz',
   'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Ouvrez kWhiz dans': 'Open kWhiz in', 'Partager': 'Share', 'Sur l’écran d’accueil': 'Add to Home Screen', 'Ajouter': 'Add',
   'Installer l’application': 'Install app', 'Installer': 'Install',
@@ -161,8 +161,6 @@ const phrases = {
   ,'Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.': 'No. The route only locates chargers from selected networks. kWhiz does not know your battery or range and does not decide where to stop. After selecting a charger, “Directions” simply opens your navigation app for that charger.'
   ,'À quoi servent les favoris ?': 'What are favourites for?'
   ,'L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.': 'The star makes favourite plans easier to find and moves them up the network list.'
-  ,'Puis-je tester un autre usage sans modifier mon profil ?': 'Can I test different usage without changing my profile?'
-  ,'Oui. Le simulateur de scénario permet de comparer un autre kilométrage ou une autre part de recharge rapide, puis d’enregistrer ce scénario.': 'Yes. The scenario simulator compares another mileage or fast-charging share and lets you save it.'
   ,'Mes réglages sont-ils sauvegardés ?': 'Are my settings saved?'
   ,'Ils sont conservés localement sur votre appareil. Depuis « Données et réglages » dans le menu, vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.': 'They are stored locally on your device. From “Data and settings”, you can export them to a file and restore them on another device.'
   ,'L’application fonctionne-t-elle hors ligne ?': 'Does the app work offline?'

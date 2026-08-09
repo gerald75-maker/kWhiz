@@ -29,7 +29,6 @@ export const STORAGE_KEYS = Object.freeze({
     landingSeen: 'kwhiz-landing-seen',
     fastPercentage: 'kwhiz_fast_pct',
     favorites: 'kwhiz_favorites',
-    scenarioHistory: 'kwhiz_scenario_history',
     tariffHistory: 'kwhiz_tariff_history',
     mapOperators: 'kwhiz_map_operators',
     language: 'kwhiz_language',

@@ -69,7 +69,6 @@ export function initDataBackup({ storageKeys }) {
         storageKeys.landingSeen,
         storageKeys.fastPercentage,
         storageKeys.favorites,
-        storageKeys.scenarioHistory,
         storageKeys.language,
         storageKeys.theme
     ];

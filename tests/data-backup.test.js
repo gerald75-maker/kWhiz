@@ -71,3 +71,31 @@ test('restoreUserDataBackup ignores unauthorized keys', () => {
     assert.equal(count, 1);
     assert.deepEqual(storage.dump(), { a: 'new-a', rogue: 'keep', cache: 'keep' });
 });
+
+test('an old backup ignores scenarioHistory while restoring other settings', () => {
+    const storage = memoryStorage({
+        language: 'fr',
+        theme: 'dark',
+        scenarioHistory: 'existing-local-history'
+    });
+    const backup = {
+        format: 'kwhiz-user-data',
+        version: 1,
+        data: {
+            language: 'en',
+            theme: 'light',
+            scenarioHistory: '[{"id":"legacy"}]'
+        }
+    };
+
+    const count = restoreUserDataBackup(storage, backup, ['language', 'theme']);
+
+    assert.equal(count, 2);
+    assert.deepEqual(storage.dump(), {
+        language: 'en',
+        theme: 'light',
+        scenarioHistory: 'existing-local-history'
+    });
+    const exported = createUserDataBackup(storage, ['language', 'theme']);
+    assert.deepEqual(exported.data, { language: 'en', theme: 'light' });
+});

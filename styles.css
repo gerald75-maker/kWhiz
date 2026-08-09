@@ -2957,189 +2957,6 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
     grid-template-columns: auto auto minmax(0, 1fr) auto;
 }
 
-/* v2.4.0 — simulateur de changement d’usage */
-.scenario-simulator {
-    margin-top: 0;
-    padding: 16px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    background: var(--bg-card);
-}
-.scenario-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-}
-.scenario-kicker {
-    margin: 0 0 3px;
-    color: var(--accent);
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-}
-.scenario-heading h3 {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 1rem;
-}
-.scenario-reset {
-    border: 0;
-    background: transparent;
-    color: var(--accent);
-    font: inherit;
-    font-size: 0.7rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-.scenario-presets {
-    display: flex;
-    gap: 7px;
-    margin-top: 13px;
-    overflow-x: auto;
-    padding-bottom: 3px;
-    scrollbar-width: none;
-}
-.scenario-presets::-webkit-scrollbar { display: none; }
-.scenario-presets button {
-    flex: 0 0 auto;
-    min-height: 34px;
-    padding: 7px 11px;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: var(--bg-element);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 0.7rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-.scenario-presets button:hover,
-.scenario-presets button:focus-visible {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-.scenario-grid {
-    display: grid;
-    gap: 12px;
-    margin-top: 13px;
-}
-.scenario-controls {
-    padding: 13px;
-    border-radius: 13px;
-    background: var(--bg-element);
-}
-.scenario-controls label {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 7px;
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 700;
-}
-.scenario-controls label:not(:first-child) { margin-top: 14px; }
-.scenario-input-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.scenario-input-row input {
-    min-width: 0;
-    width: 100%;
-    padding: 10px 11px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font: inherit;
-    font-weight: 800;
-}
-.scenario-input-row span {
-    color: var(--text-muted);
-    font-size: 0.68rem;
-    white-space: nowrap;
-}
-.scenario-controls input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent);
-}
-.scenario-range-labels {
-    display: flex;
-    justify-content: space-between;
-    color: var(--text-muted);
-    font-size: 0.62rem;
-}
-.scenario-result {
-    min-height: 150px;
-    padding: 15px;
-    border: 1px solid rgba(0, 194, 255, 0.25);
-    border-radius: 13px;
-    background: rgba(0, 194, 255, 0.055);
-}
-.scenario-result-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    color: var(--text-muted);
-    font-size: 0.66rem;
-}
-.scenario-result-heading strong { font-size: 0.86rem; }
-.scenario-result-formula {
-    margin-top: 4px;
-    color: var(--text-secondary);
-    font-size: 0.76rem;
-}
-.scenario-result-cost {
-    margin-top: 14px;
-    color: var(--text-primary);
-    font-size: clamp(1.8rem, 8vw, 2.45rem);
-    font-weight: 900;
-    letter-spacing: -0.04em;
-}
-.scenario-result-cost span {
-    font-size: 0.76rem;
-    letter-spacing: 0;
-}
-.scenario-result-diff {
-    display: inline-flex;
-    margin-top: 7px;
-    padding: 5px 8px;
-    border-radius: 999px;
-    font-size: 0.68rem;
-    font-weight: 800;
-}
-.scenario-result-diff.is-lower { background: var(--surface-success); color: var(--color-success); }
-.scenario-result-diff.is-higher { background: rgba(255, 107, 107, 0.11); color: #ff8c8c; }
-.scenario-result-diff.is-stable { background: var(--bg-element); color: var(--text-muted); }
-.scenario-result p,
-.scenario-empty {
-    margin: 10px 0 0;
-    color: var(--text-muted);
-    font-size: 0.68rem;
-    line-height: 1.45;
-}
-@media (min-width: 700px) {
-    .scenario-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-}
-@media (min-width: 900px) {
-    #tab-profile.active {
-        grid-template-areas:
-            "heading heading"
-            "best hero"
-            "scenario scenario"
-            "shortlist shortlist"
-            "details details";
-    }
-    #tab-profile .scenario-simulator { grid-area: scenario; }
-}
-@media (max-width: 520px) {
-    .scenario-simulator { padding: 13px; }
-    .scenario-heading { align-items: center; }
-}
-
 /* v2.4.1 — partage du résultat */
 .phm-share-btn {
     display: inline-flex;
@@ -3169,91 +2986,6 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
 @media (max-width: 420px) {
     .phm-share-btn { padding-inline: 0.58rem; }
 }
-
-/* v2.4.2 — historique des scénarios */
-.scenario-save {
-    width: 100%;
-    margin-top: 14px;
-    padding: 10px 12px;
-    border: 1px solid rgba(0, 194, 255, 0.35);
-    border-radius: 10px;
-    background: rgba(0, 194, 255, 0.08);
-    color: var(--accent);
-    font: inherit;
-    font-size: 0.72rem;
-    font-weight: 800;
-    cursor: pointer;
-}
-.scenario-save:hover { background: rgba(0, 194, 255, 0.14); }
-.scenario-save:disabled { cursor: default; opacity: 0.7; }
-.scenario-history {
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border-subtle);
-}
-.scenario-history-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 9px;
-}
-.scenario-history-heading h4 {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-}
-.scenario-history-heading button {
-    border: 0;
-    background: transparent;
-    color: var(--text-muted);
-    font: inherit;
-    font-size: 0.66rem;
-    cursor: pointer;
-}
-.scenario-history-list { display: grid; gap: 7px; }
-.scenario-history-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: stretch;
-    overflow: hidden;
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    background: var(--bg-element);
-}
-.scenario-history-restore {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 10px;
-    padding: 10px 12px;
-    border: 0;
-    background: transparent;
-    color: var(--text-secondary);
-    text-align: left;
-    cursor: pointer;
-}
-.scenario-history-restore span,
-.scenario-history-restore small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.scenario-history-restore span { font-size: 0.7rem; }
-.scenario-history-restore small { color: var(--text-muted); font-size: 0.64rem; }
-.scenario-history-restore b {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    color: var(--text-primary);
-    font-size: 0.7rem;
-}
-.scenario-history-delete {
-    width: 38px;
-    border: 0;
-    border-left: 1px solid var(--border-subtle);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    cursor: pointer;
-}
-.scenario-history-delete:hover { color: #ff8c8c; }
-
 
 /* v2.4.4 — état de l’application */
 .app-status-card {
@@ -3505,11 +3237,6 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
     .compare-prices small { display: inline; margin: 0 0 0 8px; }
     .compare-meta { padding-left: 57px; }
 }
-
-/* Le résultat du simulateur n'est plus une seconde carte de recommandation. */
-.scenario-result { padding: 0; border: 0; background: transparent; }
-.scenario-summary { display: grid; gap: 8px; }
-.scenario-summary p { margin: 0; color: var(--text-secondary); font-size: 0.76rem; line-height: 1.5; }
 
 @media (max-width: 600px) {
     .compare-heading { align-items: stretch; flex-direction: column; }
@@ -3846,23 +3573,12 @@ body.light .formula-note { color: #526174; }
     border-radius: 13px;
     font-size: .84rem;
 }
-.scenario-simulator {
-    padding: 18px;
-    border-radius: 18px;
-}
-.scenario-heading h3 { font-size: 1.05rem; }
-.scenario-presets button { min-height: 38px; font-size: .74rem; }
-.scenario-controls, .scenario-result { border-radius: 14px; }
-.scenario-controls label { color: var(--text-primary); font-size: .78rem; }
-.scenario-result-formula, .scenario-result p, .scenario-empty { font-size: .76rem; }
-
 @media (min-width: 900px) {
     #tab-profile.active {
         grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
         grid-template-areas:
             "heading heading"
             "hero best"
-            "scenario scenario"
             "shortlist shortlist"
             "details details";
     }
@@ -3872,7 +3588,7 @@ body.light .formula-note { color: #526174; }
     .profile-page-heading { padding-inline: 2px; }
     .profile-page-heading h2 { font-size: 1.9rem; }
     .profile-page-heading > p:last-child { font-size: .88rem; }
-    .profile-hero, .profile-shortlist, .scenario-simulator { padding: 15px; }
+    .profile-hero, .profile-shortlist { padding: 15px; }
     .profile-section-heading > span { display: none; }
     .profile-fast-row { align-items: center; gap: 8px; }
     .profile-fast-label { font-size: .8rem; }
@@ -4044,8 +3760,7 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     padding: 8px 4px 2px;
 }
 .profile-page-kicker,
-.profile-section-kicker,
-.scenario-kicker {
+.profile-section-kicker {
     margin: 0 0 5px;
     color: var(--accent);
     font-size: .72rem;
@@ -4139,7 +3854,6 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     line-height: 1.5;
 }
 .profile-hero,
-.scenario-simulator,
 .profile-shortlist,
 .profile-comparison-details {
     border: 1px solid var(--border-color);
@@ -4150,12 +3864,10 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     padding: 17px;
 }
 .profile-section-heading,
-.scenario-heading,
 .profile-shortlist-heading {
     align-items: flex-start;
 }
 .profile-section-heading h3,
-.scenario-heading h3,
 .profile-shortlist-heading h3 {
     margin: 0;
     color: var(--text-primary);
@@ -4169,8 +3881,7 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     font-weight: 650;
 }
 .profile-km-label,
-.profile-fast-label,
-.scenario-controls label {
+.profile-fast-label {
     color: var(--text-primary);
     font-size: .82rem;
     font-weight: 700;
@@ -4199,41 +3910,6 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     color: var(--text-secondary);
     font-size: .76rem;
     line-height: 1.45;
-}
-.scenario-simulator {
-    padding: 17px;
-}
-.scenario-reset {
-    min-height: 38px;
-    padding: 7px 11px;
-    border-radius: 10px;
-    font-size: .72rem;
-}
-.scenario-presets {
-    gap: 7px;
-    margin-top: 14px;
-}
-.scenario-presets button {
-    min-height: 38px;
-    padding: 7px 10px;
-    border-radius: 10px;
-    color: var(--text-secondary);
-    font-size: .72rem;
-    font-weight: 700;
-}
-.scenario-grid {
-    gap: 13px;
-    margin-top: 14px;
-}
-.scenario-input-row,
-.scenario-result {
-    border-radius: 13px;
-}
-.scenario-range-labels,
-.scenario-result,
-.scenario-history-list {
-    color: var(--text-secondary);
-    font-size: .74rem;
 }
 .profile-shortlist {
     padding: 17px;
@@ -4298,14 +3974,12 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
         grid-template-areas:
             "heading heading"
             "best hero"
-            "scenario scenario"
             "shortlist shortlist"
             "details details";
     }
     #tab-profile .profile-page-heading { grid-area: heading; }
     #tab-profile .profile-best-card { grid-area: best; }
     #tab-profile .profile-hero { grid-area: hero; }
-    #tab-profile .scenario-simulator { grid-area: scenario; }
     #tab-profile .profile-shortlist { grid-area: shortlist; }
     #tab-profile .profile-comparison-details { grid-area: details; }
 }
@@ -4313,8 +3987,6 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     .profile-page-heading h2 { max-width: 15ch; }
     .profile-fast-row { align-items: flex-start; gap: 12px; }
     .profile-fast-label { max-width: 16ch; line-height: 1.35; }
-    .scenario-heading { gap: 10px; }
-    .scenario-reset { white-space: nowrap; }
     .profile-shortlist-item {
         grid-template-columns: 28px minmax(0, 1fr);
     }
@@ -4583,7 +4255,6 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     background: color-mix(in srgb, var(--color-success) 8%, var(--bg-element));
 }
 .profile-hero,
-.scenario-simulator,
 .profile-shortlist,
 .profile-comparison-details {
     box-shadow: 0 8px 24px rgba(0,0,0,.045);
@@ -4878,8 +4549,7 @@ a:focus-visible,
 .comparison-card,
 .operator-card,
 .operator-compact,
-.profile-settings-card,
-.scenario-card {
+.profile-settings-card {
     transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 @media (hover: hover) {
@@ -4918,8 +4588,7 @@ a:focus-visible,
     .comparison-card,
     .operator-card,
     .operator-compact,
-    .profile-settings-card,
-    .scenario-card {
+    .profile-settings-card {
         transition: none !important;
         animation: none !important;
     }
@@ -5101,7 +4770,6 @@ h1, h2, h3, .page-title, .menu-drawer-header h2 {
 .profile-recommendation-card,
 .profile-settings-card,
 .profile-shortlist-item,
-.scenario-card,
 .comparison-card,
 .compare-item,
 .operator-card,
@@ -5120,7 +4788,6 @@ body.light .params-card,
 body.light .profile-recommendation-card,
 body.light .profile-settings-card,
 body.light .profile-shortlist-item,
-body.light .scenario-card,
 body.light .comparison-card,
 body.light .compare-item,
 body.light .operator-card,
@@ -5133,7 +4800,6 @@ body.light .page-overlay-sheet {
 
 .profile-recommendation-card,
 .profile-settings-card,
-.scenario-card,
 .comparison-card,
 .operator-card {
     padding: var(--space-4);
@@ -5385,7 +5051,6 @@ body.light .page-overlay-sheet {
     .container { padding-inline: var(--space-2); }
     .profile-recommendation-card,
     .profile-settings-card,
-    .scenario-card,
     .comparison-card,
     .operator-card { padding: var(--space-3); }
     .operator-compact,
