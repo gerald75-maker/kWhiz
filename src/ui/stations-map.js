@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
-import { formatStationSummary } from './station-summary.js';
+import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
 
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
@@ -66,24 +66,8 @@ export function initStationsMap() {
     return stationStatuses[station.id] || { status: 'unknown' };
   }
 
-  function formatStatusAge(observedAt) {
-    const ageMinutes = Math.max(0, Math.floor((Date.now() - Date.parse(observedAt)) / 60000));
-    if (!Number.isFinite(ageMinutes)) return '';
-    return ageMinutes < 1 ? 'à l’instant' : `il y a ${ageMinutes} min`;
-  }
-
   function statusDescription(station) {
-    const status = statusFor(station);
-    const age = status.observedAt ? ` · ${formatStatusAge(status.observedAt)}` : '';
-    if (status.status === 'available') return { state: 'available', label: `${status.free} libre${status.free > 1 ? 's' : ''} sur ${status.known}${age}` };
-    if (status.status === 'busy') return { state: 'busy', label: `Occupée${status.reserved ? ' ou réservée' : ''}${age}` };
-    if (status.status === 'out_of_service') return { state: 'out_of_service', label: `Hors service${age}` };
-    return { state: 'unknown', label: 'Statut inconnu' };
-  }
-
-  function statusBadge(station, className = '') {
-    const status = statusDescription(station);
-    return `<span class="station-status ${className}" data-status="${status.state}"><i aria-hidden="true"></i>${escapeHtml(status.label)}</span>`;
+    return formatStationStatus(statusFor(station));
   }
 
   function renderList(items) {
@@ -96,12 +80,10 @@ export function initStationsMap() {
     if (selectedStation && !nearby.some(station => station.id === selectedStationId)) {
       nearby = [selectedStation, ...nearby.slice(0, 11)];
     }
-    list.innerHTML = nearby.map(station => `
-      <article class="map-station-card${station.id === selectedStationId ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="Afficher ${escapeHtml(station.name)} sur la carte" aria-pressed="${station.id === selectedStationId}">
-        <img src="${LOGOS[station.operator] || ''}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(station.name)}</strong><span>${formatStationSummary(station, LABELS[station.operator])}</span><small>${escapeHtml(station.address || station.city)}</small>${statusBadge(station)}</div>
-        <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</button>
-      </article>`).join('') || '<p class="map-empty">Aucune station ne correspond à cette sélection.</p>';
+    list.innerHTML = nearby.map(station => renderStationCardHtml(station, {
+      operatorLabel: LABELS[station.operator], logo: LOGOS[station.operator] || '',
+      selected: station.id === selectedStationId, status: statusFor(station)
+    })).join('') || `<p class="map-empty">${t('map.list.empty')}</p>`;
   }
 
   function renderStations() {
@@ -125,7 +107,8 @@ export function initStationsMap() {
           color: STATUS_COLORS[currentStatus], fillColor: COLORS[station.operator], fillOpacity: 0.92,
           bubblingMouseEvents: false
         });
-      marker.bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br>${statusBadge(station, 'station-status--popup')}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      marker.bindPopup(renderStationPopupHtml(station, { operatorLabel: LABELS[station.operator], status: statusFor(station) }), { autoPan: false }).addTo(map);
+      marker.getElement()?.setAttribute('aria-label', t('map.station.showOnMap', { name: station.name }));
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
@@ -202,7 +185,7 @@ export function initStationsMap() {
     routeLayer = null;
     routeStationMetrics = null;
     selectedStationId = null;
-    document.getElementById('map-list-title').textContent = 'Stations proches du centre de la carte';
+    document.getElementById('map-list-title').textContent = t('map.list.nearby');
     document.getElementById('route-planner-status').textContent = '';
     document.getElementById('route-clear').hidden = true;
     renderStations();
@@ -359,7 +342,7 @@ export function initStationsMap() {
     const lat = Number(trigger.dataset.lat);
     const lon = Number(trigger.dataset.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-    const station = trigger.dataset.station || 'Station sélectionnée';
+    const station = trigger.dataset.station || t('map.station.selected');
     document.getElementById('route-choice-station').textContent = station;
     document.getElementById('route-apple').href = `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`;
     document.getElementById('route-google').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
@@ -486,7 +469,8 @@ export function initStationsMap() {
 
   return {
     refreshLanguage() {
-      if (stations.length) renderList(visibleStations());
+      document.getElementById('map-list-title').textContent = routeStationMetrics ? t('map.list.route') : t('map.list.nearby');
+      if (stations.length) renderStations();
     },
     activate() {
       load().then(() => {

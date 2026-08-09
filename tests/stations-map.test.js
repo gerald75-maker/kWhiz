@@ -89,8 +89,11 @@ test('un itinéraire propose Plans, Google Maps et Waze', async () => {
 });
 
 test('une station de la liste sélectionne et centre son marqueur', async () => {
-  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
-  assert.match(source, /data-station-id=/);
+  const [source, cardSource] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/station-card.js', root), 'utf8')
+  ]);
+  assert.match(cardSource, /data-station-id=/);
   assert.match(source, /map\.panTo\(\[station\.lat, station\.lon\]\)/);
   assert.match(source, /markersById\.get\(selectedStationId\)\?\.openPopup\(\)/);
   assert.match(source, /is-selected/);
@@ -136,14 +139,15 @@ test('les points et les logos sélectionnent directement leur fiche dans la list
 });
 
 test('les statuts dynamiques restent indicatifs, récents et non bloquants', async () => {
-  const [source, php, html, index] = await Promise.all([
+  const [source, cardSource, php, html, index] = await Promise.all([
     readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/station-card.js', root), 'utf8'),
     readFile(new URL('public/status.php', root), 'utf8'),
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('public/irve-status-index.json', root), 'utf8')
   ]);
   assert.match(source, /fetch\('\.\/status\.php'/);
-  assert.match(source, /Statut inconnu/);
+  assert.match(cardSource, /map\.status\.unknown/);
   assert.match(php, /FRESH_SECONDS = 900/);
   assert.match(php, /CACHE_SECONDS = 120/);
   assert.match(php, /\$latestPoints\[\$pointId\]/);

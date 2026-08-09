@@ -25,12 +25,13 @@ test('omet proprement une puissance absente et localise les grands nombres', () 
 });
 
 test('le changement de langue rerend les fiches sans recharger les données ni altérer leurs identifiants', async () => {
-    const [mapSource, appSource] = await Promise.all([
+    const [mapSource, cardSource, appSource] = await Promise.all([
         readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8'),
+        readFile(new URL('../src/ui/station-card.js', import.meta.url), 'utf8'),
         readFile(new URL('../app.js', import.meta.url), 'utf8')
     ]);
-    assert.match(mapSource, /data-station-id="\$\{escapeHtml\(station\.id\)\}"/);
-    assert.match(mapSource, /refreshLanguage\(\) \{\s*if \(stations\.length\) renderList\(visibleStations\(\)\);\s*\}/);
+    assert.match(cardSource, /data-station-id="\$\{escapeHtml\(station\.id\)\}"/);
+    assert.match(mapSource, /refreshLanguage\(\)[\s\S]*if \(stations\.length\) renderStations\(\)/);
     const refresh = mapSource.slice(mapSource.indexOf('refreshLanguage()'), mapSource.indexOf('activate()', mapSource.indexOf('refreshLanguage()')));
     assert.doesNotMatch(refresh, /fetch|load\(/);
     const callback = appSource.slice(appSource.indexOf('onLanguageChange(() => {'), appSource.indexOf('\n    });', appSource.indexOf('onLanguageChange(() => {')));
