@@ -36,9 +36,20 @@ export function validateUserDataBackup(value, allowedKeys) {
 
 export function restoreUserDataBackup(storage, backup, allowedKeys) {
     const data = validateUserDataBackup(backup, allowedKeys);
-    for (const key of allowedKeys) storage.removeItem(key);
-    for (const [key, value] of Object.entries(data)) storage.setItem(key, value);
-    return Object.keys(data).length;
+    const entries = Object.entries(data);
+    const initialValues = new Map(entries.map(([key]) => [key, storage.getItem(key)]));
+
+    try {
+        for (const [key, value] of entries) storage.setItem(key, value);
+    } catch (error) {
+        for (const [key, value] of initialValues) {
+            if (value === null) storage.removeItem(key);
+            else storage.setItem(key, value);
+        }
+        throw error;
+    }
+
+    return entries.length;
 }
 
 function downloadJson(filename, value) {

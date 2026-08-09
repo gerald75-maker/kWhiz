@@ -28,10 +28,46 @@ test('validateUserDataBackup rejects unknown format', () => {
     assert.throws(() => validateUserDataBackup({ format: 'other', version: 1, data: {} }, ['a']));
 });
 
-test('restoreUserDataBackup replaces allowed settings only', () => {
-    const storage = memoryStorage({ a: 'old', b: 'old', cache: 'keep' });
-    const backup = { format: 'kwhiz-user-data', version: 1, data: { a: 'new', rogue: 'x' } };
+test('restoreUserDataBackup restores a complete backup', () => {
+    const storage = memoryStorage({ a: 'old-a', b: 'old-b', cache: 'keep' });
+    const backup = { format: 'kwhiz-user-data', version: 1, data: { a: 'new-a', b: 'new-b' } };
+    const count = restoreUserDataBackup(storage, backup, ['a', 'b']);
+    assert.equal(count, 2);
+    assert.deepEqual(storage.dump(), { a: 'new-a', b: 'new-b', cache: 'keep' });
+});
+
+test('restoreUserDataBackup preserves allowed settings absent from a partial backup', () => {
+    const storage = memoryStorage({ a: 'old-a', b: 'old-b', cache: 'keep' });
+    const backup = { format: 'kwhiz-user-data', version: 1, data: { a: 'new-a' } };
     const count = restoreUserDataBackup(storage, backup, ['a', 'b']);
     assert.equal(count, 1);
-    assert.deepEqual(storage.dump(), { a: 'new', cache: 'keep' });
+    assert.deepEqual(storage.dump(), { a: 'new-a', b: 'old-b', cache: 'keep' });
+});
+
+test('restoreUserDataBackup rolls back every change when a write fails', () => {
+    const storage = memoryStorage({ a: 'old-a', b: 'old-b', cache: 'keep' });
+    const setItem = storage.setItem;
+    let failurePending = true;
+    storage.setItem = (key, value) => {
+        if (key === 'b' && failurePending) {
+            failurePending = false;
+            throw new Error('simulated write failure');
+        }
+        setItem(key, value);
+    };
+    const backup = { format: 'kwhiz-user-data', version: 1, data: { a: 'new-a', c: 'new-c', b: 'new-b' } };
+
+    assert.throws(
+        () => restoreUserDataBackup(storage, backup, ['a', 'b', 'c']),
+        /simulated write failure/
+    );
+    assert.deepEqual(storage.dump(), { a: 'old-a', b: 'old-b', cache: 'keep' });
+});
+
+test('restoreUserDataBackup ignores unauthorized keys', () => {
+    const storage = memoryStorage({ a: 'old-a', rogue: 'keep', cache: 'keep' });
+    const backup = { format: 'kwhiz-user-data', version: 1, data: { a: 'new-a', rogue: 'replace' } };
+    const count = restoreUserDataBackup(storage, backup, ['a']);
+    assert.equal(count, 1);
+    assert.deepEqual(storage.dump(), { a: 'new-a', rogue: 'keep', cache: 'keep' });
 });
