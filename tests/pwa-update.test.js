@@ -5,6 +5,14 @@ import { getInstallEnvironment } from '../src/pwa/pwa-manager.js';
 
 const source = await readFile(new URL('../src/pwa/pwa-manager.js', import.meta.url), 'utf8');
 
+test('les dialogues Izivia et IONITY référencent des titres existants', async () => {
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    for (const id of ['izivia-title', 'ionity-rewards-title']) {
+        assert.match(html, new RegExp(`aria-labelledby="${id}"`));
+        assert.match(html, new RegExp(`<h3 id="${id}">`));
+    }
+});
+
 test('ne confirme une mise à jour qu’après changement du contrôleur', () => {
     assert.match(source, /return controllerChange;/);
     assert.match(source, /const activated = await activateWaitingWorker\(registration, onStatus\);\s*return \{ supported: true, updated: activated \};/);

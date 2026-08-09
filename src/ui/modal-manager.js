@@ -1,5 +1,7 @@
 let activeModal = null;
 let previousFocus = null;
+let keyboardHandlingInitialized = false;
+let backgroundState = null;
 
 const FOCUSABLE = [
     'a[href]', 'button:not([disabled])', 'input:not([disabled])',
@@ -11,50 +13,23 @@ function getFocusable(modal) {
     return [...modal.querySelectorAll(FOCUSABLE)].filter(element => !element.hidden);
 }
 
-export function openModal(id, trigger = document.activeElement) {
-    const modal = document.getElementById(id);
-    if (!modal) return false;
-
-    if (activeModal && activeModal !== modal) closeModal(activeModal.id, false);
-    previousFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;
-    activeModal = modal;
-    modal.classList.add('open');
-    modal.removeAttribute('aria-hidden');
-    document.body.classList.add('modal-open');
-
-    const [first] = getFocusable(modal);
-    window.requestAnimationFrame(() => (first || modal).focus());
-    return true;
-}
-
-export function closeModal(id, restoreFocus = true) {
-    const modal = typeof id === 'string' ? document.getElementById(id) : id;
-    if (!modal) return false;
-
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-    if (activeModal === modal) activeModal = null;
-    if (!activeModal) document.body.classList.remove('modal-open');
-
-    if (restoreFocus && previousFocus instanceof HTMLElement && previousFocus.isConnected) {
-        previousFocus.focus();
-    }
-    return true;
-}
-
-export function initModalManager(definitions) {
-    definitions.forEach(({ overlayId, closeId }) => {
-        const overlay = document.getElementById(overlayId);
-        const closeButton = document.getElementById(closeId);
-        if (!overlay) return;
-
-        overlay.setAttribute('aria-hidden', 'true');
-        closeButton?.addEventListener('click', () => closeModal(overlayId));
-        overlay.addEventListener('click', event => {
-            if (event.target === overlay) closeModal(overlayId);
-        });
+function disableBackground(modal) {
+    backgroundState = new Map();
+    [...document.body.children].forEach(element => {
+        if (element === modal) return;
+        backgroundState.set(element, element.inert);
+        element.inert = true;
     });
+}
 
+function restoreBackground() {
+    backgroundState?.forEach((inert, element) => { element.inert = inert; });
+    backgroundState = null;
+}
+
+function ensureKeyboardHandling() {
+    if (keyboardHandlingInitialized) return;
+    keyboardHandlingInitialized = true;
     document.addEventListener('keydown', event => {
         if (!activeModal) return;
         if (event.key === 'Escape') {
@@ -81,4 +56,57 @@ export function initModalManager(definitions) {
             first.focus();
         }
     });
+}
+
+export function openModal(id, trigger = document.activeElement) {
+    const modal = document.getElementById(id);
+    if (!modal) return false;
+
+    ensureKeyboardHandling();
+    if (activeModal && activeModal !== modal) closeModal(activeModal.id, false);
+    previousFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;
+    activeModal = modal;
+    modal.classList.add('open');
+    modal.removeAttribute('aria-hidden');
+    document.body.classList.add('modal-open');
+    disableBackground(modal);
+
+    const [first] = getFocusable(modal);
+    window.requestAnimationFrame(() => (first || modal).focus());
+    return true;
+}
+
+export function closeModal(id, restoreFocus = true) {
+    const modal = typeof id === 'string' ? document.getElementById(id) : id;
+    if (!modal) return false;
+
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (activeModal === modal) activeModal = null;
+    if (!activeModal) {
+        document.body.classList.remove('modal-open');
+        restoreBackground();
+    }
+
+    if (restoreFocus && previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus();
+    }
+    modal.dispatchEvent(new CustomEvent('kwhiz:modalclose'));
+    return true;
+}
+
+export function initModalManager(definitions) {
+    ensureKeyboardHandling();
+    definitions.forEach(({ overlayId, closeId }) => {
+        const overlay = document.getElementById(overlayId);
+        const closeButton = document.getElementById(closeId);
+        if (!overlay) return;
+
+        overlay.setAttribute('aria-hidden', 'true');
+        closeButton?.addEventListener('click', () => closeModal(overlayId));
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) closeModal(overlayId);
+        });
+    });
+
 }

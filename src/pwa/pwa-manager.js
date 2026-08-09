@@ -1,3 +1,5 @@
+import { closeModal, openModal } from '../ui/modal-manager.js';
+
 let installPrompt = null;
 let updateInProgress = false;
 let serviceWorkerRegistrationPromise = null;
@@ -37,12 +39,14 @@ export async function triggerNativeInstall() {
     return choice.outcome === 'accepted';
 }
 
-export function showUpdateBanner() {
+export function showUpdateBanner({ onUpdate = updateApplication } = {}) {
     if (document.getElementById('kwhiz-update-popup')) return;
 
     const overlay = document.createElement('div');
     overlay.id = 'kwhiz-update-popup';
     overlay.className = 'update-popup-overlay update-popup-overlay--glass';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.tabIndex = -1;
     overlay.innerHTML = `
         <div class="update-popup update-popup--glass" role="dialog" aria-modal="true" aria-labelledby="kwhiz-update-title">
             <p class="update-popup__title" id="kwhiz-update-title">Mise à jour disponible</p>
@@ -53,11 +57,16 @@ export function showUpdateBanner() {
         </div>
     `;
     document.body.appendChild(overlay);
+    overlay.addEventListener('kwhiz:modalclose', () => {
+        overlay.classList.remove('is-visible');
+        overlay.remove();
+    }, { once: true });
+    openModal(overlay.id);
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
 
     overlay.querySelector('.update-popup__btn')?.addEventListener('click', () => {
-        overlay.classList.remove('is-visible');
-        updateApplication();
+        closeModal(overlay.id);
+        onUpdate();
     });
 }
 
