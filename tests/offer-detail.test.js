@@ -120,6 +120,28 @@ test('un changement de langue rerend le détail en place sans remplacer ses él�
     assert.equal(title, titleReference);
 });
 
+test('rend IECharge une seule fois avec sa date de vérification propre', () => {
+    setLanguage('fr', { persist: false, translate: false });
+    const currentFormula = formula({
+        operator: 'IECharge', name: 'Tarif unique', opKey: 'iecharge', rate: 0.25,
+        verifiedAt: '2026-07-27', sourceUrl: 'https://iecharge.io/fr/prix/'
+    });
+    const body = { innerHTML: '' };
+    const title = { textContent: '' };
+    renderOfferDetail({
+        body,
+        title,
+        formula: currentFormula,
+        historyEntries: [{ rate: 0.25, cost: 0, period: 'none', verifiedAt: '2026-07-27' }],
+        evolution: { state: 'unknown', deltaRate: 0 }
+    });
+    assert.match(body.innerHTML, /Vérifié le 27 juillet 2026/);
+    assert.match(body.innerHTML, /27 juil\. 2026<\/time><strong>0,250[^<]*€\/kWh<\/strong>/);
+    assert.equal((body.innerHTML.match(/27 juil\. 2026/g) || []).length, 1);
+    assert.doesNotMatch(body.innerHTML, /6 août 2026/);
+    assert.match(body.innerHTML, /https:\/\/iecharge\.io\/fr\/prix\//);
+});
+
 test('le cycle modal existant reste branché au détail et les anciennes phrases ne pilotent plus son rendu', async () => {
     const [appSource, html, viewSource] = await Promise.all([
         readFile(new URL('../app.js', import.meta.url), 'utf8'),

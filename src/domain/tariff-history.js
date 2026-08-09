@@ -5,6 +5,17 @@ function numeric(value) {
     return Number.isFinite(number) ? number : null;
 }
 
+function verifiedDate(value) {
+    if (typeof value !== 'string' || !value.trim()) return null;
+    const trimmed = value.trim();
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(trimmed)
+        ? new Date(`${trimmed}T00:00:00Z`)
+        : new Date(trimmed);
+    if (Number.isNaN(parsed.getTime())) return null;
+    const normalized = parsed.toISOString().slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) && normalized !== trimmed ? null : normalized;
+}
+
 export function buildTariffSnapshot(operators, updatedAt = null, capturedAt = new Date().toISOString()) {
     const formulas = {};
     for (const [opKey, operator] of Object.entries(operators || {})) {
@@ -13,7 +24,8 @@ export function buildTariffSnapshot(operators, updatedAt = null, capturedAt = ne
             formulas[key] = {
                 rate: numeric(formula.rate),
                 cost: numeric(formula.cost) ?? 0,
-                period: formula.period || 'monthly'
+                period: formula.period || 'monthly',
+                verifiedAt: verifiedDate(formula.verifiedAt)
             };
         }
     }
@@ -28,7 +40,8 @@ export function snapshotsDiffer(previous, next) {
     return nextKeys.some(key => {
         const a = previous.formulas[key];
         const b = next.formulas[key];
-        return a?.rate !== b?.rate || a?.cost !== b?.cost || a?.period !== b?.period;
+        return a?.rate !== b?.rate || a?.cost !== b?.cost || a?.period !== b?.period
+            || a?.verifiedAt !== b?.verifiedAt;
     });
 }
 
@@ -41,13 +54,33 @@ export function appendTariffSnapshot(history, snapshot, limit = MAX_SNAPSHOTS) {
 }
 
 export function getFormulaHistory(history, formulaKey) {
-    return (Array.isArray(history) ? history : [])
-        .map(snapshot => ({
-            updatedAt: snapshot.updatedAt || null,
+    const observationsByDate = new Map();
+
+    (Array.isArray(history) ? history : []).forEach((snapshot, index) => {
+        const formula = snapshot?.formulas?.[formulaKey];
+        const formulaVerifiedAt = verifiedDate(formula?.verifiedAt);
+        // Les anciens snapshots ne possèdent que updatedAt, date globale du
+        // catalogue : elle est conservée dans le stockage mais ne peut pas être
+        // attribuée de façon fiable à une formule et n'est donc pas affichée.
+        if (!formula || formula.rate === undefined || !formulaVerifiedAt) return;
+
+        const observation = {
+            rate: numeric(formula.rate),
+            cost: numeric(formula.cost) ?? 0,
+            period: formula.period || 'monthly',
+            verifiedAt: formulaVerifiedAt,
             capturedAt: snapshot.capturedAt || null,
-            ...(snapshot.formulas?.[formulaKey] || {})
-        }))
-        .filter(item => item.rate !== undefined);
+            snapshotIndex: index
+        };
+        // Une date de vérification représente une observation : si plusieurs
+        // snapshots globaux la répètent (avec ou sans valeurs identiques), la
+        // dernière version fiable prévaut et la date n'apparaît qu'une fois.
+        observationsByDate.set(formulaVerifiedAt, observation);
+    });
+
+    return [...observationsByDate.values()]
+        .sort((a, b) => a.verifiedAt.localeCompare(b.verifiedAt) || a.snapshotIndex - b.snapshotIndex)
+        .map(({ snapshotIndex, ...observation }) => observation);
 }
 
 export function describeTariffChange(entries) {

@@ -99,11 +99,11 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
         ? `${evolution.deltaRate > 0 ? '+' : ''}${rate(evolution.deltaRate)}`
         : t('offerDetail.noVariation');
     const historyRows = historyEntries.slice(-4).reverse().map(entry => {
-        const date = entry.updatedAt || entry.capturedAt;
+        const date = entry.verifiedAt;
         const parsedDate = date ? new Date(date) : null;
         const dateLabel = parsedDate && !Number.isNaN(parsedDate.getTime())
             ? formatDate(parsedDate, { day: '2-digit', month: 'short', year: 'numeric' })
-            : (entry.updatedAt || t('offerDetail.unknownDate'));
+            : t('offerDetail.unknownDate');
         return `<li><time>${dateLabel}</time><strong>${rate(Number(entry.rate))}</strong></li>`;
     }).join('');
 
