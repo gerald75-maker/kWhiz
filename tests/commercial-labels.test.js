@@ -68,18 +68,18 @@ test('couvre tous les descriptifs français détectés dans les noms du catalogu
 
 test('localise exactement toutes les descriptions françaises de réseau du catalogue', async () => {
     const descriptions = new Map([
-        ['recharge rapide DC', 'DC fast charging'],
         ['jusqu’à 50 kW DC', 'up to 50 kW DC'],
         ['itinérance multiréseaux', 'multi-network roaming'],
         ['jusqu’à 320 kW', 'up to 320 kW'],
-        ['jusqu’à 400 kW', 'up to 400 kW']
+        ['jusqu’à 400 kW', 'up to 400 kW'],
+        ['jusqu’à 250 kW (V3) et 500 kW (V4) · puissance selon le site', 'up to 250 kW (V3) and 500 kW (V4) · power varies by site']
     ]);
     const catalog = JSON.parse(await readFile(new URL('../public/tarifs.json', import.meta.url), 'utf8'));
     const catalogDescriptions = Object.values(catalog)
         .filter(operator => Array.isArray(operator?.formulas))
         .map(operator => operator.badge)
         .filter(Boolean);
-    const frenchDescriptions = catalogDescriptions.filter(value => /recharge|jusqu’à|itinérance/i.test(value));
+    const frenchDescriptions = catalogDescriptions.filter(value => /recharge|jusqu’à|itinérance|puissance selon/i.test(value));
 
     assert.deepEqual([...new Set(frenchDescriptions)].sort(), [...descriptions.keys()].sort());
     setLanguage('fr', { persist: false, translate: false });

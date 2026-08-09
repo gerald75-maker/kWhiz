@@ -604,11 +604,11 @@ export function localizeCommercialLabel(value) {
 }
 
 const NETWORK_DESCRIPTIONS = Object.freeze({
-  'recharge rapide DC': 'DC fast charging',
   'jusqu’à 50 kW DC': 'up to 50 kW DC',
   'itinérance multiréseaux': 'multi-network roaming',
   'jusqu’à 320 kW': 'up to 320 kW',
-  'jusqu’à 400 kW': 'up to 400 kW'
+  'jusqu’à 400 kW': 'up to 400 kW',
+  'jusqu’à 250 kW (V3) et 500 kW (V4) · puissance selon le site': 'up to 250 kW (V3) and 500 kW (V4) · power varies by site'
 });
 
 export function localizeNetworkDescription(value) {

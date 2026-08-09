@@ -126,7 +126,7 @@
   "tesla": {
     "name": "Tesla Supercharger",
     "color": "tesla",
-    "badge": "250 kW",
+    "badge": "jusqu’à 250 kW (V3) et 500 kW (V4) · puissance selon le site",
     "mapUrl": "https://www.tesla.com/fr_fr/findus?v=2&bounds=51.5%2C8.5%2C42%2C-5&filters=supercharger",
     "formulas": [
       {
@@ -351,7 +351,7 @@
   "iziviafast": {
     "name": "IZIVIA Fast chez McDonald’s",
     "color": "izivia",
-    "badge": "recharge rapide DC",
+    "badge": "150 kW DC",
     "mapUrl": "",
     "formulas": [
       {
