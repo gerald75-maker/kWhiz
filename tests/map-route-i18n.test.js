@@ -20,6 +20,41 @@ test('le formulaire et le choix GPS utilisent des clés structurées sans tradui
   assert.match(html, />Waze</);
 });
 
+test('le bouton de fermeture GPS reste accessible et ancré en haut à droite', async () => {
+  const [html, css, app, modalManager] = await Promise.all([
+    readFile(new URL('../index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../styles.css', import.meta.url), 'utf8'),
+    readFile(new URL('../app.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/ui/modal-manager.js', import.meta.url), 'utf8')
+  ]);
+  const modal = html.slice(html.indexOf('class="help-modal route-choice-modal"'), html.indexOf('</div>\n</div>', html.indexOf('class="help-modal route-choice-modal"')));
+  assert.match(modal, /<button[^>]+class="modal-close"[^>]+data-i18n-aria-label="common\.close"[^>]+id="route-choice-close"[^>]+type="button">×<\/button>/);
+
+  const closeRule = css.slice(css.indexOf('.route-choice-modal .modal-close {'), css.indexOf('}', css.indexOf('.route-choice-modal .modal-close {')));
+  assert.match(css, /\.route-choice-modal \{[\s\S]*?position:\s*relative/);
+  assert.match(closeRule, /position:\s*absolute/);
+  assert.match(closeRule, /top:\s*max\(16px, env\(safe-area-inset-top\)\)/);
+  assert.match(closeRule, /right:\s*max\(16px, env\(safe-area-inset-right\)\)/);
+  assert.match(closeRule, /width:\s*48px/);
+  assert.match(closeRule, /height:\s*48px/);
+  assert.match(closeRule, /min-width:\s*44px/);
+  assert.match(closeRule, /min-height:\s*44px/);
+  assert.match(closeRule, /font-size:\s*26px/);
+  assert.match(css, /\.route-choice-modal > \.profile-page-kicker,[\s\S]*?\.route-choice-modal > h2 \{[\s\S]*?padding-right:\s*64px/);
+  assert.match(css, /\.route-choice-modal \.modal-close:focus-visible \{[\s\S]*?outline:/);
+
+  assert.match(app, /\{ overlayId: 'route-choice-overlay', closeId: 'route-choice-close' \}/);
+  assert.match(modalManager, /closeButton\?\.addEventListener\('click', \(\) => closeModal\(overlayId\)\)/);
+  assert.match(modalManager, /event\.key === 'Escape'[\s\S]*?closeModal\(activeModal\.id\)/);
+  assert.match(modalManager, /const focusable = getFocusable\(activeModal\)/);
+  assert.match(modalManager, /previousFocus\.focus\(\)/);
+
+  setLanguage('fr', { persist: false, translate: false });
+  assert.equal(t('common.close'), 'Fermer');
+  setLanguage('en', { persist: false, translate: false });
+  assert.equal(t('common.close'), 'Close');
+});
+
 test('localise le formulaire, les états courants, la liste et le choix GPS en FR et EN', () => {
   setLanguage('fr', { persist: false, translate: false });
   assert.equal(t('map.route.title'), 'Stations sur mon trajet');

@@ -1767,7 +1767,44 @@ body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-t
 .leaflet-route-trigger { padding:6px 0 0; }
 .map-empty, .map-source { color:var(--text-secondary); font-size:.76rem; }
 .map-source { margin:14px 4px 0; }
-.route-choice-modal { max-width:420px; }
+.route-choice-modal {
+    position:relative;
+    max-width:420px;
+}
+.route-choice-modal .modal-close {
+    position:absolute;
+    z-index:3;
+    top:max(16px, env(safe-area-inset-top));
+    right:max(16px, env(safe-area-inset-right));
+    display:grid;
+    width:48px;
+    min-width:44px;
+    height:48px;
+    min-height:44px;
+    place-items:center;
+    padding:0;
+    border:1px solid var(--border-color);
+    border-radius:50%;
+    background:var(--bg-card);
+    color:var(--text-primary);
+    font:inherit;
+    font-size:26px;
+    line-height:1;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,.16);
+}
+.route-choice-modal .modal-close:hover {
+    border-color:var(--accent);
+    color:var(--accent);
+}
+.route-choice-modal .modal-close:focus-visible {
+    outline:3px solid var(--accent);
+    outline-offset:3px;
+}
+.route-choice-modal > .profile-page-kicker,
+.route-choice-modal > h2 {
+    padding-right:64px;
+}
 .route-choice-modal h2 { margin:2px 0 6px; }
 .route-choice-station { margin:0 0 16px; color:var(--text-secondary); font-size:.82rem; }
 .route-choice-list { display:grid; gap:9px; }
