@@ -1,8 +1,11 @@
 import { closeModal, openModal } from '../ui/modal-manager.js';
 
 let installPrompt = null;
+let installPromptInitialized = false;
 let updateInProgress = false;
 let serviceWorkerRegistrationPromise = null;
+
+const PWA_TRACKING_EVENT = 'kwhiz:pwa-tracking';
 
 export function getInstallEnvironment({ userAgent = '', displayModeStandalone = false, navigatorStandalone = false } = {}) {
     return {
@@ -17,25 +20,56 @@ function setInstallButtonVisibility(visible) {
     if (button) button.hidden = !visible;
 }
 
+function isStandaloneMode() {
+    return getInstallEnvironment({
+        displayModeStandalone: window.matchMedia('(display-mode: standalone)').matches,
+        navigatorStandalone: window.navigator.standalone
+    }).isStandalone;
+}
+
+function trackPwaEvent(name, data) {
+    window.dispatchEvent(new CustomEvent(PWA_TRACKING_EVENT, {
+        detail: { name, data }
+    }));
+}
+
 export function initInstallPrompt() {
+    if (installPromptInitialized) return;
+    installPromptInitialized = true;
+
+    if (isStandaloneMode()) setInstallButtonVisibility(false);
+
     window.addEventListener('beforeinstallprompt', event => {
         event.preventDefault();
+        if (isStandaloneMode()) {
+            installPrompt = null;
+            setInstallButtonVisibility(false);
+            return;
+        }
         installPrompt = event;
         setInstallButtonVisibility(true);
+        trackPwaEvent('pwa-install-available');
     });
 
     window.addEventListener('appinstalled', () => {
         installPrompt = null;
         setInstallButtonVisibility(false);
+        trackPwaEvent('pwa-install', { source: 'browser' });
     });
 }
 
 export async function triggerNativeInstall() {
     if (!installPrompt) return false;
-    installPrompt.prompt();
-    const choice = await installPrompt.userChoice;
+    const prompt = installPrompt;
     installPrompt = null;
-    if (choice.outcome === 'accepted') setInstallButtonVisibility(false);
+    setInstallButtonVisibility(false);
+    prompt.prompt();
+    const choice = await prompt.userChoice;
+    if (choice.outcome === 'accepted') {
+        trackPwaEvent('pwa-install', { source: 'button' });
+    } else {
+        trackPwaEvent('pwa-install-dismissed');
+    }
     return choice.outcome === 'accepted';
 }
 
