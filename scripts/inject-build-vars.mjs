@@ -1,16 +1,15 @@
 /**
  * inject-build-vars.mjs
  *
- * Post-build script — injecte deux variables dans dist/ :
+ * Post-build script — injecte les variables de build dans dist/ :
  *
  *   1. Version (dist/index.html)
  *      Remplace __VERSION__ par la valeur de "version" dans package.json.
  *      Source unique : package.json → plus jamais de numéro hardcodé dans le HTML.
  *
- *   2. Cache hash SW (dist/sw.js)
- *      Calcule un SHA-256 de dist/index.html (déjà patché avec la version)
- *      et l'injecte à la place du placeholder __CACHE_HASH__.
- *      Garantit un nouveau nom de cache à chaque build qui modifie quelque chose.
+ *   2. Assets et cache hash SW (dist/sw.js)
+ *      Injecte les ressources critiques et facultatives réellement précachées,
+ *      puis calcule un SHA-256 déterministe de leurs chemins et contenus.
  *
  * Usage : node scripts/inject-build-vars.mjs
  * Appelé automatiquement via "npm run build".
@@ -30,7 +29,41 @@ const swPath    = resolve(root, 'dist', 'sw.js');
 
 const VERSION_PLACEHOLDER = '__VERSION__';
 const HASH_PLACEHOLDER    = '__CACHE_HASH__';
-const ASSETS_PLACEHOLDER  = '__BUILD_ASSETS__';
+const CRITICAL_PLACEHOLDER = '__CRITICAL_ASSETS__';
+const OPTIONAL_PLACEHOLDER = '__OPTIONAL_ASSETS__';
+
+const CRITICAL_PUBLIC_ASSETS = [
+  './index.html',
+  './tarifs.json'
+];
+
+const OPTIONAL_PUBLIC_ASSETS = [
+  './irve-fast.json',
+  './manifest.json',
+  './icons/icon-72.png',
+  './icons/icon-96.png',
+  './icons/icon-128.png',
+  './icons/icon-144.png',
+  './icons/icon-152.png',
+  './icons/icon-180.png',
+  './icons/icon-192.png',
+  './icons/icon-384.png',
+  './icons/icon-512.png'
+];
+
+export function computeCacheHash(entries) {
+  const hash = createHash('sha256');
+  [...entries]
+    .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
+    .forEach(({ path, content }) => {
+      const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content);
+      hash.update(`${path}\0${bytes.length}\0`);
+      hash.update(bytes);
+    });
+  return hash.digest('hex').slice(0, 8);
+}
+
+function run() {
 
 // ── 1. Lire package.json → version ───────────────────────────────────────────
 let version;
@@ -75,10 +108,7 @@ if (indexContent.includes(VERSION_PLACEHOLDER)) {
   console.log(`[inject-build-vars] ℹ Version déjà injectée par Vite : ${displayVersion}`);
 }
 
-// ── 4. Calculer le hash sur index.html patché ────────────────────────────────
-const hash = createHash('sha256').update(indexPatched).digest('hex').slice(0, 8);
-
-// ── 5. Lire dist/sw.js ───────────────────────────────────────────────────────
+// ── 4. Lire dist/sw.js ───────────────────────────────────────────────────────
 let swContent;
 try {
   swContent = readFileSync(swPath, 'utf8');
@@ -93,12 +123,6 @@ if (!swContent.includes(HASH_PLACEHOLDER)) {
   process.exit(1);
 }
 
-// ── 6. Injecter le hash dans dist/sw.js ─────────────────────────────────────
-if (!swContent.includes(ASSETS_PLACEHOLDER)) {
-  console.error(`[inject-build-vars] ✗ Placeholder "${ASSETS_PLACEHOLDER}" introuvable dans dist/sw.js`);
-  process.exit(1);
-}
-
 const buildAssets = [...indexPatched.matchAll(/(?:src|href)=["'](?:\.\/|\/)(assets\/[^"']+)["']/g)]
   .map(match => `./${match[1]}`);
 
@@ -107,9 +131,32 @@ if (buildAssets.length === 0) {
   process.exit(1);
 }
 
+for (const placeholder of [CRITICAL_PLACEHOLDER, OPTIONAL_PLACEHOLDER]) {
+  if (!swContent.includes(placeholder)) {
+    console.error(`[inject-build-vars] ✗ Placeholder "${placeholder}" introuvable dans dist/sw.js`);
+    process.exit(1);
+  }
+}
+
+const uniqueBuildAssets = [...new Set(buildAssets)].sort();
+const criticalAssets = [...CRITICAL_PUBLIC_ASSETS, ...uniqueBuildAssets];
+const optionalAssets = [...OPTIONAL_PUBLIC_ASSETS];
+const precachedAssets = [...criticalAssets, ...optionalAssets];
+const hashEntries = precachedAssets.map(assetPath => {
+  const filePath = resolve(root, 'dist', assetPath.replace(/^\.\//, ''));
+  try {
+    return { path: assetPath, content: readFileSync(filePath) };
+  } catch (err) {
+    console.error(`[inject-build-vars] ✗ Ressource précachée introuvable : ${filePath}`);
+    process.exit(1);
+  }
+});
+const hash = computeCacheHash(hashEntries);
+
 const swPatched = swContent
   .replace(HASH_PLACEHOLDER, hash)
-  .replace(ASSETS_PLACEHOLDER, JSON.stringify([...new Set(buildAssets)]));
+  .replace(CRITICAL_PLACEHOLDER, JSON.stringify(criticalAssets))
+  .replace(OPTIONAL_PLACEHOLDER, JSON.stringify(optionalAssets));
 
 try {
   writeFileSync(swPath, swPatched, 'utf8');
@@ -119,4 +166,8 @@ try {
 }
 
 console.log(`[inject-build-vars] ✓ CACHE_NAME = 'kwhiz-${hash}'`);
-console.log(`[inject-build-vars] ✓ Assets préchargés : ${buildAssets.length}`);
+console.log(`[inject-build-vars] ✓ Assets critiques : ${criticalAssets.length}`);
+console.log(`[inject-build-vars] ✓ Assets facultatifs : ${optionalAssets.length}`);
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) run();

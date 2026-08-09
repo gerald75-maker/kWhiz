@@ -72,7 +72,7 @@ test('le document expose le sélecteur et aucune clé brute comme texte', async 
 
 test('le service worker inclut le bundle i18n dans les assets générés', async () => {
   const sw = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8');
-  assert.match(sw, /\.\.\.BUILD_ASSETS/);
+  assert.match(sw, /const CRITICAL_ASSETS = __CRITICAL_ASSETS__/);
   assert.match(sw, /nouveau SW reste en état 'waiting'/);
 });
 

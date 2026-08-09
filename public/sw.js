@@ -1,5 +1,6 @@
 // Service Worker kWhiz
-// Stratégie : Network First pour index.html/sw.js/tarifs.json, bypass total pour .php, Cache First pour les autres assets statiques
+// Stratégie : Network First pour index.html/sw.js/tarifs.json/irve-fast.json,
+// bypass total pour .php, Cache First pour les autres assets statiques du même domaine.
 const CACHE_NAME = 'kwhiz-__CACHE_HASH__';
 
 // Garde-fou : si inject-build-vars.mjs n'a pas tourné, le placeholder n'est pas remplacé
@@ -8,26 +9,9 @@ if (CACHE_NAME.includes('__')) {
     console.error('[SW] CACHE_HASH non injecté — vérifiez que `npm run build` a bien exécuté inject-build-vars.mjs');
 }
 
-// Remplacé par scripts/inject-build-vars.mjs avec les fichiers Vite hashés.
-const BUILD_ASSETS = __BUILD_ASSETS__;
-
-const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './tarifs.json',
-  './irve-fast.json',
-  './manifest.json',
-  './icons/icon-72.png',
-  './icons/icon-96.png',
-  './icons/icon-128.png',
-  './icons/icon-144.png',
-  './icons/icon-152.png',
-  './icons/icon-180.png',
-  './icons/icon-192.png',
-  './icons/icon-384.png',
-  './icons/icon-512.png',
-  ...BUILD_ASSETS
-];
+// Remplacés par scripts/inject-build-vars.mjs pendant le build.
+const CRITICAL_ASSETS = __CRITICAL_ASSETS__;
+const OPTIONAL_ASSETS = __OPTIONAL_ASSETS__;
 
 // Note : 'app.js' est intentionnellement absent — après build Vite le fichier
 // est hashé (ex: assets/index-XXXXXXXX.js) et n'a donc jamais ce nom en prod.
@@ -43,10 +27,85 @@ function isPhp(url) {
   return new URL(url).pathname.endsWith('.php');
 }
 
+function isSameOrigin(url) {
+  return new URL(url).origin === self.location.origin;
+}
+
 function cacheKeyFor(request) {
   const url = new URL(request.url);
   if (url.pathname.endsWith('/tarifs.json')) url.search = '';
   return url.toString();
+}
+
+function unavailableResponse() {
+  return new Response('Service temporarily unavailable', {
+    status: 503,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  });
+}
+
+async function matchCache(key) {
+  try {
+    return (await caches.match(key)) || null;
+  } catch (error) {
+    console.warn('[SW] Cache match failed:', error);
+    return null;
+  }
+}
+
+async function cachedNavigationFallback() {
+  return (await matchCache('./index.html')) || unavailableResponse();
+}
+
+async function networkOnly(request) {
+  try {
+    return (await fetch(request, { cache: 'no-store' })) || unavailableResponse();
+  } catch (_) {
+    return unavailableResponse();
+  }
+}
+
+async function networkFirst(request) {
+  const cacheKey = cacheKeyFor(request);
+  try {
+    const response = await fetch(request);
+    if (!response) return unavailableResponse();
+    if (response.status === 200) {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(cacheKey, response.clone());
+      } catch (error) {
+        console.warn('[SW] Cache put failed:', error);
+      }
+    }
+    return response;
+  } catch (_) {
+    const cached = await matchCache(cacheKey);
+    if (cached) return cached;
+    if (request.mode === 'navigate') return cachedNavigationFallback();
+    return unavailableResponse();
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await matchCache(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (!response) return unavailableResponse();
+    if (response.status === 200) {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(request, response.clone());
+      } catch (error) {
+        console.warn('[SW] Cache put failed:', error);
+      }
+    }
+    return response;
+  } catch (_) {
+    if (request.mode === 'navigate') return cachedNavigationFallback();
+    return unavailableResponse();
+  }
 }
 
 // ── INSTALL ──────────────────────────────────────────────────────────────────
@@ -56,7 +115,17 @@ self.addEventListener('install', event => {
   // (Identique à Wattlog registerType:'prompt' pour une cohérence cross-app.)
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(async cache => {
+        await cache.addAll(CRITICAL_ASSETS);
+        const results = await Promise.allSettled(
+          OPTIONAL_ASSETS.map(asset => cache.add(asset))
+        );
+        results.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.warn('[SW] Optional precache failed:', OPTIONAL_ASSETS[index], result.reason);
+          }
+        });
+      })
   );
 });
 
@@ -81,50 +150,20 @@ self.addEventListener('activate', event => {
 // ── FETCH ────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  if (!isSameOrigin(event.request.url)) return;
 
   // PHP : jamais en cache, fetch direct avec cache: 'no-store'
   if (isPhp(event.request.url)) {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    event.respondWith(networkOnly(event.request));
     return;
   }
 
-  // Network First : index.html, racine, sw.js, tarifs.json
+  // Network First : index.html, racine, sw.js, tarifs.json et irve-fast.json
   if (isNetworkFirst(event.request.url)) {
-    const cacheKey = cacheKeyFor(event.request);
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => cache.put(cacheKey, clone))
-              .catch(err => console.warn('[SW] Cache put failed:', err));
-          }
-          return response;
-        })
-        .catch(() => caches.match(cacheKey))
-    );
+    event.respondWith(networkFirst(event.request));
     return;
   }
 
   // Cache First : icônes et autres assets statiques
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => cache.put(event.request, clone))
-              .catch(err => console.warn('[SW] Cache put failed:', err));
-          }
-          return response;
-        })
-        .catch(() => {
-          if (event.request.mode === 'navigate') return caches.match('./index.html');
-          return Response.error();
-        });
-    })
-  );
+  event.respondWith(cacheFirst(event.request));
 });
