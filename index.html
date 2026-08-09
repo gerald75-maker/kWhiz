@@ -150,14 +150,14 @@
 <div class="tab-content" id="tab-map">
 <header class="map-page-heading">
 <div><p class="profile-page-kicker">Bornes rapides en France</p><h2>Carte des stations</h2><p>Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
-<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> Me localiser</button></div>
+<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
 <details class="route-planner" id="route-planner">
-<summary>Stations sur mon trajet <span aria-hidden="true">⌄</span></summary>
+<summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true">⌄</span></summary>
 <form class="route-planner-form" id="route-planner-form">
-<label><span>Départ</span><span class="route-start-field"><input aria-label="Ville, adresse ou code postal en France pour le départ" id="route-start" name="start" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required><button id="route-use-location" type="button"><span aria-hidden="true">⌖</span> Ma position</button></span></label>
-<label><span>Arrivée</span><input aria-label="Ville, adresse ou code postal en France pour l’arrivée" id="route-end" name="end" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required></label>
-<div class="route-planner-actions"><button class="route-search-button" id="route-search" type="submit">Afficher les stations</button><button class="route-clear-button" id="route-clear" type="button" hidden>Effacer le trajet</button></div>
+<label><span data-i18n="map.route.start">Départ</span><span class="route-start-field"><input aria-label="Ville, adresse ou code postal en France pour le départ" data-i18n-aria-label="map.route.startInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-start" name="start" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required><button id="route-use-location" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.route.myLocation">Ma position</span></button></span></label>
+<label><span data-i18n="map.route.destination">Arrivée</span><input aria-label="Ville, adresse ou code postal en France pour l’arrivée" data-i18n-aria-label="map.route.destinationInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-end" name="end" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required></label>
+<div class="route-planner-actions"><button class="route-search-button" data-i18n="map.route.showChargers" id="route-search" type="submit">Afficher les stations</button><button class="route-clear-button" data-i18n="map.route.clear" id="route-clear" type="button" hidden>Effacer l’itinéraire</button></div>
 <p class="route-planner-status" id="route-planner-status" aria-live="polite"></p>
 </form>
 </details>
@@ -439,16 +439,16 @@
 </div>
 <div aria-hidden="true" aria-labelledby="route-choice-title" aria-modal="true" class="help-overlay" id="route-choice-overlay" role="dialog" tabindex="-1">
 <div class="help-modal route-choice-modal">
-<button aria-label="Fermer" class="modal-close" id="route-choice-close" type="button">×</button>
-<p class="profile-page-kicker">Ouvrir l’itinéraire</p>
-<h2 id="route-choice-title">Choisir votre GPS</h2>
+<button aria-label="Fermer" class="modal-close" data-i18n-aria-label="common.close" id="route-choice-close" type="button">×</button>
+<p class="profile-page-kicker" data-i18n="map.gps.openDirections">Ouvrir l’itinéraire</p>
+<h2 data-i18n="map.gps.chooseApp" id="route-choice-title">Choisir une application de navigation</h2>
 <p class="route-choice-station" id="route-choice-station"></p>
 <div class="route-choice-list">
 <a class="route-choice-link" data-route-app="apple" id="route-apple" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon"></span><span><strong>Plans</strong><small>Apple Maps</small></span><b>›</b></a>
-<a class="route-choice-link" data-route-app="google" id="route-google" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--google">G</span><span><strong>Google Maps</strong><small>Application ou navigateur</small></span><b>›</b></a>
-<a class="route-choice-link" data-route-app="waze" id="route-waze" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--waze">W</span><span><strong>Waze</strong><small>Application ou navigateur</small></span><b>›</b></a>
+<a class="route-choice-link" data-route-app="google" id="route-google" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--google">G</span><span><strong>Google Maps</strong><small data-i18n="map.gps.appOrBrowser">Application ou navigateur</small></span><b>›</b></a>
+<a class="route-choice-link" data-route-app="waze" id="route-waze" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--waze">W</span><span><strong>Waze</strong><small data-i18n="map.gps.appOrBrowser">Application ou navigateur</small></span><b>›</b></a>
 </div>
-<p class="route-choice-note">L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.</p>
+<p class="route-choice-note" data-i18n="map.gps.note">L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.</p>
 </div>
 </div>
 <!-- Bottom Navigation -->

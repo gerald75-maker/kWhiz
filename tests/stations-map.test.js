@@ -81,7 +81,7 @@ test('un itinéraire propose Plans, Google Maps et Waze', async () => {
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('src/ui/stations-map.js', root), 'utf8')
   ]);
-  assert.match(html, /Choisir votre GPS/);
+  assert.match(html, /data-i18n="map\.gps\.chooseApp"/);
   assert.match(source, /maps\.apple\.com/);
   assert.match(source, /google\.com\/maps\/dir/);
   assert.match(source, /waze\.com\/ul/);
@@ -183,7 +183,7 @@ test('Stations sur mon trajet reste un MVP isolé et filtrable par opérateur', 
   assert.match(source, /fetch\('\.\/route\.php'/);
   assert.match(source, /metric\.distance <= 15/);
   assert.match(source, /startCoordinates:/);
-  assert.match(source, /input\.value = 'Ma position actuelle'/);
+  assert.match(source, /input\.value = t\('map\.route\.currentLocation'\)/);
   assert.match(source, /selected\.has\(station\.operator\).*routeStationMetrics/);
   assert.match(source, /routeStationMetrics\.get\(a\.id\)\.progress/);
   assert.match(source, /if \(!routeStationMetrics\)/);
@@ -231,14 +231,16 @@ test('le formulaire précise la saisie française et affiche les lieux reconnus'
 });
 
 test('les erreurs d’itinéraire donnent une action corrective', async () => {
-  const [source, php] = await Promise.all([
+  const [source, routeUi, php] = await Promise.all([
     readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/map-route-ui.js', root), 'utf8'),
     readFile(new URL('public/route.php', root), 'utf8')
   ]);
   assert.match(php, /Précisez une adresse française ou un code postal/);
   assert.match(php, /Aucun itinéraire routier trouvé\. Vérifiez les lieux reconnus/);
   assert.match(php, /Service d’itinéraire indisponible\. Réessayez dans quelques instants/);
-  assert.match(source, /Vérifiez les réglages de localisation de votre navigateur/);
+  assert.match(source, /map\.location\.deniedHelp/);
+  assert.match(routeUi, /map\.route\.networkError/);
 });
 
 test('l’aide en accordéons couvre localisation, statuts, sélection et itinéraire', async () => {

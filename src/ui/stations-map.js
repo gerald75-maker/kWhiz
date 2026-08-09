@@ -4,6 +4,7 @@ import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
+import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
 
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
@@ -57,6 +58,47 @@ export function initStationsMap() {
   let routeLayer = null;
   let routeStationMetrics = null;
   let loaded = false;
+  let irveUpdatedAt = null;
+  let routeUiState = { key: null, params: {}, state: '' };
+  let locationButtonState = 'locate';
+  let currentLocationIsRouteStart = false;
+  let routeChoiceUsesFallback = false;
+
+  function setRouteStatus(key = null, params = {}, state = '') {
+    routeUiState = { key, params, state };
+    const element = document.getElementById('route-planner-status');
+    if (!element) return;
+    if (state) element.dataset.state = state;
+    else delete element.dataset.state;
+    element.textContent = key === 'map.route.success'
+      ? t(key, {
+          places: params.recognizedPlaces,
+          distance: formatDistance(Math.round(params.distanceKm)),
+          stations: plural('count.station', params.matching)
+        })
+      : key ? t(key, params) : '';
+  }
+
+  function renderLocationButton() {
+    const button = document.getElementById('map-locate');
+    if (!button) return;
+    const labels = {
+      locate: 'map.location.locate', recenter: 'map.location.recenter', loading: 'map.location.loading',
+      denied: 'map.location.denied', unavailable: 'map.location.unavailable',
+      timeout: 'map.location.timeout', notFound: 'map.location.notFound'
+    };
+    const key = labels[locationButtonState] || labels.locate;
+    button.innerHTML = locationButtonState === 'locate' || locationButtonState === 'recenter'
+      ? `<span aria-hidden="true">⌖</span> <span>${t(key)}</span>`
+      : t(key);
+  }
+
+  function renderRouteChoice() {
+    if (routeChoiceUsesFallback) document.getElementById('route-choice-station').textContent = t('map.station.selected');
+    [['route-apple', 'Plans'], ['route-google', 'Google Maps'], ['route-waze', 'Waze']].forEach(([id, app]) => {
+      document.getElementById(id)?.setAttribute('aria-label', t('map.gps.openWith', { app }));
+    });
+  }
 
   function visibleStations() {
     return stations.filter(station => selected.has(station.operator) && (!routeStationMetrics || routeStationMetrics.has(station.id)));
@@ -186,7 +228,7 @@ export function initStationsMap() {
     routeStationMetrics = null;
     selectedStationId = null;
     document.getElementById('map-list-title').textContent = t('map.list.nearby');
-    document.getElementById('route-planner-status').textContent = '';
+    setRouteStatus();
     document.getElementById('route-clear').hidden = true;
     renderStations();
   }
@@ -199,8 +241,7 @@ export function initStationsMap() {
     const status = document.getElementById('route-planner-status');
     if (!start || !end || !map) return;
     button.disabled = true;
-    status.dataset.state = 'loading';
-    status.textContent = 'Calcul de l’itinéraire…';
+    setRouteStatus('map.route.searchingAddresses', {}, 'loading');
     try {
       const response = await fetch('./route.php', {
         method: 'POST',
@@ -214,8 +255,14 @@ export function initStationsMap() {
             : null
         })
       });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.geometry?.coordinates?.length) throw new Error(payload.error || 'Itinéraire indisponible');
+      const responseText = await response.text();
+      let payload = null;
+      try { payload = JSON.parse(responseText); } catch (_) { /* réponse invalide traitée ci-dessous */ }
+      if (!payload) throw { uiKey: routeErrorKey({ responseValid: false }) };
+      if (!response.ok || !payload.geometry?.coordinates?.length) {
+        throw { uiKey: routeErrorKey({ message: payload.error || '', start, destination: end }) };
+      }
+      setRouteStatus('map.route.calculating', {}, 'loading');
       routeLayer?.remove();
       routeLayer = L.geoJSON(payload.geometry, { style: { color: '#00aeea', weight: 5, opacity: 0.86 } }).addTo(map);
       routeStationMetrics = new Map();
@@ -225,23 +272,17 @@ export function initStationsMap() {
       });
       mapPositionReady = true;
       selectedStationId = null;
-      document.getElementById('map-list-title').textContent = 'Stations sur votre trajet';
+      document.getElementById('map-list-title').textContent = t('map.list.route');
       document.getElementById('route-clear').hidden = false;
       const matching = visibleStations().length;
-      status.dataset.state = 'success';
       const recognizedPlaces = `${payload.recognizedStart || start} → ${payload.recognizedEnd || end}`;
-      status.textContent = t('map.route.success', {
-        places: recognizedPlaces,
-        distance: formatDistance(Math.round(payload.distanceKm)),
-        stations: plural('count.station', matching)
-      });
+      const successParams = { recognizedPlaces, distanceKm: payload.distanceKm, matching };
+      setRouteStatus(matching ? 'map.route.success' : 'map.route.noMatchingStations', matching ? successParams : {}, matching ? 'success' : 'empty');
       map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
       renderStations();
     } catch (error) {
-      status.dataset.state = 'error';
-      status.textContent = error.message === 'Failed to fetch'
-        ? 'Service d’itinéraire indisponible. Réessayez dans quelques instants.'
-        : error.message || 'Service d’itinéraire indisponible. Réessayez dans quelques instants.';
+      const uiKey = error?.uiKey || routeErrorKey({ networkError: error instanceof TypeError || error?.message === 'Failed to fetch' });
+      setRouteStatus(uiKey, {}, 'error');
     } finally {
       button.disabled = false;
     }
@@ -254,20 +295,23 @@ export function initStationsMap() {
       map.setView(userCoordinates, Math.max(map.getZoom(), 10), { animate: true });
       locationMarker.openPopup();
       button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      locationButtonState = 'recenter';
+      renderLocationButton();
       renderStations();
       return;
     }
     if (locationPending) return;
     if (!navigator.geolocation) {
       mapPositionReady = true;
-      button.textContent = 'Localisation indisponible';
+      locationButtonState = 'unavailable';
+      renderLocationButton();
       renderStations();
       return;
     }
     locationPending = true;
     button.disabled = true;
-    button.textContent = 'Localisation…';
+    locationButtonState = 'loading';
+    renderLocationButton();
     navigator.geolocation.getCurrentPosition(position => {
       const coordinates = [position.coords.latitude, position.coords.longitude];
       userCoordinates = coordinates;
@@ -275,20 +319,22 @@ export function initStationsMap() {
       locationMarker?.remove();
       locationMarker = L.circleMarker(coordinates, {
         radius: 9, weight: 4, color: '#fff', fillColor: '#00c2ff', fillOpacity: 1
-      }).bindPopup('Votre position').addTo(map);
+      }).bindPopup(t('map.location.yourPosition')).addTo(map);
       mapPositionReady = true;
       if (!routeStationMetrics) {
         map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
         locationMarker.openPopup();
       }
       button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      locationButtonState = 'recenter';
+      renderLocationButton();
       renderStations();
     }, error => {
       locationPending = false;
       mapPositionReady = true;
       button.disabled = false;
-      button.textContent = error.code === 1 ? 'Me localiser' : 'Position introuvable';
+      locationButtonState = locationErrorKey(error).replace('map.location.', '');
+      renderLocationButton();
       renderStations();
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
   }
@@ -342,6 +388,7 @@ export function initStationsMap() {
     const lat = Number(trigger.dataset.lat);
     const lon = Number(trigger.dataset.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    routeChoiceUsesFallback = !trigger.dataset.station;
     const station = trigger.dataset.station || t('map.station.selected');
     document.getElementById('route-choice-station').textContent = station;
     document.getElementById('route-apple').href = `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`;
@@ -349,6 +396,7 @@ export function initStationsMap() {
     document.getElementById('route-waze').href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
     const isAndroid = /Android/i.test(navigator.userAgent || '');
     document.querySelector('[data-route-app="apple"]').hidden = isAndroid;
+    renderRouteChoice();
     openModal('route-choice-overlay', trigger);
   }
 
@@ -381,7 +429,8 @@ export function initStationsMap() {
       const keys = [...new Set(stations.map(station => station.operator))].sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
       selected = readSelection(keys);
       renderFilters(keys);
-      document.getElementById('map-data-date').textContent = formatDate(payload.updatedAt);
+      irveUpdatedAt = payload.updatedAt;
+      document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
       map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.
@@ -427,6 +476,7 @@ export function initStationsMap() {
   });
   document.getElementById('route-clear')?.addEventListener('click', clearRoute);
   document.getElementById('route-start')?.addEventListener('input', event => {
+    currentLocationIsRouteStart = false;
     delete event.target.dataset.lat;
     delete event.target.dataset.lon;
   });
@@ -436,32 +486,31 @@ export function initStationsMap() {
     const status = document.getElementById('route-planner-status');
     const applyCoordinates = coordinates => {
       userCoordinates = coordinates;
-      input.value = 'Ma position actuelle';
+      currentLocationIsRouteStart = true;
+      input.value = t('map.route.currentLocation');
       input.dataset.lat = String(coordinates[0]);
       input.dataset.lon = String(coordinates[1]);
-      delete status.dataset.state;
-      status.textContent = 'La position actuelle sera utilisée comme départ.';
+      setRouteStatus('map.location.usedAsStart');
       button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Ma position';
+      button.innerHTML = `<span aria-hidden="true">⌖</span> ${t('map.route.myLocation')}`;
     };
     if (userCoordinates) {
       applyCoordinates(userCoordinates);
       return;
     }
     if (!navigator.geolocation) {
-      status.dataset.state = 'error';
-      status.textContent = 'La localisation n’est pas disponible sur cet appareil.';
+      setRouteStatus('map.location.unavailable', {}, 'error');
       return;
     }
     button.disabled = true;
-    button.textContent = 'Localisation…';
+    button.textContent = t('map.location.loading');
     navigator.geolocation.getCurrentPosition(
       position => applyCoordinates([position.coords.latitude, position.coords.longitude]),
-      () => {
+      error => {
         button.disabled = false;
-        button.innerHTML = '<span aria-hidden="true">⌖</span> Ma position';
-        status.dataset.state = 'error';
-        status.textContent = 'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.';
+        button.innerHTML = `<span aria-hidden="true">⌖</span> ${t('map.route.myLocation')}`;
+        const key = locationErrorKey(error);
+        setRouteStatus(key === 'map.location.denied' ? 'map.location.deniedHelp' : key, {}, 'error');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
@@ -470,6 +519,14 @@ export function initStationsMap() {
   return {
     refreshLanguage() {
       document.getElementById('map-list-title').textContent = routeStationMetrics ? t('map.list.route') : t('map.list.nearby');
+      if (currentLocationIsRouteStart) document.getElementById('route-start').value = t('map.route.currentLocation');
+      setRouteStatus(routeUiState.key, routeUiState.params, routeUiState.state);
+      renderLocationButton();
+      if (irveUpdatedAt) document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
+      const locationPopupWasOpen = locationMarker?.isPopupOpen?.() || false;
+      locationMarker?.setPopupContent?.(t('map.location.yourPosition'));
+      if (locationPopupWasOpen) locationMarker.openPopup();
+      renderRouteChoice();
       if (stations.length) renderStations();
     },
     activate() {
