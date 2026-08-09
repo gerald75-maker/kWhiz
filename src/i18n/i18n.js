@@ -22,6 +22,9 @@ const messages = {
     'date.updated': 'mises à jour le {date}',
     'recommendation.savings': 'Vous économisez {amount} par mois',
     'recommendation.monthlyCost': '{amount} par mois',
+    'pwa.update.title': 'Mise à jour disponible',
+    'pwa.update.description': 'Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant ?',
+    'pwa.update.refresh': 'Actualiser',
     'language.changed': 'Langue mise à jour.'
   },
   en: {
@@ -43,6 +46,9 @@ const messages = {
     'date.updated': 'updated on {date}',
     'recommendation.savings': 'You save {amount} per month',
     'recommendation.monthlyCost': '{amount} per month',
+    'pwa.update.title': 'Update available',
+    'pwa.update.description': 'A new version is available. Update now?',
+    'pwa.update.refresh': 'Update',
     'language.changed': 'Language updated.'
   }
 };
@@ -108,7 +114,6 @@ const phrases = {
   'Mon choix': 'My recommendation', 'Mon choix personnalisé': 'My recommendation', 'Carte': 'Map', 'Carte des bornes': 'Charger map',
   'Comparateur de recharge rapide': 'Fast-charging comparison', 'Menu kWhiz': 'kWhiz menu', 'Comprendre': 'Learn',
   'Apparence': 'Appearance', 'Mode clair ou sombre': 'Light or dark mode', 'Données sourcées': 'Sourced data',
-  'Mise à jour disponible': 'Update available', 'Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant ?': 'A new version is available. Update now?', 'Actualiser': 'Update',
   'Recherche d’une nouvelle version…': 'Checking for a new version…', 'Mise à jour de kWhiz…': 'Updating kWhiz…', 'kWhiz a été mis à jour': 'kWhiz has been updated',
   'Tarifs actualisés': 'Prices updated', 'Actualisation impossible': 'Unable to update',
   'Mode hors ligne — derniers tarifs enregistrés': 'Offline — showing saved prices', 'Connexion rétablie — actualisation…': 'Back online — updating…',

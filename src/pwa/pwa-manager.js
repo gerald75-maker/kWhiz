@@ -1,4 +1,5 @@
 import { closeModal, openModal } from '../ui/modal-manager.js';
+import { onLanguageChange, t } from '../i18n/i18n.js';
 
 let installPrompt = null;
 let installPromptInitialized = false;
@@ -82,16 +83,26 @@ export function showUpdateBanner({ onUpdate = updateApplication } = {}) {
     overlay.setAttribute('aria-hidden', 'true');
     overlay.tabIndex = -1;
     overlay.innerHTML = `
-        <div class="update-popup update-popup--glass" role="dialog" aria-modal="true" aria-labelledby="kwhiz-update-title">
-            <p class="update-popup__title" id="kwhiz-update-title">Mise à jour disponible</p>
-            <p class="update-popup__body">Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant&nbsp;?</p>
+        <div class="update-popup update-popup--glass" role="dialog" aria-modal="true" aria-labelledby="kwhiz-update-title" aria-describedby="kwhiz-update-description">
+            <p class="update-popup__title" id="kwhiz-update-title">${t('pwa.update.title')}</p>
+            <p class="update-popup__body" id="kwhiz-update-description">${t('pwa.update.description')}</p>
             <div class="update-popup__actions">
-                <button class="update-popup__btn" type="button">Actualiser</button>
+                <button class="update-popup__btn" type="button">${t('pwa.update.refresh')}</button>
             </div>
         </div>
     `;
     document.body.appendChild(overlay);
+    const updateTranslations = () => {
+        const title = overlay.querySelector('.update-popup__title');
+        const description = overlay.querySelector('.update-popup__body');
+        const refreshButton = overlay.querySelector('.update-popup__btn');
+        if (title) title.textContent = t('pwa.update.title');
+        if (description) description.textContent = t('pwa.update.description');
+        if (refreshButton) refreshButton.textContent = t('pwa.update.refresh');
+    };
+    const stopUpdatingTranslations = onLanguageChange(updateTranslations);
     overlay.addEventListener('kwhiz:modalclose', () => {
+        stopUpdatingTranslations();
         overlay.classList.remove('is-visible');
         overlay.remove();
     }, { once: true });
