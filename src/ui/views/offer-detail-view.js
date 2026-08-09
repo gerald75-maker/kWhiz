@@ -2,6 +2,7 @@ import {
     formatCurrency,
     formatDate,
     formatNumber,
+    formatTariffsVerifiedOn,
     localizeTariffText,
     t
 } from '../../i18n/i18n.js';
@@ -86,7 +87,7 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
     const formulaName = displayFormulaName(formula.name);
     const typeLabel = offerDetailTypeLabel(formula);
     const verifiedBadge = formula.verifiedAt
-        ? `<span class="detail-badge detail-badge--verified">${t('offerDetail.verifiedOn', { date: detailDate(formula.verifiedAt) })}</span>`
+        ? `<span class="detail-badge detail-badge--verified">${formatTariffsVerifiedOn(formula.verifiedAt)}</span>`
         : '';
     const chargebackBadge = formula.chargebackRate !== null
         ? '<span class="detail-badge detail-badge--chargeback">ChargeBack</span>'
@@ -127,7 +128,7 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
         </section>
         <section class="formula-source">
             <p><strong>${typeLabel}</strong></p>
-            <p>${t('offerDetail.verifiedOn', { date: detailDate(formula.verifiedAt) })}</p>
+            <p>${formatTariffsVerifiedOn(formula.verifiedAt) || t('tariffs.verifiedOn', { date: t('offerDetail.unknownDate') })}</p>
             ${formula.validUntil ? `<p>${t('offerDetail.validUntil', { date: detailDate(formula.validUntil) })}</p>` : ''}
             ${formula.calculationBasis !== 'official' ? `<p>${t('offerDetail.estimateWarning')}</p>` : ''}
             ${formula.sourceUrl ? `<a href="${formula.sourceUrl}" target="_blank" rel="noopener noreferrer">${t('offerDetail.officialSource')} <span aria-hidden="true">↗</span></a>` : ''}

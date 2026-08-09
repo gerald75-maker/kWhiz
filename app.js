@@ -53,7 +53,8 @@ import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
-import { initI18n, getLanguage, setLanguage, t, onLanguageChange, formatDate } from './src/i18n/i18n.js';
+import { initMenuLanguage } from './src/ui/menu-language.js';
+import { formatTariffsFreshness, formatTariffsStatusLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -83,50 +84,61 @@ let tariffHistory = (() => {
 })();
 let appInitialized = false;
 let currentFormulaDetail = null;
+let currentApplicationStatus = null;
+let currentTariffsStatus = null;
 
-function setApplicationStatus(state, message) {
+function renderApplicationStatus() {
+    if (!currentApplicationStatus) return;
+    const { state, messageKey } = currentApplicationStatus;
     const badge = document.getElementById('about-app-status-badge');
     const text = document.getElementById('about-app-status');
     if (badge) {
         badge.dataset.state = state;
-        badge.textContent = state === 'current' ? 'À jour'
-            : state === 'offline' ? 'Hors ligne'
-            : state === 'error' ? 'Indisponible'
-            : 'Vérification…';
+        badge.textContent = t(`appStatus.badge.${state}`);
     }
-    if (text) text.textContent = message;
+    if (text) text.textContent = t(messageKey);
 }
 
-function setTariffsStatus(message, freshness = null) {
+function setApplicationStatus(state, messageKey) {
+    currentApplicationStatus = { state, messageKey };
+    renderApplicationStatus();
+}
+
+function renderTariffsStatus() {
+    if (!currentTariffsStatus) return;
+    const { updatedAt, source, freshness, error } = currentTariffsStatus;
     const text = document.getElementById('about-tariffs-status');
     const badge = document.getElementById('about-tariffs-freshness');
-    if (text) text.textContent = message;
+    if (text) text.textContent = error
+        ? t('tariffs.status.unavailable')
+        : formatTariffsStatusLine(updatedAt, source);
     if (badge && freshness) {
         badge.dataset.state = freshness.state;
-        badge.textContent = freshness.label;
+        badge.textContent = formatTariffsFreshness(freshness);
     }
 }
 
-function formatTariffsUpdateDate(value) {
-    if (!value) return 'date inconnue';
-    return formatDate(value);
+function setTariffsStatus(status) {
+    currentTariffsStatus = status;
+    renderTariffsStatus();
+    renderTarifsDateBanner(status.updatedAt, status.error, status.freshness, status.source);
 }
 
 async function checkStatusFromAbout() {
     const button = document.getElementById('about-check-update');
     if (button) button.disabled = true;
-    setApplicationStatus('checking', 'Recherche d’une nouvelle version…');
+    setApplicationStatus('checking', 'appStatus.checking');
 
     try {
         const result = await refreshApplicationAndTariffs();
         if (result.reloadPending) return;
         if (!navigator.onLine) {
-            setApplicationStatus('offline', 'Version installée utilisable hors ligne');
+            setApplicationStatus('offline', 'appStatus.offline');
         } else {
-            setApplicationStatus('current', 'Dernière version disponible installée');
+            setApplicationStatus('current', 'appStatus.current');
         }
     } catch (error) {
-        setApplicationStatus('error', 'Vérification impossible');
+        setApplicationStatus('error', 'appStatus.error');
     } finally {
         if (button) button.disabled = false;
     }
@@ -170,18 +182,16 @@ async function loadTarifs() {
             tariffHistory = appendTariffSnapshot(tariffHistory, snapshot);
             try { localStorage.setItem(STORAGE_KEYS.tariffHistory, JSON.stringify(tariffHistory)); } catch (_) {}
             const offline = result.source === 'localStorage';
-            const suffix = offline ? ' (hors ligne)' : '';
-            const tariffsLabel = formatTariffsUpdateDate(result.updatedAt) + suffix;
+            const source = offline ? 'localCache' : 'online';
             const freshness = assessTariffsFreshness(result.updatedAt);
-            renderTarifsDateBanner(tariffsLabel, false, freshness);
-            setTariffsStatus(`${tariffsLabel} · ${offline ? 'cache local' : 'source en ligne'}`, freshness);
+            setTariffsStatus({ updatedAt: result.updatedAt, source, freshness, error: false });
             console.log(`✓ Tarifs chargés depuis ${result.source}`);
             updateCalculations();
             return { ok: true, source: result.source, offline };
         } catch (error) {
             console.warn('⚠️ Aucun tarif exploitable', error.message);
-            renderTarifsDateBanner(null, true);
-            setTariffsStatus('Indisponibles — derniers calculs conservés', { state: 'unknown', label: 'Fraîcheur inconnue' });
+            const freshness = { state: 'unknown', ageDays: null };
+            setTariffsStatus({ updatedAt: null, source: 'offline', freshness, error: true });
             updateCalculations();
             return { ok: false, error };
         } finally {
@@ -398,29 +408,24 @@ function initApp() {
     on('install-native-btn', 'click', triggerNativeInstall);
     on('about-check-update', 'click', checkStatusFromAbout);
     initDataBackup({ storageKeys: STORAGE_KEYS });
-    const updateLanguageButtons = () => document.querySelectorAll('[data-language]').forEach(button => {
-        button.setAttribute('aria-pressed', String(button.dataset.language === getLanguage()));
-    });
-    updateLanguageButtons();
-    document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => {
-        setLanguage(button.dataset.language);
-        const status = document.getElementById('language-status');
-        if (status) status.textContent = t('language.changed');
-    }));
+    const languageMenu = initMenuLanguage({ getLanguage, setLanguage, t });
     onLanguageChange(() => {
-        updateLanguageButtons();
+        languageMenu.update();
         applyTheme(document.body.classList.contains('light') ? 'light' : 'dark');
+        renderApplicationStatus();
+        if (currentTariffsStatus) setTariffsStatus(currentTariffsStatus);
         if (document.getElementById('formula-detail-overlay')?.getAttribute('aria-hidden') === 'false') {
             renderCurrentFormulaDetail();
         }
         updateCalculations();
+        stationsMap?.refreshLanguage();
         applyInstallOsDetection();
     });
 
     if (navigator.onLine) {
-        setApplicationStatus('current', 'Version installée prête à être vérifiée');
+        setApplicationStatus('current', 'appStatus.ready');
     } else {
-        setApplicationStatus('offline', 'Version installée utilisable hors ligne');
+        setApplicationStatus('offline', 'appStatus.offline');
     }
 
     const viewMode = document.getElementById('view-mode');

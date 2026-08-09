@@ -52,7 +52,7 @@ test('rend une offre sans abonnement en français et en anglais sans traduire so
     assert.match(french.body.innerHTML, /Prix de l’énergie/);
     assert.match(french.body.innerHTML, /Sans abonnement/);
     assert.match(french.body.innerHTML, /Sans seuil/);
-    assert.match(french.body.innerHTML, /Vérifié le 06\/08\/2026/);
+    assert.match(french.body.innerHTML, /Vérifié le 6 août 2026/);
     assert.match(french.body.innerHTML, /Conditions valables jusqu’au 31\/08\/2026/);
     assert.match(french.body.innerHTML, /une estimation, pas un prix garanti/);
     assert.match(french.body.innerHTML, /Tarif national direct confirmé par IECharge\./);
@@ -62,7 +62,7 @@ test('rend une offre sans abonnement en français et en anglais sans traduire so
     assert.match(english.body.innerHTML, /Energy price/);
     assert.match(english.body.innerHTML, /No subscription/);
     assert.match(english.body.innerHTML, /No break-even point/);
-    assert.match(english.body.innerHTML, /Checked on 06\/08\/2026/);
+    assert.match(english.body.innerHTML, /Verified on 6 August 2026/);
     assert.match(english.body.innerHTML, /Terms valid until 31\/08\/2026/);
     assert.match(english.body.innerHTML, /an estimate, not a guaranteed price/);
     assert.match(english.body.innerHTML, /Nationwide direct price confirmed by IECharge\./);

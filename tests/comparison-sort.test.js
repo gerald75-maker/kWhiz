@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PERIOD, calculateBreakeven, chargebackBreakeven, computeProfileMonthlyCost } from '../src/domain/pricing.js';
 import { initProfileControls } from '../src/ui/controllers/profile-controls.js';
+import { formatTariffsVerifiedOn, setLanguage } from '../src/i18n/i18n.js';
 import {
     adjustedThreshold,
     buildComparisonRanking,
@@ -53,6 +54,39 @@ test('le rendu marque uniquement la première formule comme meilleure et affiche
     assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 1);
     assert.match(list.innerHTML, /compare-item compare-item--best[\s\S]*Formule avec abonnement/);
     assert.match(list.innerHTML, /9,99 €\/mois/);
+});
+
+test('le badge de vérification utilise Intl et suit immédiatement la langue', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = {
+        getElementById: id => id === 'ranking-list' ? list : { textContent: '' },
+        dispatchEvent: () => true
+    };
+    const formulas = [formula('Formule datée', { rate: 0.40, opKey: 'datee', verifiedAt: '2026-07-27' })];
+
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable(formulas, profile);
+    assert.match(list.innerHTML, /Vérifié le 27 juillet 2026/);
+
+    setLanguage('en', { persist: false, translate: false });
+    renderComparisonTable(formulas, profile);
+    assert.match(list.innerHTML, /Verified on 27 July 2026/);
+    assert.doesNotMatch(list.innerHTML, /Vérifié le/);
+});
+
+test('une date de vérification absente ou invalide ne produit pas de badge ni d’exception', () => {
+    assert.equal(formatTariffsVerifiedOn(null), '');
+    assert.equal(formatTariffsVerifiedOn('date-invalide'), '');
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = {
+        getElementById: id => id === 'ranking-list' ? list : { textContent: '' },
+        dispatchEvent: () => true
+    };
+    assert.doesNotThrow(() => renderComparisonTable([
+        formula('Sans date', { rate: 0.40 }),
+        formula('Date invalide', { rate: 0.41, verifiedAt: 'date-invalide' })
+    ], profile));
+    assert.doesNotMatch(list.innerHTML, /compare-verified/);
 });
 
 test('faible kilométrage favorise le sans abonnement et fort kilométrage peut favoriser un abonnement', () => {

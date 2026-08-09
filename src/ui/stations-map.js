@@ -3,6 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
+import { formatStationSummary } from './station-summary.js';
 
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
@@ -98,7 +99,7 @@ export function initStationsMap() {
     list.innerHTML = nearby.map(station => `
       <article class="map-station-card${station.id === selectedStationId ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="Afficher ${escapeHtml(station.name)} sur la carte" aria-pressed="${station.id === selectedStationId}">
         <img src="${LOGOS[station.operator] || ''}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(station.name)}</strong><span>${LABELS[station.operator]} · jusqu’à ${station.power} kW · ${station.connectors} point${station.connectors > 1 ? 's' : ''}</span><small>${escapeHtml(station.address || station.city)}</small>${statusBadge(station)}</div>
+        <div><strong>${escapeHtml(station.name)}</strong><span>${formatStationSummary(station, LABELS[station.operator])}</span><small>${escapeHtml(station.address || station.city)}</small>${statusBadge(station)}</div>
         <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</button>
       </article>`).join('') || '<p class="map-empty">Aucune station ne correspond à cette sélection.</p>';
   }
@@ -484,6 +485,9 @@ export function initStationsMap() {
   });
 
   return {
+    refreshLanguage() {
+      if (stations.length) renderList(visibleStations());
+    },
     activate() {
       load().then(() => {
         window.setTimeout(() => map?.invalidateSize(), 80);

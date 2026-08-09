@@ -3379,12 +3379,12 @@ body.light .formula-note { color: #526174; }
 }
 .formula-source:hover { color: var(--accent); }
 .formula-meta--detailed { font-size: .72rem; }
+.formula-meta-part { white-space: nowrap; }
 .cb-effective-compact {
     min-height: 42px;
     border: 1px solid rgba(16,185,129,.18);
 }
-.cb-effective-compact .formula-compact-name::after {
-    content: "Prix effectif avec ChargeBack";
+.cb-effective-compact .formula-compact-name {
     color: var(--text-secondary);
     font-size: .78rem;
     font-weight: 650;
@@ -5000,6 +5000,34 @@ body.light .page-overlay-sheet {
 .menu-drawer-item + .menu-drawer-item {
     border-top: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
 }
+.menu-language-item { cursor: default; }
+.menu-language-content { flex: 1; min-width: 0; max-width: 100%; }
+.menu-language-content > strong { display: block; margin-bottom: var(--space-2); }
+.menu-language-choice {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 100%;
+}
+.menu-language-choice button {
+    min-width: 0;
+    max-width: 100%;
+    padding: 9px var(--space-2);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font: inherit;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+.menu-language-choice button[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, var(--bg-card));
+    color: var(--accent);
+}
 .page-body {
     padding: var(--space-4);
     font-size: .94rem;
@@ -5229,8 +5257,7 @@ body.light .page-overlay-sheet {
     .formula-compact-threshold { grid-area: threshold; min-width: 62px; font-size: .76rem; text-align: right; }
     .formula-note { font-size: .76rem; line-height: 1.4; }
     .formula-meta { font-size: .7rem; line-height: 1.35; }
-    .cb-effective-compact .formula-compact-name { display: none; }
-    .cb-effective-compact { grid-template-columns: 1fr auto; grid-template-areas: "rate threshold"; }
+    .cb-effective-compact { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name rate" "name threshold"; }
 
     .compare-item {
         grid-template-columns: 22px minmax(0, 1fr) 15px;

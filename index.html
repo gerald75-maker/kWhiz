@@ -281,13 +281,13 @@
 <p class="about-desc">Version __VERSION__</p>
 </div>
 <div class="about-contact">
-                🙏 Bonne utilisation !<br/>
-                N'hésitez pas à faire part de vos remarques, suggestions ou compliments à<br/>
+<span data-i18n="about.enjoy">🙏 Bonne utilisation !</span><br/>
+<span data-i18n="about.feedback">N’hésitez pas à faire part de vos remarques, suggestions ou compliments à</span><br/>
 <a href="mailto:kwhiz@aubard.net">kwhiz@aubard.net</a>
 </div>
 <div class="about-origin about-actions">
 <a class="about-apps-link" href="https://apps.aubard.net" rel="noopener" target="_blank">
-                    🔗 Mes autres applications → apps.aubard.net
+<span aria-hidden="true">🔗</span> <span data-i18n="about.otherApps">Mes autres applications</span> <span aria-hidden="true">→</span> <span>apps.aubard.net</span>
                 </a>
 </div>
 </div></div></div>
@@ -297,14 +297,9 @@
 <span class="page-title" id="page-settings-title">Données et réglages</span>
 <button aria-label="Fermer" class="page-close" id="close-settings" type="button">✕</button>
 </div><div class="page-body">
-<section aria-labelledby="settings-language-title" class="app-status-card language-settings-card">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Préférences locales</p><h2 data-i18n="settings.language" id="settings-language-title">Langue</h2></div></div>
-<div aria-label="Langue" class="language-choice" role="group"><button data-language="fr" data-i18n="settings.french" type="button">Français</button><button data-language="en" data-i18n="settings.english" type="button">English</button></div>
-<p aria-live="polite" class="data-backup-status" id="language-status"></p>
-</section>
 <section aria-labelledby="app-status-title" class="app-status-card" data-app-version="__VERSION__">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
-<dl class="app-status-list"><div><dt>Application</dt><dd id="about-app-status">Vérification en cours</dd></div><div><dt>Tarifs</dt><dd id="about-tariffs-status">Chargement…</dd></div><div><dt>Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-state="unknown" id="about-tariffs-freshness">Analyse…</span></dd></div></dl>
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-i18n="appStatus.badge.checking" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
+<dl class="app-status-list"><div><dt>Application</dt><dd data-i18n="appStatus.initial" id="about-app-status">Vérification en cours</dd></div><div><dt>Tarifs</dt><dd data-i18n="tariffs.status.loading" id="about-tariffs-status">Chargement…</dd></div><div><dt>Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-i18n="tariffs.freshness.unknown" data-state="unknown" id="about-tariffs-freshness">Fraîcheur inconnue</span></dd></div></dl>
 <button class="app-status-check-btn" id="about-check-update" type="button">Actualiser l’application et les tarifs</button>
 </section>
 <section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
@@ -318,10 +313,10 @@
 <p aria-live="polite" class="data-backup-status" id="about-data-status"></p>
 </section>
 <section aria-labelledby="settings-install-title" class="app-status-card" id="settings-install">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Application web</p><h2 id="settings-install-title">Ajouter à l’écran d’accueil</h2></div></div>
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="install.sectionEyebrow">Application web</p><h2 data-i18n="install.sectionTitle" id="settings-install-title">Ajouter à l’écran d’accueil</h2></div></div>
 <div class="landing-install" id="landing-install">
-<div id="install-ios"><p class="install-tip install-tip--ios"><img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/><img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/><strong class="text-strong">iOS / iPhone</strong></p><ol class="install-steps"><li>Ouvrez kWhiz dans <strong>Safari</strong>.</li><li>Appuyez sur <img alt="Partager" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong>Partager</strong>.</li><li>Choisissez <strong>Sur l’écran d’accueil</strong>, puis confirmez.</li></ol></div>
-<div id="install-android"><p class="install-tip install-tip--android"><img alt="Android" class="os-logo os-logo--dark" height="22" src="./logos/android-sombre.webp" width="22"/><img alt="Android" class="os-logo os-logo--light" height="22" src="./logos/android-clair.webp" width="22"/><strong class="text-strong">Android</strong></p><button class="install-native-btn" hidden="" id="install-native-btn" type="button">📲 Installer kWhiz</button><div id="install-android-manual"><ol class="install-steps"><li>Ouvrez kWhiz dans <strong>Chrome</strong>.</li><li>Ouvrez le menu <strong>⋮</strong>.</li><li>Choisissez <strong>Ajouter à l’écran d’accueil</strong> ou <strong>Installer l’application</strong>, puis confirmez.</li></ol></div></div>
+<div id="install-ios"><p class="install-tip install-tip--ios"><img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/><img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/><strong class="text-strong">iOS / iPhone</strong></p><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Safari</strong>.</li><li><span data-i18n="install.tap">Appuyez sur</span> <img alt="Partager" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong data-i18n="install.share">Partager</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.ios.addToHomeScreen">Sur l’écran d’accueil</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div>
+<div id="install-android"><p class="install-tip install-tip--android"><img alt="Android" class="os-logo os-logo--dark" height="22" src="./logos/android-sombre.webp" width="22"/><img alt="Android" class="os-logo os-logo--light" height="22" src="./logos/android-clair.webp" width="22"/><strong class="text-strong">Android</strong></p><button class="install-native-btn" data-i18n="install.nativeButton" hidden="" id="install-native-btn" type="button">📲 Installer kWhiz</button><div id="install-android-manual"><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Chrome</strong>.</li><li><span data-i18n="install.openMenu">Ouvrez le menu</span> <strong>⋮</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.android.addToHomeScreen">Ajouter à l’écran d’accueil</strong> <span data-i18n="install.or">ou</span> <strong data-i18n="install.installApp">Installer l’application</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div></div>
 </div>
 </section>
 </div></div></div>
@@ -530,6 +525,10 @@
 <span class="menu-drawer-icon" id="menu-theme-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4"></circle><line x1="12" x2="12" y1="2" y2="5"></line><line x1="12" x2="12" y1="19" y2="22"></line><line x1="4.22" x2="6.34" y1="4.22" y2="6.34"></line><line x1="17.66" x2="19.78" y1="17.66" y2="19.78"></line><line x1="2" x2="5" y1="12" y2="12"></line><line x1="19" x2="22" y1="12" y2="12"></line><line x1="4.22" x2="6.34" y1="19.78" y2="17.66"></line><line x1="17.66" x2="19.78" y1="6.34" y2="4.22"></line></svg></span>
 <span class="menu-drawer-copy"><strong>Apparence</strong><small id="menu-theme-label">Mode clair ou sombre</small></span>
 </button>
+<div class="menu-drawer-item menu-language-item">
+<span aria-hidden="true" class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path></svg></span>
+<div class="menu-language-content"><strong data-i18n="menu.language.title" id="menu-language-title">Langue</strong><div aria-labelledby="menu-language-title" class="menu-language-choice" role="group"><button data-i18n="menu.language.french" data-language="fr" id="menu-language-fr" type="button">Français</button><button data-i18n="menu.language.english" data-language="en" id="menu-language-en" type="button">English</button></div><p aria-live="polite" class="sr-only" id="menu-language-status"></p></div>
+</div>
 <button class="menu-drawer-item" id="menu-settings" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg></span>
 <span class="menu-drawer-copy"><strong>Données et réglages</strong><small>Actualisation, sauvegarde et installation</small></span>

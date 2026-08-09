@@ -1,6 +1,6 @@
 import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
-import { getLanguage, getLocale } from '../../i18n/i18n.js';
+import { formatDate, formatTariffsFreshness, formatTariffsVerifiedOn, getLanguage, getLocale, t } from '../../i18n/i18n.js';
 
 const COPY = {
     fr: {
@@ -53,29 +53,32 @@ const COPY = {
     }
 };
 
-export function renderTarifsDateBanner(dateText, isError, freshness = null) {
+export function renderTarifsDateBanner(updatedAt, isError, freshness = null, source = 'online') {
     const banner = document.getElementById('tarifs-update-banner');
     const text = document.getElementById('tarifs-update-text');
     if (!banner || !text) return;
     banner.classList.toggle('tariffs-update-banner--error', isError);
     banner.classList.toggle('tariffs-update-banner--stale', freshness?.state === 'stale' || freshness?.state === 'critical');
     banner.classList.add('tariffs-update-banner--visible');
+    const freshnessLabel = formatTariffsFreshness(freshness);
+    const sourceLabel = t(`tariffs.source.${source}`);
+    const verifiedLabel = t('tariffs.status.verifiedOn', { date: updatedAt ? formatDate(updatedAt) : '' });
     text.textContent = isError
-        ? '⚠️ Tarifs indisponibles — vérifiez votre connexion'
+        ? `⚠️ ${t('tariffs.status.unavailableCheckConnection')}`
         : freshness?.state === 'critical'
-            ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
+            ? `⚠️ ${freshnessLabel} — ${t('tariffs.status.verifyBeforeChoosing')}`
             : freshness?.state === 'stale'
-                ? '⚠️ ' + freshness.label
-                : 'Tarifs vérifiés le ' + dateText;
+                ? `⚠️ ${freshnessLabel}`
+                : `${verifiedLabel} · ${sourceLabel}`;
 
     const infosDate = document.getElementById('infos-tarifs-date');
     if (infosDate) infosDate.textContent = isError
-        ? 'Tarifs embarqués (hors ligne)'
+        ? t('tariffs.status.offlineEmbedded')
         : freshness?.state === 'critical'
-            ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
+            ? `⚠️ ${freshnessLabel} — ${t('tariffs.status.verifyBeforeChoosing')}`
             : freshness?.state === 'stale'
-                ? '⚠️ ' + freshness.label
-                : 'Tarifs vérifiés le ' + dateText;
+                ? `⚠️ ${freshnessLabel}`
+                : `${verifiedLabel} · ${sourceLabel}`;
 }
 
 export function rankTierClass(rate, lowest) {
@@ -237,6 +240,7 @@ export function renderComparisonTable(formulasData, {
             : '<span class="compare-logo compare-logo--fallback" aria-hidden="true"></span>';
         const note = formula.note ? `<p class="compare-note">${escapeHtml(formula.note)}</p>` : '';
         const rank = index + 1;
+        const verifiedLabel = formatTariffsVerifiedOn(formula.verifiedAt);
 
         return `<article class="compare-item${index === 0 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="${copy.viewDetails} ${escapeHtml(formula.operator)} ${escapeHtml(formula.name)}">
             <div class="compare-rank" aria-hidden="true">${rank}</div>
@@ -245,7 +249,7 @@ export function renderComparisonTable(formulasData, {
                 <div class="compare-copy">
                     <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(formula.operator)}</p>
                     <h3>${escapeHtml(formula.name)}</h3>
-                    <div class="compare-badges">${pricingBadge(formula)}${formula.verifiedAt ? `<span class="compare-verified">Vérifié le ${escapeHtml(formula.verifiedAt.split('-').reverse().join('/'))}</span>` : ''}</div>
+                    <div class="compare-badges">${pricingBadge(formula)}${verifiedLabel ? `<span class="compare-verified">${verifiedLabel}</span>` : ''}</div>
                     ${note}
                 </div>
             </div>

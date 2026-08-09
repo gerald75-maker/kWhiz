@@ -8,7 +8,10 @@ const messages = {
     'app.description': 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.',
     'manifest.description': 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.',
     'nav.recommendation': 'Mon choix', 'nav.compare': 'Comparer', 'nav.networks': 'Opérateurs', 'nav.map': 'Carte', 'nav.menu': 'Menu',
-    'settings.language': 'Langue', 'settings.french': 'Français', 'settings.english': 'English',
+    'menu.language.title': 'Langue', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Langue modifiée.',
+    'about.enjoy': '🙏 Bonne utilisation !',
+    'about.feedback': 'N’hésitez pas à faire part de vos remarques, suggestions ou compliments à',
+    'about.otherApps': 'Mes autres applications',
     'common.close': 'Fermer', 'common.loading': 'Chargement…', 'common.checking': 'Vérification…',
     'theme.light': 'Passer au mode clair', 'theme.dark': 'Passer au mode sombre',
     'period.none': 'Sans abonnement', 'period.monthly': 'Mensuel', 'period.annual': 'Annuel',
@@ -18,10 +21,25 @@ const messages = {
     'map.route.success': '{places} · {distance} · {stations} à moins de 15 km du trajet',
     'map.stationCount': '{count} station rapide', 'map.stationCounts': '{count} stations rapides',
     'map.distance': 'à {distance}',
+    'map.station.upTo': 'jusqu’à {power} kW',
+    'map.station.chargingPoint': '{count} point',
+    'map.station.chargingPoints': '{count} points',
     'date.verified': 'Tarifs vérifiés le {date}',
     'date.updated': 'mises à jour le {date}',
     'recommendation.savings': 'Vous économisez {amount} par mois',
     'recommendation.monthlyCost': '{amount} par mois',
+    'recommendation.noSubscription': 'Sans abonnement',
+    'recommendation.subscriptionMonthly': '{amount}/mois d’abonnement',
+    'operators.subscriptionMonthly': '{amount}/mois',
+    'operators.subscriptionAnnual': '{amount}/an',
+    'operators.pricing.station': 'Tarif variable selon la station',
+    'operators.pricing.range': 'Fourchette tarifaire',
+    'operators.pricing.discount': 'Remise sur le tarif public',
+    'operators.pricing.estimated': 'Prix estimé',
+    'operators.pricing.published': 'Tarif publié',
+    'operators.effectiveChargeback': 'Prix effectif avec ChargeBack',
+    'operators.officialSource': 'Source officielle',
+    'operators.chargers': 'Bornes {power}',
     'pwa.update.title': 'Mise à jour disponible',
     'pwa.update.description': 'Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant ?',
     'pwa.update.refresh': 'Actualiser',
@@ -52,19 +70,60 @@ const messages = {
     'offerDetail.history.down': 'Tarif en baisse depuis le relevé précédent',
     'offerDetail.noVariation': 'Aucune variation',
     'offerDetail.unknownDate': 'Date inconnue',
-    'offerDetail.verifiedOn': 'Vérifié le {date}',
     'offerDetail.validUntil': 'Conditions valables jusqu’au {date}',
     'offerDetail.estimateWarning': 'Le classement utilise une estimation, pas un prix garanti.',
     'offerDetail.officialSource': 'Consulter la source officielle',
     'offerDetail.operatorStations': 'Voir les bornes de l’opérateur',
-    'language.changed': 'Langue mise à jour.'
+    'tariffs.freshness.today': 'Tarifs vérifiés aujourd’hui',
+    'tariffs.freshness.recentOne': 'Tarifs récents (1 jour)',
+    'tariffs.freshness.recentMany': 'Tarifs récents ({count} jours)',
+    'tariffs.freshness.stale': 'Tarifs à vérifier ({count} jours)',
+    'tariffs.freshness.critical': 'Tarifs trop anciens ({count} jours)',
+    'tariffs.freshness.unknown': 'Fraîcheur inconnue',
+    'tariffs.source.online': 'source en ligne',
+    'tariffs.source.localCache': 'cache local',
+    'tariffs.source.offline': 'hors ligne',
+    'tariffs.status.loading': 'Chargement…',
+    'tariffs.status.unavailable': 'Indisponibles — derniers calculs conservés',
+    'tariffs.status.unavailableCheckConnection': 'Tarifs indisponibles — vérifiez votre connexion',
+    'tariffs.status.offlineEmbedded': 'Tarifs embarqués (hors ligne)',
+    'tariffs.status.verifyBeforeChoosing': 'vérifiez avant de choisir',
+    'tariffs.status.dateAndSource': '{date} · {source}',
+    'tariffs.status.verifiedOn': 'Tarifs vérifiés le {date}',
+    'tariffs.verifiedOn': 'Vérifié le {date}',
+    'appStatus.badge.current': 'À jour',
+    'appStatus.badge.offline': 'Hors ligne',
+    'appStatus.badge.error': 'Indisponible',
+    'appStatus.badge.checking': 'Vérification…',
+    'appStatus.checking': 'Recherche d’une nouvelle version…',
+    'appStatus.offline': 'Version installée utilisable hors ligne',
+    'appStatus.current': 'Dernière version disponible installée',
+    'appStatus.error': 'Vérification impossible',
+    'appStatus.ready': 'Version installée prête à être vérifiée',
+    'appStatus.initial': 'Vérification en cours',
+    'install.openIn': 'Ouvrez kWhiz dans',
+    'install.sectionEyebrow': 'Application web',
+    'install.sectionTitle': 'Ajouter à l’écran d’accueil',
+    'install.nativeButton': '📲 Installer kWhiz',
+    'install.tap': 'Appuyez sur',
+    'install.openMenu': 'Ouvrez le menu',
+    'install.choose': 'Choisissez',
+    'install.or': 'ou',
+    'install.thenConfirm': 'puis confirmez',
+    'install.share': 'Partager',
+    'install.ios.addToHomeScreen': 'Sur l’écran d’accueil',
+    'install.android.addToHomeScreen': 'Ajouter à l’écran d’accueil',
+    'install.installApp': 'Installer l’application'
   },
   en: {
     'app.title': 'kWhiz — Fast EV charging price comparison',
     'app.description': 'Compare prices and subscriptions from major fast-charging networks operating in France.',
     'manifest.description': 'Compare prices and subscriptions from major fast-charging networks operating in France.',
     'nav.recommendation': 'My recommendation', 'nav.compare': 'Compare', 'nav.networks': 'Networks', 'nav.map': 'Map', 'nav.menu': 'Menu',
-    'settings.language': 'Language', 'settings.french': 'Français', 'settings.english': 'English',
+    'menu.language.title': 'Language', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Language updated.',
+    'about.enjoy': '🙏 Enjoy using kWhiz!',
+    'about.feedback': 'Feel free to send your comments, suggestions or compliments to',
+    'about.otherApps': 'My other apps',
     'common.close': 'Close', 'common.loading': 'Loading…', 'common.checking': 'Checking…',
     'theme.light': 'Switch to light mode', 'theme.dark': 'Switch to dark mode',
     'period.none': 'No subscription', 'period.monthly': 'Monthly', 'period.annual': 'Annual',
@@ -74,10 +133,25 @@ const messages = {
     'map.route.success': '{places} · {distance} · {stations} within 15 km of the route',
     'map.stationCount': '{count} fast charger', 'map.stationCounts': '{count} fast chargers',
     'map.distance': '{distance} away',
+    'map.station.upTo': 'up to {power} kW',
+    'map.station.chargingPoint': '{count} charging point',
+    'map.station.chargingPoints': '{count} charging points',
     'date.verified': 'Prices checked on {date}',
     'date.updated': 'updated on {date}',
     'recommendation.savings': 'You save {amount} per month',
     'recommendation.monthlyCost': '{amount} per month',
+    'recommendation.noSubscription': 'No subscription',
+    'recommendation.subscriptionMonthly': '{amount}/month subscription',
+    'operators.subscriptionMonthly': '{amount}/month',
+    'operators.subscriptionAnnual': '{amount}/year',
+    'operators.pricing.station': 'Variable price depending on the station',
+    'operators.pricing.range': 'Price range',
+    'operators.pricing.discount': 'Discount on the public price',
+    'operators.pricing.estimated': 'Estimated price',
+    'operators.pricing.published': 'Published price',
+    'operators.effectiveChargeback': 'Effective price with ChargeBack',
+    'operators.officialSource': 'Official source',
+    'operators.chargers': 'Chargers {power}',
     'pwa.update.title': 'Update available',
     'pwa.update.description': 'A new version is available. Update now?',
     'pwa.update.refresh': 'Update',
@@ -108,12 +182,50 @@ const messages = {
     'offerDetail.history.down': 'Price decreased since the previous record',
     'offerDetail.noVariation': 'No change',
     'offerDetail.unknownDate': 'Unknown date',
-    'offerDetail.verifiedOn': 'Checked on {date}',
     'offerDetail.validUntil': 'Terms valid until {date}',
     'offerDetail.estimateWarning': 'The ranking uses an estimate, not a guaranteed price.',
     'offerDetail.officialSource': 'View official source',
     'offerDetail.operatorStations': 'View this network’s chargers',
-    'language.changed': 'Language updated.'
+    'tariffs.freshness.today': 'Prices checked today',
+    'tariffs.freshness.recentOne': 'Recent prices (1 day)',
+    'tariffs.freshness.recentMany': 'Recent prices ({count} days)',
+    'tariffs.freshness.stale': 'Prices need checking ({count} days)',
+    'tariffs.freshness.critical': 'Prices are too old ({count} days)',
+    'tariffs.freshness.unknown': 'Unknown freshness',
+    'tariffs.source.online': 'online source',
+    'tariffs.source.localCache': 'local cache',
+    'tariffs.source.offline': 'offline',
+    'tariffs.status.loading': 'Loading…',
+    'tariffs.status.unavailable': 'Unavailable — keeping the latest calculations',
+    'tariffs.status.unavailableCheckConnection': 'Prices unavailable — check your connection',
+    'tariffs.status.offlineEmbedded': 'Bundled prices (offline)',
+    'tariffs.status.verifyBeforeChoosing': 'check before choosing',
+    'tariffs.status.dateAndSource': '{date} · {source}',
+    'tariffs.status.verifiedOn': 'Prices checked on {date}',
+    'tariffs.verifiedOn': 'Verified on {date}',
+    'appStatus.badge.current': 'Up to date',
+    'appStatus.badge.offline': 'Offline',
+    'appStatus.badge.error': 'Unavailable',
+    'appStatus.badge.checking': 'Checking…',
+    'appStatus.checking': 'Checking for a new version…',
+    'appStatus.offline': 'Installed version available offline',
+    'appStatus.current': 'Latest available version installed',
+    'appStatus.error': 'Unable to check',
+    'appStatus.ready': 'Installed version ready to check',
+    'appStatus.initial': 'Checking',
+    'install.openIn': 'Open kWhiz in',
+    'install.sectionEyebrow': 'Web app',
+    'install.sectionTitle': 'Add to Home Screen',
+    'install.nativeButton': '📲 Install kWhiz',
+    'install.tap': 'Tap',
+    'install.openMenu': 'Open the menu',
+    'install.choose': 'Choose',
+    'install.or': 'or',
+    'install.thenConfirm': 'then confirm',
+    'install.share': 'Share',
+    'install.ios.addToHomeScreen': 'Add to Home Screen',
+    'install.android.addToHomeScreen': 'Add to Home Screen',
+    'install.installApp': 'Install app'
   }
 };
 
@@ -158,16 +270,13 @@ const phrases = {
   'kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.': 'kWhiz makes fast-charging prices easier to understand and compare.',
   'kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.': 'kWhiz is designed to compare a selection of fast-charging networks operating in France. It does not aim to cover every network or prices available in other countries.',
   'kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.': 'kWhiz is free. Your preferences and usage data remain stored locally on your device.',
-  'Bonne utilisation !': 'Enjoy using kWhiz!', 'N’hésitez pas à faire part de vos remarques, suggestions ou compliments à': 'Send feedback, suggestions or kind words to',
-  'Mes autres applications → apps.aubard.net': 'My other apps → apps.aubard.net',
   'Données et réglages': 'Data and settings', 'Actualisation, sauvegarde et installation': 'Updates, backup and installation',
   'État de l’application': 'App status', 'Vérification…': 'Checking…', 'Vérification en cours': 'Checking', 'Application': 'Application',
   'Tarifs': 'Prices', 'Chargement…': 'Loading…', 'Fraîcheur': 'Freshness', 'Analyse…': 'Checking…',
   'Actualiser l’application et les tarifs': 'Update app and prices', 'Préférences locales': 'Local preferences',
   'Exporter ou restaurer': 'Export or restore', 'Exportez vos favoris, mode d’affichage et préférences dans un fichier, puis restaurez-les sur un autre appareil.': 'Export your favourites, display mode and preferences to a file, then restore them on another device.',
-  'Exporter': 'Export', 'Restaurer': 'Restore', 'Installer kWhiz': 'Install kWhiz',
-  'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Ouvrez kWhiz dans': 'Open kWhiz in', 'Partager': 'Share', 'Sur l’écran d’accueil': 'Add to Home Screen', 'Ajouter': 'Add',
-  'Installer l’application': 'Install app', 'Installer': 'Install',
+  'Exporter': 'Export', 'Restaurer': 'Restore',
+  'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Partager': 'Share', 'Ajouter': 'Add', 'Installer': 'Install',
   'Aide et FAQ': 'Help and FAQ', 'Utiliser le comparateur et la carte': 'Using the comparison and map',
   'Bien démarrer': 'Getting started', 'Comprendre les résultats': 'Understanding results', 'Utiliser la carte': 'Using the map', 'Questions fréquentes': 'Frequently asked questions',
   'Besoin d’un véritable planificateur de recharge ?': 'Need a full EV route planner?',
@@ -183,9 +292,6 @@ const phrases = {
   'Mode hors ligne — derniers tarifs enregistrés': 'Offline — showing saved prices', 'Connexion rétablie — actualisation…': 'Back online — updating…',
   'Connexion rétablie, mais les tarifs restent indisponibles': 'Back online, but prices are still unavailable', 'Connexion rétablie — tarifs actualisés': 'Back online — prices updated',
   'Connexion rétablie, mais l’actualisation a échoué': 'Back online, but the update failed',
-  'À jour': 'Up to date', 'Hors ligne': 'Offline', 'Indisponible': 'Unavailable', 'Version installée utilisable hors ligne': 'Installed version available offline',
-  'Dernière version disponible installée': 'Latest available version installed', 'Vérification impossible': 'Unable to check', 'Version installée prête à être vérifiée': 'Installed version ready to check',
-  'Tarifs indisponibles — vérifiez votre connexion': 'Prices unavailable — check your connection', 'Tarifs embarqués (hors ligne)': 'Saved prices (offline)',
   'Aucune formule ne correspond à cette recherche.': 'No plan matches this search.', 'Aucune formule disponible.': 'No plans available.',
   'Chargement des tarifs…': 'Loading prices…', 'Indiquez votre kilométrage mensuel pour obtenir une recommandation.': 'Enter your monthly mileage to get a recommendation.',
   'Ajouter aux favoris': 'Add to favourites', 'Retirer des favoris': 'Remove from favourites', 'Partager': 'Share',
@@ -201,10 +307,7 @@ const phrases = {
   'La position actuelle sera utilisée comme départ.': 'Your current location will be used as the start.', 'La localisation n’est pas disponible sur cet appareil.': 'Location is unavailable on this device.',
   'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.': 'Location was denied or is unavailable. Check your browser location settings.',
   'Itinéraire': 'Directions', 'Afficher sur la carte': 'Show on map', 'libre': 'available', 'occupé': 'in use', 'hors service': 'out of service', 'statut inconnu': 'status unknown',
-  'Application web': 'Web app', 'Ajouter à l’écran d’accueil': 'Add to Home Screen',
-  'Ouvrez kWhiz dans Safari.': 'Open kWhiz in Safari.', 'Appuyez sur Partager.': 'Tap Share.', 'Choisissez Sur l’écran d’accueil, puis confirmez.': 'Choose Add to Home Screen, then confirm.',
-  'Ouvrez kWhiz dans Chrome.': 'Open kWhiz in Chrome.', 'Ouvrez le menu ⋮.': 'Open the ⋮ menu.', 'Choisissez Ajouter à l’écran d’accueil ou Installer l’application, puis confirmez.': 'Choose Add to Home Screen or Install app, then confirm.'
-  ,'Comment obtenir une recommandation personnalisée ?': 'How do I get a personalised recommendation?'
+  'Comment obtenir une recommandation personnalisée ?': 'How do I get a personalised recommendation?'
   ,'Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.': 'Set your vehicle efficiency, monthly mileage and fast-charging share. “My recommendation” then shows the lowest-cost plans for that profile.'
   ,'Que signifie la part de recharge rapide ?': 'What does the fast-charging share mean?'
   ,'Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.': 'It is the share of your energy charged at fast chargers. The rest is estimated at the home-charging price.'
@@ -284,6 +387,29 @@ export function getLocale() { return LANGUAGES[currentLanguage]; }
 export function t(key, params = {}) {
   const template = messages[currentLanguage][key] ?? messages.fr[key] ?? key;
   return template.replace(/\{(\w+)\}/g, (_, name) => params[name] ?? `{${name}}`);
+}
+
+export function formatTariffsFreshness({ state = 'unknown', ageDays = null } = {}) {
+  if (state === 'fresh' && ageDays === 0) return t('tariffs.freshness.today');
+  if (state === 'fresh' && ageDays === 1) return t('tariffs.freshness.recentOne');
+  if (state === 'fresh') return t('tariffs.freshness.recentMany', { count: formatNumber(ageDays) });
+  if (state === 'stale') return t('tariffs.freshness.stale', { count: formatNumber(ageDays) });
+  if (state === 'critical') return t('tariffs.freshness.critical', { count: formatNumber(ageDays) });
+  return t('tariffs.freshness.unknown');
+}
+
+export function formatTariffsStatusLine(updatedAt, source = 'online') {
+  return t('tariffs.status.dateAndSource', {
+    date: formatDate(updatedAt),
+    source: t(`tariffs.source.${source}`)
+  });
+}
+
+export function formatTariffsVerifiedOn(value) {
+  if (!value) return '';
+  const date = value instanceof Date ? value : new Date(`${value}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  return t('tariffs.verifiedOn', { date: formatDate(date) });
 }
 
 export function formatNumber(value, options) { return new Intl.NumberFormat(getLocale(), options).format(value); }
@@ -395,6 +521,7 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW.': 'Price for Stations-e DC chargers up to 50 kW.'
   ,'Tarif standard dépendant du point de charge et du moyen de paiement.': 'Standard price depending on the charger and payment method.'
   ,'0,29 €/kWh chez Atlante. ChargeBack à 50 %.': '€0.29/kWh at Atlante. 50% ChargeBack.'
+  ,'Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.': 'Earn Green Gems with every charge and convert them into credit for your next sessions at Atlante or Powerdot.'
   ,'Abonnement à 5,99 €/mois jusqu’au 31 août 2026.': '€5.99/month subscription until 31 August 2026.'
   ,'1 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': '1% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'
   ,'Sans engagement. 3 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': 'No commitment. 3% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'

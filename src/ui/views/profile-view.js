@@ -3,6 +3,7 @@ import { escapeHtml, formatNumber } from '../../shared/dom.js';
 import { rankTierClass } from './comparison-view.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
+import { formatCurrency, t } from '../../i18n/i18n.js';
 
 function renderOperatorLogo(logos, opKey, imageClass, frameClass) {
     const src = logos?.[opKey];
@@ -176,7 +177,17 @@ function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate
 }
 
 
-function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite) {
+export function recommendationSubscriptionLabel(formula) {
+    if (!(formula.monthlyCost > 0)) return t('recommendation.noSubscription');
+    return t('recommendation.subscriptionMonthly', {
+        amount: formatCurrency(formula.monthlyCost, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })
+    });
+}
+
+export function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite) {
     const list = document.getElementById('profile-shortlist-list');
     if (!list) return;
 
@@ -195,9 +206,7 @@ function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite)
             'profile-shortlist-logo',
             'profile-shortlist-logo-frame'
         );
-        const meta = formula.monthlyCost > 0
-            ? `${formatNumber(formula.monthlyCost, 2)} €/mois d’abonnement`
-            : 'Sans abonnement';
+        const meta = recommendationSubscriptionLabel(formula);
 
         return `
             <article class="profile-shortlist-item${index === 0 ? ' profile-shortlist-item--best' : ''}">
