@@ -25,6 +25,38 @@ const messages = {
     'pwa.update.title': 'Mise à jour disponible',
     'pwa.update.description': 'Une nouvelle version est disponible. Voulez-vous mettre à jour maintenant ?',
     'pwa.update.refresh': 'Actualiser',
+    'offerDetail.title': 'Détail de l’offre',
+    'offerDetail.closeLabel': 'Fermer',
+    'offerDetail.network': 'Réseau : {power}',
+    'offerDetail.energyPrice': 'Prix de l’énergie',
+    'offerDetail.subscription': 'Abonnement',
+    'offerDetail.noSubscription': 'Sans abonnement',
+    'offerDetail.monthlySubscription': '{amount}/mois',
+    'offerDetail.annualSubscription': '{amount}/an, soit {monthlyAmount}/mois',
+    'offerDetail.estimatedCost': 'Coût estimé',
+    'offerDetail.costPer100km': '{amount}/100 km',
+    'offerDetail.breakEven': 'Seuil de rentabilité',
+    'offerDetail.noBreakEven': 'Sans seuil',
+    'offerDetail.notProfitable': 'Non rentable',
+    'offerDetail.breakEvenValue': '{distance} km/mois',
+    'offerDetail.fixedPrice': 'Tarif fixe',
+    'offerDetail.variablePrice': 'Tarif variable',
+    'offerDetail.priceRange': 'Plage tarifaire',
+    'offerDetail.discount': 'Remise officielle',
+    'offerDetail.discountRange': 'Remise de {discount} · {range}',
+    'offerDetail.variableEstimate': 'Tarif variable · estimation {rate}',
+    'offerDetail.history.title': 'Historique tarifaire',
+    'offerDetail.history.unknown': 'Pas encore d’historique',
+    'offerDetail.history.stable': 'Tarif stable depuis le relevé précédent',
+    'offerDetail.history.up': 'Tarif en hausse depuis le relevé précédent',
+    'offerDetail.history.down': 'Tarif en baisse depuis le relevé précédent',
+    'offerDetail.noVariation': 'Aucune variation',
+    'offerDetail.unknownDate': 'Date inconnue',
+    'offerDetail.verifiedOn': 'Vérifié le {date}',
+    'offerDetail.validUntil': 'Conditions valables jusqu’au {date}',
+    'offerDetail.estimateWarning': 'Le classement utilise une estimation, pas un prix garanti.',
+    'offerDetail.officialSource': 'Consulter la source officielle',
+    'offerDetail.operatorStations': 'Voir les bornes de l’opérateur',
     'language.changed': 'Langue mise à jour.'
   },
   en: {
@@ -49,6 +81,38 @@ const messages = {
     'pwa.update.title': 'Update available',
     'pwa.update.description': 'A new version is available. Update now?',
     'pwa.update.refresh': 'Update',
+    'offerDetail.title': 'Plan details',
+    'offerDetail.closeLabel': 'Close',
+    'offerDetail.network': 'Network: {power}',
+    'offerDetail.energyPrice': 'Energy price',
+    'offerDetail.subscription': 'Subscription',
+    'offerDetail.noSubscription': 'No subscription',
+    'offerDetail.monthlySubscription': '{amount}/month',
+    'offerDetail.annualSubscription': '{amount}/year, equivalent to {monthlyAmount}/month',
+    'offerDetail.estimatedCost': 'Estimated cost',
+    'offerDetail.costPer100km': '{amount}/100 km',
+    'offerDetail.breakEven': 'Break-even point',
+    'offerDetail.noBreakEven': 'No break-even point',
+    'offerDetail.notProfitable': 'Not cost-effective',
+    'offerDetail.breakEvenValue': '{distance} km/month',
+    'offerDetail.fixedPrice': 'Fixed price',
+    'offerDetail.variablePrice': 'Variable price',
+    'offerDetail.priceRange': 'Price range',
+    'offerDetail.discount': 'Official discount',
+    'offerDetail.discountRange': '{discount} discount · {range}',
+    'offerDetail.variableEstimate': 'Variable price · estimated {rate}',
+    'offerDetail.history.title': 'Price history',
+    'offerDetail.history.unknown': 'No price history yet',
+    'offerDetail.history.stable': 'Price unchanged since the previous record',
+    'offerDetail.history.up': 'Price increased since the previous record',
+    'offerDetail.history.down': 'Price decreased since the previous record',
+    'offerDetail.noVariation': 'No change',
+    'offerDetail.unknownDate': 'Unknown date',
+    'offerDetail.verifiedOn': 'Checked on {date}',
+    'offerDetail.validUntil': 'Terms valid until {date}',
+    'offerDetail.estimateWarning': 'The ranking uses an estimate, not a guaranteed price.',
+    'offerDetail.officialSource': 'View official source',
+    'offerDetail.operatorStations': 'View this network’s chargers',
     'language.changed': 'Language updated.'
   }
 };
@@ -109,7 +173,7 @@ const phrases = {
   'Besoin d’un véritable planificateur de recharge ?': 'Need a full EV route planner?',
   'Tarifs et sources': 'Prices and sources', 'Méthode, vérification et limites': 'Method, checks and limitations',
   'Formule de calcul': 'Calculation formula', 'Notes importantes': 'Important notes', 'Astuce multi-réseaux': 'Multi-network tip', 'Sources :': 'Sources:',
-  'Détail de l’offre': 'Plan details', 'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
+  'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
   'Application ou navigateur': 'App or browser', 'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.': 'The navigation app opens if installed; otherwise the service opens in your browser.',
   'Mon choix': 'My recommendation', 'Mon choix personnalisé': 'My recommendation', 'Carte': 'Map', 'Carte des bornes': 'Charger map',
   'Comparateur de recharge rapide': 'Fast-charging comparison', 'Menu kWhiz': 'kWhiz menu', 'Comprendre': 'Learn',
@@ -245,13 +309,14 @@ function translateNode(root) {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const node of nodes) {
-    if (node.parentElement?.closest('script, style, code')) continue;
+    if (node.parentElement?.closest('script, style, code, [data-i18n-skip]')) continue;
     if (!originalNodes.has(node)) originalNodes.set(node, node.nodeValue);
     const original = originalNodes.get(node);
     node.nodeValue = currentLanguage === 'fr' ? original : translateText(original);
   }
   const elements = root.nodeType === Node.ELEMENT_NODE ? [root, ...root.querySelectorAll('*')] : [...root.querySelectorAll('*')];
   for (const element of elements) {
+    if (element.closest?.('[data-i18n-skip]')) continue;
     if (!originalAttrs.has(element)) originalAttrs.set(element, {});
     const saved = originalAttrs.get(element);
     for (const attr of ['aria-label', 'title', 'placeholder', 'alt']) {

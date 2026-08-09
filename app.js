@@ -10,6 +10,7 @@ import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeT
 import { openComparisonRecommendation, renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
 import { renderProfileView } from './src/ui/views/profile-view.js';
 import { renderOperatorsViews } from './src/ui/views/operators-view.js';
+import { renderOfferDetail } from './src/ui/views/offer-detail-view.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // kWhiz — app.js
@@ -52,7 +53,7 @@ import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
-import { initI18n, getLanguage, getLocale, setLanguage, t, onLanguageChange, formatDate, formatNumber, localizeTariffText } from './src/i18n/i18n.js';
+import { initI18n, getLanguage, setLanguage, t, onLanguageChange, formatDate } from './src/i18n/i18n.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -81,6 +82,7 @@ let tariffHistory = (() => {
     catch (_) { return []; }
 })();
 let appInitialized = false;
+let currentFormulaDetail = null;
 
 function setApplicationStatus(state, message) {
     const badge = document.getElementById('about-app-status-badge');
@@ -192,101 +194,22 @@ async function loadTarifs() {
 
 
 
-function formatVerifiedDate(value) {
-    if (!value) return 'Date inconnue';
-    const date = new Date(`${value}T12:00:00`);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat(getLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-}
-
-function formulaPricingLabel(formula) {
-    if (formula.pricingType === 'range' || formula.pricingType === 'discount') {
-        const range = `${formula.rateMin.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}–${formula.rateMax.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/kWh`;
-        return formula.pricingType === 'discount' && Number.isFinite(formula.discountPerKwh)
-            ? `Remise de ${formula.discountPerKwh.toLocaleString(getLocale(), { minimumFractionDigits: 2 })} €/kWh · ${range}`
-            : range;
-    }
-    if (formula.pricingType === 'station') return `Tarif variable · estimation ${formula.rate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
-    return `${formula.rate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`;
-}
-
-function displayFormulaName(value) {
-    return String(value || '').replace(/\s*[—–]\s*/g, ' – ');
-}
-
-function formulaTypeLabel(formula) {
-    if (formula.pricingType === 'discount') return 'Remise officielle';
-    if (formula.pricingType === 'range') return 'Plage tarifaire';
-    if (formula.pricingType === 'station') return 'Tarif variable';
-    return 'Tarif fixe';
-}
-
-function detailIcon(type) {
-    const icons = {
-        energy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>',
-        subscription: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 10h18M16 15h2"/></svg>',
-        cost: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2m2 0h2m2 0h2M8 15h2m2 0h2m2 0h2M8 19h2m2 0h2m2 0h2"/></svg>',
-        threshold: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7"/><path d="m3 8 5-5 5 5 7-7"/></svg>'
-    };
-    return icons[type] || '';
-}
-
-function openFormulaDetail(formula, trigger) {
+function renderCurrentFormulaDetail() {
+    if (!currentFormulaDetail) return false;
     const body = document.getElementById('formula-detail-body');
     const title = document.getElementById('formula-detail-title');
-    if (!body || !title || !formula) return;
+    const { formula } = currentFormulaDetail;
     const logo = LOGOS[formula.opKey]
         ? `<img src="${LOGOS[formula.opKey]}" class="formula-detail-logo" alt="">`
         : '';
-    const subscription = formula.cost > 0
-        ? `${formula.cost.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/${formula.period === 'monthly' ? (getLanguage() === 'en' ? 'month' : 'mois') : (getLanguage() === 'en' ? 'year' : 'an')}`
-        : 'Sans abonnement';
     const historyEntries = getFormulaHistory(tariffHistory, `${formula.opKey}::${formula.name}`);
     const evolution = describeTariffChange(historyEntries);
-    const rateDelta = evolution.deltaRate
-        ? `${evolution.deltaRate > 0 ? '+' : ''}${evolution.deltaRate.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh`
-        : 'Aucune variation';
-    const historyRows = historyEntries.slice(-4).reverse().map(entry => {
-        const date = entry.updatedAt || entry.capturedAt;
-        const parsedDate = date ? new Date(date) : null;
-        const dateLabel = parsedDate && !Number.isNaN(parsedDate.getTime())
-            ? new Intl.DateTimeFormat(getLocale(), { day: '2-digit', month: 'short', year: 'numeric' }).format(parsedDate)
-            : (entry.updatedAt || 'Date inconnue');
-        return `<li><time>${dateLabel}</time><strong>${Number(entry.rate).toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 3 })} €/kWh</strong></li>`;
-    }).join('');
-    title.textContent = `${formula.operator} - ${displayFormulaName(formula.name)}`;
-    const verifiedBadge = formula.verifiedAt ? `<span class="detail-badge detail-badge--verified">Vérifié le ${formatVerifiedDate(formula.verifiedAt)}</span>` : '';
-    const chargebackBadge = formula.chargebackRate !== null ? '<span class="detail-badge detail-badge--chargeback">ChargeBack</span>' : '';
-    body.innerHTML = `
-        <header class="formula-detail-header">
-            ${logo}
-            <div class="formula-detail-heading">
-                <p class="formula-detail-operator">${formula.operator}</p>
-                <p class="formula-detail-name">${displayFormulaName(formula.name)}</p>
-                <div class="formula-detail-badges"><span class="detail-badge detail-badge--type">${formulaTypeLabel(formula)}</span>${verifiedBadge}${chargebackBadge}</div>
-            </div>
-        </header>
-        ${formula.badge ? `<p class="formula-detail-power">Réseau : ${formula.badge}</p>` : ''}
-        <dl class="formula-detail-grid">
-            <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>Prix de l’énergie</dt><dd>${formulaPricingLabel(formula)}</dd></span></div>
-            <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>Abonnement</dt><dd>${subscription}</dd></span></div>
-            <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>Coût estimé</dt><dd>${formula.costPer100km.toLocaleString(getLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/100 km</dd></span></div>
-            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>Seuil de rentabilité</dt><dd>${formula.km === 0 ? 'Sans seuil' : formula.km === Infinity ? 'Non rentable' : `${Math.round(formula.km).toLocaleString(getLocale())} km/${getLanguage() === 'en' ? 'month' : 'mois'}`}</dd></span></div>
-        </dl>
-        <section class="formula-history" data-state="${evolution.state}">
-            <div class="formula-history-heading"><h3>Historique tarifaire</h3><span>${rateDelta}</span></div>
-            <p>${evolution.label}</p>
-            ${historyRows ? `<ul>${historyRows}</ul>` : ''}
-        </section>
-        <section class="formula-source">
-            <p><strong>${formulaTypeLabel(formula)}</strong></p>
-            <p>Vérifié le ${formatVerifiedDate(formula.verifiedAt)}</p>
-            ${formula.validUntil ? `<p>Conditions valables jusqu’au ${formatVerifiedDate(formula.validUntil)}</p>` : ''}
-            ${formula.calculationBasis !== 'official' ? '<p>Le classement utilise une estimation, pas un prix garanti.</p>' : ''}
-            ${formula.sourceUrl ? `<a href="${formula.sourceUrl}" target="_blank" rel="noopener noreferrer">Consulter la source officielle <span aria-hidden="true">↗</span></a>` : ''}
-        </section>
-        ${formula.note ? `<p class="formula-detail-note">${formula.note}</p>` : ''}
-        ${formula.mapUrl ? `<a class="formula-detail-link" href="${formula.mapUrl}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⌖</span> Voir les bornes de l’opérateur <span aria-hidden="true">›</span></a>` : ''}`;
+    return renderOfferDetail({ body, title, formula, logo, historyEntries, evolution });
+}
+
+function openFormulaDetail(formula, trigger) {
+    currentFormulaDetail = { formula };
+    if (!renderCurrentFormulaDetail()) return;
     openModal('formula-detail-overlay', trigger);
 }
 
@@ -487,6 +410,9 @@ function initApp() {
     onLanguageChange(() => {
         updateLanguageButtons();
         applyTheme(document.body.classList.contains('light') ? 'light' : 'dark');
+        if (document.getElementById('formula-detail-overlay')?.getAttribute('aria-hidden') === 'false') {
+            renderCurrentFormulaDetail();
+        }
         updateCalculations();
         applyInstallOsDetection();
     });
