@@ -15,5 +15,5 @@ test('toutes les versions visibles utilisent la variable de build', () => {
 });
 
 test('la version du package est celle de la livraison', () => {
-    assert.equal(packageJson.version, '2.24.1');
+    assert.equal(packageJson.version, '2.24.2');
 });
