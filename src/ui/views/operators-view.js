@@ -1,7 +1,7 @@
 import { PERIOD, getAtlanteGemsRate, atlanteSteadyStateRate, chargebackBreakeven, calculateBreakeven } from '../../domain/pricing.js';
-import { escapeHtml, safeUrl, formatNumber } from '../../shared/dom.js';
+import { escapeHtml, safeUrl } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
-import { formatCurrency, formatTariffsVerifiedOn, getLocale, localizeCommercialLabel, localizeNetworkDescription, localizeTariffText, t } from '../../i18n/i18n.js';
+import { formatCurrency, formatNumber, formatTariffsVerifiedOn, getLocale, localizeCommercialLabel, localizeNetworkDescription, localizeTariffText, t } from '../../i18n/i18n.js';
 
 function uiIcon(name, className = '') {
     const paths = {
@@ -14,10 +14,10 @@ function uiIcon(name, className = '') {
     return `<svg class="ui-icon ${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[name] || ''}</svg>`;
 }
 
-function buildMapLink(opKey, mapUrl, suffix) {
+function buildMapLink(operatorName, mapUrl) {
     const url = safeUrl(mapUrl);
     if (!url) return '';
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="map-link" title="Ouvrir la carte des bornes" aria-label="Ouvrir la carte des bornes ${escapeHtml(opKey)}">
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="map-link" title="${t('operators.openMap')}" aria-label="${escapeHtml(t('operators.openMapFor', { operator: localizeCommercialLabel(operatorName) }))}">
         ${uiIcon('map')}
     </a>`;
 }
@@ -25,10 +25,10 @@ function buildMapLink(opKey, mapUrl, suffix) {
 function buildInfoBtns(operator) {
     let html = '';
     if (operator.iziviaInfo) {
-        html += `<button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours Izivia">${uiIcon('info')}</button>`;
+        html += `<button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="${t('operators.happyHoursScheduleForIzivia')}">${uiIcon('info')}</button>`;
     }
     if (operator.ionityRewards) {
-        html += `<button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus de kWh gratuits IONITY">${uiIcon('info')}</button>`;
+        html += `<button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="${t('operators.ionityRewardsLabel')}">${uiIcon('info')}</button>`;
     }
     return html;
 }
@@ -42,13 +42,13 @@ function buildLoyaltyBadge(operator, detailed) {
 function buildIziviaBadge(operator, detailed) {
     if (!operator.iziviaInfo) return '';
     const cls = detailed ? 'izivia-badge izivia-badge--detailed' : 'izivia-badge';
-    return `<div class="${cls}">${uiIcon('clock', 'benefit-icon')}<strong>Happy Hours</strong><span class="benefit-copy">0,30 €/kWh (9 h–11 h 30 et 15 h–18 h) — 0,35 €/kWh en dehors de ces plages</span><button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="Horaires Happy Hours">${uiIcon('info')}</button></div>`;
+    return `<div class="${cls}">${uiIcon('clock', 'benefit-icon')}<strong>Happy Hours</strong><span class="benefit-copy">${t('operators.happyHoursDescription', { offPeak: formatOperatorCurrency(0.30), standard: formatOperatorCurrency(0.35) })}</span><button class="cb-info-btn cb-info-btn--izivia" data-modal="izivia" aria-label="${t('operators.happyHoursSchedule')}">${uiIcon('info')}</button></div>`;
 }
 
 function buildIonityRewardsBadge(operator, detailed) {
     if (!operator.ionityRewards) return '';
     const cls = detailed ? 'ionity-badge ionity-badge--detailed' : 'ionity-badge';
-    return `<div class="${cls}">${uiIcon('gift', 'benefit-icon')}<strong>Rewards</strong><span class="benefit-copy">Jusqu’à 5 kWh offerts en débranchant avant 85 % (9 h–17 h) ou en rechargeant la nuit (22 h–6 h)</span><button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="Bonus de kWh gratuits IONITY">${uiIcon('info')}</button></div>`;
+    return `<div class="${cls}">${uiIcon('gift', 'benefit-icon')}<strong>Rewards</strong><span class="benefit-copy">${t('operators.ionityRewardsDescription')}</span><button class="cb-info-btn cb-info-btn--ionity" data-modal="ionity-rewards" aria-label="${t('operators.ionityRewardsLabel')}">${uiIcon('info')}</button></div>`;
 }
 
 function formatOperatorCurrency(value, digits = 2) {
@@ -61,6 +61,22 @@ export function formatOperatorSubscription(formula) {
         ? 'operators.subscriptionAnnual'
         : 'operators.subscriptionMonthly';
     return t(key, { amount: formatOperatorCurrency(formula.cost) });
+}
+
+export function formatOperatorThreshold(km) {
+    if (km === 0) return t('offerDetail.noSubscription');
+    if (km === Infinity || !Number.isFinite(km)) return t('offerDetail.notProfitable');
+    return t('operators.breakEvenFrom', { distance: t('offerDetail.breakEvenValue', { distance: formatNumber(km) }) });
+}
+
+export function formatOperatorPlanCost(formula) {
+    return formula.period === PERIOD.NONE ? t('offerDetail.noSubscription') : formatOperatorSubscription(formula);
+}
+
+function favoriteButton(opKey, formula, favorites) {
+    const id = formulaFavoriteId(opKey, formula.name);
+    const selected = favorites.has(id);
+    return `<button type="button" class="favorite-btn${selected ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(id)}" aria-label="${t(selected ? 'favorites.remove' : 'favorites.add')}" aria-pressed="${selected}">★</button>`;
 }
 
 export function buildFormulaMeta(formula, detailed = false) {
@@ -100,9 +116,9 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
 
         let formulasHtml = `
             <div class="formula-compact-header-row">
-                <span class="formula-compact-name">Formule</span>
+                <span class="formula-compact-name">${t('operators.plan')}</span>
                 <span class="formula-compact-rate formula-compact-rate--unit">€/kWh</span>
-                <span class="formula-compact-threshold">Rentabilité</span>
+                <span class="formula-compact-threshold">${t('operators.breakEven')}</span>
             </div>`;
         const cbConfig  = operator.loyalty?.chargebackConfig || null;
         const gemsRate  = operator.loyalty?.chargebackInfo && cbConfig
@@ -110,19 +126,15 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
 
         for (const formula of operator.formulas) {
             const result = calculateBreakeven(formula, consumption);
-            const thresholdDisplay = result.km === 0 ? '—'
-                : result.km === Infinity ? 'Non rentable'
-                : `≥${formatNumber(result.km)} km`;
+            const thresholdDisplay = formatOperatorThreshold(result.km);
 
             if (isChargebackEligible(operator, formula, gemsRate)) {
                 const cbRate      = atlanteSteadyStateRate(formula.rate, gemsRate);
                 const cbKm        = chargebackBreakeven(formula, consumption, gemsRate);
-                const cbThreshold = cbKm === 0 ? '—'
-                    : cbKm === Infinity ? 'Non rentable'
-                    : `≥${formatNumber(cbKm)} km`;
+                const cbThreshold = formatOperatorThreshold(cbKm);
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-name">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))} <span class="formula-sub">${escapeHtml(formatOperatorPlanCost(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
                         <span class="formula-compact-rate ${escapeHtml(operator.color)} cb-struck">${escapeHtml(formatOperatorCurrency(formula.rate))}</span>
                         <span class="formula-compact-threshold cb-struck">${thresholdDisplay}</span>
                     </div>
@@ -134,7 +146,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
             } else {
                 formulasHtml += `
                     <div class="formula-compact">
-                        <span class="formula-compact-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.cost > 0 ? ` <span class="formula-sub">${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>` : ''}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
+                        <span class="formula-compact-name">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))} <span class="formula-sub">${escapeHtml(formatOperatorPlanCost(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
                         <span class="formula-compact-rate ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</span>
                         <span class="formula-compact-threshold">${thresholdDisplay}</span>
                     </div>`;
@@ -150,7 +162,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
                 </span>
                 <div class="operator-card-heading">
                     ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: localizeNetworkDescription(operator.badge) }))}</span>` : ''}
-                    ${buildMapLink(opKey, operator.mapUrl, 'C')}
+                    ${buildMapLink(operator.name, operator.mapUrl)}
                 </div>
             </div>
             <div class="operator-compact-formulas">${formulasHtml}</div>
@@ -191,21 +203,16 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
         let rowsHtml = '';
         for (const formula of operator.formulas) {
             const result = calculateBreakeven(formula, consumption);
-            const costDisplay = formula.period === PERIOD.NONE ? '—'
-                : `${escapeHtml(formatOperatorSubscription(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}`;
-            const thresholdDisplay = result.km === 0 ? '—'
-                : result.km === Infinity ? 'Non rentable'
-                : `${formatNumber(result.km)} km/mois`;
+            const costDisplay = `${escapeHtml(formatOperatorPlanCost(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}`;
+            const thresholdDisplay = formatOperatorThreshold(result.km);
 
             if (isChargebackEligible(operator, formula, gemsRateD)) {
                 const cbRate      = atlanteSteadyStateRate(formula.rate, gemsRateD);
                 const cbKm        = chargebackBreakeven(formula, consumption, gemsRateD);
-                const cbThreshold = cbKm === 0 ? '—'
-                    : cbKm === Infinity ? 'Non rentable'
-                    : `${formatNumber(cbKm)} km/mois`;
+                const cbThreshold = formatOperatorThreshold(cbKm);
                 rowsHtml += `
                     <tr class="cb-struck-row">
-                        <td class="formula-name" rowspan="2"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
+                        <td class="formula-name" rowspan="2">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost" rowspan="2">${costDisplay}</td>
                         <td class="formula-kwh ${escapeHtml(operator.color)} cb-struck">${escapeHtml(formatOperatorCurrency(formula.rate))}</td>
                         <td class="result-km cb-struck">${thresholdDisplay}</td>
@@ -217,7 +224,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
             } else {
                 rowsHtml += `
                     <tr>
-                        <td class="formula-name"><button type="button" class="favorite-btn${favorites.has(formulaFavoriteId(opKey, formula.name)) ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(opKey, formula.name))}" aria-label="${favorites.has(formulaFavoriteId(opKey, formula.name)) ? 'Retirer des favoris' : 'Ajouter aux favoris'}" aria-pressed="${favorites.has(formulaFavoriteId(opKey, formula.name))}">★</button>${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
+                        <td class="formula-name">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost">${costDisplay}</td>
                         <td class="formula-kwh ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</td>
                         <td class="result-km">${thresholdDisplay}</td>
@@ -234,12 +241,12 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
                 </span>
                 <div class="header-right">
                     ${operator.badge ? `<span class="operator-badge">${escapeHtml(t('operators.chargers', { power: localizeNetworkDescription(operator.badge) }))}</span>` : ''}
-                    ${buildMapLink(opKey, operator.mapUrl, 'D')}
+                    ${buildMapLink(operator.name, operator.mapUrl)}
                 </div>
             </div>
             <table class="tarif-table">
                 <thead><tr>
-                    <th>Formule</th><th>Coût</th><th>€/kWh</th><th>Rentabilité</th>
+                    <th>${t('operators.plan')}</th><th>${t('operators.cost')}</th><th>€/kWh</th><th>${t('operators.breakEven')}</th>
                 </tr></thead>
                 <tbody>${rowsHtml}</tbody>
             </table>
@@ -270,7 +277,9 @@ export function renderOperatorsViews({ operators, consumption, logos, onModal, f
     if (count) {
         const operatorCount = Object.keys(operators).length;
         const formulaCount = Object.values(operators).reduce((total, operator) => total + operator.formulas.length, 0);
-        count.innerHTML = `<strong>${operatorCount}</strong><span>opérateurs</span><strong>${formulaCount}</strong><span>formules</span>`;
+        const networkLabel = t(operatorCount === 1 ? 'count.network' : 'count.networks', { count: '' }).trim();
+        const planLabel = t(formulaCount === 1 ? 'count.plan' : 'count.plans', { count: '' }).trim();
+        count.innerHTML = `<strong>${formatNumber(operatorCount)}</strong><span>${networkLabel}</span><strong>${formatNumber(formulaCount)}</strong><span>${planLabel}</span>`;
     }
     renderOperatorsCompact(operators, consumption, logos, onModal, favorites, onToggleFavorite);
     renderOperatorsDetailed(operators, consumption, logos, onModal, favorites, onToggleFavorite);
