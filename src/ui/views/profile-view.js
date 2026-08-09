@@ -35,6 +35,7 @@ export function profileShareStatusLabel(result) {
     if (result === 'copied') return t('share.copied');
     if (result === 'shared') return t('share.shared');
     if (result === 'unavailable') return t('share.unavailable');
+    if (result === 'copyFailed') return t('share.copyFailed');
     return '';
 }
 

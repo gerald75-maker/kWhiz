@@ -1,8 +1,12 @@
+import { onLanguageChange, t } from '../i18n/i18n.js';
+
 const DEFAULTS = {
     threshold: 72,
     maxPull: 118,
     resistance: 0.48
 };
+
+export function refreshStatusLabel(state) { return t(`refresh.${state}`); }
 
 /**
  * Active le geste « tirer pour rafraîchir » sur les écrans tactiles.
@@ -26,22 +30,17 @@ export function initPullToRefresh({ onRefresh, ...options } = {}) {
     let readyFeedbackSent = false;
     let resetTimer = null;
 
-    const labels = {
-        idle: 'Tirez pour actualiser',
-        pulling: 'Tirez pour actualiser',
-        ready: 'Relâchez pour actualiser',
-        refreshing: 'Actualisation…',
-        checking: 'Recherche d’une nouvelle version…',
-        updating: 'Mise à jour de kWhiz…',
-        appUpdated: 'kWhiz a été mis à jour',
-        success: 'Tarifs actualisés',
-        error: 'Actualisation impossible'
+    let currentState = 'idle';
+
+    const renderLabel = () => {
+        if (label) label.textContent = refreshStatusLabel(currentState);
     };
 
     const setState = (state, distance = 0) => {
+        currentState = state;
         indicator.dataset.state = state;
         indicator.style.setProperty('--pull-distance', `${Math.round(distance)}px`);
-        if (label) label.textContent = labels[state] || labels.idle;
+        renderLabel();
         if (icon) icon.setAttribute('aria-hidden', 'true');
     };
 
@@ -132,13 +131,16 @@ export function initPullToRefresh({ onRefresh, ...options } = {}) {
     document.addEventListener('touchmove', handleMove, { passive: false });
     document.addEventListener('touchend', handleEnd, { passive: true });
     document.addEventListener('touchcancel', reset, { passive: true });
+    const stopLanguageListener = onLanguageChange(renderLabel);
 
     return {
         destroy() {
+            if (resetTimer) window.clearTimeout(resetTimer);
             document.removeEventListener('touchstart', handleStart);
             document.removeEventListener('touchmove', handleMove);
             document.removeEventListener('touchend', handleEnd);
             document.removeEventListener('touchcancel', reset);
+            stopLanguageListener();
         }
     };
 }
