@@ -303,14 +303,13 @@
 <button class="app-status-check-btn" id="about-check-update" type="button">Actualiser l’application et les tarifs</button>
 </section>
 <section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Préférences locales</p><h2 id="data-backup-title">Exporter ou restaurer</h2></div></div>
-<p class="about-desc about-desc--sm">Exportez vos favoris, mode d’affichage et préférences dans un fichier, puis restaurez-les sur un autre appareil.</p>
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Préférences locales</p><h2 data-i18n="backup.title" id="data-backup-title">Sauvegarde et restauration</h2></div></div>
 <div class="data-backup-actions">
-<button class="app-status-check-btn" id="about-export-data" type="button">Exporter</button>
-<button class="app-status-check-btn" id="about-import-data" type="button">Restaurer</button>
+<div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.saveButton" id="about-export-data" type="button">Sauvegarder mes réglages</button><p data-i18n="backup.saveHelp">Télécharge un fichier contenant vos préférences et vos favoris.</p></div>
+<div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.restoreButton" id="about-import-data" type="button">Restaurer mes réglages</button><p data-i18n="backup.restoreHelp">Sélectionnez une sauvegarde kWhiz précédemment téléchargée.</p></div>
 <input accept="application/json,.json" hidden="" id="about-import-data-file" type="file"/>
 </div>
-<p aria-live="polite" class="data-backup-status" id="about-data-status"></p>
+<p aria-live="polite" class="data-backup-status" data-state="idle" id="about-data-status" role="status"></p>
 </section>
 <section aria-labelledby="settings-install-title" class="app-status-card" id="settings-install">
 <div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="install.sectionEyebrow">Application web</p><h2 data-i18n="install.sectionTitle" id="settings-install-title">Ajouter à l’écran d’accueil</h2></div></div>

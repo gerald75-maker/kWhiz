@@ -70,7 +70,13 @@ function downloadJson(filename, value) {
     URL.revokeObjectURL(url);
 }
 
-export function initDataBackup({ storageKeys }) {
+export function initDataBackup({
+    storageKeys,
+    storage = localStorage,
+    download = downloadJson,
+    schedule = window.setTimeout.bind(window),
+    reload = () => window.location.reload()
+}) {
     const keys = [
         storageKeys.landingSeen,
         storageKeys.fastPercentage,
@@ -87,42 +93,85 @@ export function initDataBackup({ storageKeys }) {
         const { key, count } = currentStatus;
         status.textContent = backupStatusLabel(key, count);
     };
-    const setStatus = (key, params = {}) => {
+    const setStatus = (key, params = {}, state = 'success') => {
         currentStatus = { key, ...params };
+        if (status) {
+            status.dataset.state = state;
+            status.setAttribute('role', state === 'error' ? 'alert' : 'status');
+            status.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+        }
         renderStatus();
     };
 
     const exportButton = document.getElementById('about-export-data');
     const importButton = document.getElementById('about-import-data');
+    let exporting = false;
+    let importing = false;
+
     const handleExport = () => {
-        const now = new Date();
-        const backup = createUserDataBackup(localStorage, keys, now);
-        const date = now.toISOString().slice(0, 10);
-        downloadJson(`kwhiz-backup-${date}.json`, backup);
-        setStatus('backup.downloaded');
+        if (exporting) return;
+        exporting = true;
+        if (exportButton) exportButton.disabled = true;
+        try {
+            const now = new Date();
+            const backup = createUserDataBackup(storage, keys, now);
+            const date = now.toISOString().slice(0, 10);
+            download(`kwhiz-backup-${date}.json`, backup);
+            setStatus('backup.downloaded');
+        } catch {
+            setStatus('backup.saveFailed', {}, 'error');
+        } finally {
+            schedule(() => {
+                exporting = false;
+                if (exportButton) exportButton.disabled = false;
+            }, 0);
+        }
     };
 
-    const handleImportClick = () => input?.click();
+    const finishImport = () => {
+        importing = false;
+        if (importButton) importButton.disabled = false;
+    };
+
+    const handlePickerReturn = () => schedule(() => {
+        if (!input?.files?.length) finishImport();
+    }, 100);
+
+    const handleImportClick = () => {
+        if (importing || !input) return;
+        importing = true;
+        if (importButton) importButton.disabled = true;
+        input.value = '';
+        input.click();
+        window.addEventListener('focus', handlePickerReturn, { once: true });
+    };
 
     const handleImport = async () => {
+        window.removeEventListener('focus', handlePickerReturn);
         const [file] = input.files || [];
-        if (!file) return;
+        if (!file) {
+            finishImport();
+            return;
+        }
         let backup;
         try {
             backup = JSON.parse(await file.text());
         } catch {
-            setStatus('backup.importFailed');
+            setStatus('backup.importFailed', {}, 'error');
             input.value = '';
+            finishImport();
             return;
         }
         try {
-            const restored = restoreUserDataBackup(localStorage, backup, keys);
+            const restored = restoreUserDataBackup(storage, backup, keys);
             setStatus(restored === 1 ? 'backup.restoredOne' : 'backup.restoredMany', { count: restored });
-            window.setTimeout(() => window.location.reload(), 500);
+            schedule(reload, 1600);
         } catch (error) {
             const knownKeys = new Set(['backup.invalid', 'backup.unsupportedFormat', 'backup.missingData']);
-            setStatus(knownKeys.has(error?.message) ? error.message : 'backup.restoreFailed');
+            setStatus(knownKeys.has(error?.message) ? error.message : 'backup.restoreFailed', {}, 'error');
+        } finally {
             input.value = '';
+            finishImport();
         }
     };
 
@@ -136,6 +185,7 @@ export function initDataBackup({ storageKeys }) {
             exportButton?.removeEventListener('click', handleExport);
             importButton?.removeEventListener('click', handleImportClick);
             input?.removeEventListener('change', handleImport);
+            window.removeEventListener('focus', handlePickerReturn);
             stopLanguageListener();
         }
     };
