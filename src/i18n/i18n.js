@@ -854,27 +854,8 @@ const messages = {
 };
 
 const phrases = {
-  'Comparer': 'Compare',
-  'Opérateur': 'Network', 'Opérateurs': 'Networks',
-  'Me localiser': 'Find me', 'Stations sur mon trajet': 'Chargers along my route',
-  'Départ': 'Start', 'Arrivée': 'Destination', 'Ville, adresse ou code postal en France': 'Town, address or postcode in France',
-  'Ville, adresse ou code postal en France pour le départ': 'Town, address or postcode in France for the start',
-  'Ville, adresse ou code postal en France pour l’arrivée': 'Town, address or postcode in France for the destination',
-  'Ma position': 'My location', 'Afficher les stations': 'Show chargers', 'Effacer le trajet': 'Clear route',
-  'Tous': 'All', 'Aucun': 'None',
-  'Stations proches du centre de la carte': 'Chargers near the centre of the map',
-  'km/mois': 'km/month',
-  'Vérification…': 'Checking…', 'Vérification en cours': 'Checking',
-  'Chargement…': 'Loading…',
-  'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Ajouter': 'Add', 'Installer': 'Install',
-  'Ouvrir l’itinéraire': 'Open directions',
-  'Application ou navigateur': 'App or browser', 'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.': 'The navigation app opens if installed; otherwise the service opens in your browser.',
-  'Mon choix': 'My recommendation', 'Carte': 'Map',
-  'Ajouter aux favoris': 'Add to favourites', 'Retirer des favoris': 'Remove from favourites',
-  'Sans seuil': 'No break-even point', 'Non rentable': 'Not cost-effective', 'Rentabilité': 'Break-even', 'Abonnement': 'Subscription',
-  'Recharge rapide': 'Fast charging',
-  'Service d’itinéraire indisponible. Réessayez dans quelques instants.': 'Route service unavailable. Try again shortly.', 'Recentrer': 'Re-centre',
-  'Itinéraire': 'Directions',
+  'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Abonnement': 'Subscription', 'Recharge rapide': 'Fast charging',
+  'Service d’itinéraire indisponible. Réessayez dans quelques instants.': 'Route service unavailable. Try again shortly.',
 };
 
 let currentLanguage = 'fr';

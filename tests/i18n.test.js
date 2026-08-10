@@ -84,7 +84,7 @@ test('retire exactement le premier groupe de phrases legacy sans perdre les clé
     'Afficher sur la carte', 'libre', 'occupé', 'hors service', 'statut inconnu'
   ];
   for (const phrase of removed) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
-  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 39);
+  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 5);
 
   setLanguage('fr', { persist: false, translate: false });
   for (const key of [
@@ -92,6 +92,41 @@ test('retire exactement le premier groupe de phrases legacy sans perdre les clé
     'map.location.loading', 'map.location.notFound', 'map.location.usedAsStart',
     'map.station.showOnMap', 'map.status.available', 'map.status.outOfService',
     'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'tariffs.verifiedOn'
+  ]) assert.notEqual(t(key), key, key);
+});
+
+test('retire les 34 entrées couvertes par les clés structurées et conserve les cinq valeurs prévues', async () => {
+  const source = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
+  const legacy = source.slice(source.indexOf('const phrases = {'), source.indexOf('\n};', source.indexOf('const phrases = {')));
+  const removed = [
+    'Comparer', 'Opérateur', 'Opérateurs', 'Me localiser', 'Stations sur mon trajet', 'Départ', 'Arrivée',
+    'Ville, adresse ou code postal en France', 'Ville, adresse ou code postal en France pour le départ',
+    'Ville, adresse ou code postal en France pour l’arrivée', 'Ma position', 'Afficher les stations',
+    'Effacer le trajet', 'Tous', 'Aucun', 'Stations proches du centre de la carte', 'km/mois',
+    'Vérification…', 'Vérification en cours', 'Chargement…', 'Ajouter', 'Installer',
+    'Ouvrir l’itinéraire', 'Application ou navigateur',
+    'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.',
+    'Mon choix', 'Carte', 'Ajouter aux favoris', 'Retirer des favoris', 'Sans seuil', 'Non rentable',
+    'Rentabilité', 'Recentrer', 'Itinéraire'
+  ];
+  for (const phrase of removed) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
+  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 5);
+  for (const [phrase, translation] of [
+    ['iOS / iPhone', 'iOS / iPhone'], ['Android', 'Android'], ['Abonnement', 'Subscription'],
+    ['Recharge rapide', 'Fast charging'],
+    ['Service d’itinéraire indisponible. Réessayez dans quelques instants.', 'Route service unavailable. Try again shortly.']
+  ]) assert.match(legacy, new RegExp(`'${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'\\s*:\\s*'${translation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`));
+
+  for (const key of [
+    'navigation.profile', 'navigation.compare', 'navigation.operators', 'navigation.map',
+    'map.route.start', 'map.route.destination', 'map.route.addressPlaceholder',
+    'map.route.startInputLabel', 'map.route.destinationInputLabel', 'map.route.myLocation',
+    'map.route.showChargers', 'map.route.clear', 'map.filters.all', 'map.filters.none',
+    'map.list.nearby', 'map.location.locate', 'map.location.recenter', 'map.gps.openDirections',
+    'map.gps.appOrBrowser', 'map.gps.note', 'comparison.controls.monthlyMileageUnit',
+    'appStatus.badge.checking', 'appStatus.initial', 'tariffs.status.loading', 'install.nativeButton',
+    'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'map.station.directions',
+    'favorites.add', 'favorites.remove'
   ]) assert.notEqual(t(key), key, key);
 });
 
