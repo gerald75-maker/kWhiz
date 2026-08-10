@@ -47,7 +47,7 @@ import { initModalManager, openModal } from './src/ui/modal-manager.js';
 import { initNavigation } from './src/ui/navigation.js';
 import { initConsumptionController } from './src/ui/controllers/consumption-controller.js';
 import { initProfileControls } from './src/ui/controllers/profile-controls.js';
-import { renderAtlanteChargebackInfo } from './src/ui/views/atlante-view.js';
+import { renderAtlanteChargebackInfo, renderAtlanteChargebackState } from './src/ui/views/atlante-view.js';
 import { initPullToRefresh } from './src/ui/pull-to-refresh.js';
 import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
@@ -225,7 +225,7 @@ function openFormulaDetail(formula, trigger) {
 
 // ── 3. Calcul et orchestration des vues ────────────────────────────────
 
-function updateCalculations() {
+function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     const consumption = consumptionController?.getConsumption() ?? 0.18;
     allFormulasData = [];
     for (const [opKey, operator] of Object.entries(OPERATORS)) {
@@ -309,7 +309,7 @@ function updateCalculations() {
         renderProfile();
     }
     // UI ChargeBack Atlante — générée depuis tarifs.json (source unique)
-    renderAtlanteChargebackInfo(OPERATORS);
+    if (recomputeAtlanteChargeback) renderAtlanteChargebackInfo(OPERATORS);
 }
 
 
@@ -417,7 +417,8 @@ function initApp() {
         if (document.getElementById('formula-detail-overlay')?.getAttribute('aria-hidden') === 'false') {
             renderCurrentFormulaDetail();
         }
-        updateCalculations();
+        updateCalculations({ recomputeAtlanteChargeback: false });
+        renderAtlanteChargebackState();
         stationsMap?.refreshLanguage();
         applyInstallOsDetection();
     });

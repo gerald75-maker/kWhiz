@@ -63,6 +63,12 @@ export function initStationsMap() {
   let locationButtonState = 'locate';
   let currentLocationIsRouteStart = false;
   let routeChoiceUsesFallback = false;
+  let loadFailed = false;
+
+  function renderLoadError() {
+    count.textContent = t('map.error.unavailableTitle');
+    list.innerHTML = `<p class="map-empty">${t('map.error.loadFailed')}</p>`;
+  }
 
   function setRouteStatus(key = null, params = {}, state = '') {
     routeUiState = { key, params, state };
@@ -85,7 +91,8 @@ export function initStationsMap() {
     const labels = {
       locate: 'map.location.locate', recenter: 'map.location.recenter', loading: 'map.location.loading',
       denied: 'map.location.denied', unavailable: 'map.location.unavailable',
-      timeout: 'map.location.timeout', notFound: 'map.location.notFound'
+      timeout: 'map.location.timeout', notFound: 'map.location.notFound',
+      mapUnavailable: 'map.error.unavailableTitle'
     };
     const key = labels[locationButtonState] || labels.locate;
     button.innerHTML = locationButtonState === 'locate' || locationButtonState === 'recenter'
@@ -453,8 +460,8 @@ export function initStationsMap() {
       });
       renderStations();
     } catch (error) {
-      count.textContent = 'Carte indisponible';
-      list.innerHTML = '<p class="map-empty">Les stations n’ont pas pu être chargées. Réessayez lorsque la connexion est disponible.</p>';
+      loadFailed = true;
+      renderLoadError();
       console.warn('[kWhiz] Chargement des stations impossible', error);
     }
   }
@@ -464,7 +471,8 @@ export function initStationsMap() {
     if (!map) {
       const button = document.getElementById('map-locate');
       button.disabled = false;
-      button.textContent = 'Carte indisponible';
+      locationButtonState = 'mapUnavailable';
+      renderLocationButton();
       return;
     }
     locateUser();
@@ -527,7 +535,8 @@ export function initStationsMap() {
       locationMarker?.setPopupContent?.(t('map.location.yourPosition'));
       if (locationPopupWasOpen) locationMarker.openPopup();
       renderRouteChoice();
-      if (stations.length) renderStations();
+      if (loadFailed) renderLoadError();
+      else if (stations.length) renderStations();
     },
     activate() {
       load().then(() => {
