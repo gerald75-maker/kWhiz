@@ -28,7 +28,7 @@
 </div>
 <div aria-atomic="true" aria-live="polite" class="network-status" data-state="online" id="network-status" role="status">
 <span aria-hidden="true" class="network-status__dot"></span>
-<span class="network-status__label">Connexion active</span>
+<span class="network-status__label" data-i18n="network.online">Connexion active</span>
 </div>
 <div class="container">
 <h1 class="app-title" id="app-title"><svg class="app-title__icon" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="icbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#icbg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg>kWhiz</h1>
@@ -150,7 +150,7 @@
 <div class="tab-content" id="tab-map">
 <header class="map-page-heading">
 <div><p class="profile-page-kicker" data-i18n="map.heading.kicker">Bornes rapides en France</p><h2 data-i18n="map.heading.title">Carte des stations</h2><p data-i18n="map.heading.intro">Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
-<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
+<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
 <details class="route-planner" id="route-planner">
 <summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true" class="route-planner-chevron">⌄</span></summary>
@@ -294,16 +294,16 @@
 <!-- Page : Données et réglages -->
 <div aria-hidden="true" class="page-overlay aux-drawer" id="page-settings">
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-settings-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-settings-title">Données et réglages</span>
-<button aria-label="Fermer" class="page-close" id="close-settings" type="button">✕</button>
+<span class="page-title" data-i18n="settings.title" id="page-settings-title">Données et réglages</span>
+<button aria-label="Fermer" data-i18n-aria-label="settings.closeLabel" class="page-close" id="close-settings" type="button">✕</button>
 </div><div class="page-body">
 <section aria-labelledby="app-status-title" class="app-status-card" data-app-version="__VERSION__">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-i18n="appStatus.badge.checking" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
-<dl class="app-status-list"><div><dt>Application</dt><dd data-i18n="appStatus.initial" id="about-app-status">Vérification en cours</dd></div><div><dt>Tarifs</dt><dd data-i18n="tariffs.status.loading" id="about-tariffs-status">Chargement…</dd></div><div><dt>Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-i18n="tariffs.freshness.unknown" data-state="unknown" id="about-tariffs-freshness">Fraîcheur inconnue</span></dd></div></dl>
-<button class="app-status-check-btn" id="about-check-update" type="button">Actualiser l’application et les tarifs</button>
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="appStatus.title">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-i18n="appStatus.badge.checking" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
+<dl class="app-status-list"><div><dt data-i18n="appStatus.application">Application</dt><dd data-i18n="appStatus.initial" id="about-app-status">Vérification en cours</dd></div><div><dt data-i18n="appStatus.tariffs">Tarifs</dt><dd data-i18n="tariffs.status.loading" id="about-tariffs-status">Chargement…</dd></div><div><dt data-i18n="appStatus.freshness">Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-i18n="tariffs.freshness.unknown" data-state="unknown" id="about-tariffs-freshness">Fraîcheur inconnue</span></dd></div></dl>
+<button class="app-status-check-btn" data-i18n="settings.refreshButton" id="about-check-update" type="button">Actualiser l’application et les tarifs</button>
 </section>
 <section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
-<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow">Préférences locales</p><h2 data-i18n="backup.title" id="data-backup-title">Sauvegarde et restauration</h2></div></div>
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="settings.localPreferences">Préférences locales</p><h2 data-i18n="backup.title" id="data-backup-title">Sauvegarde et restauration</h2></div></div>
 <div class="data-backup-actions">
 <div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.saveButton" id="about-export-data" type="button">Sauvegarder mes réglages</button><p data-i18n="backup.saveHelp">Télécharge un fichier contenant vos préférences et vos favoris.</p></div>
 <div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.restoreButton" id="about-import-data" type="button">Restaurer mes réglages</button><p data-i18n="backup.restoreHelp">Sélectionnez une sauvegarde kWhiz précédemment téléchargée.</p></div>
@@ -314,7 +314,7 @@
 <section aria-labelledby="settings-install-title" class="app-status-card" id="settings-install">
 <div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="install.sectionEyebrow">Application web</p><h2 data-i18n="install.sectionTitle" id="settings-install-title">Ajouter à l’écran d’accueil</h2></div></div>
 <div class="landing-install" id="landing-install">
-<div id="install-ios"><p class="install-tip install-tip--ios"><img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/><img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/><strong class="text-strong">iOS / iPhone</strong></p><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Safari</strong>.</li><li><span data-i18n="install.tap">Appuyez sur</span> <img alt="Partager" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong data-i18n="install.share">Partager</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.ios.addToHomeScreen">Sur l’écran d’accueil</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div>
+<div id="install-ios"><p class="install-tip install-tip--ios"><img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/><img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/><strong class="text-strong">iOS / iPhone</strong></p><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Safari</strong>.</li><li><span data-i18n="install.tap">Appuyez sur</span> <img alt="" aria-label="Partager" data-i18n-aria-label="install.share" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong data-i18n="install.share">Partager</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.ios.addToHomeScreen">Sur l’écran d’accueil</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div>
 <div id="install-android"><p class="install-tip install-tip--android"><img alt="Android" class="os-logo os-logo--dark" height="22" src="./logos/android-sombre.webp" width="22"/><img alt="Android" class="os-logo os-logo--light" height="22" src="./logos/android-clair.webp" width="22"/><strong class="text-strong">Android</strong></p><button class="install-native-btn" data-i18n="install.nativeButton" hidden="" id="install-native-btn" type="button">📲 Installer kWhiz</button><div id="install-android-manual"><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Chrome</strong>.</li><li><span data-i18n="install.openMenu">Ouvrez le menu</span> <strong>⋮</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.android.addToHomeScreen">Ajouter à l’écran d’accueil</strong> <span data-i18n="install.or">ou</span> <strong data-i18n="install.installApp">Installer l’application</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div></div>
 </div>
 </section>

@@ -53,6 +53,22 @@ test('la carte d’état dispose de messages anglais complets', () => {
     assert.equal(t('appStatus.badge.current'), 'Up to date');
 });
 
+test('les textes statiques des réglages, du réseau et du chargement de la carte utilisent des clés structurées', async () => {
+    const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    assert.match(html, /class="network-status__label" data-i18n="network\.online"/);
+    assert.match(html, /class="map-station-count" data-i18n="map\.status\.loading"/);
+    for (const key of ['settings.title', 'settings.closeLabel', 'settings.refreshButton', 'settings.localPreferences', 'appStatus.title', 'appStatus.application', 'appStatus.tariffs', 'appStatus.freshness']) {
+        assert.match(html, new RegExp(`(?:data-i18n|data-i18n-aria-label)="${key.replaceAll('.', '\\.')}`));
+    }
+    assert.match(html, /alt=""[^>]*data-i18n-aria-label="install\.share"/);
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(t('network.online'), 'Online');
+    assert.equal(t('map.status.loading'), 'Loading chargers…');
+    assert.equal(t('settings.title'), 'Data and settings');
+    assert.equal(t('settings.refreshButton'), 'Update app and prices');
+    assert.equal(t('appStatus.freshness'), 'Freshness');
+});
+
 test('les instructions iOS et Android reposent sur des fragments stables sans perdre marques ni icônes', async () => {
     const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
     const ios = html.match(/<div id="install-ios">([\s\S]*?)<\/div>/)?.[1] || '';
