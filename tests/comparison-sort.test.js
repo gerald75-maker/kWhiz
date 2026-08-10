@@ -231,9 +231,9 @@ test('les textes FR et EN expliquent le classement mensuel', async () => {
         readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
     ]);
     assert.match(html, /Indiquez votre kilométrage mensuel\. kWhiz estime le coût de chaque formule, abonnement compris/);
-    assert.match(html, /Modifier mon profil/);
+    assert.match(html, /data-i18n="comparison\.controls\.editProfile"[^>]*>Modifier mon profil/);
     assert.match(i18n, /Enter your monthly mileage\. kWhiz estimates each plan’s cost, including the subscription/);
-    assert.match(i18n, /'Modifier mon profil': 'Edit my profile'/);
+    assert.match(i18n, /'comparison\.controls\.editProfile': 'Edit my profile'/);
     assert.match(view, /Estimated cost/);
     assert.match(view, /Subscription does not break even/);
 });

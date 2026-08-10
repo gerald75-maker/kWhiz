@@ -32,7 +32,7 @@
 </div>
 <div class="container">
 <h1 class="app-title" id="app-title"><svg class="app-title__icon" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="icbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#icbg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg>kWhiz</h1>
-<p class="subtitle">L’offre la moins chère selon votre usage</p>
+<p class="subtitle" data-i18n="app.subtitle">L’offre la moins chère selon votre usage</p>
 <!-- Modale Izivia Fast horaires -->
 <div aria-hidden="true" aria-labelledby="izivia-title" aria-modal="true" class="help-overlay" id="izivia-overlay" role="dialog" tabindex="-1">
 <div class="help-modal cb-modal">
@@ -74,7 +74,7 @@
 <!-- Slider consommation sticky -->
 <div class="params-card">
 <div class="conso-slider-wrap">
-<label class="conso-slider-label">Consommation du véhicule</label>
+<label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
 <div class="conso-slider-track-wrap">
 <div class="conso-slider-track">
 <div class="conso-slider-fill" id="conso-slider-fill"></div>
@@ -82,18 +82,18 @@
 <span id="consumption-value">18</span>
 </div>
 </div>
-<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
+<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" data-i18n-aria-label="consumption.inputLabel" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
 </div>
 <div class="conso-slider-bounds">
-<span>10 kWh/100 km</span>
-<span>30 kWh/100 km</span>
+<span data-i18n="consumption.minimum">10 kWh/100 km</span>
+<span data-i18n="consumption.maximum">30 kWh/100 km</span>
 </div>
 </div>
 <div class="vehicles" id="vehicles">
-<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-val="13" role="button" tabindex="0"><span class="vehicle-name">Citadine</span></div>
-<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-val="18" role="button" tabindex="0"><span class="vehicle-name">Berline</span></div>
-<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-val="20" role="button" tabindex="0"><span class="vehicle-name">SUV</span></div>
-<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-val="24" role="button" tabindex="0"><span class="vehicle-name">Van</span></div>
+<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.cityCarLabel" data-val="13" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.cityCar">Citadine</span></div>
+<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-i18n-aria-label="vehicle.saloonLabel" data-val="18" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.saloon">Berline</span></div>
+<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.suvLabel" data-val="20" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.suv">SUV</span></div>
+<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.vanLabel" data-val="24" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.van">Van</span></div>
 </div>
 </div>
 </div><!-- /sticky-top -->
@@ -102,20 +102,20 @@
 <section aria-labelledby="compare-title" class="compare-view">
 <header class="compare-heading">
 <div>
-<p class="compare-kicker">Recharge rapide DC</p>
-<h2 id="compare-title">Comparer les offres</h2>
-<p>Indiquez votre kilométrage mensuel. kWhiz estime le coût de chaque formule, abonnement compris, selon votre véhicule et votre part de recharge rapide.</p>
+<p class="compare-kicker" data-i18n="comparison.heading.kicker">Recharge rapide DC</p>
+<h2 data-i18n="comparison.heading.title" id="compare-title">Comparer les offres</h2>
+<p data-i18n="comparison.heading.intro">Indiquez votre kilométrage mensuel. kWhiz estime le coût de chaque formule, abonnement compris, selon votre véhicule et votre part de recharge rapide.</p>
 </div>
 <label class="compare-search">
-<span class="sr-only">Rechercher une offre ou un opérateur</span>
-<input autocomplete="off" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
+<span class="sr-only" data-i18n="comparison.search.label">Rechercher une offre ou un opérateur</span>
+<input autocomplete="off" data-i18n-placeholder="comparison.search.placeholder" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
 </label>
 </header>
 <div class="compare-toolbar">
-<label class="compare-km" for="compare-km"><span>Kilométrage mensuel</span>
-<span class="compare-km-input"><input id="compare-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/><span>km/mois</span></span>
+<label class="compare-km" for="compare-km"><span data-i18n="comparison.controls.monthlyMileage">Kilométrage mensuel</span>
+<span class="compare-km-input"><input id="compare-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/><span data-i18n="comparison.controls.monthlyMileageUnit">km/mois</span></span>
 </label>
-<button class="compare-profile-link" id="compare-profile-link" type="button">Modifier mon profil</button>
+<button class="compare-profile-link" data-i18n="comparison.controls.editProfile" id="compare-profile-link" type="button">Modifier mon profil</button>
 </div>
 <p aria-live="polite" class="compare-summary" id="compare-summary"></p>
 <p aria-live="polite" class="compare-count" id="compare-count"></p>
@@ -126,14 +126,14 @@
 <div class="tab-content" id="tab-operators">
 <header class="operators-page-heading">
 <div>
-<p class="operators-page-kicker">Réseaux de recharge rapide</p>
-<h2>Opérateurs et formules</h2>
-<p>Consultez les prix publiés, les abonnements et leur seuil de rentabilité.</p>
+<p class="operators-page-kicker" data-i18n="operators.heading.kicker">Réseaux de recharge rapide</p>
+<h2 data-i18n="operators.heading.title">Opérateurs et formules</h2>
+<p data-i18n="operators.heading.intro">Consultez les prix publiés, les abonnements et leur seuil de rentabilité.</p>
 </div>
 <div aria-live="polite" class="operators-page-count" id="operators-page-count"></div>
 </header>
 <div class="view-toggle">
-<label for="view-mode">Afficher le détail des prix</label>
+<label data-i18n="operators.viewMode.details" for="view-mode">Afficher le détail des prix</label>
 <label class="toggle-switch">
 <input id="view-mode" type="checkbox"/>
 <span class="toggle-slider"></span>
@@ -149,7 +149,7 @@
 <!-- Mon choix — vue principale -->
 <div class="tab-content" id="tab-map">
 <header class="map-page-heading">
-<div><p class="profile-page-kicker">Bornes rapides en France</p><h2>Carte des stations</h2><p>Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
+<div><p class="profile-page-kicker" data-i18n="map.heading.kicker">Bornes rapides en France</p><h2 data-i18n="map.heading.title">Carte des stations</h2><p data-i18n="map.heading.intro">Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
 <div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
 <details class="route-planner" id="route-planner">
@@ -162,60 +162,60 @@
 </form>
 </details>
 <section class="map-filter-card" aria-labelledby="map-filter-title">
-<div class="map-filter-heading"><h3 id="map-filter-title">Opérateurs</h3><div><button id="map-select-all" type="button">Tous</button><button id="map-select-none" type="button">Aucun</button></div></div>
+<div class="map-filter-heading"><h3 data-i18n="map.filters.title" id="map-filter-title">Opérateurs</h3><div><button data-i18n="map.filters.all" id="map-select-all" type="button">Tous</button><button data-i18n="map.filters.none" id="map-select-none" type="button">Aucun</button></div></div>
 <div class="map-operator-filters" id="map-operator-filters"></div>
 </section>
-<div class="stations-map" id="stations-map" aria-label="Carte des stations de recharge rapide"></div>
+<div aria-label="Carte des stations de recharge rapide" class="stations-map" data-i18n-aria-label="map.canvasLabel" id="stations-map"></div>
 <section class="map-nearby"><h3 id="map-list-title" data-i18n="map.list.nearby">Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
-<p class="map-source">Données : Base nationale IRVE, mises à jour le <span id="map-data-date">6 août 2026</span>. La présence d’une station ne garantit pas sa disponibilité en temps réel.</p>
+<p class="map-source"><span data-i18n="map.source.prefix">Données : Base nationale IRVE, mises à jour le</span> <span id="map-data-date">6 août 2026</span>. <span data-i18n="map.source.notice">La présence d’une station ne garantit pas sa disponibilité en temps réel.</span></p>
 </div>
 <!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">
 <header class="profile-page-heading">
-<p class="profile-page-kicker">Estimation personnalisée</p>
-<h2>Votre recharge rapide, au juste prix</h2>
-<p>Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.</p>
+<p class="profile-page-kicker" data-i18n="profile.heading.kicker">Estimation personnalisée</p>
+<h2 data-i18n="profile.heading.title">Votre recharge rapide, au juste prix</h2>
+<p data-i18n="profile.heading.intro">Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.</p>
 </header>
 <!-- Profil de recharge : source unique des calculs -->
 <section aria-labelledby="profile-settings-title" class="profile-hero profile-hero--unified">
-<div class="profile-section-heading"><div><p class="profile-section-kicker">Mon profil</p><h3 class="profile-section-title" id="profile-settings-title">Mon profil de recharge</h3></div><span>Calcul instantané</span></div>
+<div class="profile-section-heading"><div><p class="profile-section-kicker" data-i18n="profile.controls.kicker">Mon profil</p><h3 class="profile-section-title" data-i18n="profile.controls.title" id="profile-settings-title">Mon profil de recharge</h3></div><span data-i18n="profile.controls.instant">Calcul instantané</span></div>
 <div class="profile-km-section">
-<div class="profile-km-label">Kilométrage mensuel</div>
+<div class="profile-km-label" data-i18n="profile.controls.monthlyMileage">Kilométrage mensuel</div>
 <div class="profile-km-chips" id="profile-km-chips">
 <button class="km-chip" data-val="500" type="button">500</button>
 <button class="km-chip active" data-val="1000" type="button">1 000</button>
 <button class="km-chip" data-val="1500" type="button">1 500</button>
 <button class="km-chip" data-val="2000" type="button">2 000</button>
-<button class="km-chip km-chip--other" data-val="custom" id="km-chip-other" type="button">Autre…</button>
+<button class="km-chip km-chip--other" data-i18n="profile.controls.other" data-val="custom" id="km-chip-other" type="button">Autre…</button>
 </div>
 <div class="profile-km-other-wrap" id="profile-km-other-wrap">
-<input aria-label="Kilométrage mensuel en km" class="profile-km-input" id="profile-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/>
-<span class="profile-km-unit">km/mois</span>
+<input aria-label="Kilométrage mensuel en km" class="profile-km-input" data-i18n-aria-label="profile.controls.monthlyMileageLabel" id="profile-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/>
+<span class="profile-km-unit" data-i18n="profile.controls.monthlyMileageUnit">km/mois</span>
 </div>
 </div>
 <div class="profile-fast-row">
-<span class="profile-fast-label">Part rechargée sur bornes rapides</span>
+<span class="profile-fast-label" data-i18n="profile.controls.fastShare">Part rechargée sur bornes rapides</span>
 <div class="profile-fast-stepper">
-<button aria-label="Diminuer le pourcentage" class="profile-fast-btn" id="fast-pct-minus" type="button">−</button>
+<button aria-label="Diminuer le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.decreasePercentage" id="fast-pct-minus" type="button">−</button>
 <span class="profile-fast-value" id="fast-pct-value">100 %</span>
-<button aria-label="Augmenter le pourcentage" class="profile-fast-btn" id="fast-pct-plus" type="button">+</button>
+<button aria-label="Augmenter le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.increasePercentage" id="fast-pct-plus" type="button">+</button>
 </div>
 </div>
-<p class="profile-hint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
+<p class="profile-hint" data-i18n="profile.controls.homeRateHint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
 </section>
 <!-- Recommandation principale -->
 <div class="profile-best-card profile-recommendation-card" id="profile-best-card"></div>
 <!-- Aperçu des trois meilleures formules -->
 <section aria-labelledby="profile-shortlist-title" class="profile-shortlist">
 <div class="profile-shortlist-heading">
-<div><p class="profile-section-kicker">Classement</p><h3 id="profile-shortlist-title">Les 3 meilleures offres</h3></div>
-<span>Coût mensuel estimé</span>
+<div><p class="profile-section-kicker" data-i18n="profile.ranking.kicker">Classement</p><h3 data-i18n="profile.ranking.title" id="profile-shortlist-title">Les 3 meilleures offres</h3></div>
+<span data-i18n="profile.ranking.estimatedMonthlyCost">Coût mensuel estimé</span>
 </div>
 <div class="profile-shortlist-list" id="profile-shortlist-list"></div>
 </section>
 <!-- Table de comparaison complète, volontairement secondaire -->
 <details class="profile-comparison-details">
-<summary>Voir le classement complet</summary>
+<summary data-i18n="profile.ranking.full">Voir le classement complet</summary>
 <div class="comparison-card profile-table-wrap">
 <table class="comparison-table" id="profile-table">
 <colgroup>
@@ -226,10 +226,10 @@
 </colgroup>
 <thead>
 <tr>
-<th>Opérateur</th>
-<th>Formule</th>
-<th>€/kWh</th>
-<th class="profile-col-monthly">€/mois</th>
+<th data-i18n="profile.ranking.operator">Opérateur</th>
+<th data-i18n="profile.ranking.plan">Formule</th>
+<th data-i18n="profile.ranking.rate">€/kWh</th>
+<th class="profile-col-monthly" data-i18n="profile.ranking.monthly">€/mois</th>
 </tr>
 </thead>
 <tbody id="profile-body"></tbody>
@@ -452,35 +452,35 @@
 </div>
 <!-- Bottom Navigation -->
 <nav class="bottom-nav" id="bottom-nav">
-<button aria-label="Mon choix personnalisé" class="bnav-item active" id="bnav-profile" type="button">
+<button aria-label="Mon choix personnalisé" class="bnav-item active" data-i18n-aria-label="navigation.profileLabel" id="bnav-profile" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
 </div>
-<span class="bnav-label">Mon choix</span>
+<span class="bnav-label" data-i18n="navigation.profile">Mon choix</span>
 </button>
-<button aria-label="Comparer" class="bnav-item" id="bnav-compare" type="button">
+<button aria-label="Comparer" class="bnav-item" data-i18n-aria-label="navigation.compareLabel" id="bnav-compare" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
 </div>
-<span class="bnav-label">Comparer</span>
+<span class="bnav-label" data-i18n="navigation.compare">Comparer</span>
 </button>
-<button aria-label="Opérateurs" class="bnav-item" id="bnav-operators" type="button">
+<button aria-label="Opérateurs" class="bnav-item" data-i18n-aria-label="navigation.operatorsLabel" id="bnav-operators" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
 </div>
-<span class="bnav-label">Opérateurs</span>
+<span class="bnav-label" data-i18n="navigation.operators">Opérateurs</span>
 </button>
-<button aria-label="Carte des bornes" class="bnav-item" id="bnav-map" type="button">
+<button aria-label="Carte des bornes" class="bnav-item" data-i18n-aria-label="navigation.mapLabel" id="bnav-map" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"></path><path d="M9 3v15M15 6v15"></path></svg>
 </div>
-<span class="bnav-label">Carte</span>
+<span class="bnav-label" data-i18n="navigation.map">Carte</span>
 </button>
-<button aria-expanded="false" aria-label="Menu" class="bnav-item" id="bnav-menu" type="button">
+<button aria-expanded="false" aria-label="Menu" class="bnav-item" data-i18n-aria-label="navigation.menuLabel" id="bnav-menu" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="18" y2="18"></line></svg>
 </div>
-<span class="bnav-label">Menu</span>
+<span class="bnav-label" data-i18n="navigation.menu">Menu</span>
 </button>
 </nav>
 <!-- Menu Drawer -->
