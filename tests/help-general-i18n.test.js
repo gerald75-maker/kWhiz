@@ -73,5 +73,6 @@ test('les anciennes correspondances exactes de l’aide générale ont disparu',
   ]) assert.doesNotMatch(phrases, new RegExp(oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.doesNotMatch(phrases, /Questions fréquentes/);
   assert.match(i18nSource, /'faq\.title': 'Questions fréquentes'/);
-  assert.match(phrases, /Tarifs et sources/);
+  assert.doesNotMatch(phrases, /Tarifs et sources/);
+  assert.match(i18nSource, /'tariffsInfo\.title'/);
 });

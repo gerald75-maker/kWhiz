@@ -85,6 +85,7 @@ test('les anciennes correspondances exactes de la FAQ ont disparu seules', () =>
     'Que signifie la part de recharge rapide ?', 'Mes réglages sont-ils sauvegardés ?',
     'Comment actualiser l’application et les tarifs ?'
   ]) assert.doesNotMatch(phrases, new RegExp(oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(phrases, /Tarifs et sources/);
+  assert.doesNotMatch(phrases, /Tarifs et sources/);
+  assert.match(i18nSource, /'tariffsInfo\.title'/);
   assert.match(i18nSource, /'help\.gettingStarted\.title'/);
 });

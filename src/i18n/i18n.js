@@ -372,6 +372,20 @@ const messages = {
     'tariffs.verifiedOn': 'Vérifié le {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} payé génère {credit} de crédit en Green Gems (taux de {rate}){promotion} • prix effectif estimé à {effectiveRate}/kWh en usage régulier',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion jusqu’au {date})',
+    'tariffsInfo.title': 'Tarifs et sources', 'tariffsInfo.closeLabel': 'Fermer les tarifs et sources',
+    'tariffsInfo.estimateNotice': 'Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.',
+    'tariffsInfo.calculationTitle': '📐 Formule de calcul',
+    'tariffsInfo.formulaKwh': 'kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)',
+    'tariffsInfo.formulaKm': 'km min./mois = kWh min. ÷ (consommation / 100)',
+    'tariffsInfo.notesTitle': '⚠️ Notes importantes',
+    'tariffsInfo.iechargeNote': ' : tarif fixe de 0,25 €/kWh',
+    'tariffsInfo.teslaNote': ' : super heures creuses de 0,12 à 0,17 €/kWh la nuit',
+    'tariffsInfo.electraNote': ' (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, réduit à 0,29 €/kWh pour les abonnés',
+    'tariffsInfo.lidlNote': ' : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus',
+    'tariffsInfo.iziviaNote': ' : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s',
+    'tariffsInfo.multiNetworkTipTitle': '💡 Astuce multi-réseaux',
+    'tariffsInfo.multiNetworkTipBefore': ' permet d’accéder à de nombreux réseaux partenaires. Les prix varient selon la borne et doivent être confirmés dans l’application avant la recharge.',
+    'tariffsInfo.sourcesLabel': 'Sources :',
     'appStatus.badge.current': 'À jour',
     'appStatus.badge.offline': 'Hors ligne',
     'appStatus.badge.error': 'Indisponible',
@@ -765,6 +779,20 @@ const messages = {
     'tariffs.verifiedOn': 'Verified on {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} paid earns {credit} in Green Gems credit ({rate} rate){promotion} • estimated effective price of {effectiveRate}/kWh with regular use',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion until {date})',
+    'tariffsInfo.title': 'Prices and sources', 'tariffsInfo.closeLabel': 'Close prices and sources',
+    'tariffsInfo.estimateNotice': 'Results are estimates based on published prices and displayed assumptions. They do not guarantee the price charged by the network or charger availability.',
+    'tariffsInfo.calculationTitle': '📐 Calculation formula',
+    'tariffsInfo.formulaKwh': 'Min. kWh/month = subscription cost ÷ (reference rate − subscriber rate)',
+    'tariffsInfo.formulaKm': 'Min. km/month = min. kWh ÷ (consumption / 100)',
+    'tariffsInfo.notesTitle': '⚠️ Important notes',
+    'tariffsInfo.iechargeNote': ': fixed price of €0.25/kWh',
+    'tariffsInfo.teslaNote': ': super off-peak price of €0.12 to €0.17/kWh at night',
+    'tariffsInfo.electraNote': ' (€4.99/month): dynamic price of €0.39 to €0.61/kWh in the app, reduced to €0.29/kWh for subscribers',
+    'tariffsInfo.lidlNote': ': DC fast charging at €0.39/kWh through the Lidl Plus app',
+    'tariffsInfo.iziviaNote': ': Happy Hours at €0.30/kWh from 9:00 to 11:30 and from 15:00 to 18:00 — €0.35/kWh outside these periods, at McDonald’s',
+    'tariffsInfo.multiNetworkTipTitle': '💡 Multi-network tip',
+    'tariffsInfo.multiNetworkTipBefore': ' provides access to many partner networks. Prices vary by charger and must be confirmed in the app before charging.',
+    'tariffsInfo.sourcesLabel': 'Sources:',
     'appStatus.badge.current': 'Up to date',
     'appStatus.badge.offline': 'Offline',
     'appStatus.badge.error': 'Unavailable',
@@ -809,8 +837,6 @@ const phrases = {
   'Tarifs': 'Prices', 'Chargement…': 'Loading…', 'Fraîcheur': 'Freshness', 'Analyse…': 'Checking…',
   'Actualiser l’application et les tarifs': 'Update app and prices', 'Préférences locales': 'Local preferences',
   'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Partager': 'Share', 'Ajouter': 'Add', 'Installer': 'Install',
-  'Tarifs et sources': 'Prices and sources',
-  'Formule de calcul': 'Calculation formula', 'Notes importantes': 'Important notes', 'Astuce multi-réseaux': 'Multi-network tip', 'Sources :': 'Sources:',
   'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
   'Application ou navigateur': 'App or browser', 'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.': 'The navigation app opens if installed; otherwise the service opens in your browser.',
   'Mon choix': 'My recommendation', 'Carte': 'Map',
@@ -826,11 +852,6 @@ const phrases = {
   'La position actuelle sera utilisée comme départ.': 'Your current location will be used as the start.', 'La localisation n’est pas disponible sur cet appareil.': 'Location is unavailable on this device.',
   'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.': 'Location was denied or is unavailable. Check your browser location settings.',
   'Itinéraire': 'Directions', 'Afficher sur la carte': 'Show on map', 'libre': 'available', 'occupé': 'in use', 'hors service': 'out of service', 'statut inconnu': 'status unknown',
-  'Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.': 'Results are estimates based on published prices and displayed assumptions. They do not guarantee the price charged or charger availability.'
-  ,'kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)': 'min. kWh/month = subscription cost ÷ (reference price − subscriber price)'
-  ,'km min./mois = kWh min. ÷ (consommation / 100)': 'min. km/month = min. kWh ÷ (consumption / 100)'
-  ,': tarif fixe de 0,25 €/kWh': ': fixed price of €0.25/kWh', ': super heures creuses de 0,12 à 0,17 €/kWh la nuit': ': overnight super off-peak price of €0.12–€0.17/kWh'
-  ,'permet d’accéder à de nombreux réseaux partenaires. Les prix varient selon la borne et doivent être confirmés dans l’application avant la recharge.': 'provides access to many partner networks. Prices vary by charger and must be confirmed in the app before charging.'
 };
 
 let currentLanguage = 'fr';
