@@ -56,7 +56,13 @@ test('détecte une hausse de tarif', () => {
     const entries = getFormulaHistory(history, 'electra::Smart');
     const change = describeTariffChange(entries);
     assert.equal(change.state, 'up');
+    assert.equal('label' in change, false);
     assert.ok(Math.abs(change.deltaRate - 0.03) < 1e-9);
+});
+
+test('retourne uniquement un état sémantique sans historique', () => {
+    const change = describeTariffChange([]);
+    assert.deepEqual(change, { state: 'unknown', deltaRate: 0, deltaCost: 0 });
 });
 
 test('conserve un changement réel d’abonnement', () => {

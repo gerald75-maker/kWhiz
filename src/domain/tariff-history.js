@@ -84,7 +84,7 @@ export function getFormulaHistory(history, formulaKey) {
 }
 
 export function describeTariffChange(entries) {
-    if (!Array.isArray(entries) || entries.length < 2) return { state: 'unknown', label: 'Pas encore d’historique', deltaRate: 0, deltaCost: 0 };
+    if (!Array.isArray(entries) || entries.length < 2) return { state: 'unknown', deltaRate: 0, deltaCost: 0 };
     const previous = entries.at(-2);
     const current = entries.at(-1);
     const deltaRate = (current.rate ?? 0) - (previous.rate ?? 0);
@@ -93,8 +93,5 @@ export function describeTariffChange(entries) {
     const state = Math.abs(deltaRate) < epsilon && Math.abs(deltaCost) < epsilon
         ? 'stable'
         : deltaRate > epsilon || deltaCost > epsilon ? 'up' : 'down';
-    const label = state === 'stable' ? 'Tarif stable depuis le relevé précédent'
-        : state === 'up' ? 'Tarif en hausse depuis le relevé précédent'
-        : 'Tarif en baisse depuis le relevé précédent';
-    return { state, label, deltaRate, deltaCost, previous, current };
+    return { state, deltaRate, deltaCost, previous, current };
 }
