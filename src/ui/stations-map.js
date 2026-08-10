@@ -267,7 +267,7 @@ export function initStationsMap() {
       try { payload = JSON.parse(responseText); } catch (_) { /* réponse invalide traitée ci-dessous */ }
       if (!payload) throw { uiKey: routeErrorKey({ responseValid: false }) };
       if (!response.ok || !payload.geometry?.coordinates?.length) {
-        throw { uiKey: routeErrorKey({ message: payload.error || '', start, destination: end }) };
+        throw { uiKey: routeErrorKey({ code: payload.code, responseValid: Boolean(payload) }) };
       }
       setRouteStatus('map.route.calculating', {}, 'loading');
       routeLayer?.remove();

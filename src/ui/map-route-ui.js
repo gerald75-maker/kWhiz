@@ -1,13 +1,22 @@
-export function routeErrorKey({ networkError = false, responseValid = true, message = '', start = '', destination = '' } = {}) {
-  if (networkError) return 'map.route.networkError';
-  if (!responseValid) return 'map.route.invalidResponse';
-  if (message.startsWith('Adresse introuvable')) {
-    if (start && message.includes(start)) return 'map.route.startNotFound';
-    if (destination && message.includes(destination)) return 'map.route.destinationNotFound';
-    return 'map.route.unavailable';
-  }
-  if (message.startsWith('Aucun itinéraire routier trouvé')) return 'map.route.notFound';
-  return 'map.route.unavailable';
+const ROUTE_ERROR_KEYS = {
+  ADDRESS_NOT_FOUND_START: 'map.route.startNotFound',
+  ADDRESS_NOT_FOUND_DESTINATION: 'map.route.destinationNotFound',
+  ROUTE_NOT_FOUND: 'map.route.notFound',
+  ROUTE_SERVICE_UNAVAILABLE: 'map.route.unavailable',
+  NETWORK_ERROR: 'map.route.networkError',
+  INVALID_RESPONSE: 'map.route.invalidResponse',
+  INVALID_REQUEST: 'map.route.unavailable'
+};
+
+/**
+ * Convertit exclusivement un code sémantique en clé d’interface.
+ * Les réponses d’un ancien route.php, dépourvues de code, restent traitées
+ * par le repli générique afin de rester compatibles pendant un déploiement FTP progressif.
+ */
+export function routeErrorKey({ code = '', networkError = false, responseValid = true } = {}) {
+  if (networkError) return ROUTE_ERROR_KEYS.NETWORK_ERROR;
+  if (!responseValid) return ROUTE_ERROR_KEYS.INVALID_RESPONSE;
+  return ROUTE_ERROR_KEYS[code] || ROUTE_ERROR_KEYS.ROUTE_SERVICE_UNAVAILABLE;
 }
 
 export function locationErrorKey(error = {}) {

@@ -88,14 +88,37 @@ test('localise le formulaire, les états courants, la liste et le choix GPS en F
   assert.equal(t('map.gps.openWith', { app: 'Waze' }), 'Open directions with Waze');
 });
 
-test('convertit chaque famille d’erreur d’itinéraire en clé stable', () => {
+test('convertit chaque code d’erreur d’itinéraire en clé stable', () => {
   assert.equal(routeErrorKey({ networkError: true }), 'map.route.networkError');
   assert.equal(routeErrorKey({ responseValid: false }), 'map.route.invalidResponse');
-  assert.equal(routeErrorKey({ message: 'Adresse introuvable : Paris.', start: 'Paris', destination: 'Lyon' }), 'map.route.startNotFound');
-  assert.equal(routeErrorKey({ message: 'Adresse introuvable : Lyon.', start: 'Paris', destination: 'Lyon' }), 'map.route.destinationNotFound');
-  assert.equal(routeErrorKey({ message: 'Aucun itinéraire routier trouvé. Vérifiez les lieux reconnus.' }), 'map.route.notFound');
-  assert.equal(routeErrorKey({ message: 'Le calcul d’itinéraire n’est pas encore configuré' }), 'map.route.unavailable');
-  assert.equal(routeErrorKey({ message: 'message technique inattendu' }), 'map.route.unavailable');
+  assert.equal(routeErrorKey({ code: 'ADDRESS_NOT_FOUND_START' }), 'map.route.startNotFound');
+  assert.equal(routeErrorKey({ code: 'ADDRESS_NOT_FOUND_DESTINATION' }), 'map.route.destinationNotFound');
+  assert.equal(routeErrorKey({ code: 'ROUTE_NOT_FOUND' }), 'map.route.notFound');
+  assert.equal(routeErrorKey({ code: 'ROUTE_SERVICE_UNAVAILABLE' }), 'map.route.unavailable');
+  assert.equal(routeErrorKey({ code: 'INVALID_RESPONSE' }), 'map.route.invalidResponse');
+  assert.equal(routeErrorKey({ code: 'INVALID_REQUEST' }), 'map.route.unavailable');
+  assert.equal(routeErrorKey({}), 'map.route.unavailable');
+});
+
+test('gère les réponses anciennes sans code et les erreurs réseau sans exposer leur texte', () => {
+  assert.equal(routeErrorKey({}), 'map.route.unavailable');
+  assert.equal(routeErrorKey({ networkError: true, code: 'ROUTE_NOT_FOUND' }), 'map.route.networkError');
+  assert.equal(routeErrorKey({ responseValid: false, code: 'ROUTE_NOT_FOUND' }), 'map.route.invalidResponse');
+});
+
+test('le client et le serveur font circuler des codes sémantiques', async () => {
+  const [source, routeUi, php] = await Promise.all([
+    readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/ui/map-route-ui.js', import.meta.url), 'utf8'),
+    readFile(new URL('../public/route.php', import.meta.url), 'utf8')
+  ]);
+  for (const code of ['ADDRESS_NOT_FOUND_START', 'ADDRESS_NOT_FOUND_DESTINATION', 'ROUTE_NOT_FOUND', 'ROUTE_SERVICE_UNAVAILABLE', 'INVALID_RESPONSE']) {
+    assert.match(php, new RegExp(code));
+    assert.match(routeUi, new RegExp(code));
+  }
+  assert.match(source, /routeErrorKey\(\{ code: payload\.code/);
+  assert.doesNotMatch(source, /payload\.error/);
+  assert.doesNotMatch(routeUi, /startsWith\(|Adresse introuvable|Aucun itinéraire routier trouvé/);
 });
 
 test('localise les erreurs sans exposer les messages techniques internes', () => {
