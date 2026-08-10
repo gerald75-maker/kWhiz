@@ -20,6 +20,16 @@ test('le formulaire et le choix GPS utilisent des clés structurées sans tradui
   assert.match(html, />Waze</);
 });
 
+test('seul le chevron du planificateur pivote à son ouverture', async () => {
+  const [html, css] = await Promise.all([
+    readFile(new URL('../index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../styles.css', import.meta.url), 'utf8')
+  ]);
+  assert.match(html, /<summary><span data-i18n="map\.route\.title">[^<]+<\/span> <span aria-hidden="true" class="route-planner-chevron">⌄<\/span><\/summary>/);
+  assert.match(css, /\.route-planner\[open\] \.route-planner-chevron\s*\{[^}]*transform:\s*rotate\(180deg\)/);
+  assert.doesNotMatch(css, /\.route-planner\[open\] summary span/);
+});
+
 test('le bouton de fermeture GPS reste accessible et ancré en haut à droite', async () => {
   const [html, css, app, modalManager] = await Promise.all([
     readFile(new URL('../index.html', import.meta.url), 'utf8'),

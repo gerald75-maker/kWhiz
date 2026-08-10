@@ -18,14 +18,15 @@ function fragment(start, end) {
 
 test('le panneau Menu suit les sections Comprendre, Application, puis À propos', () => {
     const menu = fragment('id="menu-drawer"', '<script src="./app.js"');
-    const ids = [...menu.matchAll(/id="(menu-(?:help|infos|theme|settings|about))"/g)]
+    const ids = [...menu.matchAll(/id="(menu-(?:help|landing|infos|theme|settings|about))"/g)]
         .map(match => match[1]);
     assert.deepEqual(ids, [
-        'menu-help', 'menu-infos',
+        'menu-help', 'menu-landing', 'menu-infos',
         'menu-theme', 'menu-settings',
         'menu-about'
     ]);
-    assert.doesNotMatch(menu, /menu-landing|Revoir l’introduction/);
+    assert.match(menu, /id="menu-landing"/);
+    assert.match(navigation, /on\('menu-landing', 'click', \(\) => \{ closeDrawer\(\); onShowLanding\?\.\(\); \}\)/);
 });
 
 test('les données, la sauvegarde et l’installation partagent une page utile', () => {
@@ -52,9 +53,10 @@ test('les planificateurs ont quitté le menu et sont résumés dans l’aide', (
 test('l’introduction simplifiée ouvre Aide et FAQ depuis son lien secondaire', () => {
     const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
     assert.match(landing, /Trouvez l’offre de recharge rapide adaptée à votre usage/);
-    assert.equal((landing.match(/<li>/g) || []).length, 3);
+    assert.equal((landing.match(/<li\b/g) || []).length, 3);
     assert.match(landing, /id="landing-start"[^>]*>Commencer</);
     assert.match(landing, /id="landing-help-link">Comment fonctionne kWhiz/);
+    assert.match(html, /<div[^>]*aria-modal="true"[^>]*id="landing-overlay"[^>]*>/);
     assert.doesNotMatch(landing, /Installer kWhiz|install-ios|install-android/);
     assert.match(app, /hideLanding\(\);[\s\S]*navigation\?\.openPage\('page-aide'\)/);
 });

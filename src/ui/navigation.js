@@ -2,7 +2,7 @@ import { on } from '../shared/dom.js';
 
 const VIEW_TAB = { compare: 'ranking', operators: 'operators', map: 'map', profile: 'profile' };
 
-export function initNavigation({ initialView = 'profile', onViewChange, onToggleTheme }) {
+export function initNavigation({ initialView = 'profile', onViewChange, onToggleTheme, onShowLanding }) {
     let currentView = initialView;
     let drawerScrollY = 0;
     let drawerTrigger = null;
@@ -115,6 +115,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
     on('menu-drawer-backdrop', 'click', closeDrawer);
     on('menu-close', 'click', closeDrawer);
     on('menu-help', 'click', () => openPage('page-aide'));
+    on('menu-landing', 'click', () => { closeDrawer(); onShowLanding?.(); });
     on('menu-about', 'click', () => openPage('page-about'));
     on('menu-infos', 'click', () => openPage('page-infos'));
     on('menu-settings', 'click', () => openPage('page-settings'));

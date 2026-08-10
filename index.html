@@ -153,7 +153,7 @@
 <div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
 <details class="route-planner" id="route-planner">
-<summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true">⌄</span></summary>
+<summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true" class="route-planner-chevron">⌄</span></summary>
 <form class="route-planner-form" id="route-planner-form">
 <label><span data-i18n="map.route.start">Départ</span><span class="route-start-field"><input aria-label="Ville, adresse ou code postal en France pour le départ" data-i18n-aria-label="map.route.startInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-start" name="start" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required><button id="route-use-location" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.route.myLocation">Ma position</span></button></span></label>
 <label><span data-i18n="map.route.destination">Arrivée</span><input aria-label="Ville, adresse ou code postal en France pour l’arrivée" data-i18n-aria-label="map.route.destinationInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-end" name="end" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required></label>
@@ -248,20 +248,20 @@
 </p>
 </div>
 <!-- ── Landing Page (première visite) ── -->
-<div class="landing-overlay hidden" id="landing-overlay">
+<div aria-labelledby="landing-title" aria-modal="true" class="landing-overlay hidden" id="landing-overlay" role="dialog">
 <div class="landing-content">
 <div class="landing-logo-wrap">
 <svg viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="lbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#lbg)" height="32" rx="6" width="32"></rect><path d="M18 4L8 18h6l-2 10 10-14h-6l2-10z" fill="white"></path></svg>
 </div>
-<h1 class="landing-heading">Trouvez l’offre de recharge rapide adaptée à votre usage</h1>
+<h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Trouvez l’offre de recharge rapide adaptée à votre usage</h1>
 <ol class="landing-pitch landing-steps">
-<li>Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
-<li>Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
-<li>Localisez les stations autour de vous ou sur votre trajet.</li>
+<li data-i18n="landing.step.profile">Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
+<li data-i18n="landing.step.compare">Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
+<li data-i18n="landing.step.map">Localisez les stations autour de vous ou sur votre trajet.</li>
 </ol>
-<button class="landing-btn" id="landing-start" type="button">Commencer</button>
+<button class="landing-btn" data-i18n="landing.continue" id="landing-start" type="button">Commencer</button>
 <div class="landing-footer-links">
-<a href="#" id="landing-help-link">Comment fonctionne kWhiz ?</a>
+<a data-i18n="landing.help" href="#" id="landing-help-link">Comment fonctionne kWhiz ?</a>
 </div>
 </div>
 </div>
@@ -271,14 +271,14 @@
 
 
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-about-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-about-title">À propos</span>
-<button aria-label="Fermer" class="page-close" id="close-about" type="button">✕</button>
+<span class="page-title" data-i18n="about.title" id="page-about-title">À propos</span>
+<button aria-label="Fermer" class="page-close" data-i18n-aria-label="common.close" id="close-about" type="button">✕</button>
 </div><div class="page-body" id="about-content">
 <div class="about-hero">
-<p class="about-title">kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.</p>
-<p class="about-desc">kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.</p>
-<p class="about-desc">kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.</p>
-<p class="about-desc">Version __VERSION__</p>
+<p class="about-title" data-i18n="about.tagline">kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.</p>
+<p class="about-desc" data-i18n="about.scope">kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.</p>
+<p class="about-desc" data-i18n="about.privacy">kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.</p>
+<p class="about-desc"><span data-i18n="about.version">Version</span> <span>__VERSION__</span></p>
 </div>
 <div class="about-contact">
 <span data-i18n="about.enjoy">🙏 Bonne utilisation !</span><br/>
@@ -494,35 +494,40 @@
 <svg viewbox="0 0 24 24"><path d="M13 2 5.8 13H11l-1 9 7.2-11H12l1-9Z"></path></svg>
 </span>
 <div>
-<p id="menu-subtitle">Comparateur de recharge rapide</p>
-<h2 id="menu-title">Menu kWhiz</h2>
+<p data-i18n="menu.subtitle" id="menu-subtitle">Comparateur de recharge rapide</p>
+<h2 data-i18n="menu.title" id="menu-title">Menu kWhiz</h2>
 </div>
 </div>
-<button aria-label="Fermer le menu" class="menu-drawer-close" id="menu-close" type="button">
+<button aria-label="Fermer le menu" class="menu-drawer-close" data-i18n-aria-label="menu.closeLabel" id="menu-close" type="button">
 <svg aria-hidden="true" class="ui-icon" viewbox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></svg>
 </button>
 </header>
 <section aria-labelledby="menu-section-discover" class="menu-drawer-section">
-<h3 id="menu-section-discover">Comprendre</h3>
+<h3 data-i18n="menu.sections.learn" id="menu-section-discover">Comprendre</h3>
 <div class="menu-drawer-group">
 <button class="menu-drawer-item" id="menu-help" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" x2="12.01" y1="17" y2="17"></line></svg></span>
-<span class="menu-drawer-copy"><strong>Aide et FAQ</strong><small>Utiliser le comparateur et la carte</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.help">Aide et FAQ</strong><small data-i18n="menu.items.helpDescription">Utiliser le comparateur et la carte</small></span>
+<span aria-hidden="true" class="menu-drawer-chevron">›</span>
+</button>
+<button class="menu-drawer-item" id="menu-landing" type="button">
+<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M12 3a9 9 0 1 0 9 9"></path><path d="M12 7v5l3 2"></path><path d="M16 3h5v5"></path></svg></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.introduction">Revoir l’introduction</strong><small data-i18n="menu.items.introductionDescription">Redécouvrir le fonctionnement de kWhiz</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 <button class="menu-drawer-item" id="menu-infos" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg></span>
-<span class="menu-drawer-copy"><strong>Tarifs et sources</strong><small>Méthode, vérification et limites</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.prices">Tarifs et sources</strong><small data-i18n="menu.items.pricesDescription">Méthode, vérification et limites</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 </div>
 </section>
 <section aria-labelledby="menu-section-settings" class="menu-drawer-section">
-<h3 id="menu-section-settings">Application</h3>
+<h3 data-i18n="menu.sections.application" id="menu-section-settings">Application</h3>
 <div class="menu-drawer-group">
 <button class="menu-drawer-item" id="menu-theme" type="button">
 <span class="menu-drawer-icon" id="menu-theme-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4"></circle><line x1="12" x2="12" y1="2" y2="5"></line><line x1="12" x2="12" y1="19" y2="22"></line><line x1="4.22" x2="6.34" y1="4.22" y2="6.34"></line><line x1="17.66" x2="19.78" y1="17.66" y2="19.78"></line><line x1="2" x2="5" y1="12" y2="12"></line><line x1="19" x2="22" y1="12" y2="12"></line><line x1="4.22" x2="6.34" y1="19.78" y2="17.66"></line><line x1="17.66" x2="19.78" y1="6.34" y2="4.22"></line></svg></span>
-<span class="menu-drawer-copy"><strong>Apparence</strong><small id="menu-theme-label">Mode clair ou sombre</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.appearance">Apparence</strong><small data-i18n="theme.light" id="menu-theme-label">Passer au mode clair</small></span>
 </button>
 <div class="menu-drawer-item menu-language-item">
 <span aria-hidden="true" class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path></svg></span>
@@ -530,19 +535,19 @@
 </div>
 <button class="menu-drawer-item" id="menu-settings" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg></span>
-<span class="menu-drawer-copy"><strong>Données et réglages</strong><small>Actualisation, sauvegarde et installation</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.settings">Données et réglages</strong><small data-i18n="menu.items.settingsDescription">Actualisation, sauvegarde et installation</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 </div>
 </section>
-<section aria-label="À propos" class="menu-drawer-section menu-drawer-section--about">
+<section aria-label="À propos" class="menu-drawer-section menu-drawer-section--about" data-i18n-aria-label="menu.sections.about">
 <div class="menu-drawer-group"><button class="menu-drawer-item" id="menu-about" type="button">
 <span class="menu-drawer-icon menu-drawer-icon--brand"><svg height="20" viewbox="0 0 512 512" width="20"><defs><lineargradient id="mabg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#mabg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg></span>
-<span class="menu-drawer-copy"><strong>À propos de kWhiz</strong><small>Projet, version et contact</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.about">À propos de kWhiz</strong><small data-i18n="menu.items.aboutDescription">Projet, version et contact</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button></div>
 </section>
-<p class="menu-drawer-version"><span>kWhiz __VERSION__</span><span aria-hidden="true">•</span><span>Données sourcées</span></p>
+<p class="menu-drawer-version"><span>kWhiz __VERSION__</span><span aria-hidden="true">•</span><span data-i18n="menu.dataSourced">Données sourcées</span></p>
 </div>
 </div>
 <script src="./app.js" type="module"></script>

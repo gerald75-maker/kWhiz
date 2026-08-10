@@ -73,6 +73,7 @@ let fastPct = (() => {
     return (!Number.isNaN(saved) && saved >= 0 && saved <= 100) ? saved : 100;
 })();
 let consumptionController = null;
+let landingTrigger = null;
 let profileControls = null;
 let navigation = null;
 let stationsMap = null;
@@ -341,8 +342,12 @@ function renderProfile() {
 function showLanding() {
     const overlay = document.getElementById('landing-overlay');
     if (!overlay) return;
+    landingTrigger = document.activeElement;
     overlay.classList.remove('hidden');
-    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        overlay.classList.add('visible');
+        document.getElementById('landing-start')?.focus();
+    }));
 }
 
 function applyInstallOsDetection() {
@@ -366,6 +371,8 @@ function hideLanding() {
     overlay.classList.remove('visible');
     overlay.classList.add('hidden');
     localStorage.setItem(LANDING_KEY, '1');
+    if (landingTrigger instanceof HTMLElement) landingTrigger.focus();
+    landingTrigger = null;
 }
 
 function openIziviaModal(trigger) { openModal('izivia-overlay', trigger); }
@@ -402,7 +409,8 @@ function initApp() {
             if (view === 'profile') renderProfile();
             if (view === 'map') stationsMap?.activate();
         },
-        onToggleTheme: toggleTheme
+        onToggleTheme: toggleTheme,
+        onShowLanding: showLanding
     });
 
     on('install-native-btn', 'click', triggerNativeInstall);

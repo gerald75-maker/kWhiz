@@ -1712,7 +1712,8 @@ body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-t
 .route-planner { margin-bottom:12px; border:1px solid var(--border-color); border-radius:16px; background:var(--bg-card); overflow:hidden; }
 .route-planner summary { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; color:var(--text-primary); font-size:.86rem; font-weight:750; cursor:pointer; list-style:none; }
 .route-planner summary::-webkit-details-marker { display:none; }
-.route-planner[open] summary span { transform:rotate(180deg); }
+.route-planner-chevron { transition:transform .2s ease; }
+.route-planner[open] .route-planner-chevron { transform:rotate(180deg); }
 .route-planner-form { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 14px 14px; }
 .route-planner-form label { display:grid; gap:5px; color:var(--text-secondary); font-size:.72rem; font-weight:700; }
 .route-planner-form input { min-width:0; width:100%; padding:10px 11px; border:1px solid var(--border-color); border-radius:11px; background:var(--bg-element); color:var(--text-primary); font:inherit; font-size:.78rem; }
