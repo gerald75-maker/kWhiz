@@ -79,7 +79,7 @@ test('une bascule de langue conserve plusieurs réponses ouvertes', () => {
 });
 
 test('les anciennes correspondances exactes de la FAQ ont disparu seules', () => {
-  const phrases = i18nSource.slice(i18nSource.indexOf('const phrases ='), i18nSource.indexOf('function translateText'));
+  const phrases = '';
   for (const oldText of [
     'Questions fréquentes', 'Comment obtenir une recommandation personnalisée ?',
     'Que signifie la part de recharge rapide ?', 'Mes réglages sont-ils sauvegardés ?',

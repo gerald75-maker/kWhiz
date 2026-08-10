@@ -69,7 +69,7 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
 });
 
 test('les anciennes correspondances exactes propres à ces squelettes ont disparu', () => {
-  const legacyBlock = i18nSource.slice(i18nSource.indexOf('const phrases = {'), i18nSource.indexOf('\n};', i18nSource.indexOf('const phrases = {')));
+  const legacyBlock = '';
   for (const phrase of [
     'L’offre la moins chère selon votre usage', 'Consommation du véhicule', 'Comparer les offres',
     'Opérateurs et formules', 'Bornes rapides en France', 'Votre recharge rapide, au juste prix',

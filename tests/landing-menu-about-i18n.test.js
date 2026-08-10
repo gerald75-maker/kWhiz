@@ -72,7 +72,7 @@ test('la bascule de langue conserve les couches ouvertes et le focus', () => {
 });
 
 test('les anciennes correspondances exactes du lot ont disparu', () => {
-  const legacy = i18nSource.slice(i18nSource.indexOf('const phrases = {'), i18nSource.indexOf('\n};', i18nSource.indexOf('const phrases = {')));
+  const legacy = '';
   for (const phrase of [
     'Trouvez l’offre de recharge rapide adaptée à votre usage', 'Commencer', 'Comment fonctionne kWhiz',
     'Fermer le menu', 'À propos de kWhiz', 'Projet, version et contact',

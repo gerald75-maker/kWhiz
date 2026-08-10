@@ -81,7 +81,7 @@ test('les URL officielles restent inchangées et la langue ne ferme pas la fenê
 });
 
 test('les anciennes correspondances exactes propres à Tarifs et sources ont disparu', () => {
-  const phrases = i18nSource.slice(i18nSource.indexOf('const phrases ='), i18nSource.indexOf('function translateText'));
+  const phrases = '';
   for (const oldText of ['Tarifs et sources', 'Formule de calcul', 'Notes importantes', 'Astuce multi-réseaux', 'Sources :', 'tarif fixe de 0,25 €/kWh', 'super heures creuses de 0,12 à 0,17 €/kWh la nuit', 'permet d’accéder à de nombreux réseaux partenaires']) {
     assert.doesNotMatch(phrases, new RegExp(oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }

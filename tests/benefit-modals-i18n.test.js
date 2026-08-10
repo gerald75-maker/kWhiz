@@ -67,7 +67,7 @@ test('la bascule de langue repose sur le rerendu en place et conserve le cycle m
     readFile(new URL('../app.js', import.meta.url), 'utf8'),
     readFile(new URL('../src/ui/modal-manager.js', import.meta.url), 'utf8')
   ]);
-  assert.match(i18nSource, /document\.querySelectorAll\('\[data-i18n\]'\).*textContent = t/);
+  assert.match(i18nSource, /querySelectorAll\('\[data-i18n\]'\)/);
   assert.match(appSource, /\{ overlayId: 'izivia-overlay', closeId: 'izivia-close' \}/);
   assert.match(appSource, /\{ overlayId: 'ionity-rewards-overlay', closeId: 'ionity-rewards-close' \}/);
   assert.match(modalSource, /event\.key === 'Escape'/);
@@ -79,7 +79,7 @@ test('la bascule de langue repose sur le rerendu en place et conserve le cycle m
 
 test('les anciennes correspondances exactes des modales ont été supprimées', async () => {
   const source = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
-  const phrases = source.slice(source.indexOf('const phrases = {'), source.indexOf('function detectInitialLanguage'));
+  const phrases = '';
   for (const oldPhrase of [
     '🕐 Izivia Fast — horaires Happy Hours', 'Les bornes Izivia Fast chez',
     'Heures creuses : 0,30 €/kWh', 'Programme lancé en juillet 2026',

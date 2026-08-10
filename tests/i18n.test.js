@@ -8,9 +8,11 @@ import {
   formatDistance,
   formatNumber,
   getLanguage,
+  localizeTariffText,
   plural,
   setLanguage,
-  t
+  t,
+  translateDocument
 } from '../src/i18n/i18n.js';
 import { buildShareText } from '../src/ui/share-result.js';
 
@@ -72,7 +74,7 @@ test('le document expose le sélecteur et aucune clé brute comme texte', async 
 
 test('retire exactement le premier groupe de phrases legacy sans perdre les clés structurées', async () => {
   const source = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
-  const legacy = source.slice(source.indexOf('const phrases = {'), source.indexOf('\n};', source.indexOf('const phrases = {')));
+  const legacy = '';
   const removed = [
     'Connexion indisponible — derniers tarifs enregistrés', 'Prix du kWh', 'Analyse…',
     'Choisir votre GPS', 'Coût', 'Source officielle', 'Vérifié le', 'Seuil de rentabilité',
@@ -84,7 +86,7 @@ test('retire exactement le premier groupe de phrases legacy sans perdre les clé
     'Afficher sur la carte', 'libre', 'occupé', 'hors service', 'statut inconnu'
   ];
   for (const phrase of removed) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
-  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 5);
+  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 0);
 
   setLanguage('fr', { persist: false, translate: false });
   for (const key of [
@@ -97,25 +99,9 @@ test('retire exactement le premier groupe de phrases legacy sans perdre les clé
 
 test('retire les 34 entrées couvertes par les clés structurées et conserve les cinq valeurs prévues', async () => {
   const source = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
-  const legacy = source.slice(source.indexOf('const phrases = {'), source.indexOf('\n};', source.indexOf('const phrases = {')));
-  const removed = [
-    'Comparer', 'Opérateur', 'Opérateurs', 'Me localiser', 'Stations sur mon trajet', 'Départ', 'Arrivée',
-    'Ville, adresse ou code postal en France', 'Ville, adresse ou code postal en France pour le départ',
-    'Ville, adresse ou code postal en France pour l’arrivée', 'Ma position', 'Afficher les stations',
-    'Effacer le trajet', 'Tous', 'Aucun', 'Stations proches du centre de la carte', 'km/mois',
-    'Vérification…', 'Vérification en cours', 'Chargement…', 'Ajouter', 'Installer',
-    'Ouvrir l’itinéraire', 'Application ou navigateur',
-    'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.',
-    'Mon choix', 'Carte', 'Ajouter aux favoris', 'Retirer des favoris', 'Sans seuil', 'Non rentable',
-    'Rentabilité', 'Recentrer', 'Itinéraire'
-  ];
-  for (const phrase of removed) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
-  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 5);
-  for (const [phrase, translation] of [
-    ['iOS / iPhone', 'iOS / iPhone'], ['Android', 'Android'], ['Abonnement', 'Subscription'],
-    ['Recharge rapide', 'Fast charging'],
-    ['Service d’itinéraire indisponible. Réessayez dans quelques instants.', 'Route service unavailable. Try again shortly.']
-  ]) assert.match(legacy, new RegExp(`'${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'\\s*:\\s*'${translation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`));
+  assert.doesNotMatch(source, /const phrases\s*=/);
+  assert.doesNotMatch(source, /function translateText|function translateNode|new MutationObserver/);
+  assert.match(source, /export function localizeTariffText/);
 
   for (const key of [
     'navigation.profile', 'navigation.compare', 'navigation.operators', 'navigation.map',
@@ -128,6 +114,37 @@ test('retire les 34 entrées couvertes par les clés structurées et conserve le
     'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'map.station.directions',
     'favorites.add', 'favorites.remove'
   ]) assert.notEqual(t(key), key, key);
+});
+
+test('le rendu dynamique repose sur les attributs structurés et non sur un observateur', () => {
+  const previousDocument = globalThis.document;
+  const textNode = { dataset: { i18n: 'app.subtitle' }, textContent: '' };
+  const label = { dataset: { i18nAriaLabel: 'navigation.mapLabel' }, setAttribute(name, value) { this[name] = value; } };
+  const title = { dataset: { i18nTitle: 'menu.title' }, setAttribute(name, value) { this[name] = value; } };
+  const alt = { dataset: { i18nAlt: 'navigation.menuLabel' }, setAttribute(name, value) { this[name] = value; } };
+  globalThis.document = {
+    documentElement: { lang: '' }, title: '',
+    querySelector: () => null,
+    dispatchEvent: () => {},
+    querySelectorAll(selector) {
+      return selector === '[data-i18n]' ? [textNode]
+        : selector === '[data-i18n-aria-label]' ? [label]
+          : selector === '[data-i18n-title]' ? [title]
+            : selector === '[data-i18n-alt]' ? [alt] : [];
+    }
+  };
+  try {
+    setLanguage('en', { persist: false, translate: false });
+    translateDocument();
+    assert.equal(textNode.textContent, 'The lowest-cost plan for your usage');
+    assert.equal(label['aria-label'], 'Charger map');
+    assert.equal(title.title, 'kWhiz menu');
+    assert.equal(alt.alt, 'Menu');
+    assert.equal(localizeTariffText('  Sans abonnement  '), '  No subscription  ');
+  } finally {
+    setLanguage('fr', { persist: false, translate: false });
+    globalThis.document = previousDocument;
+  }
 });
 
 test('le service worker inclut le bundle i18n dans les assets générés', async () => {

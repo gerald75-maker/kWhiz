@@ -853,16 +853,8 @@ const messages = {
   }
 };
 
-const phrases = {
-  'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Abonnement': 'Subscription', 'Recharge rapide': 'Fast charging',
-  'Service d’itinéraire indisponible. Réessayez dans quelques instants.': 'Route service unavailable. Try again shortly.',
-};
-
 let currentLanguage = 'fr';
-let observer;
 const listeners = new Set();
-const originalNodes = new WeakMap();
-const originalAttrs = new WeakMap();
 
 export function detectInitialLanguage({ storedLanguage, deviceLanguage = '' } = {}) {
   if (storedLanguage === 'fr' || storedLanguage === 'en') return storedLanguage;
@@ -910,46 +902,17 @@ export function formatDate(value, options = { day: 'numeric', month: 'long', yea
 export function formatDistance(km) { return new Intl.NumberFormat(getLocale(), { style: 'unit', unit: 'kilometer', unitDisplay: 'short', maximumFractionDigits: 1 }).format(km); }
 export function plural(key, count, params = {}) { return t(count === 1 ? key : `${key}s`, { count: formatNumber(count), ...params }); }
 
-function translateText(text) {
-  if (currentLanguage === 'fr') return text;
-  const leading = text.match(/^\s*/)?.[0] || '';
-  const trailing = text.match(/\s*$/)?.[0] || '';
-  const clean = text.trim();
-  const translated = phrases[clean] || TRANSLATED_TARIFF_TEXT[clean];
-  return clean && translated ? `${leading}${translated}${trailing}` : text;
-}
-
-function translateNode(root) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  for (const node of nodes) {
-    if (node.parentElement?.closest('script, style, code, [data-i18n-skip]')) continue;
-    if (!originalNodes.has(node)) originalNodes.set(node, node.nodeValue);
-    const original = originalNodes.get(node);
-    node.nodeValue = currentLanguage === 'fr' ? original : translateText(original);
-  }
-  const elements = root.nodeType === Node.ELEMENT_NODE ? [root, ...root.querySelectorAll('*')] : [...root.querySelectorAll('*')];
-  for (const element of elements) {
-    if (element.closest?.('[data-i18n-skip]')) continue;
-    if (!originalAttrs.has(element)) originalAttrs.set(element, {});
-    const saved = originalAttrs.get(element);
-    for (const attr of ['aria-label', 'title', 'placeholder', 'alt']) {
-      if (!element.hasAttribute(attr)) continue;
-      if (!(attr in saved)) saved[attr] = element.getAttribute(attr);
-      element.setAttribute(attr, currentLanguage === 'fr' ? saved[attr] : (phrases[saved[attr]] || saved[attr]));
-    }
-  }
-}
-
 export function translateDocument(root = document) {
   document.documentElement.lang = currentLanguage;
   document.title = t('app.title');
   document.querySelector('meta[name="description"]')?.setAttribute('content', t('app.description'));
-  translateNode(root);
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
-  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel)));
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder)));
+  for (const [selector, attr, dataKey] of [
+    ['[data-i18n-aria-label]', 'aria-label', 'i18nAriaLabel'],
+    ['[data-i18n-placeholder]', 'placeholder', 'i18nPlaceholder'],
+    ['[data-i18n-title]', 'title', 'i18nTitle'],
+    ['[data-i18n-alt]', 'alt', 'i18nAlt']
+  ]) document.querySelectorAll(selector).forEach(el => el.setAttribute(attr, t(el.dataset[dataKey])));
 }
 
 export function setLanguage(language, { persist = true, storage = globalThis.localStorage, translate = true } = {}) {
@@ -967,18 +930,6 @@ export function onLanguageChange(listener) { listeners.add(listener); return () 
 export function initI18n({ storage = localStorage, deviceLanguage = navigator.language } = {}) {
   currentLanguage = detectInitialLanguage({ storedLanguage: storage.getItem(STORAGE_KEYS.language), deviceLanguage });
   translateDocument();
-  observer?.disconnect();
-  observer = new MutationObserver(records => {
-    observer.disconnect();
-    records.forEach(record => record.addedNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        if (!originalNodes.has(node)) originalNodes.set(node, node.nodeValue);
-        node.nodeValue = currentLanguage === 'fr' ? originalNodes.get(node) : translateText(originalNodes.get(node));
-      } else if (node.nodeType === Node.ELEMENT_NODE) translateNode(node);
-    }));
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
   return currentLanguage;
 }
 
@@ -1078,4 +1029,11 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Prix dépendant du point de charge et des conditions Electroverse. Valeur indicative pour le calcul.': 'Price depends on the charger and Electroverse terms. The calculation uses an indicative value.'
 });
 
-export function localizeTariffText(value) { return currentLanguage === 'en' ? (TRANSLATED_TARIFF_TEXT[value] || value) : value; }
+export function localizeTariffText(value) {
+  if (currentLanguage !== 'en' || typeof value !== 'string') return value;
+  const leading = value.match(/^\s*/)?.[0] || '';
+  const trailing = value.match(/\s*$/)?.[0] || '';
+  const clean = value.trim();
+  const translated = TRANSLATED_TARIFF_TEXT[clean];
+  return translated ? `${leading}${translated}${trailing}` : value;
+}
