@@ -9,13 +9,13 @@ import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
   fastned: 'Fastned', atlante: 'Atlante', zunder: 'Zunder', iziviafast: 'Izivia Fast',
-  lidl: 'Lidl', pluginn: 'Plug Inn fast charge', statione: 'Station E'
+  lidl: 'Lidl', pluginn: 'Plug Inn fast charge'
 };
 
 const COLORS = {
   ionity: '#6d5dfc', tesla: '#e82127', electra: '#6f4bf2', iecharge: '#16a34a',
   fastned: '#f7c600', atlante: '#00a7a7', zunder: '#4db9e5', iziviafast: '#ef7d00',
-  lidl: '#0050aa', pluginn: '#f45b20', statione: '#0ea5e9'
+  lidl: '#0050aa', pluginn: '#f45b20'
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
@@ -433,7 +433,9 @@ export function initStationsMap() {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       stations = payload.stations || [];
-      const keys = [...new Set(stations.map(station => station.operator))].sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
+      const keys = [...new Set(stations.map(station => station.operator))]
+        .filter(key => Object.hasOwn(LABELS, key))
+        .sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
       selected = readSelection(keys);
       renderFilters(keys);
       irveUpdatedAt = payload.updatedAt;

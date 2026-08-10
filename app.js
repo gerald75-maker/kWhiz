@@ -178,7 +178,12 @@ async function loadTarifs() {
                 cacheKey: TARIFS_CACHE_KEY,
                 validColors: VALID_COLORS
             });
-            OPERATORS = result.data;
+            // Stations-e n’est plus un opérateur actif. Filtrer aussi un ancien
+            // cache local afin qu’une préférence historique ne réintroduise pas
+            // ses formules dans les calculs ou les vues.
+            OPERATORS = Object.fromEntries(
+                Object.entries(result.data).filter(([key]) => key !== 'statione')
+            );
             const snapshot = buildTariffSnapshot(OPERATORS, result.updatedAt);
             tariffHistory = appendTariffSnapshot(tariffHistory, snapshot);
             try { localStorage.setItem(STORAGE_KEYS.tariffHistory, JSON.stringify(tariffHistory)); } catch (_) {}

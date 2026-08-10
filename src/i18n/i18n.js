@@ -951,11 +951,6 @@ const COMMERCIAL_LABELS = Object.freeze({
   'IONITY Power - mensuel': 'IONITY Power — monthly',
   'IONITY Power 365 - annuel': 'IONITY Power 365 — annual',
   'Recharge rapide DC': 'DC fast charging',
-  'Sans abonnement - paiement direct': 'No subscription — direct payment',
-  'Express-e - DC jusqu’à 24 kW': 'Express-e — DC up to 24 kW',
-  'Express-e - DC jusqu’à 50 kW': 'Express-e — DC up to 50 kW',
-  'Access-e - DC jusqu’à 24 kW': 'Access-e — DC up to 24 kW',
-  'Access-e - DC jusqu’à 50 kW': 'Access-e — DC up to 50 kW',
   'Atlante Go - mensuel': 'Atlante Go — monthly',
   'Happy Hours - heures creuses': 'Happy Hours — off-peak',
   'Tarif standard': 'Standard price',
@@ -978,6 +973,7 @@ export function localizeCommercialLabel(value) {
 }
 
 const NETWORK_DESCRIPTIONS = Object.freeze({
+  'Jusqu’à 600 kW selon le site': 'Up to 600 kW depending on the site',
   'jusqu’à 50 kW DC': 'up to 50 kW DC',
   'itinérance multiréseaux': 'multi-network roaming',
   'jusqu’à 320 kW': 'up to 320 kW',
@@ -998,7 +994,7 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   'Electra+ Smart - mensuel': 'Electra+ Smart — monthly', 'Electra+ Smart - annuel': 'Electra+ Smart — annual',
   'IONITY Motion - mensuel': 'IONITY Motion — monthly', 'IONITY Motion 365 - annuel': 'IONITY Motion 365 — annual',
   'IONITY Power - mensuel': 'IONITY Power — monthly', 'IONITY Power 365 - annuel': 'IONITY Power 365 — annual',
-  'Recharge rapide DC': 'DC fast charging', 'Sans abonnement - paiement direct': 'No subscription — direct payment',
+  'Recharge rapide DC': 'DC fast charging',
   'Tarif standard': 'Standard price', 'Sans forfait': 'No plan',
   'Application Fastned - remise 10 %': 'Fastned app — 10% discount',
   'Abonnement Gold - remise 30 %': 'Gold subscription — 30% discount',
@@ -1014,9 +1010,6 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Motion.': 'Annual subscription with the same per-kWh price as the monthly Motion plan.'
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Power.': 'Annual subscription with the same per-kWh price as the monthly Power plan.'
   ,'Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul.': 'Price varies by charger or partner network. The calculation uses an indicative value.'
-  ,'Paiement sans abonnement. Le tarif dépend du type de borne Stations-e.': 'No-subscription payment. The price depends on the Stations-e charger type.'
-  ,'Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC.': 'Also applies to AC chargers up to 22 kW. kWhiz shows the DC power rating here.'
-  ,'Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW.': 'Price for Stations-e DC chargers up to 50 kW.'
   ,'Tarif standard dépendant du point de charge et du moyen de paiement.': 'Standard price depending on the charger and payment method.'
   ,'0,29 €/kWh chez Atlante. ChargeBack à 50 %.': '€0.29/kWh at Atlante. 50% ChargeBack.'
   ,'Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.': 'Earn Green Gems with every charge and convert them into credit for your next sessions at Atlante or Powerdot.'

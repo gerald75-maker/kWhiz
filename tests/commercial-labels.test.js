@@ -23,11 +23,6 @@ const expected = new Map([
     ['IONITY Power - mensuel', 'IONITY Power — monthly'],
     ['IONITY Power 365 - annuel', 'IONITY Power 365 — annual'],
     ['Recharge rapide DC', 'DC fast charging'],
-    ['Sans abonnement - paiement direct', 'No subscription — direct payment'],
-    ['Express-e - DC jusqu’à 24 kW', 'Express-e — DC up to 24 kW'],
-    ['Express-e - DC jusqu’à 50 kW', 'Express-e — DC up to 50 kW'],
-    ['Access-e - DC jusqu’à 24 kW', 'Access-e — DC up to 24 kW'],
-    ['Access-e - DC jusqu’à 50 kW', 'Access-e — DC up to 50 kW'],
     ['Atlante Go - mensuel', 'Atlante Go — monthly'],
     ['Happy Hours - heures creuses', 'Happy Hours — off-peak'],
     ['Tarif standard', 'Standard price'],
@@ -66,9 +61,29 @@ test('couvre tous les descriptifs français détectés dans les noms du catalogu
     assert.deepEqual([...new Set(uncovered)].sort(), []);
 });
 
+test('le catalogue actif exclut Stations-e sans altérer les autres opérateurs', async () => {
+    const catalog = JSON.parse(await readFile(new URL('../public/tarifs.json', import.meta.url), 'utf8'));
+    const operators = Object.entries(catalog).filter(([, operator]) => Array.isArray(operator?.formulas));
+    assert.equal(operators.some(([key]) => key === 'statione'), false);
+    assert.equal(operators.length, 11);
+    assert.equal(operators.reduce((total, [, operator]) => total + operator.formulas.length, 0), 36);
+    assert.ok(catalog.atlante.formulas.some(formula => formula.id === 'atlante-go'));
+    assert.ok(catalog.ionity.formulas.length > 0);
+});
+
+test('les préférences historiques Stations-e sont ignorées sans bloquer les autres vues', async () => {
+    const [appSource, mapSource] = await Promise.all([
+        readFile(new URL('../app.js', import.meta.url), 'utf8'),
+        readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8')
+    ]);
+    assert.match(appSource, /Object\.fromEntries\([\s\S]*key !== 'statione'/);
+    assert.match(mapSource, /filter\(key => Object\.hasOwn\(LABELS, key\)\)/);
+    assert.doesNotMatch(mapSource, /LABELS\.statione/);
+});
+
 test('localise exactement toutes les descriptions françaises de réseau du catalogue', async () => {
     const descriptions = new Map([
-        ['jusqu’à 50 kW DC', 'up to 50 kW DC'],
+        ['Jusqu’à 600 kW selon le site', 'Up to 600 kW depending on the site'],
         ['itinérance multiréseaux', 'multi-network roaming'],
         ['jusqu’à 320 kW', 'up to 320 kW'],
         ['jusqu’à 400 kW', 'up to 400 kW'],
@@ -87,7 +102,17 @@ test('localise exactement toutes les descriptions françaises de réseau du cata
     setLanguage('en', { persist: false, translate: false });
     for (const [source, english] of descriptions) assert.equal(localizeNetworkDescription(source), english);
     assert.equal(localizeNetworkDescription('500 kW'), '500 kW');
+    assert.equal(localizeNetworkDescription('Jusqu’à 600 kW selon le site'), 'Up to 600 kW depending on the site');
     assert.equal(localizeNetworkDescription('description inconnue'), 'description inconnue');
+});
+
+test('Atlante conserve la réserve de puissance selon le site', async () => {
+    const catalog = JSON.parse(await readFile(new URL('../public/tarifs.json', import.meta.url), 'utf8'));
+    assert.equal(catalog.atlante.badge, 'Jusqu’à 600 kW selon le site');
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(localizeNetworkDescription(catalog.atlante.badge), 'Up to 600 kW depending on the site');
+    setLanguage('fr', { persist: false, translate: false });
+    assert.equal(localizeNetworkDescription(catalog.atlante.badge), 'Jusqu’à 600 kW selon le site');
 });
 
 test('le détail et le partage utilisent la même localisation commerciale', () => {

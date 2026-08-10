@@ -276,78 +276,6 @@
     "sourceUrl": "https://www.lidl.fr/c/bornes-de-recharge/s10019864",
     "verifiedAt": "2026-07-27"
   },
-  "statione": {
-    "name": "Stations-e",
-    "color": "statione",
-    "badge": "jusqu’à 50 kW DC",
-    "mapUrl": "https://stations-e.com/fr/network",
-    "formulas": [
-      {
-        "name": "Sans abonnement - paiement direct",
-        "cost": 0,
-        "period": "none",
-        "rate": 0.39,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Paiement sans abonnement. Le tarif dépend du type de borne Stations-e."
-      },
-      {
-        "name": "Express-e - DC jusqu’à 24 kW",
-        "cost": 2.9,
-        "period": "monthly",
-        "rate": 0.32,
-        "ref": 0.39,
-        "id": "statione-express",
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
-      },
-      {
-        "name": "Express-e - DC jusqu’à 50 kW",
-        "cost": 2.9,
-        "period": "monthly",
-        "rate": 0.35,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
-      },
-      {
-        "name": "Access-e - DC jusqu’à 24 kW",
-        "cost": 4.9,
-        "period": "monthly",
-        "rate": 0.29,
-        "ref": 0.39,
-        "id": "statione-access",
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
-      },
-      {
-        "name": "Access-e - DC jusqu’à 50 kW",
-        "cost": 4.9,
-        "period": "monthly",
-        "rate": 0.35,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
-      }
-    ],
-    "sourceUrl": "https://www.stations-e.com/fr/particulier",
-    "verifiedAt": "2026-07-27"
-  },
   "iziviafast": {
     "name": "IZIVIA Fast chez McDonald’s",
     "color": "izivia",
@@ -386,7 +314,7 @@
   "atlante": {
     "name": "Atlante",
     "color": "atlante",
-    "badge": "60–300 kW",
+    "badge": "Jusqu’à 600 kW selon le site",
     "mapUrl": "https://atlante.energy/fr/#mapsBlock",
     "formulas": [
       {
