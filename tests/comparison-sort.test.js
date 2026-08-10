@@ -43,13 +43,15 @@ test('le rendu marque uniquement la première formule comme meilleure et affiche
             'ranking-list': list,
             'compare-count': count,
             'compare-summary': summary
-        })[id] || null
+        })[id] || null,
+        dispatchEvent: () => true
     };
     const formulas = [
         formula('Sans abonnement', { rate: 0.60, opKey: 'sans' }),
         formula('Formule avec abonnement', { rate: 0.20, ref: 0.60, monthlyCost: 9.99, opKey: 'avec' })
     ];
 
+    setLanguage('fr', { persist: false, translate: false });
     assert.doesNotThrow(() => renderComparisonTable(formulas, profile));
     assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 1);
     assert.match(list.innerHTML, /compare-item compare-item--best[\s\S]*Formule avec abonnement/);
@@ -72,6 +74,27 @@ test('le badge de vérification utilise Intl et suit immédiatement la langue', 
     renderComparisonTable(formulas, profile);
     assert.match(list.innerHTML, /Verified on 27 July 2026/);
     assert.doesNotMatch(list.innerHTML, /Vérifié le/);
+});
+
+test('les badges et libellés de Comparer sont structurés et suivent la langue sans MutationObserver', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = {
+        getElementById: id => id === 'ranking-list' ? list : { textContent: '' },
+        dispatchEvent: () => true
+    };
+    const formulas = [
+        formula('Variable', { rate: 0.4, pricingType: 'station', opKey: 'v' }),
+        formula('Plage', { rate: 0.4, rateMin: 0.3, rateMax: 0.5, pricingType: 'range', opKey: 'r' }),
+        formula('Remise', { rate: 0.3, pricingType: 'discount', opKey: 'd' }),
+        formula('Fixe', { rate: 0.4, pricingType: 'fixed', opKey: 'f' })
+    ];
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable(formulas, profile);
+    assert.match(list.innerHTML, /compare-pricing-badge[^>]*>(?:Tarif variable|Plage tarifaire|Remise|Tarif fixe)</);
+    setLanguage('en', { persist: false, translate: false });
+    renderComparisonTable(formulas, profile);
+    assert.match(list.innerHTML, /compare-pricing-badge[^>]*>(?:Variable price|Price range|Discount|Fixed price)</);
+    assert.doesNotMatch(list.innerHTML, /compare-pricing-badge[^>]*>(?:Tarif variable|Plage tarifaire|Remise|Tarif fixe)</);
 });
 
 test('une date de vérification absente ou invalide ne produit pas de badge ni d’exception', () => {
@@ -99,6 +122,7 @@ test('faible kilométrage favorise le sans abonnement et fort kilométrage peut 
 });
 
 test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () => {
+    setLanguage('fr', { persist: false, translate: false });
     const date = new Date('2026-08-09T12:00:00+02:00');
     const chargebackConfig = {
         enabled: true,
@@ -133,6 +157,7 @@ test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () =
 });
 
 test('un abonnement annuel conserve son prix officiel et son équivalent mensuel', () => {
+    setLanguage('fr', { persist: false, translate: false });
     const annualResult = calculateBreakeven({ rate: 0.30, ref: 0.50, cost: 60, period: PERIOD.ANNUAL }, 0.18);
     const annual = formula('Annuel', { rate: 0.30, ref: 0.50, cost: 60, period: PERIOD.ANNUAL, monthlyCost: annualResult.monthlyCost, km: annualResult.km });
     const ranked = buildComparisonRanking([annual], profile)[0];
@@ -141,6 +166,7 @@ test('un abonnement annuel conserve son prix officiel et son équivalent mensuel
 });
 
 test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => {
+    setLanguage('fr', { persist: false, translate: false });
     const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
     const adjusted = { ...subscribed, adjustedThresholdKm: adjustedThreshold(subscribed.km, 40) };
     assert.equal(adjusted.adjustedThresholdKm, 1500);
@@ -166,10 +192,12 @@ test('le classement réagit à la consommation et à la part rapide du profil', 
 });
 
 test('décrit une économie réelle, une économie faible et un surcoût abonnement inclus', () => {
+    setLanguage('fr', { persist: false, translate: false });
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 8.2 }, 'fr'), 'Vous économisez 8,20 €/mois');
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 0.2 }, 'fr'), 'Économie inférieure à 0,50 €/mois');
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: -4.1 }, 'fr'), 'L’abonnement vous coûte encore 4,10 €/mois de plus');
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'fr'), 'Comparaison au tarif de référence indisponible');
+    setLanguage('en', { persist: false, translate: false });
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'en'), 'Reference-price comparison unavailable');
 });
 
@@ -234,8 +262,9 @@ test('les textes FR et EN expliquent le classement mensuel', async () => {
     assert.match(html, /data-i18n="comparison\.controls\.editProfile"[^>]*>Modifier mon profil/);
     assert.match(i18n, /Enter your monthly mileage\. kWhiz estimates each plan’s cost, including the subscription/);
     assert.match(i18n, /'comparison\.controls\.editProfile': 'Edit my profile'/);
-    assert.match(view, /Estimated cost/);
-    assert.match(view, /Subscription does not break even/);
+    assert.doesNotMatch(view, /const COPY|Tarif variable|Plage tarifaire|Remise|Tarif fixe/);
+    assert.match(i18n, /comparison\.estimatedCost/);
+    assert.match(i18n, /comparison\.notProfitable/);
 });
 
 test('app transmet la référence tarifaire aux données comparées', async () => {
