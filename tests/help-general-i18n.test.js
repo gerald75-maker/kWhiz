@@ -8,7 +8,7 @@ const [html, i18nSource] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('src/i18n/i18n.js', root), 'utf8')
 ]);
-const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('<details class="help-topic"><summary>Questions fréquentes</summary>'));
+const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('<details class="help-topic"><summary data-i18n="faq.title"'));
 
 test('l’aide générale utilise des clés structurées dans l’ordre actuel', () => {
   const orderedSections = [
@@ -71,6 +71,7 @@ test('les anciennes correspondances exactes de l’aide générale ont disparu',
     'Besoin d’un véritable planificateur de recharge ?', 'Réglez votre',
     'Les prix variables restent des estimations :', 'Sélectionnez les opérateurs, ouvrez'
   ]) assert.doesNotMatch(phrases, new RegExp(oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(phrases, /Questions fréquentes/);
+  assert.doesNotMatch(phrases, /Questions fréquentes/);
+  assert.match(i18nSource, /'faq\.title': 'Questions fréquentes'/);
   assert.match(phrases, /Tarifs et sources/);
 });

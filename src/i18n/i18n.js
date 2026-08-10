@@ -96,6 +96,39 @@ const messages = {
     'help.planners.myAtlante': '— itinéraires, bornes et disponibilité.', 'help.planners.abrp': '— planification avancée selon le véhicule.',
     'help.planners.chargemap': '— trajets et données communautaires.', 'help.planners.iecharge': '— planification et réseau IECharge.',
     'help.planners.electus': '— itinéraires adaptés au véhicule.',
+    'faq.title': 'Questions fréquentes',
+    'faq.recommendation.question': 'Comment obtenir une recommandation personnalisée ?',
+    'faq.recommendation.answer': 'Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.',
+    'faq.fastShare.question': 'Que signifie la part de recharge rapide ?',
+    'faq.fastShare.answer': 'Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.',
+    'faq.subscriptions.question': 'Les abonnements sont-ils pris en compte ?',
+    'faq.subscriptions.answer': 'Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.',
+    'faq.breakEven.question': 'Qu’est-ce que le seuil de rentabilité ?',
+    'faq.breakEven.answer': 'C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.',
+    'faq.ranking.question': 'Pourquoi le classement change-t-il ?',
+    'faq.ranking.answer': 'Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.',
+    'faq.variablePrices.question': 'Pourquoi certains tarifs sont-ils variables ou estimés ?',
+    'faq.variablePrices.answer': 'Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.',
+    'faq.priceGuarantee.question': 'Les tarifs sont-ils garantis ?',
+    'faq.priceGuarantee.answer': 'Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.',
+    'faq.location.question': 'Pourquoi la carte ne trouve-t-elle pas ma position ?',
+    'faq.location.answer': 'Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».',
+    'faq.availability.question': 'Les bornes affichées sont-elles disponibles ?',
+    'faq.availability.answer': 'Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.',
+    'faq.status.question': 'Comment interpréter le statut d’une station ?',
+    'faq.status.answer': 'Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.',
+    'faq.route.question': 'Comment trouver les stations sur un trajet ?',
+    'faq.route.answer': 'Dans l’onglet Carte, sélectionnez d’abord les opérateurs à afficher. Ouvrez ensuite « Stations sur mon trajet », utilisez votre position ou saisissez le départ, indiquez l’arrivée, puis lancez la recherche. kWhiz montre les stations des réseaux choisis situées à moins de 15 km du tracé. « Effacer le trajet » restaure la carte habituelle.',
+    'faq.routeLimits.question': 'kWhiz planifie-t-il mes arrêts de recharge ?',
+    'faq.routeLimits.answer': 'Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.',
+    'faq.favorites.question': 'À quoi servent les favoris ?',
+    'faq.favorites.answer': 'L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.',
+    'faq.backup.question': 'Comment sauvegarder et restaurer mes réglages ?',
+    'faq.backup.answer': 'Vos réglages sont conservés localement sur votre appareil. Dans « Données et réglages », utilisez « Créer une sauvegarde » pour télécharger un fichier, puis « Restaurer une sauvegarde » pour le réutiliser sur cet appareil ou un autre.',
+    'faq.offline.question': 'L’application fonctionne-t-elle hors ligne ?',
+    'faq.offline.answer': 'Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.',
+    'faq.update.question': 'Comment actualiser l’application et les tarifs ?',
+    'faq.update.answer': 'Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.',
     'nav.recommendation': 'Mon choix', 'nav.compare': 'Comparer', 'nav.networks': 'Opérateurs', 'nav.map': 'Carte', 'nav.menu': 'Menu',
     'menu.language.title': 'Langue', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Langue modifiée.',
     'about.enjoy': '🙏 Bonne utilisation !',
@@ -456,6 +489,39 @@ const messages = {
     'help.planners.myAtlante': '— routes, chargers and availability.', 'help.planners.abrp': '— advanced vehicle-based planning.',
     'help.planners.chargemap': '— routes and community data.', 'help.planners.iecharge': '— planning and the IECharge network.',
     'help.planners.electus': '— routes adapted to your vehicle.',
+    'faq.title': 'Frequently asked questions',
+    'faq.recommendation.question': 'How do I get a personalised recommendation?',
+    'faq.recommendation.answer': 'Set your vehicle efficiency, enter your monthly mileage and specify your fast-charging share. “My recommendation” then shows the lowest-cost plans for that profile.',
+    'faq.fastShare.question': 'What does the fast-charging share mean?',
+    'faq.fastShare.answer': 'It is the proportion of your energy charged at fast chargers. The rest is estimated using your home-charging price.',
+    'faq.subscriptions.question': 'Are subscriptions included?',
+    'faq.subscriptions.answer': 'Yes. Their monthly or annualised cost is included in the total cost.',
+    'faq.breakEven.question': 'What is the break-even point?',
+    'faq.breakEven.answer': 'It is the monthly mileage at which savings on the per-kWh price offset the subscription cost.',
+    'faq.ranking.question': 'Why does the ranking change?',
+    'faq.ranking.answer': 'It depends on vehicle efficiency, mileage, fast-charging share, the per-kWh price and subscription costs.',
+    'faq.variablePrices.question': 'Why are some prices variable or estimated?',
+    'faq.variablePrices.answer': 'Some networks vary their prices by charger, time or payment method. kWhiz then uses a representative value clearly identified as an estimate.',
+    'faq.priceGuarantee.question': 'Are prices guaranteed?',
+    'faq.priceGuarantee.answer': 'No. Networks may change them without notice. Always check the price shown by the network before charging.',
+    'faq.location.question': 'Why can’t the map find my location?',
+    'faq.location.answer': 'Check that location access is allowed for Safari or the PWA in your device settings, then tap “Find me” again.',
+    'faq.availability.question': 'Are the displayed chargers available?',
+    'faq.availability.answer': 'Not necessarily. The map lists chargers declared in the French national IRVE database; check their availability in the network’s app before travelling.',
+    'faq.status.question': 'How should I interpret a charger’s status?',
+    'faq.status.answer': 'Only complete information less than 15 minutes old is colour-coded. Status is indicative and may change before you arrive; do not remove a stop from your route based on this information alone.',
+    'faq.route.question': 'How do I find chargers along a route?',
+    'faq.route.answer': 'On the Map tab, first select the networks to display. Then open “Chargers along my route”, use your location or enter the start and destination, and run the search. kWhiz shows chargers from the selected networks within 15 km of the route. “Clear route” restores the regular map.',
+    'faq.routeLimits.question': 'Does kWhiz plan my charging stops?',
+    'faq.routeLimits.answer': 'No. The route only locates chargers from the selected networks. kWhiz does not know your battery or range and does not decide where you should stop. After selecting a charger, the “Directions” button simply opens your navigation app for that charger.',
+    'faq.favorites.question': 'What are favourites for?',
+    'faq.favorites.answer': 'The star makes your favourite plans easier to find and displays them first in the network list.',
+    'faq.backup.question': 'How do I back up and restore my settings?',
+    'faq.backup.answer': 'Your settings are stored locally on your device. In “Data and settings”, use “Create a backup” to download a file, then “Restore a backup” to reuse it on this or another device.',
+    'faq.offline.question': 'Does the app work offline?',
+    'faq.offline.answer': 'Yes, if it has already been loaded or installed. It then uses the latest saved prices and indicates that the connection is unavailable.',
+    'faq.update.question': 'How do I update the app and prices?',
+    'faq.update.answer': 'Open “Data and settings” and use the update button, or pull the page down. If a new version is available, kWhiz will offer to install it.',
     'nav.recommendation': 'My recommendation', 'nav.compare': 'Compare', 'nav.networks': 'Networks', 'nav.map': 'Map', 'nav.menu': 'Menu',
     'menu.language.title': 'Language', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Language updated.',
     'about.enjoy': '🙏 Enjoy using kWhiz!',
@@ -743,7 +809,6 @@ const phrases = {
   'Tarifs': 'Prices', 'Chargement…': 'Loading…', 'Fraîcheur': 'Freshness', 'Analyse…': 'Checking…',
   'Actualiser l’application et les tarifs': 'Update app and prices', 'Préférences locales': 'Local preferences',
   'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Partager': 'Share', 'Ajouter': 'Add', 'Installer': 'Install',
-  'Questions fréquentes': 'Frequently asked questions',
   'Tarifs et sources': 'Prices and sources',
   'Formule de calcul': 'Calculation formula', 'Notes importantes': 'Important notes', 'Astuce multi-réseaux': 'Multi-network tip', 'Sources :': 'Sources:',
   'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
@@ -761,39 +826,7 @@ const phrases = {
   'La position actuelle sera utilisée comme départ.': 'Your current location will be used as the start.', 'La localisation n’est pas disponible sur cet appareil.': 'Location is unavailable on this device.',
   'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.': 'Location was denied or is unavailable. Check your browser location settings.',
   'Itinéraire': 'Directions', 'Afficher sur la carte': 'Show on map', 'libre': 'available', 'occupé': 'in use', 'hors service': 'out of service', 'statut inconnu': 'status unknown',
-  'Comment obtenir une recommandation personnalisée ?': 'How do I get a personalised recommendation?'
-  ,'Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.': 'Set your vehicle efficiency, monthly mileage and fast-charging share. “My recommendation” then shows the lowest-cost plans for that profile.'
-  ,'Que signifie la part de recharge rapide ?': 'What does the fast-charging share mean?'
-  ,'Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.': 'It is the share of your energy charged at fast chargers. The rest is estimated at the home-charging price.'
-  ,'Les abonnements sont-ils pris en compte ?': 'Are subscriptions included?'
-  ,'Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.': 'Yes. Their monthly or annualised cost is included in the total.'
-  ,'Qu’est-ce que le seuil de rentabilité ?': 'What is the break-even point?'
-  ,'C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.': 'It is the monthly mileage at which per-kWh savings offset the subscription cost.'
-  ,'Pourquoi le classement change-t-il ?': 'Why does the ranking change?'
-  ,'Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.': 'It depends on vehicle efficiency, mileage, fast-charging share, the per-kWh price and subscription costs.'
-  ,'Pourquoi certains tarifs sont-ils variables ou estimés ?': 'Why are some prices variable or estimated?'
-  ,'Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.': 'Some networks vary prices by charger, time or payment method. kWhiz then uses a representative value clearly marked as an estimate.'
-  ,'Les tarifs sont-ils garantis ?': 'Are prices guaranteed?'
-  ,'Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.': 'No. Networks may change them without notice. Always check the price shown by the network before charging.'
-  ,'Pourquoi la carte ne trouve-t-elle pas ma position ?': 'Why can’t the map find my location?'
-  ,'Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».': 'Allow location access for Safari or the PWA in your device settings, then tap “Find me” again.'
-  ,'Les bornes affichées sont-elles disponibles ?': 'Are the displayed chargers available?'
-  ,'Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.': 'Not necessarily. The map lists chargers declared in the French IRVE database; check availability in the network’s app before travelling.'
-  ,'Comment interpréter le statut d’une station ?': 'How should I interpret charger status?'
-  ,'Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.': 'Only complete information less than 15 minutes old is colour-coded. Status is indicative and may change before arrival; do not remove a planned stop based on this alone.'
-  ,'Comment trouver les stations sur un trajet ?': 'How do I find chargers along a route?'
-  ,'Dans l’onglet Carte, sélectionnez d’abord les opérateurs à afficher. Ouvrez ensuite « Stations sur mon trajet », utilisez votre position ou saisissez le départ, indiquez l’arrivée, puis lancez la recherche. kWhiz montre les stations des réseaux choisis situées à moins de 15 km du tracé. « Effacer le trajet » restaure la carte habituelle.': 'On the Map tab, select the networks to display. Open “Chargers along my route”, use your location or enter a start and destination, then search. kWhiz shows selected-network chargers within 15 km of the route. “Clear route” restores the normal map.'
-  ,'kWhiz planifie-t-il mes arrêts de recharge ?': 'Does kWhiz plan my charging stops?'
-  ,'Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.': 'No. The route only locates chargers from selected networks. kWhiz does not know your battery or range and does not decide where to stop. After selecting a charger, “Directions” simply opens your navigation app for that charger.'
-  ,'À quoi servent les favoris ?': 'What are favourites for?'
-  ,'L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.': 'The star makes favourite plans easier to find and moves them up the network list.'
-  ,'Mes réglages sont-ils sauvegardés ?': 'Are my settings saved?'
-  ,'Ils sont conservés localement sur votre appareil. Depuis « Données et réglages » dans le menu, vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.': 'They are stored locally on your device. From “Data and settings”, you can export them to a file and restore them on another device.'
-  ,'L’application fonctionne-t-elle hors ligne ?': 'Does the app work offline?'
-  ,'Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.': 'Yes, after it has been loaded or installed once. It then uses the latest saved prices and indicates that you are offline.'
-  ,'Comment actualiser l’application et les tarifs ?': 'How do I update the app and prices?'
-  ,'Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.': 'Open “Data and settings” and use the update button, or pull the page down. If a new version is available, kWhiz will offer to install it.'
-  ,'Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.': 'Results are estimates based on published prices and displayed assumptions. They do not guarantee the price charged or charger availability.'
+  'Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.': 'Results are estimates based on published prices and displayed assumptions. They do not guarantee the price charged or charger availability.'
   ,'kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)': 'min. kWh/month = subscription cost ÷ (reference price − subscriber price)'
   ,'km min./mois = kWh min. ÷ (consommation / 100)': 'min. km/month = min. kWh ÷ (consumption / 100)'
   ,': tarif fixe de 0,25 €/kWh': ': fixed price of €0.25/kWh', ': super heures creuses de 0,12 à 0,17 €/kWh la nuit': ': overnight super off-peak price of €0.12–€0.17/kWh'
