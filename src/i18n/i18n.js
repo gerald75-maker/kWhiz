@@ -854,9 +854,8 @@ const messages = {
 };
 
 const phrases = {
-  'Connexion indisponible — derniers tarifs enregistrés': 'Offline — showing saved prices',
   'Comparer': 'Compare',
-  'Prix du kWh': 'Price per kWh', 'Opérateur': 'Network', 'Opérateurs': 'Networks',
+  'Opérateur': 'Network', 'Opérateurs': 'Networks',
   'Me localiser': 'Find me', 'Stations sur mon trajet': 'Chargers along my route',
   'Départ': 'Start', 'Arrivée': 'Destination', 'Ville, adresse ou code postal en France': 'Town, address or postcode in France',
   'Ville, adresse ou code postal en France pour le départ': 'Town, address or postcode in France for the start',
@@ -866,21 +865,16 @@ const phrases = {
   'Stations proches du centre de la carte': 'Chargers near the centre of the map',
   'km/mois': 'km/month',
   'Vérification…': 'Checking…', 'Vérification en cours': 'Checking',
-  'Chargement…': 'Loading…', 'Analyse…': 'Checking…',
+  'Chargement…': 'Loading…',
   'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Ajouter': 'Add', 'Installer': 'Install',
-  'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
+  'Ouvrir l’itinéraire': 'Open directions',
   'Application ou navigateur': 'App or browser', 'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.': 'The navigation app opens if installed; otherwise the service opens in your browser.',
   'Mon choix': 'My recommendation', 'Carte': 'Map',
   'Ajouter aux favoris': 'Add to favourites', 'Retirer des favoris': 'Remove from favourites',
-  'Sans seuil': 'No break-even point', 'Non rentable': 'Not cost-effective', 'Rentabilité': 'Break-even', 'Coût': 'Cost', 'Abonnement': 'Subscription',
-  'Source officielle': 'Official source', 'Vérifié le': 'Checked on',
-  'Recharge rapide': 'Fast charging', 'Seuil de rentabilité': 'Break-even point',
-  'Calcul de l’itinéraire…': 'Calculating route…', 'Itinéraire indisponible': 'Route unavailable', 'Stations sur votre trajet': 'Chargers along your route',
+  'Sans seuil': 'No break-even point', 'Non rentable': 'Not cost-effective', 'Rentabilité': 'Break-even', 'Abonnement': 'Subscription',
+  'Recharge rapide': 'Fast charging',
   'Service d’itinéraire indisponible. Réessayez dans quelques instants.': 'Route service unavailable. Try again shortly.', 'Recentrer': 'Re-centre',
-  'Localisation indisponible': 'Location unavailable', 'Localisation…': 'Locating…', 'Position introuvable': 'Location not found',
-  'La position actuelle sera utilisée comme départ.': 'Your current location will be used as the start.', 'La localisation n’est pas disponible sur cet appareil.': 'Location is unavailable on this device.',
-  'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.': 'Location was denied or is unavailable. Check your browser location settings.',
-  'Itinéraire': 'Directions', 'Afficher sur la carte': 'Show on map', 'libre': 'available', 'occupé': 'in use', 'hors service': 'out of service', 'statut inconnu': 'status unknown',
+  'Itinéraire': 'Directions',
 };
 
 let currentLanguage = 'fr';

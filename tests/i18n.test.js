@@ -70,6 +70,31 @@ test('le document expose le sélecteur et aucune clé brute comme texte', async 
   assert.doesNotMatch(switchSource, /reload|location/);
 });
 
+test('retire exactement le premier groupe de phrases legacy sans perdre les clés structurées', async () => {
+  const source = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
+  const legacy = source.slice(source.indexOf('const phrases = {'), source.indexOf('\n};', source.indexOf('const phrases = {')));
+  const removed = [
+    'Connexion indisponible — derniers tarifs enregistrés', 'Prix du kWh', 'Analyse…',
+    'Choisir votre GPS', 'Coût', 'Source officielle', 'Vérifié le', 'Seuil de rentabilité',
+    'Calcul de l’itinéraire…', 'Itinéraire indisponible', 'Stations sur votre trajet',
+    'Localisation indisponible', 'Localisation…', 'Position introuvable',
+    'La position actuelle sera utilisée comme départ.',
+    'La localisation n’est pas disponible sur cet appareil.',
+    'Localisation refusée ou indisponible. Vérifiez les réglages de localisation de votre navigateur.',
+    'Afficher sur la carte', 'libre', 'occupé', 'hors service', 'statut inconnu'
+  ];
+  for (const phrase of removed) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
+  assert.equal((legacy.match(/'[^']*'\s*:/g) || []).length, 39);
+
+  setLanguage('fr', { persist: false, translate: false });
+  for (const key of [
+    'map.route.calculating', 'map.route.unavailable', 'map.list.route',
+    'map.location.loading', 'map.location.notFound', 'map.location.usedAsStart',
+    'map.station.showOnMap', 'map.status.available', 'map.status.outOfService',
+    'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'tariffs.verifiedOn'
+  ]) assert.notEqual(t(key), key, key);
+});
+
 test('le service worker inclut le bundle i18n dans les assets générés', async () => {
   const sw = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8');
   assert.match(sw, /const CRITICAL_ASSETS = __CRITICAL_ASSETS__/);
