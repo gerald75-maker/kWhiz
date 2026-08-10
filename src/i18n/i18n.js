@@ -65,6 +65,37 @@ const messages = {
     'about.scope': 'kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.',
     'about.privacy': 'kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.',
     'about.version': 'Version',
+    'help.title': 'Aide et FAQ', 'help.closeLabel': 'Fermer l’aide',
+    'help.gettingStarted.title': 'Bien démarrer',
+    'help.gettingStarted.consumptionBefore': 'Réglez votre', 'help.gettingStarted.consumptionStrong': 'consommation moyenne',
+    'help.gettingStarted.consumptionAfter': 'en kWh/100 km à l’aide du curseur situé en haut de l’écran.',
+    'help.gettingStarted.recommendation': 'affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.',
+    'help.gettingStarted.compare': 'classe tous les opérateurs du moins cher au plus cher, abonnement compris.',
+    'help.gettingStarted.operators': 'présente le détail de chaque offre ainsi que son seuil de rentabilité.',
+    'help.gettingStarted.map': 'affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.',
+    'help.results.title': 'Comprendre les résultats',
+    'help.results.explanation': 'Mon choix estime le coût mensuel selon votre consommation, votre kilométrage et votre part de recharge rapide. Comparer classe les offres, abonnement compris, tandis qu’Opérateurs en présente les conditions et le seuil de rentabilité.',
+    'help.results.warning': 'Les prix variables restent des estimations : confirmez toujours le tarif dans l’application ou sur le site de l’opérateur avant de recharger.',
+    'help.map.title': 'Utiliser la carte',
+    'help.map.locationBefore': 'À la première ouverture de', 'help.map.locationAfter': 'autorisez la localisation pour afficher directement les stations autour de votre position ; vos coordonnées ne sont pas transmises à kWhiz et restent sur votre appareil.',
+    'help.map.retryBefore': 'Si la localisation est refusée ou indisponible, la carte nationale reste utilisable. Appuyez ultérieurement sur', 'help.map.retryMiddle': 'pour réessayer, ou sur', 'help.map.retryAfter': 'pour revenir à votre position.',
+    'help.map.networksBefore': 'Appuyez sur les opérateurs pour les afficher ou les masquer. Avec plusieurs choix, kWhiz affiche les stations appartenant à', 'help.map.networksStrong': 'l’un des réseaux sélectionnés', 'help.map.networksAfter': '.',
+    'help.map.filtersBefore': 'Utilisez', 'help.map.filtersMiddle': 'pour afficher tous les réseaux disponibles ou', 'help.map.filtersAfter': 'pour repartir d’une sélection vide.',
+    'help.map.statusBefore': 'Lisez le statut de chaque station :', 'help.map.statusGreen': 'vert', 'help.map.statusGreenAfter': 'signifie qu’au moins un point est libre,', 'help.map.statusOrange': 'orange', 'help.map.statusOrangeAfter': 'qu’ils sont occupés ou réservés,', 'help.map.statusRed': 'rouge', 'help.map.statusRedAfter': 'qu’ils sont hors service et', 'help.map.statusGrey': 'gris', 'help.map.statusGreyAfter': 'que l’information est absente, incomplète ou trop ancienne.',
+    'help.map.selection': 'Appuyez sur un point, un logo ou une fiche de la liste pour mettre la station en évidence sur la carte et consulter son état détaillé.',
+    'help.map.directionsBefore': 'Utilisez', 'help.map.directionsAfter': ', puis choisissez Plans, Google Maps ou Waze pour ouvrir le guidage vers la borne.',
+    'help.map.irveNote': '📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.',
+    'help.map.statusNote': '🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.',
+    'help.route.title': 'Stations sur mon trajet',
+    'help.route.introBefore': 'Sélectionnez les opérateurs, ouvrez', 'help.route.introAfter': ', puis utilisez votre position ou saisissez une ville, une adresse ou un code postal en France. Les lieux sont transmis à OpenRouteService uniquement pour calculer le tracé.',
+    'help.route.limitStrong': 'kWhiz repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie.',
+    'help.route.limitAfter': 'Il ne tient compte ni de l’autonomie, ni du niveau de batterie, du relief, de la météo ou du temps de recharge.',
+    'help.route.directionsBefore': '🚗 Le bouton', 'help.route.directionsAfter': 'ouvre le guidage vers une seule station ; il ne transmet pas l’intégralité du trajet ni les autres stations affichées.',
+    'help.planners.title': 'Besoin d’un véritable planificateur de recharge ?',
+    'help.planners.intro': 'Pour calculer les arrêts selon le véhicule, la batterie et l’autonomie, utilisez un outil spécialisé :',
+    'help.planners.myAtlante': '— itinéraires, bornes et disponibilité.', 'help.planners.abrp': '— planification avancée selon le véhicule.',
+    'help.planners.chargemap': '— trajets et données communautaires.', 'help.planners.iecharge': '— planification et réseau IECharge.',
+    'help.planners.electus': '— itinéraires adaptés au véhicule.',
     'nav.recommendation': 'Mon choix', 'nav.compare': 'Comparer', 'nav.networks': 'Opérateurs', 'nav.map': 'Carte', 'nav.menu': 'Menu',
     'menu.language.title': 'Langue', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Langue modifiée.',
     'about.enjoy': '🙏 Bonne utilisation !',
@@ -394,6 +425,37 @@ const messages = {
     'about.scope': 'kWhiz is designed to compare a selection of fast-charging networks operating in France. It does not aim to cover every network or prices available in other countries.',
     'about.privacy': 'kWhiz is free. Your preferences and usage data remain stored locally on your device.',
     'about.version': 'Version',
+    'help.title': 'Help and FAQ', 'help.closeLabel': 'Close help',
+    'help.gettingStarted.title': 'Getting started',
+    'help.gettingStarted.consumptionBefore': 'Set your', 'help.gettingStarted.consumptionStrong': 'average consumption',
+    'help.gettingStarted.consumptionAfter': 'in kWh/100 km using the slider at the top of the screen.',
+    'help.gettingStarted.recommendation': 'immediately shows the best-value plan for your efficiency and monthly mileage.',
+    'help.gettingStarted.compare': 'ranks all networks from lowest to highest total cost, including subscriptions.',
+    'help.gettingStarted.operators': 'shows each plan’s details and break-even point.',
+    'help.gettingStarted.map': 'shows fast chargers in France. Select one or more networks, then move the map to view chargers near its centre.',
+    'help.results.title': 'Understanding results',
+    'help.results.explanation': 'My recommendation estimates monthly cost from your efficiency, mileage and fast-charging share. Compare ranks plans including subscriptions, while Networks shows their terms and break-even point.',
+    'help.results.warning': 'Variable prices remain estimates: always confirm the price in the network’s app or website before charging.',
+    'help.map.title': 'Using the map',
+    'help.map.locationBefore': 'When you first open', 'help.map.locationAfter': 'allow location access to show chargers around you; your coordinates are not sent to kWhiz and remain on your device.',
+    'help.map.retryBefore': 'If location access is denied or unavailable, the national map remains usable. Tap', 'help.map.retryMiddle': 'to try again, or', 'help.map.retryAfter': 'to return to your location.',
+    'help.map.networksBefore': 'Tap networks to show or hide them. With several selected, kWhiz displays chargers belonging to', 'help.map.networksStrong': 'any of the selected networks', 'help.map.networksAfter': '.',
+    'help.map.filtersBefore': 'Use', 'help.map.filtersMiddle': 'to display all available networks or', 'help.map.filtersAfter': 'to start again with an empty selection.',
+    'help.map.statusBefore': 'Read each charger’s status:', 'help.map.statusGreen': 'green', 'help.map.statusGreenAfter': 'means at least one connector is available,', 'help.map.statusOrange': 'orange', 'help.map.statusOrangeAfter': 'means they are occupied or reserved,', 'help.map.statusRed': 'red', 'help.map.statusRedAfter': 'means they are out of service, and', 'help.map.statusGrey': 'grey', 'help.map.statusGreyAfter': 'means the information is missing, incomplete or too old.',
+    'help.map.selection': 'Tap a point, logo or list card to highlight the charger on the map and view its detailed status.',
+    'help.map.directionsBefore': 'Use', 'help.map.directionsAfter': ', then choose Apple Maps, Google Maps or Waze to open directions to the charger.',
+    'help.map.irveNote': '📍 The map uses the French national IRVE database. It shows declared charger locations and specifications, but not real-time availability.',
+    'help.map.statusNote': '🟢 Available, occupied or out-of-service statuses are colour-coded only when complete data is less than 15 minutes old. Grey means missing, unknown or old data and must not be interpreted as unavailable.',
+    'help.route.title': 'Chargers along my route',
+    'help.route.introBefore': 'Select the networks, open', 'help.route.introAfter': ', then use your location or enter a town, address or postcode in France. Places are sent to OpenRouteService only to calculate the route.',
+    'help.route.limitStrong': 'kWhiz finds chargers along a route but does not calculate stops based on the battery.',
+    'help.route.limitAfter': 'It does not account for range, battery level, terrain, weather or charging time.',
+    'help.route.directionsBefore': '🚗 The', 'help.route.directionsAfter': 'button opens directions to one charger; it does not send the entire route or the other displayed chargers.',
+    'help.planners.title': 'Need a full EV route planner?',
+    'help.planners.intro': 'To calculate stops for your vehicle, battery and range, use a dedicated planner:',
+    'help.planners.myAtlante': '— routes, chargers and availability.', 'help.planners.abrp': '— advanced vehicle-based planning.',
+    'help.planners.chargemap': '— routes and community data.', 'help.planners.iecharge': '— planning and the IECharge network.',
+    'help.planners.electus': '— routes adapted to your vehicle.',
     'nav.recommendation': 'My recommendation', 'nav.compare': 'Compare', 'nav.networks': 'Networks', 'nav.map': 'Map', 'nav.menu': 'Menu',
     'menu.language.title': 'Language', 'menu.language.french': 'Français', 'menu.language.english': 'English', 'menu.language.changed': 'Language updated.',
     'about.enjoy': '🙏 Enjoy using kWhiz!',
@@ -681,9 +743,7 @@ const phrases = {
   'Tarifs': 'Prices', 'Chargement…': 'Loading…', 'Fraîcheur': 'Freshness', 'Analyse…': 'Checking…',
   'Actualiser l’application et les tarifs': 'Update app and prices', 'Préférences locales': 'Local preferences',
   'iOS / iPhone': 'iOS / iPhone', 'Android': 'Android', 'Partager': 'Share', 'Ajouter': 'Add', 'Installer': 'Install',
-  'Aide et FAQ': 'Help and FAQ',
-  'Bien démarrer': 'Getting started', 'Comprendre les résultats': 'Understanding results', 'Utiliser la carte': 'Using the map', 'Questions fréquentes': 'Frequently asked questions',
-  'Besoin d’un véritable planificateur de recharge ?': 'Need a full EV route planner?',
+  'Questions fréquentes': 'Frequently asked questions',
   'Tarifs et sources': 'Prices and sources',
   'Formule de calcul': 'Calculation formula', 'Notes importantes': 'Important notes', 'Astuce multi-réseaux': 'Multi-network tip', 'Sources :': 'Sources:',
   'Ouvrir l’itinéraire': 'Open directions', 'Choisir votre GPS': 'Choose your navigation app',
@@ -733,20 +793,6 @@ const phrases = {
   ,'Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.': 'Yes, after it has been loaded or installed once. It then uses the latest saved prices and indicates that you are offline.'
   ,'Comment actualiser l’application et les tarifs ?': 'How do I update the app and prices?'
   ,'Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.': 'Open “Data and settings” and use the update button, or pull the page down. If a new version is available, kWhiz will offer to install it.'
-  ,'Réglez votre': 'Set your', 'consommation moyenne': 'average consumption', 'en kWh/100 km à l’aide du curseur situé en haut de l’écran.': 'in kWh/100 km using the slider at the top of the screen.'
-  ,'affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.': 'immediately shows the best-value plan for your efficiency and monthly mileage.'
-  ,'classe tous les opérateurs du moins cher au plus cher, abonnement compris.': 'ranks all networks from lowest to highest total cost, including subscriptions.'
-  ,'présente le détail de chaque offre ainsi que son seuil de rentabilité.': 'shows each plan’s details and break-even point.'
-  ,'affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.': 'shows fast chargers in France. Select one or more networks, then move the map to view chargers near its centre.'
-  ,'Mon choix estime le coût mensuel selon votre consommation, votre kilométrage et votre part de recharge rapide. Comparer classe les offres, abonnement compris, tandis qu’Opérateurs en présente les conditions et le seuil de rentabilité.': 'My recommendation estimates monthly cost from your efficiency, mileage and fast-charging share. Compare ranks plans including subscriptions, while Networks shows their terms and break-even point.'
-  ,'Les prix variables restent des estimations : confirmez toujours le tarif dans l’application ou sur le site de l’opérateur avant de recharger.': 'Variable prices remain estimates: always confirm the price in the network’s app or website before charging.'
-  ,'📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.': '📍 The map uses the French national IRVE database. It shows declared locations and specifications, not real-time availability.'
-  ,'🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.': '🟢 Available, in-use or out-of-service statuses are colour-coded only when complete data is under 15 minutes old. Grey means missing, unknown or old data, not necessarily unavailable.'
-  ,'Sélectionnez les opérateurs, ouvrez': 'Select the networks, open', ', puis utilisez votre position ou saisissez une ville, une adresse ou un code postal en France. Les lieux sont transmis à OpenRouteService uniquement pour calculer le tracé.': ', then use your location or enter a town, address or French postcode. Places are sent to OpenRouteService only to calculate the route.'
-  ,'kWhiz repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie.': 'kWhiz finds chargers along a route but does not calculate battery-based stops.'
-  ,'Il ne tient compte ni de l’autonomie, ni du niveau de batterie, du relief, de la météo ou du temps de recharge.': 'It does not account for range, battery level, terrain, weather or charging time.'
-  ,'Pour calculer les arrêts selon le véhicule, la batterie et l’autonomie, utilisez un outil spécialisé :': 'To calculate stops for your vehicle, battery and range, use a dedicated planner:'
-  ,'— itinéraires, bornes et disponibilité.': '— routes, chargers and availability.', '— planification avancée selon le véhicule.': '— advanced vehicle-based planning.', '— trajets et données communautaires.': '— routes and community data.', '— planification et réseau IECharge.': '— planning and the IECharge network.', '— itinéraires adaptés au véhicule.': '— vehicle-adapted routes.'
   ,'Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.': 'Results are estimates based on published prices and displayed assumptions. They do not guarantee the price charged or charger availability.'
   ,'kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)': 'min. kWh/month = subscription cost ÷ (reference price − subscriber price)'
   ,'km min./mois = kWh min. ÷ (consommation / 100)': 'min. km/month = min. kWh ÷ (consumption / 100)'

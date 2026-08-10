@@ -247,9 +247,10 @@ test('l’aide en accordéons couvre localisation, statuts, sélection et itiné
   const html = await readFile(new URL('index.html', root), 'utf8');
   const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
   for (const title of ['Bien démarrer', 'Comprendre les résultats', 'Utiliser la carte', 'Stations sur mon trajet', 'Questions fréquentes']) {
-    assert.match(help, new RegExp(`<summary>${title}`));
+    assert.match(help, new RegExp(`<summary[^>]*>${title}`));
   }
-  const mapHelp = help.slice(help.indexOf('<summary>Utiliser la carte'), help.indexOf('</details>', help.indexOf('<summary>Utiliser la carte')));
+  const mapStart = help.indexOf('data-i18n="help.map.title"');
+  const mapHelp = help.slice(mapStart, help.indexOf('</details>', mapStart));
   assert.match(mapHelp, /première ouverture/);
   assert.match(mapHelp, /vert/);
   assert.match(mapHelp, /point, un logo ou une fiche/);
