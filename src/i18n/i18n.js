@@ -21,7 +21,7 @@ const messages = {
     'comparison.controls.monthlyMileage': 'Kilométrage mensuel', 'comparison.controls.monthlyMileageUnit': 'km/mois',
     'comparison.controls.editProfile': 'Modifier mon profil',
     'comparison.countOne': '{count} formule', 'comparison.countMany': '{count} formules',
-    'comparison.estimatedCost': 'Coût estimé', 'comparison.fastCharging': 'Recharge rapide', 'comparison.subscription': 'Abonnement', 'comparison.profitability': 'Rentabilité', 'comparison.tariff': 'Tarif', 'comparison.nominal': 'nominal',
+    'comparison.estimatedCost': 'Coût estimé', 'comparison.fastCharging': 'Recharge rapide', 'comparison.subscription': 'Abonnement', 'comparison.profitability': 'Rentabilité', 'comparison.tariff': 'Tarif', 'comparison.nominal': 'nominal', 'comparison.fromRate': 'À partir de {rate}',
     'comparison.noSubscription': 'Sans abonnement', 'comparison.notProfitable': 'Abonnement non rentable', 'comparison.noFastCharging': 'Abonnement non pertinent sans recharge rapide',
     'comparison.enterMileage': 'Indiquez votre kilométrage mensuel pour comparer les formules.',
     'comparison.summary': 'Calcul pour {km} km/mois, dont {fast} % sur des bornes rapides, avec une consommation de {consumption} kWh/100 km. Le coût de recharge à domicile, identique pour toutes les formules, n’influence pas ce classement. Le seuil de rentabilité est calculé face au tarif de référence de l’opérateur.',
@@ -355,6 +355,7 @@ const messages = {
     'offerDetail.discount': 'Remise officielle',
     'offerDetail.discountRange': 'Remise de {discount} · {range}',
     'offerDetail.variableEstimate': 'Tarif variable · estimation {rate}',
+    'offerDetail.minimumVariable': 'À partir de {rate} · tarif variable',
     'offerDetail.history.title': 'Historique tarifaire',
     'offerDetail.history.unknown': 'Pas encore d’historique',
     'offerDetail.history.stable': 'Tarif stable depuis le relevé précédent',
@@ -445,7 +446,7 @@ const messages = {
     'comparison.controls.monthlyMileage': 'Monthly mileage', 'comparison.controls.monthlyMileageUnit': 'km/month',
     'comparison.controls.editProfile': 'Edit my profile',
     'comparison.countOne': '{count} plan', 'comparison.countMany': '{count} plans',
-    'comparison.estimatedCost': 'Estimated cost', 'comparison.fastCharging': 'Fast charging', 'comparison.subscription': 'Subscription', 'comparison.profitability': 'Break-even', 'comparison.tariff': 'Price', 'comparison.nominal': 'nominal',
+    'comparison.estimatedCost': 'Estimated cost', 'comparison.fastCharging': 'Fast charging', 'comparison.subscription': 'Subscription', 'comparison.profitability': 'Break-even', 'comparison.tariff': 'Price', 'comparison.nominal': 'nominal', 'comparison.fromRate': 'From {rate}',
     'comparison.noSubscription': 'No subscription', 'comparison.notProfitable': 'Subscription does not break even', 'comparison.noFastCharging': 'Subscription is not relevant without fast charging',
     'comparison.enterMileage': 'Enter your monthly mileage to compare plans.',
     'comparison.summary': 'Calculation for {km} km/month, including {fast}% at fast chargers, with an efficiency of {consumption} kWh/100 km. Home charging costs the same for every plan and does not affect this ranking. Break-even is calculated against the network’s reference price.',
@@ -779,6 +780,7 @@ const messages = {
     'offerDetail.discount': 'Official discount',
     'offerDetail.discountRange': '{discount} discount · {range}',
     'offerDetail.variableEstimate': 'Variable price · estimated {rate}',
+    'offerDetail.minimumVariable': 'From {rate} · variable price',
     'offerDetail.history.title': 'Price history',
     'offerDetail.history.unknown': 'No price history yet',
     'offerDetail.history.stable': 'Price unchanged since the previous record',
@@ -934,6 +936,8 @@ export function initI18n({ storage = localStorage, deviceLanguage = navigator.la
 }
 
 const COMMERCIAL_LABELS = Object.freeze({
+  'Application ENGIE Vianeo — sans abonnement': 'ENGIE Vianeo app — no subscription',
+  'Carte bancaire ENGIE Vianeo': 'ENGIE Vianeo bank card',
   'Tarif unique': 'Standard price',
   'Application Electra - prix variable': 'Electra app — variable price',
   'Electra+ Essential - mensuel': 'Electra+ Essential — monthly',
@@ -973,6 +977,7 @@ export function localizeCommercialLabel(value) {
 }
 
 const NETWORK_DESCRIPTIONS = Object.freeze({
+  'Recharge DC ultra-rapide de 300 à 400 kW selon le site': 'Ultra-fast DC charging from 300 to 400 kW depending on the site',
   'Jusqu’à 600 kW selon le site': 'Up to 600 kW depending on the site',
   'jusqu’à 50 kW DC': 'up to 50 kW DC',
   'itinérance multiréseaux': 'multi-network roaming',
@@ -987,6 +992,10 @@ export function localizeNetworkDescription(value) {
 }
 
 export const TRANSLATED_TARIFF_TEXT = Object.freeze({
+  'Application ENGIE Vianeo — sans abonnement': 'ENGIE Vianeo app — no subscription', 'Carte bancaire ENGIE Vianeo': 'ENGIE Vianeo bank card',
+  'Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station.': 'No commitment, at all compatible ENGIE Vianeo chargers in France. Per-minute fees may apply depending on the station.',
+  'À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement.': 'From €0.54/kWh on motorways, with 10% off the public price. Price varies by station; the calculation uses an indicative minimum. Per-minute fees may apply. Occasional 50% Happy Hours promotions may be announced in the app; they are not a permanent plan and are excluded from the ranking.',
+  'À partir de 0,60 €/kWh sur autoroute. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer.': 'From €0.60/kWh on motorways. Price varies by station; the calculation uses an indicative minimum. Per-minute fees may apply.',
   'Sans abonnement': 'No subscription', 'Abonnement mensuel': 'Monthly subscription', 'Abonnement annuel': 'Annual subscription',
   'Paiement direct': 'Direct payment', 'Paiement par badge ou carte': 'RFID card or bank card payment', 'Application IONITY': 'IONITY app',
   'Application Electra - prix variable': 'Electra app — variable price', 'Carte bancaire': 'Bank card', 'Tarif à la borne': 'Pay-as-you-go price',

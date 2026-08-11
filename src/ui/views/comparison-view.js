@@ -110,6 +110,7 @@ function rateLabel(formula) {
     if ((formula.pricingType === 'range' || formula.pricingType === 'discount') && Number.isFinite(formula.rateMin) && Number.isFinite(formula.rateMax)) {
         return `${currency(formula.rateMin, getLanguage(), 2)}–${currency(formula.rateMax, getLanguage(), 2)}/kWh`;
     }
+    if (formula.isMinimum) return t('comparison.fromRate', { rate: `${currency(formula.rate, getLanguage(), 2)}/kWh` });
     if (formula.pricingType === 'station') return `≈ ${currency(formula.rate, getLanguage(), 2)}/kWh`;
     return `${currency(formula.rate, getLanguage(), formula.chargebackRate !== null ? 3 : 2)}/kWh`;
 }

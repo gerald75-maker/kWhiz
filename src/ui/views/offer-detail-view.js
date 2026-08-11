@@ -35,6 +35,9 @@ export function offerDetailPricingLabel(formula) {
             ? t('offerDetail.discountRange', { discount: rate(formula.discountPerKwh, 2), range })
             : range;
     }
+    if (formula.isMinimum) {
+        return t('offerDetail.minimumVariable', { rate: rate(formula.rate, 2) });
+    }
     if (formula.pricingType === 'station') {
         return t('offerDetail.variableEstimate', { rate: rate(formula.rate) });
     }

@@ -7,7 +7,7 @@ import { computeCacheHash } from '../scripts/inject-build-vars.mjs';
 const source = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8');
 const CACHE_NAME = 'kwhiz-testhash';
 const CRITICAL_ASSETS = ['./index.html', './tarifs.json', './assets/app.js', './assets/app.css'];
-const OPTIONAL_ASSETS = ['./irve-fast.json', './manifest.json', './icons/icon-192.png'];
+const OPTIONAL_ASSETS = ['./irve-fast.json', './manifest.json', './logos/engie-vianeo.webp', './icons/icon-192.png'];
 
 function createHarness({ criticalFailure = null, optionalFailures = [], cacheMatchFailure = null, fetchImpl } = {}) {
   const handlers = new Map();

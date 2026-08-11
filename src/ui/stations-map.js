@@ -9,13 +9,13 @@ import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
   fastned: 'Fastned', atlante: 'Atlante', zunder: 'Zunder', iziviafast: 'Izivia Fast',
-  lidl: 'Lidl', pluginn: 'Plug Inn fast charge'
+  lidl: 'Lidl', pluginn: 'Plug Inn fast charge', 'engie-vianeo': 'ENGIE Vianeo'
 };
 
 const COLORS = {
   ionity: '#6d5dfc', tesla: '#e82127', electra: '#6f4bf2', iecharge: '#16a34a',
   fastned: '#f7c600', atlante: '#00a7a7', zunder: '#4db9e5', iziviafast: '#ef7d00',
-  lidl: '#0050aa', pluginn: '#f45b20'
+  lidl: '#0050aa', pluginn: '#f45b20', 'engie-vianeo': '#008bd2'
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;

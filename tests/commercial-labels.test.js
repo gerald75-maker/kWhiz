@@ -6,6 +6,8 @@ import { buildShareText } from '../src/ui/share-result.js';
 import { renderOfferDetail } from '../src/ui/views/offer-detail-view.js';
 
 const expected = new Map([
+    ['Application ENGIE Vianeo — sans abonnement', 'ENGIE Vianeo app — no subscription'],
+    ['Carte bancaire ENGIE Vianeo', 'ENGIE Vianeo bank card'],
     ['Tarif unique', 'Standard price'],
     ['Application Electra - prix variable', 'Electra app — variable price'],
     ['Electra+ Essential - mensuel', 'Electra+ Essential — monthly'],
@@ -65,8 +67,8 @@ test('le catalogue actif exclut Stations-e sans altérer les autres opérateurs'
     const catalog = JSON.parse(await readFile(new URL('../public/tarifs.json', import.meta.url), 'utf8'));
     const operators = Object.entries(catalog).filter(([, operator]) => Array.isArray(operator?.formulas));
     assert.equal(operators.some(([key]) => key === 'statione'), false);
-    assert.equal(operators.length, 11);
-    assert.equal(operators.reduce((total, [, operator]) => total + operator.formulas.length, 0), 36);
+    assert.equal(operators.length, 12);
+    assert.equal(operators.reduce((total, [, operator]) => total + operator.formulas.length, 0), 39);
     assert.ok(catalog.atlante.formulas.some(formula => formula.id === 'atlante-go'));
     assert.ok(catalog.ionity.formulas.length > 0);
 });
@@ -83,6 +85,7 @@ test('les préférences historiques Stations-e sont ignorées sans bloquer les a
 
 test('localise exactement toutes les descriptions françaises de réseau du catalogue', async () => {
     const descriptions = new Map([
+        ['Recharge DC ultra-rapide de 300 à 400 kW selon le site', 'Ultra-fast DC charging from 300 to 400 kW depending on the site'],
         ['Jusqu’à 600 kW selon le site', 'Up to 600 kW depending on the site'],
         ['itinérance multiréseaux', 'multi-network roaming'],
         ['jusqu’à 320 kW', 'up to 320 kW'],

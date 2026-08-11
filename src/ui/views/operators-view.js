@@ -55,6 +55,11 @@ function formatOperatorCurrency(value, digits = 2) {
     return formatCurrency(value, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
+function formatOperatorRate(formula) {
+    const value = formatOperatorCurrency(formula.rate);
+    return formula.isMinimum ? t('comparison.fromRate', { rate: value }) : value;
+}
+
 export function formatOperatorSubscription(formula) {
     if (!(formula.cost > 0)) return '';
     const key = formula.period === PERIOD.ANNUAL
@@ -147,7 +152,7 @@ function renderOperatorsCompact(operators, consumption, logos, onModal, favorite
                 formulasHtml += `
                     <div class="formula-compact">
                         <span class="formula-compact-name">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))} <span class="formula-sub">${escapeHtml(formatOperatorPlanCost(formula))}${formula.previousCost ? ` <span class="formula-prev-cost">(${escapeHtml(formatOperatorCurrency(formula.previousCost))})</span>` : ''}</span>${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula)}</span>
-                        <span class="formula-compact-rate ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</span>
+                        <span class="formula-compact-rate ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorRate(formula))}</span>
                         <span class="formula-compact-threshold">${thresholdDisplay}</span>
                     </div>`;
             }
@@ -226,7 +231,7 @@ function renderOperatorsDetailed(operators, consumption, logos, onModal, favorit
                     <tr>
                         <td class="formula-name">${favoriteButton(opKey, formula, favorites)}${escapeHtml(localizeCommercialLabel(formula.name))}${formula.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(formula.note))}</span>` : ''}<br>${buildFormulaMeta(formula, true)}</td>
                         <td class="formula-cost">${costDisplay}</td>
-                        <td class="formula-kwh ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorCurrency(formula.rate))}</td>
+                        <td class="formula-kwh ${escapeHtml(operator.color)}">${escapeHtml(formatOperatorRate(formula))}</td>
                         <td class="result-km">${thresholdDisplay}</td>
                     </tr>`;
             }

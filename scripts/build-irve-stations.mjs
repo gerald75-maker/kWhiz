@@ -7,6 +7,7 @@ const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
 if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json]');
 
 const NETWORKS = [
+  ['engie-vianeo', /\b(?:engie\s+)?vianeo\b/],
   ['ionity', /\bionity\b/],
   ['tesla', /\btesla\b|supercharger/],
   ['electra', /\belectra\b/],
@@ -22,6 +23,10 @@ const NETWORKS = [
 
 function normalize(value = '') {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function isTrue(value) {
+  return String(value).trim().toLowerCase() === 'true' || String(value).trim() === '1';
 }
 
 function networkFor(row) {
@@ -48,13 +53,15 @@ for await (const row of parser) {
   const id = `${operator}:${lat.toFixed(4)}:${lon.toFixed(4)}`;
   const pointId = String(row.id_pdc_itinerance || '').trim().toUpperCase();
   if (!stationPointIds.has(id)) stationPointIds.set(id, new Set());
-  if (pointId) stationPointIds.get(id).add(pointId);
+  const pointIds = stationPointIds.get(id);
+  const isNewPoint = !pointId || !pointIds.has(pointId);
+  if (pointId) pointIds.add(pointId);
   const existing = stations.get(id);
   if (existing) {
     existing.power = Math.max(existing.power, power);
-    existing.connectors += 1;
-    existing.ccs ||= row.prise_type_combo_ccs === 'true';
-    existing.chademo ||= row.prise_type_chademo === 'true';
+    if (operator !== 'engie-vianeo' || isNewPoint) existing.connectors += 1;
+    existing.ccs ||= row.prise_type_combo_ccs === 'true' || (operator === 'engie-vianeo' && isTrue(row.prise_type_combo_ccs));
+    existing.chademo ||= row.prise_type_chademo === 'true' || (operator === 'engie-vianeo' && isTrue(row.prise_type_chademo));
     continue;
   }
 
@@ -68,20 +75,20 @@ for await (const row of parser) {
     lon: Number(lon.toFixed(6)),
     power,
     connectors: 1,
-    ccs: row.prise_type_combo_ccs === 'true',
-    chademo: row.prise_type_chademo === 'true',
+    ccs: row.prise_type_combo_ccs === 'true' || (operator === 'engie-vianeo' && isTrue(row.prise_type_combo_ccs)),
+    chademo: row.prise_type_chademo === 'true' || (operator === 'engie-vianeo' && isTrue(row.prise_type_chademo)),
     access: row.condition_acces || '',
     hours: row.horaires || ''
   });
 }
 
 const data = [...stations.values()].sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name));
-writeFileSync(output, JSON.stringify({ updatedAt: '2026-08-06', source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
+writeFileSync(output, JSON.stringify({ updatedAt: '2026-08-11', source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
 const pointToStation = {};
 for (const [stationId, pointIds] of stationPointIds) {
   for (const pointId of pointIds) pointToStation[pointId] = stationId;
 }
-writeFileSync(statusIndexOutput, JSON.stringify({ updatedAt: '2026-08-06', pointToStation }));
+writeFileSync(statusIndexOutput, JSON.stringify({ updatedAt: '2026-08-11', pointToStation }));
 
 const counts = Object.fromEntries(NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
 console.log(`Generated ${data.length} fast stations in ${output}`);

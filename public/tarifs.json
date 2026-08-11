@@ -1,6 +1,57 @@
 {
   "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
   "_updated": "2026-08-06",
+  "engie-vianeo": {
+    "name": "ENGIE Vianeo",
+    "color": "engie-vianeo",
+    "badge": "Recharge DC ultra-rapide de 300 à 400 kW selon le site",
+    "mapUrl": "https://www.engie-vianeo.com/carte-borne-recharge-voiture-electrique/",
+    "formulas": [
+      {
+        "id": "engie-vianeo-max",
+        "name": "ENGIE Vianeo Max",
+        "cost": 9.99,
+        "period": "monthly",
+        "rate": 0.33,
+        "ref": 0.54,
+        "sourceUrl": "https://www.engie-vianeo.com/abonnement-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station."
+      },
+      {
+        "id": "engie-vianeo-app",
+        "name": "Application ENGIE Vianeo — sans abonnement",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.54,
+        "ref": 0.54,
+        "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "isMinimum": true,
+        "note": "À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement."
+      },
+      {
+        "id": "engie-vianeo-bank-card",
+        "name": "Carte bancaire ENGIE Vianeo",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.6,
+        "ref": 0.6,
+        "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "isMinimum": true,
+        "note": "À partir de 0,60 €/kWh sur autoroute. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer."
+      }
+    ],
+    "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+    "verifiedAt": "2026-08-11"
+  },
   "iecharge": {
     "name": "IECharge",
     "color": "iecharge",

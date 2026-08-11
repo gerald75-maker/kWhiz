@@ -16,6 +16,29 @@ test('la carte propose une sélection multi-opérateurs explicite', async () => 
   assert.match(navigation, /bnav-map/);
 });
 
+test('ENGIE Vianeo est enregistré dans les filtres, marqueurs et listes de la carte', async () => {
+  const [source, payload] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/irve-fast.json', root), 'utf8').then(JSON.parse)
+  ]);
+  assert.match(source, /'engie-vianeo': 'ENGIE Vianeo'/);
+  assert.match(source, /'engie-vianeo': '#008bd2'/);
+  assert.match(source, /fillColor: COLORS\[station\.operator\]/);
+  assert.match(source, /operatorLabel: LABELS\[station\.operator\], logo: LOGOS\[station\.operator\]/);
+  assert.match(source, /data-operator="\$\{key\}"[\s\S]*\$\{LABELS\[key\]\}/);
+  assert.ok(payload.stations.some(station => station.operator === 'engie-vianeo'));
+});
+
+test('une ancienne sélection enregistrée contenant Vianeo est conservée', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  const keys = ['electra', 'engie-vianeo', 'ionity'];
+  const saved = ['engie-vianeo'];
+  const valid = saved.filter(key => keys.includes(key));
+  assert.deepEqual([...new Set(valid.length ? valid : keys)], ['engie-vianeo']);
+  assert.match(source, /saved\.filter\(key => keys\.includes\(key\)\)/);
+  assert.match(source, /selected = readSelection\(keys\)/);
+});
+
 test('la vue Carte masque le slider et permet une géolocalisation volontaire', async () => {
   const [navigation, mapSource, css] = await Promise.all([
     readFile(new URL('src/ui/navigation.js', root), 'utf8'),

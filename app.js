@@ -284,7 +284,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
                 discountPerKwh: Number.isFinite(formula.discountPerKwh) ? formula.discountPerKwh : null,
                 sourceUrl:      formula.sourceUrl || operator.sourceUrl || null,
                 verifiedAt:     formula.verifiedAt || operator.verifiedAt || null,
-                validUntil:     formula.validUntil || null
+                validUntil:     formula.validUntil || null,
+                isMinimum:      formula.isMinimum === true
             });
         }
     }
