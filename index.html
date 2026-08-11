@@ -150,7 +150,7 @@
 <div class="tab-content" id="tab-map">
 <header class="map-page-heading">
 <div><p class="profile-page-kicker" data-i18n="map.heading.kicker">Bornes rapides en France</p><h2 data-i18n="map.heading.title">Carte des stations</h2><p data-i18n="map.heading.intro">Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
-<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
+<div class="map-heading-actions"><div class="map-station-summary"><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div><p class="map-station-updated" id="map-station-updated" hidden></p></div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
 <details class="route-planner" id="route-planner">
 <summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true" class="route-planner-chevron">⌄</span></summary>
@@ -167,7 +167,7 @@
 </section>
 <div aria-label="Carte des stations de recharge rapide" class="stations-map" data-i18n-aria-label="map.canvasLabel" id="stations-map"></div>
 <section class="map-nearby"><h3 id="map-list-title" data-i18n="map.list.nearby">Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
-<p class="map-source"><span data-i18n="map.source.prefix">Données : Base nationale IRVE, mises à jour le</span> <span id="map-data-date">6 août 2026</span>. <span data-i18n="map.source.notice">La présence d’une station ne garantit pas sa disponibilité en temps réel.</span></p>
+<p class="map-source" id="map-source" hidden><span data-i18n="map.source.prefix">Données : Base nationale IRVE, mises à jour le</span> <span id="map-data-date"></span>. <span data-i18n="map.source.notice">La présence d’une station ne garantit pas sa disponibilité en temps réel.</span></p>
 </div>
 <!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">

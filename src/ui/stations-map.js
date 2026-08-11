@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
-import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
+import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
 import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
@@ -68,6 +68,19 @@ export function initStationsMap() {
   function renderLoadError() {
     count.textContent = t('map.error.unavailableTitle');
     list.innerHTML = `<p class="map-empty">${t('map.error.loadFailed')}</p>`;
+  }
+
+  function renderIrveUpdatedAt() {
+    const updatedLine = document.getElementById('map-station-updated');
+    const source = document.getElementById('map-source');
+    const sourceDate = document.getElementById('map-data-date');
+    const label = formatStationListUpdatedAt(irveUpdatedAt);
+    if (updatedLine) {
+      updatedLine.textContent = label;
+      updatedLine.hidden = !label;
+    }
+    if (source) source.hidden = !label;
+    if (sourceDate) sourceDate.textContent = label ? formatDate(irveUpdatedAt) : '';
   }
 
   function setRouteStatus(key = null, params = {}, state = '') {
@@ -439,7 +452,7 @@ export function initStationsMap() {
       selected = readSelection(keys);
       renderFilters(keys);
       irveUpdatedAt = payload.updatedAt;
-      document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
+      renderIrveUpdatedAt();
       map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.
@@ -532,7 +545,7 @@ export function initStationsMap() {
       if (currentLocationIsRouteStart) document.getElementById('route-start').value = t('map.route.currentLocation');
       setRouteStatus(routeUiState.key, routeUiState.params, routeUiState.state);
       renderLocationButton();
-      if (irveUpdatedAt) document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
+      renderIrveUpdatedAt();
       const locationPopupWasOpen = locationMarker?.isPopupOpen?.() || false;
       locationMarker?.setPopupContent?.(t('map.location.yourPosition'));
       if (locationPopupWasOpen) locationMarker.openPopup();
