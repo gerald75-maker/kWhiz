@@ -73,10 +73,10 @@ test('le logo optimisé est ajouté au précache hors ligne', async () => {
 });
 
 test('la règle IRVE exige Vianeo et protège ENGIE, ESSO et CERTAS', async () => {
-  const generator = await readFile(new URL('scripts/build-irve-stations.mjs', root), 'utf8');
-  assert.match(generator, /engie-vianeo.*engie\\s\+\)\?vianeo/);
-  assert.doesNotMatch(generator, /\['engie-vianeo',\s*\/\\bengie\\b\//);
-  assert.doesNotMatch(generator, /\['engie-vianeo',[^\n]*(?:esso|certas)/i);
+  const networks = await readFile(new URL('scripts/irve-networks.mjs', root), 'utf8');
+  assert.match(networks, /engie-vianeo.*engie\\s\+\)\?vianeo/);
+  assert.doesNotMatch(networks, /\['engie-vianeo',\s*\/\\bengie\\b\//);
+  assert.doesNotMatch(networks, /\['engie-vianeo',[^\n]*(?:esso|certas)/i);
   const audit = await readFile(new URL('docs/vianeo-irve-audit-2026-08-11.md', root), 'utf8');
   assert.match(audit, /Esso Arnage.*C4Energies/);
   assert.match(audit, /ENGIE PACA.*Greenspot/);
