@@ -18,7 +18,14 @@ function fixture(countPerOperator = 10, date = '2026-08-11') {
   }
   return {
     stations: { updatedAt: date, stations },
-    status: { updatedAt: date, metrics: { pointIds: stations.length, associations: stations.length, conflictingPointIds: 0 }, pointToStation }
+    status: {
+      updatedAt: date,
+      metrics: { pointIds: stations.length, indexedPointIds: stations.length, associations: stations.length, conflictingPointIds: 0, resolvedNearbyConflicts: 0, ambiguousPointIds: 0, distantConflicts: 0, overwrittenAssociations: 0 },
+      pointToStation,
+      pointToStations: {},
+      ambiguousPointIds: [],
+      ambiguousPointCandidates: {}
+    }
   };
 }
 
@@ -42,14 +49,25 @@ test('accepte une évolution hebdomadaire modérée et produit le rapport PR', (
   assert.match(markdown, /Date de la source : \*\*2026-08-18\*\*/);
   assert.match(markdown, /Stations : \*\*110 → 121\*\*/);
   assert.match(markdown, /\| engie-vianeo \| 10 \| 11 \| \+10\.0 % \|/);
+  assert.match(markdown, /Conflits proches résolus : \*\*0\*\*/);
+  assert.match(markdown, /Associations encore écrasées : \*\*0\*\*/);
 });
 
 test('amorce les associations lorsque le fichier publié utilise encore l’ancien format', () => {
   const current = fixture(10);
   delete current.status.metrics;
   const candidate = fixture(10, '2026-08-18');
+  const pointIds = Object.keys(candidate.status.pointToStation).slice(0, 35);
+  for (const [index, pointId] of pointIds.entries()) {
+    const currentStationId = candidate.status.pointToStation[pointId];
+    const otherStationId = candidate.stations.stations[(index + 1) % candidate.stations.stations.length].id;
+    const stationIds = [currentStationId, otherStationId].sort();
+    candidate.status.pointToStation[pointId] = stationIds[0];
+    candidate.status.pointToStations[pointId] = stationIds;
+  }
   candidate.status.metrics.associations = 145;
   candidate.status.metrics.conflictingPointIds = 35;
+  candidate.status.metrics.resolvedNearbyConflicts = 35;
   const report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs() });
   assert.deepEqual(report.errors, []);
   assert.match(formatIrveReport(report), /indisponible \(ancien format\) → 145/);
@@ -60,7 +78,7 @@ test('refuse disparition, variation de points et opérateur sans règle', () => 
   const candidate = fixture(10, '2026-08-18');
   candidate.stations.stations = candidate.stations.stations.filter(station => station.operator !== 'engie-vianeo');
   candidate.status.pointToStation = {};
-  candidate.status.metrics = { pointIds: 0, associations: 0, conflictingPointIds: 0 };
+  candidate.status.metrics = { pointIds: 0, indexedPointIds: 0, associations: 0, conflictingPointIds: 0, resolvedNearbyConflicts: 0, ambiguousPointIds: 0, distantConflicts: 0, overwrittenAssociations: 0 };
   const tariffs = { ...activeTariffs(), inconnu: { formulas: [{}] } };
   const report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs });
   assert.ok(report.errors.some(error => /absent.*engie-vianeo/.test(error)));
@@ -94,6 +112,22 @@ test('refuse coordonnées, doublons, associations orphelines et date antérieure
   assert.ok(report.errors.some(error => /station dupliqué/.test(error)));
   assert.ok(report.errors.some(error => /orpheline/.test(error)));
   assert.ok(report.errors.some(error => /Date source antérieure/.test(error)));
+});
+
+test('refuse une association ambiguë publiée ou encore écrasée', () => {
+  const current = fixture(10);
+  const candidate = fixture(10, '2026-08-18');
+  const pointId = Object.keys(candidate.status.pointToStation)[0];
+  const stationIds = candidate.stations.stations.slice(0, 2).map(station => station.id).sort();
+  candidate.status.ambiguousPointIds = [pointId];
+  candidate.status.ambiguousPointCandidates = { [pointId]: stationIds };
+  candidate.status.metrics.ambiguousPointIds = 1;
+  candidate.status.metrics.conflictingPointIds = 1;
+  candidate.status.metrics.associations += 1;
+  candidate.status.metrics.overwrittenAssociations = 1;
+  const report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs() });
+  assert.ok(report.errors.some(error => /Identifiant ambigu encore attribué/.test(error)));
+  assert.ok(report.errors.some(error => /Associations encore écrasées/.test(error)));
 });
 
 test('documente des seuils relatifs non liés aux volumes courants', () => {
