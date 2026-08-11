@@ -57,10 +57,21 @@ test('le logo officiel est local et les stations Vianeo alimentent carte et traj
   await access(new URL('public/logos/engie-vianeo.webp', root));
   const payload = JSON.parse(await readFile(new URL('public/irve-fast.json', root), 'utf8'));
   const stations = payload.stations.filter(station => station.operator === 'engie-vianeo');
-  assert.equal(stations.length, 181);
-  assert.equal(stations.reduce((sum, station) => sum + station.connectors, 0), 1403);
+  // Seuil de garde volontairement inférieur au volume courant pour tolérer les mises à jour IRVE hebdomadaires.
+  const MIN_EXPECTED_VIANEO_STATIONS = 100;
+  assert.ok(stations.length >= MIN_EXPECTED_VIANEO_STATIONS);
+  assert.ok(stations.every(station => station.operator === 'engie-vianeo'));
+  assert.equal(new Set(stations.map(station => station.id)).size, stations.length);
+  assert.ok(stations.every(station => typeof station.id === 'string' && station.id.startsWith('engie-vianeo:')));
+  assert.ok(stations.every(station => Number.isInteger(station.connectors) && station.connectors > 0));
   assert.ok(stations.every(station => station.power >= 100));
+  assert.ok(stations.every(station => Number.isFinite(station.lat) && Number.isFinite(station.lon)));
   assert.ok(stations.every(station => station.lat >= 41 && station.lat <= 52 && station.lon >= -6 && station.lon <= 10.5));
+  assert.ok(new Set(stations.map(station => station.power)).has(480));
+  assert.ok(stations.every(station => /(?:engie\s+)?vianeo/i.test(station.name)));
+  assert.ok(stations.every(station => !/\b(?:esso|certas)\b/i.test(`${station.name} ${station.address} ${station.city}`)));
+  assert.ok(Number.isInteger(payload.grouping?.aliases) && payload.grouping.aliases >= 0);
+  assert.ok(Number.isInteger(payload.grouping?.removedStations) && payload.grouping.removedStations >= 0);
   const mapSource = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
   assert.match(mapSource, /'engie-vianeo': 'ENGIE Vianeo'/);
   assert.match(mapSource, /'engie-vianeo': '#008bd2'/);
