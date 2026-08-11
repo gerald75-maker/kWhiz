@@ -1,29 +1,33 @@
-import { PERIOD } from '../../domain/pricing.js';
+import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
+import { formatDate, formatTariffsFreshness, formatTariffsVerifiedOn, getLanguage, getLocale, localizeCommercialLabel, localizeTariffText, t } from '../../i18n/i18n.js';
 
-export function renderTarifsDateBanner(dateText, isError, freshness = null) {
+export function renderTarifsDateBanner(updatedAt, isError, freshness = null, source = 'online') {
     const banner = document.getElementById('tarifs-update-banner');
     const text = document.getElementById('tarifs-update-text');
     if (!banner || !text) return;
     banner.classList.toggle('tariffs-update-banner--error', isError);
     banner.classList.toggle('tariffs-update-banner--stale', freshness?.state === 'stale' || freshness?.state === 'critical');
     banner.classList.add('tariffs-update-banner--visible');
+    const freshnessLabel = formatTariffsFreshness(freshness);
+    const sourceLabel = t(`tariffs.source.${source}`);
+    const verifiedLabel = t('tariffs.status.verifiedOn', { date: updatedAt ? formatDate(updatedAt) : '' });
     text.textContent = isError
-        ? '⚠️ Tarifs indisponibles — vérifiez votre connexion'
+        ? `⚠️ ${t('tariffs.status.unavailableCheckConnection')}`
         : freshness?.state === 'critical'
-            ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
+            ? `⚠️ ${freshnessLabel} — ${t('tariffs.status.verifyBeforeChoosing')}`
             : freshness?.state === 'stale'
-                ? '⚠️ ' + freshness.label
-                : 'Tarifs vérifiés le ' + dateText;
+                ? `⚠️ ${freshnessLabel}`
+                : `${verifiedLabel} · ${sourceLabel}`;
 
     const infosDate = document.getElementById('infos-tarifs-date');
     if (infosDate) infosDate.textContent = isError
-        ? 'Tarifs embarqués (hors ligne)'
+        ? t('tariffs.status.offlineEmbedded')
         : freshness?.state === 'critical'
-            ? '⚠️ ' + freshness.label + ' — vérifiez avant de choisir'
+            ? `⚠️ ${freshnessLabel} — ${t('tariffs.status.verifyBeforeChoosing')}`
             : freshness?.state === 'stale'
-                ? '⚠️ ' + freshness.label
-                : 'Tarifs vérifiés le ' + dateText;
+                ? `⚠️ ${freshnessLabel}`
+                : `${verifiedLabel} · ${sourceLabel}`;
 }
 
 export function rankTierClass(rate, lowest) {
@@ -33,104 +37,193 @@ export function rankTierClass(rate, lowest) {
     return gapPct <= 15 ? 'rank-mid' : 'rank-high';
 }
 
-function compareValues(a, b, column, direction) {
-    let valA = a[column];
-    let valB = b[column];
-    if (valA === Infinity && valB === Infinity) return 0;
-    if (valA === Infinity) return 1;
-    if (valB === Infinity) return -1;
-    if (typeof valA === 'string') valA = valA.toLocaleLowerCase('fr-FR');
-    if (typeof valB === 'string') valB = valB.toLocaleLowerCase('fr-FR');
-    const result = valA > valB ? 1 : valA < valB ? -1 : 0;
-    return direction === 'asc' ? result : -result;
+export function filterComparisonFormulas(formulas, query) {
+    const normalizedQuery = query.trim().toLocaleLowerCase(getLocale());
+    return formulas.filter(formula => {
+        if (!normalizedQuery) return true;
+        return [formula.operator, formula.name, localizeCommercialLabel(formula.operator), localizeCommercialLabel(formula.name)]
+            .some(label => String(label).toLocaleLowerCase(getLocale()).includes(normalizedQuery));
+    });
+}
+
+export function openComparisonRecommendation(navigation) {
+    navigation?.switchView('profile');
+}
+
+export function adjustedThreshold(formulaKm, fastPercentage) {
+    if (formulaKm === 0) return 0;
+    if (!Number.isFinite(formulaKm) || fastPercentage <= 0) return Infinity;
+    return Math.ceil(formulaKm / (fastPercentage / 100));
+}
+
+export function buildComparisonRanking(formulas, { monthlyKm, consumption, fastPercentage, homeRate, date = new Date() }) {
+    if (!(monthlyKm > 0)) return [];
+    const fastRatio = Math.min(100, Math.max(0, fastPercentage)) / 100;
+    const fastKm = monthlyKm * fastRatio;
+    const fastKwh = fastKm * consumption;
+    const homeCost = (monthlyKm - fastKm) * consumption * homeRate;
+
+    return formulas.map((formula, catalogIndex) => {
+        const profileCost = computeProfileMonthlyCost(formula, monthlyKm, consumption, { fastPercentage, homeRate, date });
+        const estimatedMonthlyCost = Number.isFinite(profileCost) ? Math.max(0, profileCost - homeCost) : Infinity;
+        const subscriptionCost = Number.isFinite(formula.monthlyCost) ? formula.monthlyCost : 0;
+        const fastChargingCost = Number.isFinite(estimatedMonthlyCost)
+            ? Math.max(0, estimatedMonthlyCost - subscriptionCost)
+            : Infinity;
+        const referenceCost = Number.isFinite(formula.ref) ? fastKwh * formula.ref : Infinity;
+        const subscriptionBenefit = subscriptionCost > 0 && Number.isFinite(referenceCost) && Number.isFinite(estimatedMonthlyCost)
+            ? referenceCost - estimatedMonthlyCost
+            : null;
+        return {
+            ...formula,
+            catalogIndex,
+            fastKm,
+            fastKwh,
+            estimatedMonthlyCost,
+            fastChargingCost,
+            subscriptionBenefit,
+            adjustedThresholdKm: adjustedThreshold(formula.km, fastPercentage)
+        };
+    }).sort((a, b) => {
+        if (!Number.isFinite(a.estimatedMonthlyCost) && !Number.isFinite(b.estimatedMonthlyCost)) return a.catalogIndex - b.catalogIndex;
+        if (!Number.isFinite(a.estimatedMonthlyCost)) return 1;
+        if (!Number.isFinite(b.estimatedMonthlyCost)) return -1;
+        return a.estimatedMonthlyCost - b.estimatedMonthlyCost || a.catalogIndex - b.catalogIndex;
+    });
 }
 
 
 function pricingBadge(formula) {
-    if (formula.pricingType === 'station') return '<span class="compare-pricing-badge is-variable">Tarif variable</span>';
-    if (formula.pricingType === 'range') return '<span class="compare-pricing-badge is-variable">Plage tarifaire</span>';
-    if (formula.pricingType === 'discount') return '<span class="compare-pricing-badge is-discount">Remise</span>';
-    return '<span class="compare-pricing-badge is-fixed">Tarif fixe</span>';
+    if (formula.pricingType === 'station') return `<span class="compare-pricing-badge is-variable">${t('comparison.badge.variable')}</span>`;
+    if (formula.pricingType === 'range') return `<span class="compare-pricing-badge is-variable">${t('comparison.badge.range')}</span>`;
+    if (formula.pricingType === 'discount') return `<span class="compare-pricing-badge is-discount">${t('comparison.badge.discount')}</span>`;
+    return `<span class="compare-pricing-badge is-fixed">${t('comparison.badge.fixed')}</span>`;
+}
+
+function currency(value, language = getLanguage(), fractionDigits = 2) {
+    return new Intl.NumberFormat(language === 'en' ? 'en-GB' : 'fr-FR', {
+        style: 'currency', currency: 'EUR', minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits
+    }).format(value).replace(/\u00a0/g, ' ');
 }
 
 function rateLabel(formula) {
     if ((formula.pricingType === 'range' || formula.pricingType === 'discount') && Number.isFinite(formula.rateMin) && Number.isFinite(formula.rateMax)) {
-        return `${formatNumber(formula.rateMin, 2)}–${formatNumber(formula.rateMax, 2)} €/kWh`;
+        return `${currency(formula.rateMin, getLanguage(), 2)}–${currency(formula.rateMax, getLanguage(), 2)}/kWh`;
     }
-    if (formula.pricingType === 'station') return `≈ ${formatNumber(formula.rate, 2)} €/kWh`;
-    return `${formatNumber(formula.rate, formula.chargebackRate !== null ? 3 : 2)} €/kWh`;
+    if (formula.isMinimum) return t('comparison.fromRate', { rate: `${currency(formula.rate, getLanguage(), 2)}/kWh` });
+    if (formula.pricingType === 'station') return `≈ ${currency(formula.rate, getLanguage(), 2)}/kWh`;
+    return `${currency(formula.rate, getLanguage(), formula.chargebackRate !== null ? 3 : 2)}/kWh`;
 }
 
-function thresholdLabel(km) {
-    if (km === 0) return 'Sans seuil';
-    if (km === Infinity) return 'Non rentable';
-    return `Rentable dès ${formatNumber(km)} km/mois`;
+function formatComparisonNumber(value, language, fractionDigits) {
+    return new Intl.NumberFormat(language === 'en' ? 'en-GB' : 'fr-FR', fractionDigits === undefined ? {} : {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+    }).format(value);
 }
 
-function subscriptionLabel(formula) {
-    if (!(formula.cost > 0)) return 'Sans abonnement';
-    return `${formatNumber(formula.cost, 2)} €/${formula.period === PERIOD.MONTHLY ? 'mois' : 'an'}`;
+export function profileThresholdLabel(formula, fastPercentage, language = getLanguage()) {
+    if (!(formula.monthlyCost > 0)) return t('comparison.noSubscription');
+    if (fastPercentage <= 0) return t('comparison.noFastCharging');
+    if (!Number.isFinite(formula.adjustedThresholdKm)) return t('comparison.notProfitable');
+    const total = formatComparisonNumber(formula.adjustedThresholdKm, language);
+    const fast = formatComparisonNumber(Math.ceil(formula.km), language);
+    if (fastPercentage >= 100) return t('comparison.breakEvenFrom', { distance: total });
+    return t('comparison.breakEvenWithFastShare', { total, fast });
 }
 
-export function renderComparisonTable(formulasData, column, direction, { logos = {}, onModal, onDetail, query = '' } = {}) {
-    const normalizedQuery = query.trim().toLocaleLowerCase('fr-FR');
-    const data = formulasData
-        .filter(formula => !normalizedQuery || `${formula.operator} ${formula.name}`.toLocaleLowerCase('fr-FR').includes(normalizedQuery))
-        .sort((a, b) => compareValues(a, b, column, direction));
+export function subscriptionLabel(formula, language = getLanguage()) {
+    if (!(formula.cost > 0)) return t('comparison.noSubscription');
+    if (formula.period === PERIOD.ANNUAL) {
+        return t('comparison.annualSubscription', { annual: currency(formula.cost, language), monthly: currency(formula.monthlyCost, language) });
+    }
+    return t('comparison.monthlySubscription', { amount: currency(formula.cost, language) });
+}
+
+export function subscriptionBenefitLabel(formula, language = getLanguage()) {
+    if (!(formula.monthlyCost > 0)) return t('comparison.noSubscriptionComparison');
+    if (formula.fastKwh <= 0) return t('comparison.noFastCharging');
+    if (!Number.isFinite(formula.subscriptionBenefit)) return t('comparison.referenceUnavailable');
+    if (formula.subscriptionBenefit >= 0.5) return t('comparison.saves', { amount: currency(formula.subscriptionBenefit, language) });
+    if (formula.subscriptionBenefit >= 0) return t('comparison.smallSaving');
+    return t('comparison.costsMore', { amount: currency(Math.abs(formula.subscriptionBenefit), language) });
+}
+
+function chargebackExplanation(formula, language) {
+    if (!formula.chargebackConfig?.enabled || !Number.isFinite(formula.rateRaw) || formula.fastKwh <= 0) return '';
+    const effectivePaidRate = formula.fastChargingCost / formula.fastKwh;
+    return `<p class="compare-chargeback-note">${t('comparison.atlanteEstimate', { rate: currency(effectivePaidRate, language, 3) })}</p>`;
+}
+
+export function renderComparisonTable(formulasData, {
+    monthlyKm = 0,
+    consumption = 0.18,
+    fastPercentage = 100,
+    homeRate = 0.20,
+    date = new Date(),
+    logos = {},
+    onModal,
+    onDetail,
+    query = ''
+} = {}) {
+    const language = getLanguage();
+    const filteredData = filterComparisonFormulas(formulasData, query);
+    const data = monthlyKm > 0
+        ? buildComparisonRanking(filteredData, { monthlyKm, consumption, fastPercentage, homeRate, date })
+        : [];
 
     const list = document.getElementById('ranking-list');
     const count = document.getElementById('compare-count');
-    if (!list) return { column, direction, query };
+    const summary = document.getElementById('compare-summary');
+    if (!list) return { query };
 
-    if (count) count.textContent = `${data.length} formule${data.length > 1 ? 's' : ''}`;
-    const lowestCost = data.reduce((min, formula) => Math.min(min, formula.costPer100km), Infinity);
+    if (summary) summary.textContent = monthlyKm > 0
+        ? t('comparison.summary', { km: formatComparisonNumber(monthlyKm, language), fast: formatComparisonNumber(fastPercentage, language), consumption: formatComparisonNumber(consumption * 100, language) })
+        : t('comparison.enterMileage');
+    if (count) count.textContent = monthlyKm > 0 ? t(data.length === 1 ? 'comparison.countOne' : 'comparison.countMany', { count: formatComparisonNumber(data.length, language) }) : '';
+    if (monthlyKm <= 0) {
+        list.innerHTML = `<p class="compare-empty">${t('comparison.enterMileage')}</p>`;
+        return { query };
+    }
 
     list.innerHTML = data.length ? data.map((formula, index) => {
         const formulaKey = `${formula.opKey}::${formula.name}`;
         const logo = logos[formula.opKey]
             ? `<img src="${escapeHtml(logos[formula.opKey])}" class="compare-logo" alt="" loading="lazy">`
             : '<span class="compare-logo compare-logo--fallback" aria-hidden="true"></span>';
-        const difference = Number.isFinite(lowestCost) ? formula.costPer100km - lowestCost : 0;
-        const differenceText = difference <= 0.005
-            ? 'Coût le plus bas'
-            : `+${formatNumber(difference, 2)} €/100 km`;
-        const rawRate = formula.chargebackRate !== null && Number.isFinite(formula.rateRaw)
-            ? `<span class="compare-old-rate">${formatNumber(formula.rateRaw, 2)} €</span>`
-            : '';
-        const note = formula.note ? `<p class="compare-note">${escapeHtml(formula.note)}</p>` : '';
+        const note = formula.note ? `<p class="compare-note">${escapeHtml(localizeTariffText(formula.note))}</p>` : '';
         const rank = index + 1;
+        const verifiedLabel = formatTariffsVerifiedOn(formula.verifiedAt);
+        const operatorLabel = localizeCommercialLabel(formula.operator);
+        const formulaLabel = localizeCommercialLabel(formula.name);
 
-        return `<article class="compare-item${difference <= 0.005 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="Voir le détail de ${escapeHtml(formula.operator)} ${escapeHtml(formula.name)}">
+        return `<article class="compare-item${index === 0 ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" tabindex="0" role="button" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">
             <div class="compare-rank" aria-hidden="true">${rank}</div>
             <div class="compare-identity">
                 ${logo}
                 <div class="compare-copy">
-                    <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(formula.operator)}</p>
-                    <h3>${escapeHtml(formula.name)}</h3>
-                    <div class="compare-badges">${pricingBadge(formula)}${formula.verifiedAt ? `<span class="compare-verified">Vérifié le ${escapeHtml(formula.verifiedAt.split('-').reverse().join('/'))}</span>` : ''}</div>
+                    <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(operatorLabel)}</p>
+                    <h3>${escapeHtml(formulaLabel)}</h3>
+                    <div class="compare-badges">${pricingBadge(formula)}${verifiedLabel ? `<span class="compare-verified">${verifiedLabel}</span>` : ''}</div>
                     ${note}
                 </div>
             </div>
             <div class="compare-prices">
-                <strong>${formatNumber(formula.costPer100km, 2)} €</strong>
-                <span>/100 km</span>
-                <small class="${difference <= 0.005 ? 'is-best' : ''}">${differenceText}</small>
+                <span>${t('comparison.estimatedCost')}</span>
+                <strong>${currency(formula.estimatedMonthlyCost, language)}</strong>
+                <small>${t('comparison.perMonthSuffix')}</small>
             </div>
-            <div class="compare-meta" aria-label="Détails tarifaires">
-                <span><small>Tarif</small>${rawRate}${rateLabel(formula)}</span>
-                <span><small>Abonnement</small>${subscriptionLabel(formula)}</span>
-                <span><small>Seuil</small>${thresholdLabel(formula.km)}</span>
+            <div class="compare-meta" aria-label="${t('comparison.details')}">
+                <span><small>${t('comparison.fastCharging')}</small>${currency(formula.fastChargingCost, language)}</span>
+                <span><small>${t('comparison.subscription')}</small>${subscriptionLabel(formula, language)}</span>
+                <span><small>${t('comparison.tariff')}</small>${formula.chargebackConfig?.enabled ? `${currency(formula.rateRaw, language)}/kWh ${t('comparison.nominal')}` : rateLabel(formula)}</span>
+                <span><small>${t('comparison.profitability')}</small>${profileThresholdLabel(formula, fastPercentage, language)}</span>
             </div>
+            <p class="compare-benefit">${subscriptionBenefitLabel(formula, language)}</p>
+            ${chargebackExplanation(formula, language)}
             <svg class="compare-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
         </article>`;
-    }).join('') : '<p class="compare-empty">Aucune formule ne correspond à cette recherche.</p>';
-
-    document.querySelectorAll('.compare-sort-btn').forEach(button => {
-        const active = button.dataset.sort === column;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-pressed', String(active));
-        button.dataset.direction = active ? direction : '';
-    });
+    }).join('') : `<p class="compare-empty">${t('comparison.empty')}</p>`;
 
     const openDetail = target => {
         const card = target.closest('[data-detail]');
@@ -152,5 +245,5 @@ export function renderComparisonTable(formulasData, column, direction, { logos =
         event.preventDefault();
         openDetail(card);
     };
-    return { column, direction, query };
+    return { query };
 }

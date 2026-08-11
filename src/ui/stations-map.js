@@ -1,18 +1,21 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
+import { getLanguage, formatDate, formatDistance, formatNumber, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
+import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
+import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
 
 const LABELS = {
   ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
   fastned: 'Fastned', atlante: 'Atlante', zunder: 'Zunder', iziviafast: 'Izivia Fast',
-  lidl: 'Lidl', statione: 'Station E'
+  lidl: 'Lidl', pluginn: 'Plug Inn fast charge', 'engie-vianeo': 'ENGIE Vianeo'
 };
 
 const COLORS = {
   ionity: '#6d5dfc', tesla: '#e82127', electra: '#6f4bf2', iecharge: '#16a34a',
   fastned: '#f7c600', atlante: '#00a7a7', zunder: '#4db9e5', iziviafast: '#ef7d00',
-  lidl: '#0050aa', statione: '#0ea5e9'
+  lidl: '#0050aa', pluginn: '#f45b20', 'engie-vianeo': '#008bd2'
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
@@ -52,50 +55,84 @@ export function initStationsMap() {
   let statusRequest = null;
   let lastStatusFetch = 0;
   let mapPositionReady = false;
+  let routeLayer = null;
+  let routeStationMetrics = null;
   let loaded = false;
+  let irveUpdatedAt = null;
+  let routeUiState = { key: null, params: {}, state: '' };
+  let locationButtonState = 'locate';
+  let currentLocationIsRouteStart = false;
+  let routeChoiceUsesFallback = false;
+  let loadFailed = false;
+
+  function renderLoadError() {
+    count.textContent = t('map.error.unavailableTitle');
+    list.innerHTML = `<p class="map-empty">${t('map.error.loadFailed')}</p>`;
+  }
+
+  function setRouteStatus(key = null, params = {}, state = '') {
+    routeUiState = { key, params, state };
+    const element = document.getElementById('route-planner-status');
+    if (!element) return;
+    if (state) element.dataset.state = state;
+    else delete element.dataset.state;
+    element.textContent = key === 'map.route.success'
+      ? t(key, {
+          places: params.recognizedPlaces,
+          distance: formatDistance(Math.round(params.distanceKm)),
+          stations: plural('count.station', params.matching)
+        })
+      : key ? t(key, params) : '';
+  }
+
+  function renderLocationButton() {
+    const button = document.getElementById('map-locate');
+    if (!button) return;
+    const labels = {
+      locate: 'map.location.locate', recenter: 'map.location.recenter', loading: 'map.location.loading',
+      denied: 'map.location.denied', unavailable: 'map.location.unavailable',
+      timeout: 'map.location.timeout', notFound: 'map.location.notFound',
+      mapUnavailable: 'map.error.unavailableTitle'
+    };
+    const key = labels[locationButtonState] || labels.locate;
+    button.innerHTML = locationButtonState === 'locate' || locationButtonState === 'recenter'
+      ? `<span aria-hidden="true">⌖</span> <span>${t(key)}</span>`
+      : t(key);
+  }
+
+  function renderRouteChoice() {
+    if (routeChoiceUsesFallback) document.getElementById('route-choice-station').textContent = t('map.station.selected');
+    [['route-apple', 'Plans'], ['route-google', 'Google Maps'], ['route-waze', 'Waze']].forEach(([id, app]) => {
+      document.getElementById(id)?.setAttribute('aria-label', t('map.gps.openWith', { app }));
+    });
+  }
 
   function visibleStations() {
-    return stations.filter(station => selected.has(station.operator));
+    return stations.filter(station => selected.has(station.operator) && (!routeStationMetrics || routeStationMetrics.has(station.id)));
   }
 
   function statusFor(station) {
     return stationStatuses[station.id] || { status: 'unknown' };
   }
 
-  function formatStatusAge(observedAt) {
-    const ageMinutes = Math.max(0, Math.floor((Date.now() - Date.parse(observedAt)) / 60000));
-    if (!Number.isFinite(ageMinutes)) return '';
-    return ageMinutes < 1 ? 'à l’instant' : `il y a ${ageMinutes} min`;
-  }
-
   function statusDescription(station) {
-    const status = statusFor(station);
-    const age = status.observedAt ? ` · ${formatStatusAge(status.observedAt)}` : '';
-    if (status.status === 'available') return { state: 'available', label: `${status.free} libre${status.free > 1 ? 's' : ''} sur ${status.known}${age}` };
-    if (status.status === 'busy') return { state: 'busy', label: `Occupée${status.reserved ? ' ou réservée' : ''}${age}` };
-    if (status.status === 'out_of_service') return { state: 'out_of_service', label: `Hors service${age}` };
-    return { state: 'unknown', label: 'Statut inconnu' };
-  }
-
-  function statusBadge(station, className = '') {
-    const status = statusDescription(station);
-    return `<span class="station-status ${className}" data-status="${status.state}"><i aria-hidden="true"></i>${escapeHtml(status.label)}</span>`;
+    return formatStationStatus(statusFor(station));
   }
 
   function renderList(items) {
-    let nearby = map
+    let nearby = routeStationMetrics
+      ? [...items].sort((a, b) => routeStationMetrics.get(a.id).progress - routeStationMetrics.get(b.id).progress).slice(0, 60)
+      : map
       ? [...items].sort((a, b) => map.getCenter().distanceTo([a.lat, a.lon]) - map.getCenter().distanceTo([b.lat, b.lon])).slice(0, 12)
       : items.slice(0, 12);
     const selectedStation = selectedStationId ? items.find(station => station.id === selectedStationId) : null;
     if (selectedStation && !nearby.some(station => station.id === selectedStationId)) {
       nearby = [selectedStation, ...nearby.slice(0, 11)];
     }
-    list.innerHTML = nearby.map(station => `
-      <article class="map-station-card${station.id === selectedStationId ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="Afficher ${escapeHtml(station.name)} sur la carte" aria-pressed="${station.id === selectedStationId}">
-        <img src="${LOGOS[station.operator] || ''}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(station.name)}</strong><span>${LABELS[station.operator]} · jusqu’à ${station.power} kW · ${station.connectors} point${station.connectors > 1 ? 's' : ''}</span><small>${escapeHtml(station.address || station.city)}</small>${statusBadge(station)}</div>
-        <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="Itinéraire vers ${escapeHtml(station.name)}">Itinéraire</button>
-      </article>`).join('') || '<p class="map-empty">Aucune station ne correspond à cette sélection.</p>';
+    list.innerHTML = nearby.map(station => renderStationCardHtml(station, {
+      operatorLabel: LABELS[station.operator], logo: LOGOS[station.operator] || '',
+      selected: station.id === selectedStationId, status: statusFor(station)
+    })).join('') || `<p class="map-empty">${t('map.list.empty')}</p>`;
   }
 
   function renderStations() {
@@ -119,12 +156,15 @@ export function initStationsMap() {
           color: STATUS_COLORS[currentStatus], fillColor: COLORS[station.operator], fillOpacity: 0.92,
           bubblingMouseEvents: false
         });
-      marker.bindPopup(`<strong>${escapeHtml(station.name)}</strong><br>${LABELS[station.operator]} · ${station.power} kW<br>${escapeHtml(station.address)}<br>${statusBadge(station, 'station-status--popup')}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button">Lancer l’itinéraire</button>`, { autoPan: false }).addTo(map);
+      marker.bindPopup(renderStationPopupHtml(station, { operatorLabel: LABELS[station.operator], status: statusFor(station) }), { autoPan: false }).addTo(map);
+      marker.getElement()?.setAttribute('aria-label', t('map.station.showOnMap', { name: station.name }));
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
     });
-    count.textContent = `${filtered.length.toLocaleString('fr-FR')} station${filtered.length > 1 ? 's' : ''} · ${inView.length.toLocaleString('fr-FR')} dans la carte`;
+    count.textContent = getLanguage() === 'en'
+      ? `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} on the map`
+      : `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} dans la carte`;
     renderList(filtered);
     if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
   }
@@ -159,6 +199,102 @@ export function initStationsMap() {
     return statusRequest;
   }
 
+  function routeMetric(station, coordinates) {
+    let bestDistance = Infinity;
+    let bestProgress = 0;
+    let travelled = 0;
+    for (let index = 1; index < coordinates.length; index++) {
+      const [lonA, latA] = coordinates[index - 1];
+      const [lonB, latB] = coordinates[index];
+      const meanLat = ((latA + latB + station.lat) / 3) * Math.PI / 180;
+      const lonScale = 111.32 * Math.cos(meanLat);
+      const ax = lonA * lonScale;
+      const ay = latA * 111.32;
+      const bx = lonB * lonScale;
+      const by = latB * 111.32;
+      const px = station.lon * lonScale;
+      const py = station.lat * 111.32;
+      const dx = bx - ax;
+      const dy = by - ay;
+      const segmentLengthSquared = dx * dx + dy * dy;
+      const factor = segmentLengthSquared ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / segmentLengthSquared)) : 0;
+      const distance = Math.hypot(px - (ax + factor * dx), py - (ay + factor * dy));
+      const segmentLength = Math.sqrt(segmentLengthSquared);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestProgress = travelled + factor * segmentLength;
+      }
+      travelled += segmentLength;
+    }
+    return { distance: bestDistance, progress: bestProgress };
+  }
+
+  function clearRoute() {
+    routeLayer?.remove();
+    routeLayer = null;
+    routeStationMetrics = null;
+    selectedStationId = null;
+    document.getElementById('map-list-title').textContent = t('map.list.nearby');
+    setRouteStatus();
+    document.getElementById('route-clear').hidden = true;
+    renderStations();
+  }
+
+  async function searchRoute() {
+    const startInput = document.getElementById('route-start');
+    const start = startInput.value.trim();
+    const end = document.getElementById('route-end').value.trim();
+    const button = document.getElementById('route-search');
+    const status = document.getElementById('route-planner-status');
+    if (!start || !end || !map) return;
+    button.disabled = true;
+    setRouteStatus('map.route.searchingAddresses', {}, 'loading');
+    try {
+      const response = await fetch('./route.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        body: JSON.stringify({
+          start,
+          end,
+          startCoordinates: startInput.dataset.lat && startInput.dataset.lon
+            ? [Number(startInput.dataset.lon), Number(startInput.dataset.lat)]
+            : null
+        })
+      });
+      const responseText = await response.text();
+      let payload = null;
+      try { payload = JSON.parse(responseText); } catch (_) { /* réponse invalide traitée ci-dessous */ }
+      if (!payload) throw { uiKey: routeErrorKey({ responseValid: false }) };
+      if (!response.ok || !payload.geometry?.coordinates?.length) {
+        throw { uiKey: routeErrorKey({ code: payload.code, responseValid: Boolean(payload) }) };
+      }
+      setRouteStatus('map.route.calculating', {}, 'loading');
+      routeLayer?.remove();
+      routeLayer = L.geoJSON(payload.geometry, { style: { color: '#00aeea', weight: 5, opacity: 0.86 } }).addTo(map);
+      routeStationMetrics = new Map();
+      stations.forEach(station => {
+        const metric = routeMetric(station, payload.geometry.coordinates);
+        if (metric.distance <= 15) routeStationMetrics.set(station.id, metric);
+      });
+      mapPositionReady = true;
+      selectedStationId = null;
+      document.getElementById('map-list-title').textContent = t('map.list.route');
+      document.getElementById('route-clear').hidden = false;
+      const matching = visibleStations().length;
+      const recognizedPlaces = `${payload.recognizedStart || start} → ${payload.recognizedEnd || end}`;
+      const successParams = { recognizedPlaces, distanceKm: payload.distanceKm, matching };
+      setRouteStatus(matching ? 'map.route.success' : 'map.route.noMatchingStations', matching ? successParams : {}, matching ? 'success' : 'empty');
+      map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
+      renderStations();
+    } catch (error) {
+      const uiKey = error?.uiKey || routeErrorKey({ networkError: error instanceof TypeError || error?.message === 'Failed to fetch' });
+      setRouteStatus(uiKey, {}, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   function locateUser({ automatic = false } = {}) {
     const button = document.getElementById('map-locate');
     if (userCoordinates && locationMarker) {
@@ -166,20 +302,23 @@ export function initStationsMap() {
       map.setView(userCoordinates, Math.max(map.getZoom(), 10), { animate: true });
       locationMarker.openPopup();
       button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      locationButtonState = 'recenter';
+      renderLocationButton();
       renderStations();
       return;
     }
     if (locationPending) return;
     if (!navigator.geolocation) {
       mapPositionReady = true;
-      button.textContent = 'Localisation indisponible';
+      locationButtonState = 'unavailable';
+      renderLocationButton();
       renderStations();
       return;
     }
     locationPending = true;
     button.disabled = true;
-    button.textContent = 'Localisation…';
+    locationButtonState = 'loading';
+    renderLocationButton();
     navigator.geolocation.getCurrentPosition(position => {
       const coordinates = [position.coords.latitude, position.coords.longitude];
       userCoordinates = coordinates;
@@ -187,18 +326,22 @@ export function initStationsMap() {
       locationMarker?.remove();
       locationMarker = L.circleMarker(coordinates, {
         radius: 9, weight: 4, color: '#fff', fillColor: '#00c2ff', fillOpacity: 1
-      }).bindPopup('Votre position').addTo(map);
+      }).bindPopup(t('map.location.yourPosition')).addTo(map);
       mapPositionReady = true;
-      map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
-      locationMarker.openPopup();
+      if (!routeStationMetrics) {
+        map.setView(coordinates, automatic ? 9 : Math.max(map.getZoom(), 10), { animate: !automatic });
+        locationMarker.openPopup();
+      }
       button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Recentrer';
+      locationButtonState = 'recenter';
+      renderLocationButton();
       renderStations();
     }, error => {
       locationPending = false;
       mapPositionReady = true;
       button.disabled = false;
-      button.textContent = error.code === 1 ? 'Me localiser' : 'Position introuvable';
+      locationButtonState = locationErrorKey(error).replace('map.location.', '');
+      renderLocationButton();
       renderStations();
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
   }
@@ -252,13 +395,15 @@ export function initStationsMap() {
     const lat = Number(trigger.dataset.lat);
     const lon = Number(trigger.dataset.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-    const station = trigger.dataset.station || 'Station sélectionnée';
+    routeChoiceUsesFallback = !trigger.dataset.station;
+    const station = trigger.dataset.station || t('map.station.selected');
     document.getElementById('route-choice-station').textContent = station;
     document.getElementById('route-apple').href = `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`;
     document.getElementById('route-google').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
     document.getElementById('route-waze').href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
     const isAndroid = /Android/i.test(navigator.userAgent || '');
     document.querySelector('[data-route-app="apple"]').hidden = isAndroid;
+    renderRouteChoice();
     openModal('route-choice-overlay', trigger);
   }
 
@@ -288,10 +433,13 @@ export function initStationsMap() {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       stations = payload.stations || [];
-      const keys = [...new Set(stations.map(station => station.operator))].sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
+      const keys = [...new Set(stations.map(station => station.operator))]
+        .filter(key => Object.hasOwn(LABELS, key))
+        .sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
       selected = readSelection(keys);
       renderFilters(keys);
-      document.getElementById('map-data-date').textContent = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${payload.updatedAt}T12:00:00`));
+      irveUpdatedAt = payload.updatedAt;
+      document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
       map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.
@@ -314,8 +462,8 @@ export function initStationsMap() {
       });
       renderStations();
     } catch (error) {
-      count.textContent = 'Carte indisponible';
-      list.innerHTML = '<p class="map-empty">Les stations n’ont pas pu être chargées. Réessayez lorsque la connexion est disponible.</p>';
+      loadFailed = true;
+      renderLoadError();
       console.warn('[kWhiz] Chargement des stations impossible', error);
     }
   }
@@ -325,13 +473,73 @@ export function initStationsMap() {
     if (!map) {
       const button = document.getElementById('map-locate');
       button.disabled = false;
-      button.textContent = 'Carte indisponible';
+      locationButtonState = 'mapUnavailable';
+      renderLocationButton();
       return;
     }
     locateUser();
   });
 
+  document.getElementById('route-planner-form')?.addEventListener('submit', event => {
+    event.preventDefault();
+    void load().then(searchRoute);
+  });
+  document.getElementById('route-clear')?.addEventListener('click', clearRoute);
+  document.getElementById('route-start')?.addEventListener('input', event => {
+    currentLocationIsRouteStart = false;
+    delete event.target.dataset.lat;
+    delete event.target.dataset.lon;
+  });
+  document.getElementById('route-use-location')?.addEventListener('click', () => {
+    const button = document.getElementById('route-use-location');
+    const input = document.getElementById('route-start');
+    const status = document.getElementById('route-planner-status');
+    const applyCoordinates = coordinates => {
+      userCoordinates = coordinates;
+      currentLocationIsRouteStart = true;
+      input.value = t('map.route.currentLocation');
+      input.dataset.lat = String(coordinates[0]);
+      input.dataset.lon = String(coordinates[1]);
+      setRouteStatus('map.location.usedAsStart');
+      button.disabled = false;
+      button.innerHTML = `<span aria-hidden="true">⌖</span> ${t('map.route.myLocation')}`;
+    };
+    if (userCoordinates) {
+      applyCoordinates(userCoordinates);
+      return;
+    }
+    if (!navigator.geolocation) {
+      setRouteStatus('map.location.unavailable', {}, 'error');
+      return;
+    }
+    button.disabled = true;
+    button.textContent = t('map.location.loading');
+    navigator.geolocation.getCurrentPosition(
+      position => applyCoordinates([position.coords.latitude, position.coords.longitude]),
+      error => {
+        button.disabled = false;
+        button.innerHTML = `<span aria-hidden="true">⌖</span> ${t('map.route.myLocation')}`;
+        const key = locationErrorKey(error);
+        setRouteStatus(key === 'map.location.denied' ? 'map.location.deniedHelp' : key, {}, 'error');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  });
+
   return {
+    refreshLanguage() {
+      document.getElementById('map-list-title').textContent = routeStationMetrics ? t('map.list.route') : t('map.list.nearby');
+      if (currentLocationIsRouteStart) document.getElementById('route-start').value = t('map.route.currentLocation');
+      setRouteStatus(routeUiState.key, routeUiState.params, routeUiState.state);
+      renderLocationButton();
+      if (irveUpdatedAt) document.getElementById('map-data-date').textContent = formatDate(irveUpdatedAt);
+      const locationPopupWasOpen = locationMarker?.isPopupOpen?.() || false;
+      locationMarker?.setPopupContent?.(t('map.location.yourPosition'));
+      if (locationPopupWasOpen) locationMarker.openPopup();
+      renderRouteChoice();
+      if (loadFailed) renderLoadError();
+      else if (stations.length) renderStations();
+    },
     activate() {
       load().then(() => {
         window.setTimeout(() => map?.invalidateSize(), 80);

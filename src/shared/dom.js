@@ -1,3 +1,5 @@
+import { getLocale } from '../i18n/i18n.js';
+
 export function escapeHtml(value) {
     if (value == null) return '';
     return String(value)
@@ -14,7 +16,7 @@ export function safeUrl(url) {
 }
 
 export function formatNumber(number, decimals = 0) {
-    return number.toLocaleString('fr-FR', {
+    return number.toLocaleString(getLocale(), {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
     });

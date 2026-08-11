@@ -1,6 +1,57 @@
 {
   "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
   "_updated": "2026-08-06",
+  "engie-vianeo": {
+    "name": "ENGIE Vianeo",
+    "color": "engie-vianeo",
+    "badge": "Recharge DC ultra-rapide de 300 à 400 kW selon le site",
+    "mapUrl": "https://www.engie-vianeo.com/carte-borne-recharge-voiture-electrique/",
+    "formulas": [
+      {
+        "id": "engie-vianeo-max",
+        "name": "ENGIE Vianeo Max",
+        "cost": 9.99,
+        "period": "monthly",
+        "rate": 0.33,
+        "ref": 0.54,
+        "sourceUrl": "https://www.engie-vianeo.com/abonnement-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station."
+      },
+      {
+        "id": "engie-vianeo-app",
+        "name": "Application ENGIE Vianeo — sans abonnement",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.54,
+        "ref": 0.54,
+        "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "isMinimum": true,
+        "note": "À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement."
+      },
+      {
+        "id": "engie-vianeo-bank-card",
+        "name": "Carte bancaire ENGIE Vianeo",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.6,
+        "ref": 0.6,
+        "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+        "verifiedAt": "2026-08-11",
+        "pricingType": "station",
+        "calculationBasis": "estimate",
+        "isMinimum": true,
+        "note": "À partir de 0,60 €/kWh sur autoroute. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer."
+      }
+    ],
+    "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
+    "verifiedAt": "2026-08-11"
+  },
   "iecharge": {
     "name": "IECharge",
     "color": "iecharge",
@@ -126,7 +177,7 @@
   "tesla": {
     "name": "Tesla Supercharger",
     "color": "tesla",
-    "badge": "250 kW",
+    "badge": "jusqu’à 250 kW (V3) et 500 kW (V4) · puissance selon le site",
     "mapUrl": "https://www.tesla.com/fr_fr/findus?v=2&bounds=51.5%2C8.5%2C42%2C-5&filters=supercharger",
     "formulas": [
       {
@@ -276,82 +327,10 @@
     "sourceUrl": "https://www.lidl.fr/c/bornes-de-recharge/s10019864",
     "verifiedAt": "2026-07-27"
   },
-  "statione": {
-    "name": "Stations-e",
-    "color": "statione",
-    "badge": "jusqu’à 50 kW DC",
-    "mapUrl": "https://stations-e.com/fr/network",
-    "formulas": [
-      {
-        "name": "Sans abonnement - paiement direct",
-        "cost": 0,
-        "period": "none",
-        "rate": 0.39,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Paiement sans abonnement. Le tarif dépend du type de borne Stations-e."
-      },
-      {
-        "name": "Express-e - DC jusqu’à 24 kW",
-        "cost": 2.9,
-        "period": "monthly",
-        "rate": 0.32,
-        "ref": 0.39,
-        "id": "statione-express",
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
-      },
-      {
-        "name": "Express-e - DC jusqu’à 50 kW",
-        "cost": 2.9,
-        "period": "monthly",
-        "rate": 0.35,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
-      },
-      {
-        "name": "Access-e - DC jusqu’à 24 kW",
-        "cost": 4.9,
-        "period": "monthly",
-        "rate": 0.29,
-        "ref": 0.39,
-        "id": "statione-access",
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif également applicable aux bornes AC jusqu’à 22 kW. kWhiz affiche ici la puissance DC."
-      },
-      {
-        "name": "Access-e - DC jusqu’à 50 kW",
-        "cost": 4.9,
-        "period": "monthly",
-        "rate": 0.35,
-        "ref": 0.39,
-        "sourceUrl": "https://www.stations-e.com/fr/particulier",
-        "verifiedAt": "2026-07-27",
-        "pricingType": "fixed",
-        "calculationBasis": "official",
-        "note": "Tarif applicable aux bornes Stations-e en courant continu jusqu’à 50 kW."
-      }
-    ],
-    "sourceUrl": "https://www.stations-e.com/fr/particulier",
-    "verifiedAt": "2026-07-27"
-  },
   "iziviafast": {
     "name": "IZIVIA Fast chez McDonald’s",
     "color": "izivia",
-    "badge": "recharge rapide DC",
+    "badge": "150 kW DC",
     "mapUrl": "",
     "formulas": [
       {
@@ -386,7 +365,7 @@
   "atlante": {
     "name": "Atlante",
     "color": "atlante",
-    "badge": "60–300 kW",
+    "badge": "Jusqu’à 600 kW selon le site",
     "mapUrl": "https://atlante.energy/fr/#mapsBlock",
     "formulas": [
       {
@@ -531,6 +510,53 @@
       "description": "Chaque recharge génère du crédit dans l’application : 1 % sans forfait, 3 % avec Easy et 5 % avec Pro."
     },
     "sourceUrl": "https://www.zunder.com/fr/suscripciones/",
+    "verifiedAt": "2026-08-06"
+  },
+  "pluginn": {
+    "name": "Plug Inn fast charge",
+    "color": "pluginn",
+    "badge": "jusqu’à 320 kW",
+    "mapUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
+    "formulas": [
+      {
+        "name": "Carte bancaire",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.59,
+        "ref": 0.59,
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Accessible à toutes les marques. Des frais d’occupation de 0,30 €/min s’appliquent au-delà d’une heure de stationnement."
+      },
+      {
+        "name": "Charge Pass BASIC",
+        "cost": 0,
+        "period": "none",
+        "rate": 0.46,
+        "ref": 0.59,
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/charge-pass.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans abonnement, réservé aux clients Renault, Dacia ou Alpine équipés du Charge Pass. Pour les nouveaux clients, le tarif est annoncé pendant un an après activation. Frais d’occupation : 0,30 €/min au-delà d’une heure."
+      },
+      {
+        "name": "Charge Pass INTENSE",
+        "cost": 5.99,
+        "period": "monthly",
+        "rate": 0.39,
+        "ref": 0.59,
+        "id": "pluginn-intense",
+        "sourceUrl": "https://www.renault.fr/solutions-de-recharge/charge-pass.html",
+        "verifiedAt": "2026-08-06",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Sans engagement, réservé aux clients Renault, Dacia ou Alpine équipés du Charge Pass. Le calcul utilise le tarif permanent de 5,99 €/mois et non la promotion temporaire. Frais d’occupation : 0,30 €/min au-delà d’une heure."
+      }
+    ],
+    "sourceUrl": "https://www.renault.fr/solutions-de-recharge/plug-inn-fast-charge.html",
     "verifiedAt": "2026-08-06"
   },
   "electroverse": {

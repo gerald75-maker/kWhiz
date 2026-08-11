@@ -19,7 +19,7 @@ function parseTariffDate(value) {
 export function assessTariffsFreshness(updatedAt, { now = new Date(), warningDays = 30, criticalDays = 90 } = {}) {
     const updatedDate = parseTariffDate(updatedAt);
     if (!updatedDate) {
-        return { state: 'unknown', ageDays: null, label: 'Date de mise à jour inconnue' };
+        return { state: 'unknown', ageDays: null };
     }
 
     const nowTimestamp = updatedDate.calendarDate
@@ -28,10 +28,10 @@ export function assessTariffsFreshness(updatedAt, { now = new Date(), warningDay
     const ageDays = Math.max(0, Math.floor((nowTimestamp - updatedDate.timestamp) / DAY_MS));
 
     if (ageDays >= criticalDays) {
-        return { state: 'critical', ageDays, label: `Tarifs anciens (${ageDays} jours)` };
+        return { state: 'critical', ageDays };
     }
     if (ageDays >= warningDays) {
-        return { state: 'stale', ageDays, label: `Tarifs à vérifier (${ageDays} jours)` };
+        return { state: 'stale', ageDays };
     }
-    return { state: 'fresh', ageDays, label: ageDays === 0 ? 'Tarifs vérifiés aujourd’hui' : `Tarifs récents (${ageDays} jours)` };
+    return { state: 'fresh', ageDays };
 }

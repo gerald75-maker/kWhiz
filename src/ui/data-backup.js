@@ -1,5 +1,11 @@
+import { formatNumber, onLanguageChange, t } from '../i18n/i18n.js';
+
 const BACKUP_FORMAT = 'kwhiz-user-data';
 const BACKUP_VERSION = 1;
+
+export function backupStatusLabel(key, count) {
+    return t(key, count === undefined ? {} : { count: formatNumber(count) });
+}
 
 export function createUserDataBackup(storage, keys, now = new Date()) {
     const data = {};
@@ -17,13 +23,13 @@ export function createUserDataBackup(storage, keys, now = new Date()) {
 
 export function validateUserDataBackup(value, allowedKeys) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        throw new Error('Sauvegarde invalide');
+        throw new Error('backup.invalid');
     }
     if (value.format !== BACKUP_FORMAT || value.version !== BACKUP_VERSION) {
-        throw new Error('Format de sauvegarde non reconnu');
+        throw new Error('backup.unsupportedFormat');
     }
     if (!value.data || typeof value.data !== 'object' || Array.isArray(value.data)) {
-        throw new Error('Données de sauvegarde absentes');
+        throw new Error('backup.missingData');
     }
 
     const allowed = new Set(allowedKeys);
@@ -36,9 +42,20 @@ export function validateUserDataBackup(value, allowedKeys) {
 
 export function restoreUserDataBackup(storage, backup, allowedKeys) {
     const data = validateUserDataBackup(backup, allowedKeys);
-    for (const key of allowedKeys) storage.removeItem(key);
-    for (const [key, value] of Object.entries(data)) storage.setItem(key, value);
-    return Object.keys(data).length;
+    const entries = Object.entries(data);
+    const initialValues = new Map(entries.map(([key]) => [key, storage.getItem(key)]));
+
+    try {
+        for (const [key, value] of entries) storage.setItem(key, value);
+    } catch (error) {
+        for (const [key, value] of initialValues) {
+            if (value === null) storage.removeItem(key);
+            else storage.setItem(key, value);
+        }
+        throw error;
+    }
+
+    return entries.length;
 }
 
 function downloadJson(filename, value) {
@@ -53,38 +70,124 @@ function downloadJson(filename, value) {
     URL.revokeObjectURL(url);
 }
 
-export function initDataBackup({ storageKeys }) {
+export function initDataBackup({
+    storageKeys,
+    storage = localStorage,
+    download = downloadJson,
+    schedule = window.setTimeout.bind(window),
+    reload = () => window.location.reload()
+}) {
     const keys = [
         storageKeys.landingSeen,
         storageKeys.fastPercentage,
         storageKeys.favorites,
-        storageKeys.scenarioHistory,
+        storageKeys.language,
         storageKeys.theme
     ];
     const status = document.getElementById('about-data-status');
     const input = document.getElementById('about-import-data-file');
+    let currentStatus = null;
 
-    document.getElementById('about-export-data')?.addEventListener('click', () => {
-        const now = new Date();
-        const backup = createUserDataBackup(localStorage, keys, now);
-        const date = now.toISOString().slice(0, 10);
-        downloadJson(`kwhiz-sauvegarde-${date}.json`, backup);
-        if (status) status.textContent = 'Sauvegarde téléchargée';
-    });
-
-    document.getElementById('about-import-data')?.addEventListener('click', () => input?.click());
-
-    input?.addEventListener('change', async () => {
-        const [file] = input.files || [];
-        if (!file) return;
-        try {
-            const backup = JSON.parse(await file.text());
-            const restored = restoreUserDataBackup(localStorage, backup, keys);
-            if (status) status.textContent = `${restored} réglage${restored > 1 ? 's' : ''} restauré${restored > 1 ? 's' : ''}. Rechargement…`;
-            window.setTimeout(() => window.location.reload(), 500);
-        } catch (error) {
-            if (status) status.textContent = error?.message || 'Import impossible';
-            input.value = '';
+    const renderStatus = () => {
+        if (!status || !currentStatus) return;
+        const { key, count } = currentStatus;
+        status.textContent = backupStatusLabel(key, count);
+    };
+    const setStatus = (key, params = {}, state = 'success') => {
+        currentStatus = { key, ...params };
+        if (status) {
+            status.dataset.state = state;
+            status.setAttribute('role', state === 'error' ? 'alert' : 'status');
+            status.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
         }
-    });
+        renderStatus();
+    };
+
+    const exportButton = document.getElementById('about-export-data');
+    const importButton = document.getElementById('about-import-data');
+    let exporting = false;
+    let importing = false;
+
+    const handleExport = () => {
+        if (exporting) return;
+        exporting = true;
+        if (exportButton) exportButton.disabled = true;
+        try {
+            const now = new Date();
+            const backup = createUserDataBackup(storage, keys, now);
+            const date = now.toISOString().slice(0, 10);
+            download(`kwhiz-backup-${date}.json`, backup);
+            setStatus('backup.downloaded');
+        } catch {
+            setStatus('backup.saveFailed', {}, 'error');
+        } finally {
+            schedule(() => {
+                exporting = false;
+                if (exportButton) exportButton.disabled = false;
+            }, 0);
+        }
+    };
+
+    const finishImport = () => {
+        importing = false;
+        if (importButton) importButton.disabled = false;
+    };
+
+    const handlePickerReturn = () => schedule(() => {
+        if (!input?.files?.length) finishImport();
+    }, 100);
+
+    const handleImportClick = () => {
+        if (importing || !input) return;
+        importing = true;
+        if (importButton) importButton.disabled = true;
+        input.value = '';
+        input.click();
+        window.addEventListener('focus', handlePickerReturn, { once: true });
+    };
+
+    const handleImport = async () => {
+        window.removeEventListener('focus', handlePickerReturn);
+        const [file] = input.files || [];
+        if (!file) {
+            finishImport();
+            return;
+        }
+        let backup;
+        try {
+            backup = JSON.parse(await file.text());
+        } catch {
+            setStatus('backup.importFailed', {}, 'error');
+            input.value = '';
+            finishImport();
+            return;
+        }
+        try {
+            const restored = restoreUserDataBackup(storage, backup, keys);
+            setStatus(restored === 1 ? 'backup.restoredOne' : 'backup.restoredMany', { count: restored });
+            schedule(reload, 1600);
+        } catch (error) {
+            const knownKeys = new Set(['backup.invalid', 'backup.unsupportedFormat', 'backup.missingData']);
+            setStatus(knownKeys.has(error?.message) ? error.message : 'backup.restoreFailed', {}, 'error');
+        } finally {
+            input.value = '';
+            finishImport();
+        }
+    };
+
+    exportButton?.addEventListener('click', handleExport);
+    importButton?.addEventListener('click', handleImportClick);
+    input?.addEventListener('change', handleImport);
+    const stopLanguageListener = onLanguageChange(renderStatus);
+
+    return {
+        destroy() {
+            exportButton?.removeEventListener('click', handleExport);
+            importButton?.removeEventListener('click', handleImportClick);
+            input?.removeEventListener('change', handleImport);
+            window.removeEventListener('focus', handlePickerReturn);
+            stopLanguageListener();
+        }
+    };
 }
+import { getLanguage, plural } from '../i18n/i18n.js';

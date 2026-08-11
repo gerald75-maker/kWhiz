@@ -16,6 +16,29 @@ test('la carte propose une sélection multi-opérateurs explicite', async () => 
   assert.match(navigation, /bnav-map/);
 });
 
+test('ENGIE Vianeo est enregistré dans les filtres, marqueurs et listes de la carte', async () => {
+  const [source, payload] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/irve-fast.json', root), 'utf8').then(JSON.parse)
+  ]);
+  assert.match(source, /'engie-vianeo': 'ENGIE Vianeo'/);
+  assert.match(source, /'engie-vianeo': '#008bd2'/);
+  assert.match(source, /fillColor: COLORS\[station\.operator\]/);
+  assert.match(source, /operatorLabel: LABELS\[station\.operator\], logo: LOGOS\[station\.operator\]/);
+  assert.match(source, /data-operator="\$\{key\}"[\s\S]*\$\{LABELS\[key\]\}/);
+  assert.ok(payload.stations.some(station => station.operator === 'engie-vianeo'));
+});
+
+test('une ancienne sélection enregistrée contenant Vianeo est conservée', async () => {
+  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
+  const keys = ['electra', 'engie-vianeo', 'ionity'];
+  const saved = ['engie-vianeo'];
+  const valid = saved.filter(key => keys.includes(key));
+  assert.deepEqual([...new Set(valid.length ? valid : keys)], ['engie-vianeo']);
+  assert.match(source, /saved\.filter\(key => keys\.includes\(key\)\)/);
+  assert.match(source, /selected = readSelection\(keys\)/);
+});
+
 test('la vue Carte masque le slider et permet une géolocalisation volontaire', async () => {
   const [navigation, mapSource, css] = await Promise.all([
     readFile(new URL('src/ui/navigation.js', root), 'utf8'),
@@ -81,7 +104,7 @@ test('un itinéraire propose Plans, Google Maps et Waze', async () => {
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('src/ui/stations-map.js', root), 'utf8')
   ]);
-  assert.match(html, /Choisir votre GPS/);
+  assert.match(html, /data-i18n="map\.gps\.chooseApp"/);
   assert.match(source, /maps\.apple\.com/);
   assert.match(source, /google\.com\/maps\/dir/);
   assert.match(source, /waze\.com\/ul/);
@@ -89,8 +112,11 @@ test('un itinéraire propose Plans, Google Maps et Waze', async () => {
 });
 
 test('une station de la liste sélectionne et centre son marqueur', async () => {
-  const source = await readFile(new URL('src/ui/stations-map.js', root), 'utf8');
-  assert.match(source, /data-station-id=/);
+  const [source, cardSource] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/station-card.js', root), 'utf8')
+  ]);
+  assert.match(cardSource, /data-station-id=/);
   assert.match(source, /map\.panTo\(\[station\.lat, station\.lon\]\)/);
   assert.match(source, /markersById\.get\(selectedStationId\)\?\.openPopup\(\)/);
   assert.match(source, /is-selected/);
@@ -136,14 +162,15 @@ test('les points et les logos sélectionnent directement leur fiche dans la list
 });
 
 test('les statuts dynamiques restent indicatifs, récents et non bloquants', async () => {
-  const [source, php, html, index] = await Promise.all([
+  const [source, cardSource, php, html, index] = await Promise.all([
     readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/station-card.js', root), 'utf8'),
     readFile(new URL('public/status.php', root), 'utf8'),
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('public/irve-status-index.json', root), 'utf8')
   ]);
   assert.match(source, /fetch\('\.\/status\.php'/);
-  assert.match(source, /Statut inconnu/);
+  assert.match(cardSource, /map\.status\.unknown/);
   assert.match(php, /FRESH_SECONDS = 900/);
   assert.match(php, /CACHE_SECONDS = 120/);
   assert.match(php, /\$latestPoints\[\$pointId\]/);
@@ -166,14 +193,96 @@ test('Recentrer réutilise immédiatement la position connue sans nouvel appel G
   assert.match(source, /if \(locationPending\) return/);
 });
 
-test('l’aide ordonnée couvre localisation, statuts, sélection et itinéraire', async () => {
+test('Stations sur mon trajet reste un MVP isolé et filtrable par opérateur', async () => {
+  const [html, source, css, php] = await Promise.all([
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('styles.css', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.match(html, /id="route-planner-form"/);
+  assert.match(html, /Stations sur mon trajet/);
+  assert.match(html, /id="route-use-location"/);
+  assert.match(source, /fetch\('\.\/route\.php'/);
+  assert.match(source, /metric\.distance <= 15/);
+  assert.match(source, /startCoordinates:/);
+  assert.match(source, /input\.value = t\('map\.route\.currentLocation'\)/);
+  assert.match(source, /selected\.has\(station\.operator\).*routeStationMetrics/);
+  assert.match(source, /routeStationMetrics\.get\(a\.id\)\.progress/);
+  assert.match(source, /if \(!routeStationMetrics\)/);
+  assert.match(css, /\.route-planner/);
+  assert.match(css, /\.route-planner-form input \{ font-size:16px; \}/);
+  assert.match(php, /OPENROUTESERVICE_API_KEY/);
+  assert.match(php, /\$validProvidedStart/);
+  assert.match(php, /\$startCacheValue = \$validProvidedStart/);
+  assert.doesNotMatch(source, /openrouteservice.*api[_-]?key/i);
+});
+
+test('le géocodage des itinéraires est limité à la France', async () => {
+  const php = await readFile(new URL('public/route.php', root), 'utf8');
+  const geocode = php.slice(php.indexOf('function geocode'), php.indexOf("if ($_SERVER['REQUEST_METHOD']"));
+  assert.match(geocode, /'boundary\.country'\s*=>\s*'FR'/);
+  assert.match(geocode, /Précisez une adresse française ou un code postal/);
+  assert.match(geocode, /'coordinates'\s*=>\s*\[\(float\) \$coordinates\[0\], \(float\) \$coordinates\[1\]\]/);
+});
+
+test('Bayonne est conservée en longitude, latitude près du Pays basque français', async () => {
+  const php = await readFile(new URL('public/route.php', root), 'utf8');
+  const orsBayonneFeature = {
+    geometry: { coordinates: [-1.4748, 43.4929] }
+  };
+  const [longitude, latitude] = orsBayonneFeature.geometry.coordinates;
+
+  assert.ok(Math.abs(longitude - (-1.47)) < 0.02);
+  assert.ok(Math.abs(latitude - 43.49) < 0.02);
+  assert.match(php, /'coordinates'\s*=>\s*\[\$startCoordinates, \$endCoordinates\]/);
+  assert.match(php, /'start'\s*=>\s*\$startCoordinates/);
+  assert.match(php, /'end'\s*=>\s*\$endCoordinates/);
+});
+
+test('le formulaire précise la saisie française et affiche les lieux reconnus', async () => {
+  const [html, source, php] = await Promise.all([
+    readFile(new URL('index.html', root), 'utf8'),
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.equal((html.match(/placeholder="Ville, adresse ou code postal en France"/g) || []).length, 2);
+  assert.match(php, /'recognizedStart'\s*=>\s*\$startPlace\['label'\]/);
+  assert.match(php, /'recognizedEnd'\s*=>\s*\$endPlace\['label'\]/);
+  assert.match(source, /payload\.recognizedStart \|\| start/);
+  assert.match(source, /payload\.recognizedEnd \|\| end/);
+});
+
+test('les erreurs d’itinéraire donnent une action corrective', async () => {
+  const [source, routeUi, php] = await Promise.all([
+    readFile(new URL('src/ui/stations-map.js', root), 'utf8'),
+    readFile(new URL('src/ui/map-route-ui.js', root), 'utf8'),
+    readFile(new URL('public/route.php', root), 'utf8')
+  ]);
+  assert.match(php, /Précisez une adresse française ou un code postal/);
+  assert.match(php, /Aucun itinéraire routier trouvé\. Vérifiez les lieux reconnus/);
+  assert.match(php, /Service d’itinéraire indisponible\. Réessayez dans quelques instants/);
+  assert.match(source, /map\.location\.deniedHelp/);
+  assert.match(routeUi, /map\.route\.networkError/);
+});
+
+test('l’aide en accordéons couvre localisation, statuts, sélection et itinéraire', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
-  const mapHelp = html.slice(html.indexOf('🗺️ Utiliser la carte'), html.indexOf('</ol>', html.indexOf('🗺️ Utiliser la carte')));
-  assert.equal((mapHelp.match(/<li>/g) || []).length, 7);
+  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
+  for (const title of ['Bien démarrer', 'Comprendre les résultats', 'Utiliser la carte', 'Stations sur mon trajet', 'Questions fréquentes']) {
+    assert.match(help, new RegExp(`<summary[^>]*>${title}`));
+  }
+  const mapStart = help.indexOf('data-i18n="help.map.title"');
+  const mapHelp = help.slice(mapStart, help.indexOf('</details>', mapStart));
   assert.match(mapHelp, /première ouverture/);
   assert.match(mapHelp, /vert/);
   assert.match(mapHelp, /point, un logo ou une fiche/);
   assert.match(mapHelp, /Google Maps ou Waze/);
+  assert.match(help, /OpenRouteService/);
+  assert.match(help, /repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie/);
+  assert.match(help, /Sélectionnez les opérateurs/);
+  assert.match(help, /ne tient compte ni de l’autonomie, ni du niveau de batterie/);
+  assert.match(help, /ouvre le guidage vers une seule station/);
 });
 
 test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {

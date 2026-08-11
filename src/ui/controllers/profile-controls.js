@@ -34,6 +34,17 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
         notify();
     }
 
+    function setMonthlyKm(value, { notifyChange = true } = {}) {
+        const km = Math.min(9999, Math.max(0, parseInt(value, 10) || 0));
+        if (profileKmInput) profileKmInput.value = String(km);
+        const matchingChip = kmChipsEl?.querySelector(`.km-chip[data-val="${km}"]`);
+        kmChipsEl?.querySelectorAll('.km-chip').forEach(chip => chip.classList.remove('active'));
+        (matchingChip || kmChipOther)?.classList.add('active');
+        kmOtherWrap?.classList.toggle('visible', !matchingChip);
+        if (notifyChange) notify();
+        return km;
+    }
+
     kmChipsEl?.addEventListener('click', event => {
         const chip = event.target.closest('.km-chip');
         if (chip) setKmChip(chip.dataset.val);
@@ -65,6 +76,8 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
     renderFastPercentage();
 
     return {
-        getFastPercentage: () => fastPercentage
+        getFastPercentage: () => fastPercentage,
+        getMonthlyKm: () => Math.max(0, parseInt(profileKmInput?.value, 10) || 0),
+        setMonthlyKm
     };
 }

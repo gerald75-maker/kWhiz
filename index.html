@@ -12,7 +12,7 @@
 <link href="manifest.json" rel="manifest"/>
 <link href="icons/icon-180.png" rel="apple-touch-icon"/>
 <link href="icons/icon-180.png" rel="apple-touch-icon" sizes="180x180"/>
-<meta content="Calculez instantanément le seuil de rentabilité de chaque abonnement de recharge VE. IONITY, Tesla, Electra, Lidl et plus." name="description"/>
+<meta content="Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France." name="description"/>
 <title>kWhiz — Comparateur de recharge rapide VE</title>
 <link href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2E4NTVmNyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3R5bGU9InN0b3AtY29sb3I6I2VjNDg5OSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHBhdGggZD0iTTE4IDRMOCAxOGg2bC0yIDEwIDEwLTE0aC02bDItMTB6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" rel="icon" type="image/svg+xml"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -24,49 +24,49 @@
 <body>
 <div aria-live="polite" class="pull-to-refresh" data-state="idle" id="pull-to-refresh" role="status">
 <span class="pull-to-refresh__icon">↓</span>
-<span class="pull-to-refresh__label">Tirez pour actualiser</span>
+<span class="pull-to-refresh__label" data-i18n="refresh.idle">Tirez pour actualiser</span>
 </div>
 <div aria-atomic="true" aria-live="polite" class="network-status" data-state="online" id="network-status" role="status">
 <span aria-hidden="true" class="network-status__dot"></span>
-<span class="network-status__label">Connexion active</span>
+<span class="network-status__label" data-i18n="network.online">Connexion active</span>
 </div>
 <div class="container">
 <h1 class="app-title" id="app-title"><svg class="app-title__icon" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="icbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#icbg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg>kWhiz</h1>
-<p class="subtitle">L’offre la moins chère selon votre usage</p>
+<p class="subtitle" data-i18n="app.subtitle">L’offre la moins chère selon votre usage</p>
 <!-- Modale Izivia Fast horaires -->
 <div aria-hidden="true" aria-labelledby="izivia-title" aria-modal="true" class="help-overlay" id="izivia-overlay" role="dialog" tabindex="-1">
 <div class="help-modal cb-modal">
-<button aria-label="Fermer" class="help-close" id="izivia-close" type="button">✕</button>
-<h3>🕐 Izivia Fast — horaires Happy Hours</h3>
-<p class="modal-desc">Les bornes Izivia Fast chez <strong>McDonald's</strong> appliquent un tarif réduit en dehors des heures de pointe.</p>
+<button aria-label="Fermer" class="help-close" data-i18n-aria-label="common.close" id="izivia-close" type="button">✕</button>
+<h3 data-i18n="izivia.title" id="izivia-title">🕐 Izivia Fast — horaires Happy Hours</h3>
+<p class="modal-desc"><span data-i18n="izivia.descriptionBefore">Les bornes Izivia Fast chez</span> <strong>McDonald's</strong> <span data-i18n="izivia.descriptionAfter">appliquent un tarif réduit en dehors des heures de pointe.</span></p>
 <div class="help-step">
-<div class="help-num help-num--peak">HC</div>
-<p class="modal-desc"><strong>Heures creuses : 0,30 €/kWh</strong><br/>9 h → 11 h 30  |  15 h → 18 h</p>
+<div class="help-num help-num--peak" data-i18n="izivia.offPeak.short">HC</div>
+<p class="modal-desc"><strong data-i18n="izivia.offPeak.price">Heures creuses : 0,30 €/kWh</strong><br/><span data-i18n="izivia.offPeak.hours">9 h → 11 h 30  |  15 h → 18 h</span></p>
 </div>
 <div class="help-step">
-<div class="help-num help-num--offpeak">HP</div>
-<p class="modal-desc"><strong>Heures pleines : 0,35 €/kWh</strong><br/>11 h 30 → 15 h  |  18 h → 9 h</p>
+<div class="help-num help-num--offpeak" data-i18n="izivia.peak.short">HP</div>
+<p class="modal-desc"><strong data-i18n="izivia.peak.price">Heures pleines : 0,35 €/kWh</strong><br/><span data-i18n="izivia.peak.hours">11 h 30 → 15 h  |  18 h → 9 h</span></p>
 </div>
 <div class="cb-example">
-<strong>Astuce :</strong> Planifiez votre recharge entre 9 h et 11 h 30 ou entre 15 h et 18 h pour bénéficier du tarif le plus avantageux.
+<strong data-i18n="izivia.tipLabel">Astuce :</strong> <span data-i18n="izivia.tip">Planifiez votre recharge entre 9 h et 11 h 30 ou entre 15 h et 18 h pour bénéficier du tarif le plus avantageux.</span>
                 </div>
 </div>
 </div>
 <!-- Modale IONITY Rewards -->
 <div aria-hidden="true" aria-labelledby="ionity-rewards-title" aria-modal="true" class="help-overlay" id="ionity-rewards-overlay" role="dialog" tabindex="-1">
 <div class="help-modal cb-modal">
-<button aria-label="Fermer" class="help-close" id="ionity-rewards-close" type="button">✕</button>
-<h3>🎁 IONITY Rewards</h3>
-<p class="modal-desc modal-desc--mb">Programme lancé en juillet 2026 pour fluidifier les bornes pendant les grands départs : deux façons de gagner des <strong>kWh gratuits</strong>, cumulables sur votre compte IONITY.</p>
+<button aria-label="Fermer" class="help-close" data-i18n-aria-label="common.close" id="ionity-rewards-close" type="button">✕</button>
+<h3 data-i18n="ionityRewards.title" id="ionity-rewards-title">🎁 IONITY Rewards</h3>
+<p class="modal-desc modal-desc--mb"><span data-i18n="ionityRewards.introBefore">Programme lancé en juillet 2026 pour fluidifier les bornes pendant les grands départs : deux façons de gagner des</span> <strong data-i18n="ionityRewards.freeKwh">kWh gratuits</strong><span data-i18n="ionityRewards.introAfter">, cumulables sur votre compte IONITY.</span></p>
 <div class="help-step">
 <div class="help-num help-num--primary">1</div>
-<p class="modal-desc"><strong>Fast Lane Reward : +5 kWh</strong><br/>Débranchez avant 85 % de batterie, pour une recharge démarrée entre 9 h et 17 h.</p>
+<p class="modal-desc"><strong data-i18n="ionityRewards.fastLane.title">Fast Lane Reward : +5 kWh</strong><br/><span data-i18n="ionityRewards.fastLane.condition">Débranchez avant 85 % de batterie, pour une recharge démarrée entre 9 h et 17 h.</span></p>
 </div>
 <div class="help-step">
 <div class="help-num help-num--secondary">2</div>
-<p class="modal-desc"><strong>Off-Peak Reward : +5 kWh</strong><br/>Rechargez la nuit, entre 22 h et 6 h, quel que soit le niveau de batterie final.</p>
+<p class="modal-desc"><strong data-i18n="ionityRewards.offPeak.title">Off-Peak Reward : +5 kWh</strong><br/><span data-i18n="ionityRewards.offPeak.condition">Rechargez la nuit, entre 22 h et 6 h, quel que soit le niveau de batterie final.</span></p>
 </div>
-<div class="cb-warn">⚠️ Les deux bonus nécessitent une session d’au moins <strong>40 kWh</strong>. Le crédit est visible dans l’application IONITY (rubrique « Credits &amp; Rewards ») et déduit automatiquement lors de la recharge suivante. Les conditions peuvent varier selon le marché et la période.</div>
+<div class="cb-warn"><span data-i18n="ionityRewards.warningBefore">⚠️ Les deux bonus nécessitent une session d’au moins</span> <strong>40 kWh</strong><span data-i18n="ionityRewards.warningAfter">. Le crédit est visible dans l’application IONITY (rubrique « Credits &amp; Rewards ») et déduit automatiquement lors de la recharge suivante. Les conditions peuvent varier selon le marché et la période.</span></div>
 </div>
 </div>
 <!-- Sticky header stack : slider + onglets restent visibles au scroll -->
@@ -74,7 +74,7 @@
 <!-- Slider consommation sticky -->
 <div class="params-card">
 <div class="conso-slider-wrap">
-<label class="conso-slider-label">Consommation du véhicule</label>
+<label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
 <div class="conso-slider-track-wrap">
 <div class="conso-slider-track">
 <div class="conso-slider-fill" id="conso-slider-fill"></div>
@@ -82,18 +82,18 @@
 <span id="consumption-value">18</span>
 </div>
 </div>
-<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
+<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" data-i18n-aria-label="consumption.inputLabel" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
 </div>
 <div class="conso-slider-bounds">
-<span>10 kWh/100 km</span>
-<span>30 kWh/100 km</span>
+<span data-i18n="consumption.minimum">10 kWh/100 km</span>
+<span data-i18n="consumption.maximum">30 kWh/100 km</span>
 </div>
 </div>
 <div class="vehicles" id="vehicles">
-<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-val="13" role="button" tabindex="0"><span class="vehicle-name">Citadine</span></div>
-<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-val="18" role="button" tabindex="0"><span class="vehicle-name">Berline</span></div>
-<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-val="20" role="button" tabindex="0"><span class="vehicle-name">SUV</span></div>
-<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-val="24" role="button" tabindex="0"><span class="vehicle-name">Van</span></div>
+<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.cityCarLabel" data-val="13" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.cityCar">Citadine</span></div>
+<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-i18n-aria-label="vehicle.saloonLabel" data-val="18" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.saloon">Berline</span></div>
+<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.suvLabel" data-val="20" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.suv">SUV</span></div>
+<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.vanLabel" data-val="24" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.van">Van</span></div>
 </div>
 </div>
 </div><!-- /sticky-top -->
@@ -102,21 +102,22 @@
 <section aria-labelledby="compare-title" class="compare-view">
 <header class="compare-heading">
 <div>
-<p class="compare-kicker">Recharge rapide DC</p>
-<h2 id="compare-title">Comparer</h2>
-<p>Les offres classées selon votre consommation de recharge rapide.</p>
+<p class="compare-kicker" data-i18n="comparison.heading.kicker">Recharge rapide DC</p>
+<h2 data-i18n="comparison.heading.title" id="compare-title">Comparer les offres</h2>
+<p data-i18n="comparison.heading.intro">Indiquez votre kilométrage mensuel. kWhiz estime le coût de chaque formule, abonnement compris, selon votre véhicule et votre part de recharge rapide.</p>
 </div>
 <label class="compare-search">
-<span class="sr-only">Rechercher une offre ou un opérateur</span>
-<input autocomplete="off" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
+<span class="sr-only" data-i18n="comparison.search.label">Rechercher une offre ou un opérateur</span>
+<input autocomplete="off" data-i18n-placeholder="comparison.search.placeholder" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
 </label>
 </header>
-<div aria-label="Trier les offres" class="compare-sort" role="group">
-<button class="compare-sort-btn" data-sort="costPer100km" type="button">Coût aux 100 km</button>
-<button class="compare-sort-btn" data-sort="rate" type="button">Prix du kWh</button>
-<button class="compare-sort-btn" data-sort="operator" type="button">Opérateur</button>
-<button class="compare-sort-btn" data-sort="km" type="button">Seuil</button>
+<div class="compare-toolbar">
+<label class="compare-km" for="compare-km"><span data-i18n="comparison.controls.monthlyMileage">Kilométrage mensuel</span>
+<span class="compare-km-input"><input id="compare-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/><span data-i18n="comparison.controls.monthlyMileageUnit">km/mois</span></span>
+</label>
+<button class="compare-profile-link" data-i18n="comparison.controls.editProfile" id="compare-profile-link" type="button">Modifier mon profil</button>
 </div>
+<p aria-live="polite" class="compare-summary" id="compare-summary"></p>
 <p aria-live="polite" class="compare-count" id="compare-count"></p>
 <div class="comparison-list" id="ranking-list"></div>
 </section>
@@ -125,14 +126,14 @@
 <div class="tab-content" id="tab-operators">
 <header class="operators-page-heading">
 <div>
-<p class="operators-page-kicker">Réseaux de recharge rapide</p>
-<h2>Opérateurs et formules</h2>
-<p>Consultez les prix publiés, les abonnements et leur seuil de rentabilité.</p>
+<p class="operators-page-kicker" data-i18n="operators.heading.kicker">Réseaux de recharge rapide</p>
+<h2 data-i18n="operators.heading.title">Opérateurs et formules</h2>
+<p data-i18n="operators.heading.intro">Consultez les prix publiés, les abonnements et leur seuil de rentabilité.</p>
 </div>
 <div aria-live="polite" class="operators-page-count" id="operators-page-count"></div>
 </header>
 <div class="view-toggle">
-<label for="view-mode">Afficher le détail des prix</label>
+<label data-i18n="operators.viewMode.details" for="view-mode">Afficher le détail des prix</label>
 <label class="toggle-switch">
 <input id="view-mode" type="checkbox"/>
 <span class="toggle-slider"></span>
@@ -148,64 +149,73 @@
 <!-- Mon choix — vue principale -->
 <div class="tab-content" id="tab-map">
 <header class="map-page-heading">
-<div><p class="profile-page-kicker">Bornes rapides en France</p><h2>Carte des stations</h2><p>Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
-<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> Me localiser</button></div>
+<div><p class="profile-page-kicker" data-i18n="map.heading.kicker">Bornes rapides en France</p><h2 data-i18n="map.heading.title">Carte des stations</h2><p data-i18n="map.heading.intro">Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
+<div class="map-heading-actions"><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
+<details class="route-planner" id="route-planner">
+<summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true" class="route-planner-chevron">⌄</span></summary>
+<form class="route-planner-form" id="route-planner-form">
+<label><span data-i18n="map.route.start">Départ</span><span class="route-start-field"><input aria-label="Ville, adresse ou code postal en France pour le départ" data-i18n-aria-label="map.route.startInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-start" name="start" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required><button id="route-use-location" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.route.myLocation">Ma position</span></button></span></label>
+<label><span data-i18n="map.route.destination">Arrivée</span><input aria-label="Ville, adresse ou code postal en France pour l’arrivée" data-i18n-aria-label="map.route.destinationInputLabel" data-i18n-placeholder="map.route.addressPlaceholder" id="route-end" name="end" type="text" autocomplete="street-address" maxlength="160" placeholder="Ville, adresse ou code postal en France" required></label>
+<div class="route-planner-actions"><button class="route-search-button" data-i18n="map.route.showChargers" id="route-search" type="submit">Afficher les stations</button><button class="route-clear-button" data-i18n="map.route.clear" id="route-clear" type="button" hidden>Effacer l’itinéraire</button></div>
+<p class="route-planner-status" id="route-planner-status" aria-live="polite"></p>
+</form>
+</details>
 <section class="map-filter-card" aria-labelledby="map-filter-title">
-<div class="map-filter-heading"><h3 id="map-filter-title">Opérateurs</h3><div><button id="map-select-all" type="button">Tous</button><button id="map-select-none" type="button">Aucun</button></div></div>
+<div class="map-filter-heading"><h3 data-i18n="map.filters.title" id="map-filter-title">Opérateurs</h3><div><button data-i18n="map.filters.all" id="map-select-all" type="button">Tous</button><button data-i18n="map.filters.none" id="map-select-none" type="button">Aucun</button></div></div>
 <div class="map-operator-filters" id="map-operator-filters"></div>
 </section>
-<div class="stations-map" id="stations-map" aria-label="Carte des stations de recharge rapide"></div>
-<section class="map-nearby"><h3>Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
-<p class="map-source">Données : Base nationale IRVE, mises à jour le <span id="map-data-date">6 août 2026</span>. La présence d’une station ne garantit pas sa disponibilité en temps réel.</p>
+<div aria-label="Carte des stations de recharge rapide" class="stations-map" data-i18n-aria-label="map.canvasLabel" id="stations-map"></div>
+<section class="map-nearby"><h3 id="map-list-title" data-i18n="map.list.nearby">Stations proches du centre de la carte</h3><div class="map-station-list" id="map-station-list"></div></section>
+<p class="map-source"><span data-i18n="map.source.prefix">Données : Base nationale IRVE, mises à jour le</span> <span id="map-data-date">6 août 2026</span>. <span data-i18n="map.source.notice">La présence d’une station ne garantit pas sa disponibilité en temps réel.</span></p>
 </div>
 <!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">
 <header class="profile-page-heading">
-<p class="profile-page-kicker">Estimation personnalisée</p>
-<h2>Votre recharge rapide, au juste prix</h2>
-<p>Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.</p>
+<p class="profile-page-kicker" data-i18n="profile.heading.kicker">Estimation personnalisée</p>
+<h2 data-i18n="profile.heading.title">Votre recharge rapide, au juste prix</h2>
+<p data-i18n="profile.heading.intro">Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.</p>
 </header>
 <!-- Profil de recharge : source unique des calculs -->
 <section aria-labelledby="profile-settings-title" class="profile-hero profile-hero--unified">
-<div class="profile-section-heading"><div><p class="profile-section-kicker">Mon profil</p><h3 class="profile-section-title" id="profile-settings-title">Mon profil de recharge</h3></div><span>Calcul instantané</span></div>
+<div class="profile-section-heading"><div><p class="profile-section-kicker" data-i18n="profile.controls.kicker">Mon profil</p><h3 class="profile-section-title" data-i18n="profile.controls.title" id="profile-settings-title">Mon profil de recharge</h3></div><span data-i18n="profile.controls.instant">Calcul instantané</span></div>
 <div class="profile-km-section">
-<div class="profile-km-label">Kilométrage mensuel</div>
+<div class="profile-km-label" data-i18n="profile.controls.monthlyMileage">Kilométrage mensuel</div>
 <div class="profile-km-chips" id="profile-km-chips">
 <button class="km-chip" data-val="500" type="button">500</button>
 <button class="km-chip active" data-val="1000" type="button">1 000</button>
 <button class="km-chip" data-val="1500" type="button">1 500</button>
 <button class="km-chip" data-val="2000" type="button">2 000</button>
-<button class="km-chip km-chip--other" data-val="custom" id="km-chip-other" type="button">Autre…</button>
+<button class="km-chip km-chip--other" data-i18n="profile.controls.other" data-val="custom" id="km-chip-other" type="button">Autre…</button>
 </div>
 <div class="profile-km-other-wrap" id="profile-km-other-wrap">
-<input aria-label="Kilométrage mensuel en km" class="profile-km-input" id="profile-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/>
-<span class="profile-km-unit">km/mois</span>
+<input aria-label="Kilométrage mensuel en km" class="profile-km-input" data-i18n-aria-label="profile.controls.monthlyMileageLabel" id="profile-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/>
+<span class="profile-km-unit" data-i18n="profile.controls.monthlyMileageUnit">km/mois</span>
 </div>
 </div>
 <div class="profile-fast-row">
-<span class="profile-fast-label">Part rechargée sur bornes rapides</span>
+<span class="profile-fast-label" data-i18n="profile.controls.fastShare">Part rechargée sur bornes rapides</span>
 <div class="profile-fast-stepper">
-<button aria-label="Diminuer le pourcentage" class="profile-fast-btn" id="fast-pct-minus" type="button">−</button>
+<button aria-label="Diminuer le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.decreasePercentage" id="fast-pct-minus" type="button">−</button>
 <span class="profile-fast-value" id="fast-pct-value">100 %</span>
-<button aria-label="Augmenter le pourcentage" class="profile-fast-btn" id="fast-pct-plus" type="button">+</button>
+<button aria-label="Augmenter le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.increasePercentage" id="fast-pct-plus" type="button">+</button>
 </div>
 </div>
-<p class="profile-hint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
+<p class="profile-hint" data-i18n="profile.controls.homeRateHint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
 </section>
 <!-- Recommandation principale -->
 <div class="profile-best-card profile-recommendation-card" id="profile-best-card"></div>
 <!-- Aperçu des trois meilleures formules -->
 <section aria-labelledby="profile-shortlist-title" class="profile-shortlist">
 <div class="profile-shortlist-heading">
-<div><p class="profile-section-kicker">Classement</p><h3 id="profile-shortlist-title">Les 3 meilleures offres</h3></div>
-<span>Coût mensuel estimé</span>
+<div><p class="profile-section-kicker" data-i18n="profile.ranking.kicker">Classement</p><h3 data-i18n="profile.ranking.title" id="profile-shortlist-title">Les 3 meilleures offres</h3></div>
+<span data-i18n="profile.ranking.estimatedMonthlyCost">Coût mensuel estimé</span>
 </div>
 <div class="profile-shortlist-list" id="profile-shortlist-list"></div>
 </section>
 <!-- Table de comparaison complète, volontairement secondaire -->
 <details class="profile-comparison-details">
-<summary>Voir le classement complet</summary>
+<summary data-i18n="profile.ranking.full">Voir le classement complet</summary>
 <div class="comparison-card profile-table-wrap">
 <table class="comparison-table" id="profile-table">
 <colgroup>
@@ -216,10 +226,10 @@
 </colgroup>
 <thead>
 <tr>
-<th>Opérateur</th>
-<th>Formule</th>
-<th>€/kWh</th>
-<th class="profile-col-monthly">€/mois</th>
+<th data-i18n="profile.ranking.operator">Opérateur</th>
+<th data-i18n="profile.ranking.plan">Formule</th>
+<th data-i18n="profile.ranking.rate">€/kWh</th>
+<th class="profile-col-monthly" data-i18n="profile.ranking.monthly">€/mois</th>
 </tr>
 </thead>
 <tbody id="profile-body"></tbody>
@@ -237,61 +247,21 @@
 <a class="footer-site-link" href="https://aubard.net/" rel="noopener noreferrer" target="_blank">Aubard.net</a>
 </p>
 </div>
-<!-- ── Landing Page (première visite / rappelable depuis À propos) ── -->
-<div class="landing-overlay hidden" id="landing-overlay">
+<!-- ── Landing Page (première visite) ── -->
+<div aria-labelledby="landing-title" aria-modal="true" class="landing-overlay hidden" id="landing-overlay" role="dialog">
 <div class="landing-content">
 <div class="landing-logo-wrap">
 <svg viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="lbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#lbg)" height="32" rx="6" width="32"></rect><path d="M18 4L8 18h6l-2 10 10-14h-6l2-10z" fill="white"></path></svg>
 </div>
-<p class="landing-title">kWhiz</p>
-<p class="landing-tagline">Le comparateur de recharge rapide DC</p>
-<div class="landing-pitch">
-<p>IONITY, Tesla, Electra, Lidl… chaque opérateur applique ses propres prix, abonnements et conditions.</p>
-<p>kWhiz calcule en temps réel ce que vous coûte réellement chaque option — selon <strong class="text-personal">votre</strong> véhicule et votre usage.</p>
-<p>Comparez, ajustez, décidez.</p>
-</div>
-<div class="landing-install" id="landing-install">
-<div class="landing-install-title">Installer kWhiz</div>
-<!-- iOS -->
-<div id="install-ios">
-<p class="install-tip install-tip--ios">
-<img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/>
-<img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/>
-<strong class="text-strong">iOS / iPhone</strong>
-</p>
-<ol class="install-steps">
-<li>Ouvrez kWhiz dans <strong>Safari</strong> (pas Chrome ni Firefox)</li>
-<li>Appuyez sur <img alt="Partager" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong>Partager</strong> en bas de l'écran</li>
-<li>Choisissez <img alt="Sur l'écran d'accueil" class="install-icon" height="18" src="./logos/plus.png" width="18"/> <strong>Sur l'écran d'accueil</strong></li>
-<li>Confirmez en appuyant sur <strong>Ajouter</strong> 🎉</li>
+<h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Trouvez l’offre de recharge rapide adaptée à votre usage</h1>
+<ol class="landing-pitch landing-steps">
+<li data-i18n="landing.step.profile">Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
+<li data-i18n="landing.step.compare">Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
+<li data-i18n="landing.step.map">Localisez les stations autour de vous ou sur votre trajet.</li>
 </ol>
-</div>
-<!-- Android -->
-<div id="install-android">
-<p class="install-tip install-tip--android">
-<img alt="Android" class="os-logo os-logo--dark" height="22" src="./logos/android-sombre.webp" width="22"/>
-<img alt="Android" class="os-logo os-logo--light" height="22" src="./logos/android-clair.webp" width="22"/>
-<strong class="text-strong">Android</strong>
-</p>
-<!-- Bouton natif Chrome (affiché uniquement si beforeinstallprompt a été capturé) -->
-<button class="install-native-btn" hidden="" id="install-native-btn" type="button">
-                        📲 Installer kWhiz
-                    </button>
-<!-- Instructions manuelles (fallback si le prompt natif n'est pas disponible) -->
-<div id="install-android-manual">
-<ol class="install-steps">
-<li>Ouvrez kWhiz dans <strong>Chrome</strong></li>
-<li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
-<li>Appuyez sur <strong>Ajouter à l'écran d'accueil</strong> ou <strong>Installer l'application</strong></li>
-<li>Confirmez en appuyant sur <strong>Installer</strong> 🎉</li>
-</ol>
-</div>
-</div>
-</div>
-<button class="landing-btn" id="landing-start" type="button">Commencer</button>
+<button class="landing-btn" data-i18n="landing.continue" id="landing-start" type="button">Commencer</button>
 <div class="landing-footer-links">
-<a href="#" id="landing-about-link">À propos</a>
-<a href="https://apps.aubard.net" rel="noopener" target="_blank">Mes autres applications →</a>
+<a data-i18n="landing.help" href="#" id="landing-help-link">Comment fonctionne kWhiz ?</a>
 </div>
 </div>
 </div>
@@ -301,150 +271,53 @@
 
 
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-about-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-about-title">À propos</span>
-<button aria-label="Fermer" class="page-close" id="close-about" type="button">✕</button>
+<span class="page-title" data-i18n="about.title" id="page-about-title">À propos</span>
+<button aria-label="Fermer" class="page-close" data-i18n-aria-label="common.close" id="close-about" type="button">✕</button>
 </div><div class="page-body" id="about-content">
 <div class="about-hero">
-<p class="about-title">kWhiz — Le comparateur des tarifs de recharge</p>
-<p class="about-desc">IONITY, Tesla, Atlante, Electra, Lidl… Les offres se multiplient et il devient difficile de s’y retrouver.</p>
-<p class="about-desc">kWhiz calcule instantanément le seuil de rentabilité de chaque abonnement selon <strong>votre</strong> consommation.</p>
-<p class="about-desc">kWhiz n’a pas vocation à recenser tous les opérateurs, mais se concentre sur ceux qui peuvent générer de réelles économies en planifiant ses trajets.</p>
-<p class="about-desc">Comparez les abonnements selon vos destinations : les formules mensuelles peuvent généralement être résiliées à tout moment.</p>
-</div>
-<div class="about-origin">
-<div class="origin-label"><svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>Mon choix</div>
-<p class="about-desc about-desc--sm">Indiquez vos kilomètres du mois — kWhiz calcule les kWh correspondants, compare tous les réseaux et toutes les formules, et affiche la combinaison la moins chère pour votre usage.</p>
-<p class="about-desc about-catchphrase">Entrez vos kilomètres, kWhiz fait les maths.</p>
-</div>
-<div class="about-origin">
-<div class="origin-label"><svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>Opérateurs</div>
-<p class="about-desc about-desc--flush">L’onglet « Opérateurs » présente chaque réseau, ses offres, leurs prix et leurs conditions. Deux vues sont disponibles : une vue compacte pour une lecture rapide et une vue détaillée pour comparer les offres d’un même opérateur en un coup d’œil.</p>
-</div>
-<div class="about-origin">
-<div class="origin-label"><svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>Comparer</div>
-<p class="about-desc about-desc--flush">L’onglet « Comparer » présente toutes les offres sans appliquer de profil kilométrique. Vous pouvez les trier par coût, prix du kWh, opérateur ou seuil de rentabilité.</p>
+<p class="about-title" data-i18n="about.tagline">kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.</p>
+<p class="about-desc" data-i18n="about.scope">kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.</p>
+<p class="about-desc" data-i18n="about.privacy">kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.</p>
+<p class="about-desc"><span data-i18n="about.version">Version</span> <span>__VERSION__</span></p>
 </div>
 <div class="about-contact">
-                🙏 Bonne utilisation !<br/>
-                N'hésitez pas à faire part de vos remarques, suggestions ou compliments à<br/>
+<span data-i18n="about.enjoy">🙏 Bonne utilisation !</span><br/>
+<span data-i18n="about.feedback">N’hésitez pas à faire part de vos remarques, suggestions ou compliments à</span><br/>
 <a href="mailto:kwhiz@aubard.net">kwhiz@aubard.net</a>
 </div>
-<section aria-labelledby="app-status-title" class="app-status-card" data-app-version="__VERSION__">
-<div class="app-status-card__heading">
-<div>
-<p class="app-status-card__eyebrow">État de l’application</p>
-<h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2>
-</div>
-<span class="app-status-badge" data-state="checking" id="about-app-status-badge">Vérification…</span>
-</div>
-<dl class="app-status-list">
-<div>
-<dt>Application</dt>
-<dd id="about-app-status">Vérification en cours</dd>
-</div>
-<div>
-<dt>Tarifs</dt>
-<dd id="about-tariffs-status">Chargement…</dd>
-</div>
-<div>
-<dt>Fraîcheur</dt>
-<dd><span class="tariffs-freshness-badge" data-state="unknown" id="about-tariffs-freshness">Analyse…</span></dd>
-</div>
-</dl>
-<button class="app-status-check-btn" id="about-check-update" type="button">Vérifier maintenant</button>
-</section>
-<section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
-<div class="app-status-card__heading">
-<div>
-<p class="app-status-card__eyebrow">Données personnelles</p>
-<h2 id="data-backup-title">Sauvegarder vos réglages</h2>
-</div>
-</div>
-<p class="about-desc about-desc--sm">Exportez vos favoris, scénarios, mode d’affichage et préférences dans un fichier, puis restaurez-les sur un autre appareil.</p>
-<div class="data-backup-actions">
-<button class="app-status-check-btn" id="about-export-data" type="button">Exporter</button>
-<button class="app-status-check-btn" id="about-import-data" type="button">Importer</button>
-<input accept="application/json,.json" hidden="" id="about-import-data-file" type="file"/>
-</div>
-<p aria-live="polite" class="data-backup-status" id="about-data-status"></p>
-</section>
 <div class="about-origin about-actions">
 <a class="about-apps-link" href="https://apps.aubard.net" rel="noopener" target="_blank">
-                    🔗 Mes autres applications → apps.aubard.net
+<span aria-hidden="true">🔗</span> <span data-i18n="about.otherApps">Mes autres applications</span> <span aria-hidden="true">→</span> <span>apps.aubard.net</span>
                 </a>
-<button class="about-revoir-btn" id="about-show-landing" type="button">
-                    ↩ Revoir l’introduction
-                </button>
 </div>
 </div></div></div>
-<!-- Page : Planificateurs -->
-<div aria-hidden="true" class="page-overlay aux-drawer" id="page-planners">
-
-
-<div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-planners-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-planners-title">Planificateurs</span>
-<button aria-label="Fermer" class="page-close" id="close-planners" type="button">✕</button>
-</div><div class="page-body" id="planners-content">
-<div class="planner-card">
-<div class="planner-card-header">
-<div class="planner-header-inner"><img alt="" class="planner-icon" src="./logos/myatlante-icon.webp"/><span class="planner-name">myAtlante</span></div>
-<span class="planner-badge">Gratuit</span>
+<!-- Page : Données et réglages -->
+<div aria-hidden="true" class="page-overlay aux-drawer" id="page-settings">
+<div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-settings-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
+<span class="page-title" data-i18n="settings.title" id="page-settings-title">Données et réglages</span>
+<button aria-label="Fermer" data-i18n-aria-label="settings.closeLabel" class="page-close" id="close-settings" type="button">✕</button>
+</div><div class="page-body">
+<section aria-labelledby="app-status-title" class="app-status-card" data-app-version="__VERSION__">
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="appStatus.title">État de l’application</p><h2 id="app-status-title">kWhiz <span id="about-app-version">__VERSION__</span></h2></div><span class="app-status-badge" data-i18n="appStatus.badge.checking" data-state="checking" id="about-app-status-badge">Vérification…</span></div>
+<dl class="app-status-list"><div><dt data-i18n="appStatus.application">Application</dt><dd data-i18n="appStatus.initial" id="about-app-status">Vérification en cours</dd></div><div><dt data-i18n="appStatus.tariffs">Tarifs</dt><dd data-i18n="tariffs.status.loading" id="about-tariffs-status">Chargement…</dd></div><div><dt data-i18n="appStatus.freshness">Fraîcheur</dt><dd><span class="tariffs-freshness-badge" data-i18n="tariffs.freshness.unknown" data-state="unknown" id="about-tariffs-freshness">Fraîcheur inconnue</span></dd></div></dl>
+<button class="app-status-check-btn" data-i18n="settings.refreshButton" id="about-check-update" type="button">Actualiser l’application et les tarifs</button>
+</section>
+<section aria-labelledby="data-backup-title" class="app-status-card data-backup-card">
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="settings.localPreferences">Préférences locales</p><h2 data-i18n="backup.title" id="data-backup-title">Sauvegarde et restauration</h2></div></div>
+<div class="data-backup-actions">
+<div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.saveButton" id="about-export-data" type="button">Sauvegarder mes réglages</button><p data-i18n="backup.saveHelp">Télécharge un fichier contenant vos préférences et vos favoris.</p></div>
+<div class="data-backup-action"><button class="app-status-check-btn" data-i18n="backup.restoreButton" id="about-import-data" type="button">Restaurer mes réglages</button><p data-i18n="backup.restoreHelp">Sélectionnez une sauvegarde kWhiz précédemment téléchargée.</p></div>
+<input accept="application/json,.json" hidden="" id="about-import-data-file" type="file"/>
 </div>
-<p class="planner-desc">Le planificateur de trajet myAtlante intègre les principaux opérateurs de recharge. Il calcule l’itinéraire selon le véhicule et l’autonomie disponible, affiche les bornes compatibles et leur disponibilité en temps réel, estime les coûts de recharge et facilite le lancement des sessions depuis l’application.</p>
-<p class="planner-price">🇫🇷 Application française et gratuite</p>
-<div class="store-badges">
-<a href="https://apps.apple.com/us/app/myatlante/id6473838981" rel="noopener noreferrer" target="_blank"><img alt="Télécharger sur l'App Store" class="store-badge" src="./logos/appstore.webp"/></a>
-<a href="https://play.google.com/store/apps/details?id=com.atlante.charging" rel="noopener noreferrer" target="_blank"><img alt="Disponible sur Google Play" class="store-badge" src="./logos/googleplay.webp"/></a>
+<p aria-live="polite" class="data-backup-status" data-state="idle" id="about-data-status" role="status"></p>
+</section>
+<section aria-labelledby="settings-install-title" class="app-status-card" id="settings-install">
+<div class="app-status-card__heading"><div><p class="app-status-card__eyebrow" data-i18n="install.sectionEyebrow">Application web</p><h2 data-i18n="install.sectionTitle" id="settings-install-title">Ajouter à l’écran d’accueil</h2></div></div>
+<div class="landing-install" id="landing-install">
+<div id="install-ios"><p class="install-tip install-tip--ios"><img alt="iOS" class="os-logo os-logo--dark" height="22" src="./logos/ios-sombre.webp" width="22"/><img alt="iOS" class="os-logo os-logo--light" height="22" src="./logos/ios-clair.webp" width="22"/><strong class="text-strong">iOS / iPhone</strong></p><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Safari</strong>.</li><li><span data-i18n="install.tap">Appuyez sur</span> <img alt="" aria-label="Partager" data-i18n-aria-label="install.share" class="install-icon" height="18" src="./logos/share.png" width="18"/> <strong data-i18n="install.share">Partager</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.ios.addToHomeScreen">Sur l’écran d’accueil</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div>
+<div id="install-android"><p class="install-tip install-tip--android"><img alt="Android" class="os-logo os-logo--dark" height="22" src="./logos/android-sombre.webp" width="22"/><img alt="Android" class="os-logo os-logo--light" height="22" src="./logos/android-clair.webp" width="22"/><strong class="text-strong">Android</strong></p><button class="install-native-btn" data-i18n="install.nativeButton" hidden="" id="install-native-btn" type="button">📲 Installer kWhiz</button><div id="install-android-manual"><ol class="install-steps"><li><span data-i18n="install.openIn">Ouvrez kWhiz dans</span> <strong>Chrome</strong>.</li><li><span data-i18n="install.openMenu">Ouvrez le menu</span> <strong>⋮</strong>.</li><li><span data-i18n="install.choose">Choisissez</span> <strong data-i18n="install.android.addToHomeScreen">Ajouter à l’écran d’accueil</strong> <span data-i18n="install.or">ou</span> <strong data-i18n="install.installApp">Installer l’application</strong>, <span data-i18n="install.thenConfirm">puis confirmez</span>.</li></ol></div></div>
 </div>
-</div>
-<div class="planner-card">
-<div class="planner-card-header">
-<div class="planner-header-inner"><img alt="" class="planner-icon" src="./logos/iecharge-icon.webp"/><span class="planner-name">IECharge</span></div>
-<span class="planner-badge">Gratuit</span>
-</div>
-<p class="planner-desc">L’opérateur propose également un planificateur qui ne se contente pas de lister ses points de recharge.</p>
-<p class="planner-price">🇫🇷 Application française et gratuite</p>
-<div class="store-badges">
-<a href="https://apps.apple.com/fr/app/iecharge/id6443554659" rel="noopener noreferrer" target="_blank"><img alt="Télécharger sur l'App Store" class="store-badge" src="./logos/appstore.webp"/></a>
-<a href="https://play.google.com/store/apps/details?id=com.iecharge&amp;hl=fr" rel="noopener noreferrer" target="_blank"><img alt="Disponible sur Google Play" class="store-badge" src="./logos/googleplay.webp"/></a>
-</div>
-</div>
-<div class="planner-card">
-<div class="planner-card-header">
-<div class="planner-header-inner"><img alt="" class="planner-icon" src="./logos/electus-icon.webp"/><span class="planner-name">Electus</span></div>
-<span class="planner-badge">Gratuit</span>
-</div>
-<p class="planner-desc">Ce planificateur, pensé pour les conducteurs de véhicules électriques, calcule les itinéraires les plus efficaces selon l’autonomie, le type de véhicule et les bornes disponibles sur le trajet. Il se veut simple, rapide, fiable et en constante évolution.</p>
-<p class="planner-price">🇫🇷 Application française et gratuite</p>
-<div class="store-badges">
-<a href="https://apps.apple.com/fr/app/electus-bornes-de-recharges/id6503873007" rel="noopener noreferrer" target="_blank"><img alt="Télécharger sur l'App Store" class="store-badge" src="./logos/appstore.webp"/></a>
-<a href="https://play.google.com/store/apps/details?id=electus.app&amp;hl=fr&amp;pli=1" rel="noopener noreferrer" target="_blank"><img alt="Disponible sur Google Play" class="store-badge" src="./logos/googleplay.webp"/></a>
-</div>
-</div>
-<div class="planner-card">
-<div class="planner-card-header">
-<div class="planner-header-inner"><img alt="" class="planner-icon" src="./logos/chargemap-icon.webp"/><span class="planner-name">Chargemap</span></div>
-<span class="planner-badge freemium">Freemium</span>
-</div>
-<p class="planner-desc">Chargemap intègre un planificateur d’itinéraire pour les longs trajets, qui exploite les données de sa communauté. Il prend en compte les caractéristiques du véhicule ainsi que la disponibilité et la fiabilité des bornes.</p>
-<p class="planner-price">Chargemap Boost : 8,99 €/mois ou 77,90 €/an</p>
-<div class="store-badges">
-<a href="https://apps.apple.com/fr/app/chargemap-bornes-de-recharge/id438176982" rel="noopener noreferrer" target="_blank"><img alt="Télécharger sur l'App Store" class="store-badge" src="./logos/appstore.webp"/></a>
-<a href="https://play.google.com/store/apps/details?id=com.chargemap_beta.android&amp;hl=fr" rel="noopener noreferrer" target="_blank"><img alt="Disponible sur Google Play" class="store-badge" src="./logos/googleplay.webp"/></a>
-</div>
-</div>
-<div class="planner-card">
-<div class="planner-card-header">
-<div class="planner-header-inner"><img alt="" class="planner-icon" src="./logos/abrp.webp"/><span class="planner-name">ABRP</span></div>
-<span class="planner-badge">Gratuit / Pro</span>
-</div>
-<p class="planner-desc">A Better Routeplanner (ABRP) est une référence mondiale de la planification de trajets en véhicule électrique. Il prend en compte la météo, le relief, la vitesse et le comportement de la batterie du véhicule pour calculer des itinéraires précis et optimiser les arrêts de recharge.</p>
-<p class="planner-price">🌍 Gratuit avec options Premium</p>
-<div class="store-badges">
-<a href="https://apps.apple.com/us/app/a-better-routeplanner-abrp/id1490860521" rel="noopener noreferrer" target="_blank"><img alt="Télécharger sur l'App Store" class="store-badge" src="./logos/appstore.webp"/></a>
-<a href="https://play.google.com/store/apps/details?id=com.iternio.abrpapp" rel="noopener noreferrer" target="_blank"><img alt="Disponible sur Google Play" class="store-badge" src="./logos/googleplay.webp"/></a>
-</div>
-</div>
+</section>
 </div></div></div>
 <!-- Page : Plus d'infos -->
 <!-- Page : Aide -->
@@ -452,80 +325,103 @@
 
 
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-aide-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-aide-title">Aide</span>
-<button aria-label="Fermer" class="page-close" id="close-aide" type="button">✕</button>
+<span class="page-title" data-i18n="help.title" id="page-aide-title">Aide et FAQ</span>
+<button aria-label="Fermer l’aide" class="page-close" data-i18n-aria-label="help.closeLabel" id="close-aide" type="button">✕</button>
 </div><div class="page-body">
-<h3 class="help-section-title">⚡ Bien démarrer</h3>
+<div class="help-topics">
+<details class="help-topic"><summary data-i18n="help.gettingStarted.title">Bien démarrer</summary>
 <ol class="help-ordered-list">
-<li>Réglez votre <strong>consommation moyenne</strong> en kWh/100 km à l’aide du curseur situé en haut de l’écran.</li>
-<li><strong>Mon choix</strong> affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.</li>
-<li><strong>Comparer</strong> classe tous les opérateurs du moins cher au plus cher, abonnement compris.</li>
-<li><strong>Opérateurs</strong> présente le détail de chaque offre ainsi que son seuil de rentabilité.</li>
-<li><strong>Carte</strong> affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.</li>
+<li><span data-i18n="help.gettingStarted.consumptionBefore">Réglez votre</span> <strong data-i18n="help.gettingStarted.consumptionStrong">consommation moyenne</strong> <span data-i18n="help.gettingStarted.consumptionAfter">en kWh/100 km à l’aide du curseur situé en haut de l’écran.</span></li>
+<li><strong data-i18n="navigation.profile">Mon choix</strong> <span data-i18n="help.gettingStarted.recommendation">affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.</span></li>
+<li><strong data-i18n="navigation.compare">Comparer</strong> <span data-i18n="help.gettingStarted.compare">classe tous les opérateurs du moins cher au plus cher, abonnement compris.</span></li>
+<li><strong data-i18n="navigation.operators">Opérateurs</strong> <span data-i18n="help.gettingStarted.operators">présente le détail de chaque offre ainsi que son seuil de rentabilité.</span></li>
+<li><strong data-i18n="navigation.map">Carte</strong> <span data-i18n="help.gettingStarted.map">affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.</span></li>
 </ol>
-<h3 class="help-section-title">🗺️ Utiliser la carte</h3>
+</details>
+<details class="help-topic"><summary data-i18n="help.results.title">Comprendre les résultats</summary>
+<p data-i18n="help.results.explanation">Mon choix estime le coût mensuel selon votre consommation, votre kilométrage et votre part de recharge rapide. Comparer classe les offres, abonnement compris, tandis qu’Opérateurs en présente les conditions et le seuil de rentabilité.</p>
+<p data-i18n="help.results.warning">Les prix variables restent des estimations : confirmez toujours le tarif dans l’application ou sur le site de l’opérateur avant de recharger.</p>
+</details>
+<details class="help-topic"><summary data-i18n="help.map.title">Utiliser la carte</summary>
 <ol class="help-ordered-list">
-<li>À la première ouverture de <strong>Carte</strong>, autorisez la localisation pour afficher directement les stations autour de votre position ; vos coordonnées ne sont pas transmises à kWhiz et restent sur votre appareil.</li>
-<li>Si la localisation est refusée ou indisponible, la carte nationale reste utilisable. Appuyez ultérieurement sur <strong>Me localiser</strong> pour réessayer, ou sur <strong>Recentrer</strong> pour revenir à votre position.</li>
-<li>Appuyez sur les opérateurs pour les afficher ou les masquer. Avec plusieurs choix, kWhiz affiche les stations appartenant à <strong>l’un des réseaux sélectionnés</strong>.</li>
-<li>Utilisez <strong>Tous</strong> pour afficher tous les réseaux disponibles ou <strong>Aucun</strong> pour repartir d’une sélection vide.</li>
-<li>Lisez le statut de chaque station : <strong>vert</strong> signifie qu’au moins un point est libre, <strong>orange</strong> qu’ils sont occupés ou réservés, <strong>rouge</strong> qu’ils sont hors service et <strong>gris</strong> que l’information est absente, incomplète ou trop ancienne.</li>
-<li>Appuyez sur un point, un logo ou une fiche de la liste pour mettre la station en évidence sur la carte et consulter son état détaillé.</li>
-<li>Utilisez <strong>Itinéraire</strong>, puis choisissez Plans, Google Maps ou Waze pour ouvrir le guidage vers la borne.</li>
+<li><span data-i18n="help.map.locationBefore">À la première ouverture de</span> <strong data-i18n="navigation.map">Carte</strong>, <span data-i18n="help.map.locationAfter">autorisez la localisation pour afficher directement les stations autour de votre position ; vos coordonnées ne sont pas transmises à kWhiz et restent sur votre appareil.</span></li>
+<li><span data-i18n="help.map.retryBefore">Si la localisation est refusée ou indisponible, la carte nationale reste utilisable. Appuyez ultérieurement sur</span> <strong data-i18n="map.location.locate">Me localiser</strong> <span data-i18n="help.map.retryMiddle">pour réessayer, ou sur</span> <strong data-i18n="map.location.recenter">Recentrer</strong> <span data-i18n="help.map.retryAfter">pour revenir à votre position.</span></li>
+<li><span data-i18n="help.map.networksBefore">Appuyez sur les opérateurs pour les afficher ou les masquer. Avec plusieurs choix, kWhiz affiche les stations appartenant à</span> <strong data-i18n="help.map.networksStrong">l’un des réseaux sélectionnés</strong><span data-i18n="help.map.networksAfter">.</span></li>
+<li><span data-i18n="help.map.filtersBefore">Utilisez</span> <strong data-i18n="map.filters.all">Tous</strong> <span data-i18n="help.map.filtersMiddle">pour afficher tous les réseaux disponibles ou</span> <strong data-i18n="map.filters.none">Aucun</strong> <span data-i18n="help.map.filtersAfter">pour repartir d’une sélection vide.</span></li>
+<li><span data-i18n="help.map.statusBefore">Lisez le statut de chaque station :</span> <strong data-i18n="help.map.statusGreen">vert</strong> <span data-i18n="help.map.statusGreenAfter">signifie qu’au moins un point est libre,</span> <strong data-i18n="help.map.statusOrange">orange</strong> <span data-i18n="help.map.statusOrangeAfter">qu’ils sont occupés ou réservés,</span> <strong data-i18n="help.map.statusRed">rouge</strong> <span data-i18n="help.map.statusRedAfter">qu’ils sont hors service et</span> <strong data-i18n="help.map.statusGrey">gris</strong> <span data-i18n="help.map.statusGreyAfter">que l’information est absente, incomplète ou trop ancienne.</span></li>
+<li data-i18n="help.map.selection">Appuyez sur un point, un logo ou une fiche de la liste pour mettre la station en évidence sur la carte et consulter son état détaillé.</li>
+<li><span data-i18n="help.map.directionsBefore">Utilisez</span> <strong data-i18n="map.station.directions">Itinéraire</strong><span data-i18n="help.map.directionsAfter">, puis choisissez Plans, Google Maps ou Waze pour ouvrir le guidage vers la borne.</span></li>
 </ol>
-<div class="help-note">📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.</div>
-<div class="help-note">🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.</div>
-<div class="help-note">🕐 Les tarifs sont vérifiés régulièrement, mais confirmez-les toujours dans l’application ou sur le site de l’opérateur avant de recharger.</div>
-<h3 class="help-section-title">❓ FAQ</h3>
+<div class="help-note" data-i18n="help.map.irveNote">📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.</div>
+<div class="help-note" data-i18n="help.map.statusNote">🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.</div>
+</details>
+<details class="help-topic"><summary data-i18n="help.route.title">Stations sur mon trajet</summary>
+<p><span data-i18n="help.route.introBefore">Sélectionnez les opérateurs, ouvrez</span> <strong data-i18n="help.route.title">Stations sur mon trajet</strong><span data-i18n="help.route.introAfter">, puis utilisez votre position ou saisissez une ville, une adresse ou un code postal en France. Les lieux sont transmis à OpenRouteService uniquement pour calculer le tracé.</span></p>
+<div class="help-note">🧭 <strong data-i18n="help.route.limitStrong">kWhiz repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie.</strong> <span data-i18n="help.route.limitAfter">Il ne tient compte ni de l’autonomie, ni du niveau de batterie, du relief, de la météo ou du temps de recharge.</span></div>
+<div class="help-note"><span data-i18n="help.route.directionsBefore">🚗 Le bouton</span> <strong data-i18n="map.station.directions">Itinéraire</strong> <span data-i18n="help.route.directionsAfter">ouvre le guidage vers une seule station ; il ne transmet pas l’intégralité du trajet ni les autres stations affichées.</span></div>
+</details>
+<details class="help-topic"><summary data-i18n="help.planners.title">Besoin d’un véritable planificateur de recharge ?</summary>
+<p data-i18n="help.planners.intro">Pour calculer les arrêts selon le véhicule, la batterie et l’autonomie, utilisez un outil spécialisé :</p>
+<ul class="planner-links">
+<li><a href="https://atlante.energy/fr/myatlante-app/" rel="noopener noreferrer" target="_blank"><strong>myAtlante</strong></a> <span data-i18n="help.planners.myAtlante">— itinéraires, bornes et disponibilité.</span></li>
+<li><a href="https://abetterrouteplanner.com/" rel="noopener noreferrer" target="_blank"><strong>ABRP</strong></a> <span data-i18n="help.planners.abrp">— planification avancée selon le véhicule.</span></li>
+<li><a href="https://chargemap.com/fr-fr/mobile" rel="noopener noreferrer" target="_blank"><strong>Chargemap</strong></a> <span data-i18n="help.planners.chargemap">— trajets et données communautaires.</span></li>
+<li><a href="https://iecharge.io/" rel="noopener noreferrer" target="_blank"><strong>IECharge</strong></a> <span data-i18n="help.planners.iecharge">— planification et réseau IECharge.</span></li>
+<li><a href="https://electus.app/" rel="noopener noreferrer" target="_blank"><strong>Electus</strong></a> <span data-i18n="help.planners.electus">— itinéraires adaptés au véhicule.</span></li>
+</ul>
+</details>
+<details class="help-topic"><summary data-i18n="faq.title">Questions fréquentes</summary>
 <div class="help-faq" id="help-faq">
-<details><summary>Comment obtenir une recommandation personnalisée ?</summary><p>Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.</p></details>
-<details><summary>Que signifie la part de recharge rapide ?</summary><p>Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.</p></details>
-<details><summary>Les abonnements sont-ils pris en compte ?</summary><p>Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.</p></details>
-<details><summary>Qu’est-ce que le seuil de rentabilité ?</summary><p>C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.</p></details>
-<details><summary>Pourquoi le classement change-t-il ?</summary><p>Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.</p></details>
-<details><summary>Pourquoi certains tarifs sont-ils variables ou estimés ?</summary><p>Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.</p></details>
-<details><summary>Les tarifs sont-ils garantis ?</summary><p>Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.</p></details>
-<details><summary>Pourquoi la carte ne trouve-t-elle pas ma position ?</summary><p>Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».</p></details>
-<details><summary>Les bornes affichées sont-elles disponibles ?</summary><p>Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.</p></details>
-<details><summary>Comment interpréter le statut d’une station ?</summary><p>Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.</p></details>
-<details><summary>À quoi servent les favoris ?</summary><p>L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</p></details>
-<details><summary>Puis-je tester un autre usage sans modifier mon profil ?</summary><p>Oui. Le simulateur de scénario permet de comparer un autre kilométrage ou une autre part de recharge rapide, puis d’enregistrer ce scénario.</p></details>
-<details><summary>Mes réglages sont-ils sauvegardés ?</summary><p>Ils sont conservés localement sur votre appareil. Depuis la page « À propos », vous pouvez les exporter dans un fichier et les restaurer sur un autre appareil.</p></details>
-<details><summary>L’application fonctionne-t-elle hors ligne ?</summary><p>Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.</p></details>
-<details><summary>Comment actualiser l’application et les tarifs ?</summary><p>Utilisez « Actualiser les tarifs » dans le menu ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.</p></details>
-</div></div></div></div>
+<details><summary data-i18n="faq.recommendation.question">Comment obtenir une recommandation personnalisée ?</summary><p data-i18n="faq.recommendation.answer">Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.</p></details>
+<details><summary data-i18n="faq.fastShare.question">Que signifie la part de recharge rapide ?</summary><p data-i18n="faq.fastShare.answer">Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.</p></details>
+<details><summary data-i18n="faq.subscriptions.question">Les abonnements sont-ils pris en compte ?</summary><p data-i18n="faq.subscriptions.answer">Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.</p></details>
+<details><summary data-i18n="faq.breakEven.question">Qu’est-ce que le seuil de rentabilité ?</summary><p data-i18n="faq.breakEven.answer">C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.</p></details>
+<details><summary data-i18n="faq.ranking.question">Pourquoi le classement change-t-il ?</summary><p data-i18n="faq.ranking.answer">Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.</p></details>
+<details><summary data-i18n="faq.variablePrices.question">Pourquoi certains tarifs sont-ils variables ou estimés ?</summary><p data-i18n="faq.variablePrices.answer">Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.</p></details>
+<details><summary data-i18n="faq.priceGuarantee.question">Les tarifs sont-ils garantis ?</summary><p data-i18n="faq.priceGuarantee.answer">Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.</p></details>
+<details><summary data-i18n="faq.location.question">Pourquoi la carte ne trouve-t-elle pas ma position ?</summary><p data-i18n="faq.location.answer">Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».</p></details>
+<details><summary data-i18n="faq.availability.question">Les bornes affichées sont-elles disponibles ?</summary><p data-i18n="faq.availability.answer">Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.</p></details>
+<details><summary data-i18n="faq.status.question">Comment interpréter le statut d’une station ?</summary><p data-i18n="faq.status.answer">Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.</p></details>
+<details><summary data-i18n="faq.route.question">Comment trouver les stations sur un trajet ?</summary><p data-i18n="faq.route.answer">Dans l’onglet Carte, sélectionnez d’abord les opérateurs à afficher. Ouvrez ensuite « Stations sur mon trajet », utilisez votre position ou saisissez le départ, indiquez l’arrivée, puis lancez la recherche. kWhiz montre les stations des réseaux choisis situées à moins de 15 km du tracé. « Effacer le trajet » restaure la carte habituelle.</p></details>
+<details><summary data-i18n="faq.routeLimits.question">kWhiz planifie-t-il mes arrêts de recharge ?</summary><p data-i18n="faq.routeLimits.answer">Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.</p></details>
+<details><summary data-i18n="faq.favorites.question">À quoi servent les favoris ?</summary><p data-i18n="faq.favorites.answer">L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</p></details>
+<details><summary data-i18n="faq.backup.question">Comment sauvegarder et restaurer mes réglages ?</summary><p data-i18n="faq.backup.answer">Vos réglages sont conservés localement sur votre appareil. Dans « Données et réglages », utilisez « Créer une sauvegarde » pour télécharger un fichier, puis « Restaurer une sauvegarde » pour le réutiliser sur cet appareil ou un autre.</p></details>
+<details><summary data-i18n="faq.offline.question">L’application fonctionne-t-elle hors ligne ?</summary><p data-i18n="faq.offline.answer">Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.</p></details>
+<details><summary data-i18n="faq.update.question">Comment actualiser l’application et les tarifs ?</summary><p data-i18n="faq.update.answer">Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.</p></details>
+</div></details></div></div></div></div>
 <div aria-hidden="true" class="page-overlay aux-drawer" id="page-infos">
 
 
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-infos-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" id="page-infos-title">Informations tarifaires</span>
-<button aria-label="Fermer" class="page-close" id="close-infos" type="button">✕</button>
+<span class="page-title" data-i18n="tariffsInfo.title" id="page-infos-title">Tarifs et sources</span>
+<button aria-label="Fermer les tarifs et sources" class="page-close" data-i18n-aria-label="tariffsInfo.closeLabel" id="close-infos" type="button">✕</button>
 </div><div class="page-body">
 <div class="about-hero">
+<p class="about-desc" data-i18n="tariffsInfo.estimateNotice">Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.</p>
 </div>
 <div class="about-install">
-<div class="install-label">📐 Formule de calcul</div>
-<code class="formula-code">kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)</code>
-<code class="formula-code">km min./mois = kWh min. ÷ (consommation / 100)</code>
+<div class="install-label" data-i18n="tariffsInfo.calculationTitle">📐 Formule de calcul</div>
+<code class="formula-code" data-i18n="tariffsInfo.formulaKwh">kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)</code>
+<code class="formula-code" data-i18n="tariffsInfo.formulaKm">km min./mois = kWh min. ÷ (consommation / 100)</code>
 </div>
 <div class="about-origin">
-<div class="origin-label">⚠️ Notes importantes</div>
+<div class="origin-label" data-i18n="tariffsInfo.notesTitle">⚠️ Notes importantes</div>
 <ul class="notes-list">
-<li class="notes-item"><span class="notes-bullet">•</span><strong>IECharge</strong> : tarif fixe de 0,25 €/kWh</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Tesla</strong> : super heures creuses de 0,12 à 0,17 €/kWh la nuit</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Electra+ Smart</strong> (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, réduit à 0,29 €/kWh pour les abonnés</li>
+<li class="notes-item"><span class="notes-bullet">•</span><strong>IECharge</strong><span data-i18n="tariffsInfo.iechargeNote"> : tarif fixe de 0,25 €/kWh</span></li>
+<li class="notes-item"><span class="notes-bullet">•</span><strong>Tesla</strong><span data-i18n="tariffsInfo.teslaNote"> : super heures creuses de 0,12 à 0,17 €/kWh la nuit</span></li>
+<li class="notes-item"><span class="notes-bullet">•</span><strong>Electra+ Smart</strong><span data-i18n="tariffsInfo.electraNote"> (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, réduit à 0,29 €/kWh pour les abonnés</span></li>
 <li class="notes-item" id="infos-atlante-cb-li"><span class="notes-bullet">•</span><strong>Atlante ChargeBack</strong> : <span id="infos-atlante-cb-text">1 € payé génère 0,50 € de crédit en Gems, soit un taux de 50 % • prix effectif estimé à 0,193 €/kWh en usage régulier</span></li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Lidl</strong> : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus</li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Izivia Fast</strong> : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s</li>
+<li class="notes-item"><span class="notes-bullet">•</span><strong>Lidl</strong><span data-i18n="tariffsInfo.lidlNote"> : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus</span></li>
+<li class="notes-item"><span class="notes-bullet">•</span><strong>Izivia Fast</strong><span data-i18n="tariffsInfo.iziviaNote"> : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s</span></li>
 <li class="notes-item"><span class="notes-bullet--faint">•</span><span id="infos-tarifs-date">Tarifs vérifiés le 6 août 2026</span></li>
 </ul>
 </div>
 <div class="about-contact about-contact--left">
-<div class="section-label">💡 Astuce multi-réseaux</div>
-<p class="about-tip-text"><strong><a class="accent-link" href="https://electroverse.com/fr-FR/map" rel="noopener noreferrer" target="_blank">Octopus Electroverse</a></strong> permet d’accéder à de nombreux réseaux partenaires. Les prix varient selon la borne et doivent être confirmés dans l’application avant la recharge.</p>
+<div class="section-label" data-i18n="tariffsInfo.multiNetworkTipTitle">💡 Astuce multi-réseaux</div>
+<p class="about-tip-text"><strong><a class="accent-link" href="https://electroverse.com/fr-FR/map" rel="noopener noreferrer" target="_blank">Octopus Electroverse</a></strong><span data-i18n="tariffsInfo.multiNetworkTipBefore"> permet d’accéder à de nombreux réseaux partenaires. Les prix varient selon la borne et doivent être confirmés dans l’application avant la recharge.</span></p>
 </div>
 <p class="source-info">
-                Sources : 
+                <span data-i18n="tariffsInfo.sourcesLabel">Sources :</span>
                 <a href="https://www.ionity.eu/fr/abonnements" rel="noopener noreferrer" target="_blank">IONITY</a> •
                 <a href="https://www.go-electra.com/fr/electra-plus/" rel="noopener noreferrer" target="_blank">Electra</a> •
                 <a href="https://atlante.energy/fr/myatlante-app/" rel="noopener noreferrer" target="_blank">Atlante</a> •
@@ -535,56 +431,56 @@
 </div></div></div>
 <div aria-hidden="true" aria-labelledby="formula-detail-title" aria-modal="true" class="help-overlay" id="formula-detail-overlay" role="dialog" tabindex="-1">
 <div class="help-modal formula-detail-modal">
-<button aria-label="Fermer" class="modal-close" id="formula-detail-close" type="button">×</button>
-<h2 class="sr-only" id="formula-detail-title">Détail de l’offre</h2>
+<button aria-label="Fermer" class="modal-close" data-i18n-aria-label="offerDetail.closeLabel" id="formula-detail-close" type="button">×</button>
+<h2 class="sr-only" data-i18n="offerDetail.title" id="formula-detail-title">Détail de l’offre</h2>
 <div id="formula-detail-body"></div>
 </div>
 </div>
 <div aria-hidden="true" aria-labelledby="route-choice-title" aria-modal="true" class="help-overlay" id="route-choice-overlay" role="dialog" tabindex="-1">
 <div class="help-modal route-choice-modal">
-<button aria-label="Fermer" class="modal-close" id="route-choice-close" type="button">×</button>
-<p class="profile-page-kicker">Ouvrir l’itinéraire</p>
-<h2 id="route-choice-title">Choisir votre GPS</h2>
+<button aria-label="Fermer" class="modal-close" data-i18n-aria-label="common.close" id="route-choice-close" type="button">×</button>
+<p class="profile-page-kicker" data-i18n="map.gps.openDirections">Ouvrir l’itinéraire</p>
+<h2 data-i18n="map.gps.chooseApp" id="route-choice-title">Choisir une application de navigation</h2>
 <p class="route-choice-station" id="route-choice-station"></p>
 <div class="route-choice-list">
 <a class="route-choice-link" data-route-app="apple" id="route-apple" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon"></span><span><strong>Plans</strong><small>Apple Maps</small></span><b>›</b></a>
-<a class="route-choice-link" data-route-app="google" id="route-google" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--google">G</span><span><strong>Google Maps</strong><small>Application ou navigateur</small></span><b>›</b></a>
-<a class="route-choice-link" data-route-app="waze" id="route-waze" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--waze">W</span><span><strong>Waze</strong><small>Application ou navigateur</small></span><b>›</b></a>
+<a class="route-choice-link" data-route-app="google" id="route-google" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--google">G</span><span><strong>Google Maps</strong><small data-i18n="map.gps.appOrBrowser">Application ou navigateur</small></span><b>›</b></a>
+<a class="route-choice-link" data-route-app="waze" id="route-waze" target="_blank" rel="noopener noreferrer"><span class="route-choice-icon route-choice-icon--waze">W</span><span><strong>Waze</strong><small data-i18n="map.gps.appOrBrowser">Application ou navigateur</small></span><b>›</b></a>
 </div>
-<p class="route-choice-note">L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.</p>
+<p class="route-choice-note" data-i18n="map.gps.note">L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.</p>
 </div>
 </div>
 <!-- Bottom Navigation -->
 <nav class="bottom-nav" id="bottom-nav">
-<button aria-label="Mon choix personnalisé" class="bnav-item active" id="bnav-profile" type="button">
+<button aria-label="Mon choix personnalisé" class="bnav-item active" data-i18n-aria-label="navigation.profileLabel" id="bnav-profile" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
 </div>
-<span class="bnav-label">Mon choix</span>
+<span class="bnav-label" data-i18n="navigation.profile">Mon choix</span>
 </button>
-<button aria-label="Comparer" class="bnav-item" id="bnav-compare" type="button">
+<button aria-label="Comparer" class="bnav-item" data-i18n-aria-label="navigation.compareLabel" id="bnav-compare" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
 </div>
-<span class="bnav-label">Comparer</span>
+<span class="bnav-label" data-i18n="navigation.compare">Comparer</span>
 </button>
-<button aria-label="Opérateurs" class="bnav-item" id="bnav-operators" type="button">
+<button aria-label="Opérateurs" class="bnav-item" data-i18n-aria-label="navigation.operatorsLabel" id="bnav-operators" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
 </div>
-<span class="bnav-label">Opérateurs</span>
+<span class="bnav-label" data-i18n="navigation.operators">Opérateurs</span>
 </button>
-<button aria-label="Carte des bornes" class="bnav-item" id="bnav-map" type="button">
+<button aria-label="Carte des bornes" class="bnav-item" data-i18n-aria-label="navigation.mapLabel" id="bnav-map" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"></path><path d="M9 3v15M15 6v15"></path></svg>
 </div>
-<span class="bnav-label">Carte</span>
+<span class="bnav-label" data-i18n="navigation.map">Carte</span>
 </button>
-<button aria-expanded="false" aria-label="Menu" class="bnav-item" id="bnav-menu" type="button">
+<button aria-expanded="false" aria-label="Menu" class="bnav-item" data-i18n-aria-label="navigation.menuLabel" id="bnav-menu" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="18" y2="18"></line></svg>
 </div>
-<span class="bnav-label">Menu</span>
+<span class="bnav-label" data-i18n="navigation.menu">Menu</span>
 </button>
 </nav>
 <!-- Menu Drawer -->
@@ -598,57 +494,60 @@
 <svg viewbox="0 0 24 24"><path d="M13 2 5.8 13H11l-1 9 7.2-11H12l1-9Z"></path></svg>
 </span>
 <div>
-<p id="menu-subtitle">Comparateur de recharge rapide</p>
-<h2 id="menu-title">Menu kWhiz</h2>
+<p data-i18n="menu.subtitle" id="menu-subtitle">Comparateur de recharge rapide</p>
+<h2 data-i18n="menu.title" id="menu-title">Menu kWhiz</h2>
 </div>
 </div>
-<button aria-label="Fermer le menu" class="menu-drawer-close" id="menu-close" type="button">
+<button aria-label="Fermer le menu" class="menu-drawer-close" data-i18n-aria-label="menu.closeLabel" id="menu-close" type="button">
 <svg aria-hidden="true" class="ui-icon" viewbox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></svg>
 </button>
 </header>
 <section aria-labelledby="menu-section-discover" class="menu-drawer-section">
-<h3 id="menu-section-discover">Comprendre</h3>
+<h3 data-i18n="menu.sections.learn" id="menu-section-discover">Comprendre</h3>
 <div class="menu-drawer-group">
 <button class="menu-drawer-item" id="menu-help" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" x2="12.01" y1="17" y2="17"></line></svg></span>
-<span class="menu-drawer-copy"><strong>Aide</strong><small>Fonctionnement du comparateur</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.help">Aide et FAQ</strong><small data-i18n="menu.items.helpDescription">Utiliser le comparateur et la carte</small></span>
+<span aria-hidden="true" class="menu-drawer-chevron">›</span>
+</button>
+<button class="menu-drawer-item" id="menu-landing" type="button">
+<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M12 3a9 9 0 1 0 9 9"></path><path d="M12 7v5l3 2"></path><path d="M16 3h5v5"></path></svg></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.introduction">Revoir l’introduction</strong><small data-i18n="menu.items.introductionDescription">Redécouvrir le fonctionnement de kWhiz</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 <button class="menu-drawer-item" id="menu-infos" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg></span>
-<span class="menu-drawer-copy"><strong>Informations tarifaires</strong><small>Sources, vérification et méthode</small></span>
-<span aria-hidden="true" class="menu-drawer-chevron">›</span>
-</button>
-<button class="menu-drawer-item" id="menu-planners" type="button">
-<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></span>
-<span class="menu-drawer-copy"><strong>Planificateurs d’itinéraire</strong><small>Préparer un trajet électrique</small></span>
-<span aria-hidden="true" class="menu-drawer-chevron">›</span>
-</button>
-<button class="menu-drawer-item" id="menu-about" type="button">
-<span class="menu-drawer-icon menu-drawer-icon--brand"><svg height="20" viewbox="0 0 512 512" width="20"><defs><lineargradient id="mabg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#mabg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg></span>
-<span class="menu-drawer-copy"><strong>À propos de kWhiz</strong><small>Version et projet</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.prices">Tarifs et sources</strong><small data-i18n="menu.items.pricesDescription">Méthode, vérification et limites</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 </div>
 </section>
 <section aria-labelledby="menu-section-settings" class="menu-drawer-section">
-<h3 id="menu-section-settings">Application</h3>
+<h3 data-i18n="menu.sections.application" id="menu-section-settings">Application</h3>
 <div class="menu-drawer-group">
 <button class="menu-drawer-item" id="menu-theme" type="button">
 <span class="menu-drawer-icon" id="menu-theme-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4"></circle><line x1="12" x2="12" y1="2" y2="5"></line><line x1="12" x2="12" y1="19" y2="22"></line><line x1="4.22" x2="6.34" y1="4.22" y2="6.34"></line><line x1="17.66" x2="19.78" y1="17.66" y2="19.78"></line><line x1="2" x2="5" y1="12" y2="12"></line><line x1="19" x2="22" y1="12" y2="12"></line><line x1="4.22" x2="6.34" y1="19.78" y2="17.66"></line><line x1="17.66" x2="19.78" y1="6.34" y2="4.22"></line></svg></span>
-<span class="menu-drawer-copy"><strong id="menu-theme-label">Mode clair / sombre</strong><small>Adapter l’apparence</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.appearance">Apparence</strong><small data-i18n="theme.light" id="menu-theme-label">Passer au mode clair</small></span>
 </button>
-<button class="menu-drawer-item" id="menu-refresh" type="button">
-<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></span>
-<span class="menu-drawer-copy"><strong>Actualiser les tarifs</strong><small>Recharger les données disponibles</small></span>
-</button>
-<button class="menu-drawer-item" id="menu-landing" type="button">
-<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><polyline points="15 18 9 12 15 6"></polyline></svg></span>
-<span class="menu-drawer-copy"><strong>Revoir l’introduction</strong><small>Afficher l’écran de présentation</small></span>
+<div class="menu-drawer-item menu-language-item">
+<span aria-hidden="true" class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path></svg></span>
+<div class="menu-language-content"><strong data-i18n="menu.language.title" id="menu-language-title">Langue</strong><div aria-labelledby="menu-language-title" class="menu-language-choice" role="group"><button data-i18n="menu.language.french" data-language="fr" id="menu-language-fr" type="button">Français</button><button data-i18n="menu.language.english" data-language="en" id="menu-language-en" type="button">English</button></div><p aria-live="polite" class="sr-only" id="menu-language-status"></p></div>
+</div>
+<button class="menu-drawer-item" id="menu-settings" type="button">
+<span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.settings">Données et réglages</strong><small data-i18n="menu.items.settingsDescription">Actualisation, sauvegarde et installation</small></span>
+<span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 </div>
 </section>
-<p class="menu-drawer-version"><span>kWhiz __VERSION__</span><span aria-hidden="true">•</span><span>Données sourcées</span></p>
+<section aria-label="À propos" class="menu-drawer-section menu-drawer-section--about" data-i18n-aria-label="menu.sections.about">
+<div class="menu-drawer-group"><button class="menu-drawer-item" id="menu-about" type="button">
+<span class="menu-drawer-icon menu-drawer-icon--brand"><svg height="20" viewbox="0 0 512 512" width="20"><defs><lineargradient id="mabg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#mabg)" height="512" rx="96" width="512"></rect><path d="M288 64L128 288h96l-32 160 160-224h-96l32-160z" fill="white"></path></svg></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.about">À propos de kWhiz</strong><small data-i18n="menu.items.aboutDescription">Projet, version et contact</small></span>
+<span aria-hidden="true" class="menu-drawer-chevron">›</span>
+</button></div>
+</section>
+<p class="menu-drawer-version"><span>kWhiz __VERSION__</span><span aria-hidden="true">•</span><span data-i18n="menu.dataSourced">Données sourcées</span></p>
 </div>
 </div>
 <script src="./app.js" type="module"></script>

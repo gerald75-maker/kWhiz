@@ -2,7 +2,7 @@ import { on } from '../shared/dom.js';
 
 const VIEW_TAB = { compare: 'ranking', operators: 'operators', map: 'map', profile: 'profile' };
 
-export function initNavigation({ initialView = 'profile', onViewChange, onRefresh, onToggleTheme, onShowLanding }) {
+export function initNavigation({ initialView = 'profile', onViewChange, onToggleTheme, onShowLanding }) {
     let currentView = initialView;
     let drawerScrollY = 0;
     let drawerTrigger = null;
@@ -115,12 +115,11 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
     on('menu-drawer-backdrop', 'click', closeDrawer);
     on('menu-close', 'click', closeDrawer);
     on('menu-help', 'click', () => openPage('page-aide'));
+    on('menu-landing', 'click', () => { closeDrawer(); onShowLanding?.(); });
     on('menu-about', 'click', () => openPage('page-about'));
     on('menu-infos', 'click', () => openPage('page-infos'));
-    on('menu-planners', 'click', () => openPage('page-planners'));
+    on('menu-settings', 'click', () => openPage('page-settings'));
     on('menu-theme', 'click', () => { onToggleTheme?.(); closeDrawer(); });
-    on('menu-landing', 'click', () => { closeDrawer(); onShowLanding?.(); });
-    on('menu-refresh', 'click', () => { closeDrawer(); onRefresh?.(); });
 
     document.addEventListener('keydown', event => {
         const drawer = document.getElementById('menu-drawer');
@@ -163,12 +162,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
         if (distance > 70 && drawerSheet.scrollTop <= 0) closeDrawer();
     }, { passive: true });
 
-    on('about-show-landing', 'click', () => {
-        closeAllPages();
-        onShowLanding?.();
-    });
-
-    ['close-about', 'close-planners', 'close-infos', 'close-aide'].forEach(id => {
+    ['close-about', 'close-infos', 'close-aide', 'close-settings'].forEach(id => {
         on(id, 'click', () => closeAllPages({ restoreFocus: true }));
     });
 
@@ -208,6 +202,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onRefres
     return {
         getCurrentView: () => currentView,
         switchView,
+        openPage,
         closeAllPages,
         setActiveNav
     };

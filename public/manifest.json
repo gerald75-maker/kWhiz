@@ -1,7 +1,7 @@
 {
   "name": "kWhiz",
   "short_name": "kWhiz",
-  "description": "Le comparateur de tarifs de recharge rapide",
+  "description": "Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0F172A",

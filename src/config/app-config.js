@@ -15,12 +15,14 @@ export const LOGOS = Object.freeze({
     atlante: './logos/atlante.webp',
     fastned: './logos/fastned.webp',
     electroverse: './logos/electroverse.webp',
-    zunder: './logos/zunder.png'
+    zunder: './logos/zunder.png',
+    pluginn: './logos/pluginn.webp',
+    'engie-vianeo': './logos/engie-vianeo.webp'
 });
 
 export const VALID_COLORS = new Set([
     'atlante', 'electra', 'electroverse', 'fastned', 'iecharge',
-    'ionity', 'izivia', 'lidl', 'statione', 'tesla', 'zunder'
+    'engie-vianeo', 'ionity', 'izivia', 'lidl', 'pluginn', 'statione', 'tesla', 'zunder'
 ]);
 
 export const STORAGE_KEYS = Object.freeze({
@@ -28,9 +30,9 @@ export const STORAGE_KEYS = Object.freeze({
     landingSeen: 'kwhiz-landing-seen',
     fastPercentage: 'kwhiz_fast_pct',
     favorites: 'kwhiz_favorites',
-    scenarioHistory: 'kwhiz_scenario_history',
     tariffHistory: 'kwhiz_tariff_history',
     mapOperators: 'kwhiz_map_operators',
+    language: 'kwhiz_language',
     theme: 'kwhiz_theme',
     legacyTheme: 'crve_theme'
 });
