@@ -156,6 +156,7 @@ const messages = {
     'count.station': '{count} station', 'count.stations': '{count} stations',
     'map.route.success': '{places} · {distance} · {stations} à moins de 15 km du trajet',
     'map.stationCount': '{count} station rapide', 'map.stationCounts': '{count} stations rapides',
+    'map.stationListUpdated': 'Liste des stations mise à jour le {date}',
     'map.distance': 'à {distance}',
     'map.station.upTo': 'jusqu’à {power} kW',
     'map.station.chargingPoint': '{count} point',
@@ -581,6 +582,7 @@ const messages = {
     'count.station': '{count} charger', 'count.stations': '{count} chargers',
     'map.route.success': '{places} · {distance} · {stations} within 15 km of the route',
     'map.stationCount': '{count} fast charger', 'map.stationCounts': '{count} fast chargers',
+    'map.stationListUpdated': 'Station list updated on {date}',
     'map.distance': '{distance} away',
     'map.station.upTo': 'up to {power} kW',
     'map.station.chargingPoint': '{count} charging point',
@@ -900,6 +902,13 @@ export function formatPercentage(value, options = {}) { return formatNumber(valu
 export function formatDate(value, options = { day: 'numeric', month: 'long', year: 'numeric' }) {
   const date = value instanceof Date ? value : new Date(`${value}T12:00:00`);
   return new Intl.DateTimeFormat(getLocale(), options).format(date);
+}
+export function formatStationListUpdatedAt(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
+  const date = new Date(`${value}T12:00:00`);
+  const [year, month, day] = value.split('-').map(Number);
+  if (!Number.isFinite(date.getTime()) || date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) return '';
+  return t('map.stationListUpdated', { date: formatDate(value) });
 }
 export function formatDistance(km) { return new Intl.NumberFormat(getLocale(), { style: 'unit', unit: 'kilometer', unitDisplay: 'short', maximumFractionDigits: 1 }).format(km); }
 export function plural(key, count, params = {}) { return t(count === 1 ? key : `${key}s`, { count: formatNumber(count), ...params }); }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { formatDate, setLanguage, t } from '../src/i18n/i18n.js';
+import { formatDate, formatStationListUpdatedAt, setLanguage, t } from '../src/i18n/i18n.js';
 import { locationErrorKey, routeErrorKey } from '../src/ui/map-route-ui.js';
 
 test('le formulaire et le choix GPS utilisent des clés structurées sans traduire les marques', async () => {
@@ -148,7 +148,7 @@ test('la bascule de langue conserve les états et reformate la date IRVE sans re
   const refresh = source.slice(source.indexOf('refreshLanguage()'), source.indexOf('activate()', source.indexOf('refreshLanguage()')));
   assert.match(refresh, /routeUiState\.key/);
   assert.match(refresh, /currentLocationIsRouteStart/);
-  assert.match(refresh, /formatDate\(irveUpdatedAt\)/);
+  assert.match(refresh, /renderIrveUpdatedAt\(\)/);
   assert.match(refresh, /setPopupContent/);
   assert.match(refresh, /renderRouteChoice\(\)/);
   assert.doesNotMatch(refresh, /fetch|load\(|searchRoute|locateUser|setView|panTo|fitBounds/);
@@ -156,4 +156,20 @@ test('la bascule de langue conserve les états et reformate la date IRVE sans re
   assert.equal(formatDate('2026-08-06'), '6 août 2026');
   setLanguage('en', { persist: false, translate: false });
   assert.equal(formatDate('2026-08-06'), '6 August 2026');
+});
+
+test('affiche la date IRVE chargée en français et en anglais sans date figée', async () => {
+  setLanguage('fr', { persist: false, translate: false });
+  assert.equal(formatStationListUpdatedAt('2026-08-11'), 'Liste des stations mise à jour le 11 août 2026');
+  setLanguage('en', { persist: false, translate: false });
+  assert.equal(formatStationListUpdatedAt('2026-08-11'), 'Station list updated on 11 August 2026');
+  assert.equal(formatStationListUpdatedAt(null), '');
+  assert.equal(formatStationListUpdatedAt('date-invalide'), '');
+  assert.equal(formatStationListUpdatedAt('2026-02-30'), '');
+
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const source = await readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /11 (?:août|August) 2026/);
+  assert.match(source, /irveUpdatedAt = payload\.updatedAt/);
+  assert.match(source, /updatedLine\.hidden = !label/);
 });
