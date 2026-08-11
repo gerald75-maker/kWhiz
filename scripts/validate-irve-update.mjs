@@ -51,18 +51,60 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
   if (invalidCoordinates) errors.push(`${invalidCoordinates} station(s) avec coordonnées invalides`);
 
   const candidateLinks = Object.entries(candidateStatus.pointToStation || {});
-  const danglingAssociations = candidateLinks.filter(([, stationId]) => !afterIds.has(stationId)).length;
+  const multipleLinks = Object.entries(candidateStatus.pointToStations || {});
+  const ambiguousCandidates = Object.entries(candidateStatus.ambiguousPointCandidates || {});
+  const allCandidateStationIds = [
+    ...candidateLinks.map(([, stationId]) => stationId),
+    ...multipleLinks.flatMap(([, stationIds]) => Array.isArray(stationIds) ? stationIds : []),
+    ...ambiguousCandidates.flatMap(([, stationIds]) => Array.isArray(stationIds) ? stationIds : [])
+  ];
+  const danglingAssociations = allCandidateStationIds.filter(stationId => !afterIds.has(stationId)).length;
   if (danglingAssociations) errors.push(`${danglingAssociations} association(s) point–station orpheline(s)`);
 
-  const beforePointIds = Object.keys(currentStatus.pointToStation || {}).length;
-  const afterPointIds = candidateLinks.length;
+  const beforePointIds = currentStatus.metrics?.pointIds ?? Object.keys(currentStatus.pointToStation || {}).length;
+  const afterPointIds = candidateStatus.metrics?.pointIds ?? candidateLinks.length;
+  const indexedPointIds = candidateLinks.length;
   const beforeAssociations = currentStatus.metrics?.associations ?? null;
   const afterAssociations = candidateStatus.metrics?.associations ?? afterPointIds;
   const beforeConflictingPointIds = currentStatus.metrics?.conflictingPointIds ?? null;
   const conflictingPointIds = candidateStatus.metrics?.conflictingPointIds ?? 0;
-  if (candidateStatus.metrics?.pointIds !== undefined && candidateStatus.metrics.pointIds !== afterPointIds) {
-    errors.push(`Métrique pointIds incohérente (${candidateStatus.metrics.pointIds} annoncés, ${afterPointIds} indexés)`);
+  const resolvedNearbyConflicts = candidateStatus.metrics?.resolvedNearbyConflicts ?? 0;
+  const ambiguousPointIds = candidateStatus.metrics?.ambiguousPointIds ?? 0;
+  const distantConflicts = candidateStatus.metrics?.distantConflicts ?? 0;
+  const overwrittenAssociations = candidateStatus.metrics?.overwrittenAssociations ?? null;
+  const ambiguousIds = candidateStatus.ambiguousPointIds || [];
+  const ambiguousCandidateIds = Object.keys(candidateStatus.ambiguousPointCandidates || {});
+  const totalClassifiedPointIds = indexedPointIds + ambiguousIds.length;
+  if (candidateStatus.metrics?.pointIds !== undefined && candidateStatus.metrics.pointIds !== totalClassifiedPointIds) {
+    errors.push(`Métrique pointIds incohérente (${candidateStatus.metrics.pointIds} annoncés, ${totalClassifiedPointIds} classés)`);
   }
+  if (candidateStatus.metrics?.indexedPointIds !== undefined && candidateStatus.metrics.indexedPointIds !== indexedPointIds) {
+    errors.push(`Métrique indexedPointIds incohérente (${candidateStatus.metrics.indexedPointIds} annoncés, ${indexedPointIds} indexés)`);
+  }
+  if (ambiguousPointIds !== ambiguousIds.length) errors.push(`Métrique ambiguousPointIds incohérente (${ambiguousPointIds} annoncés, ${ambiguousIds.length} listés)`);
+  if (new Set(ambiguousIds).size !== ambiguousIds.length) errors.push('Identifiants ambigus dupliqués');
+  if (JSON.stringify(ambiguousIds) !== JSON.stringify([...ambiguousIds].sort())) errors.push('Identifiants ambigus non déterministes');
+  if (JSON.stringify(ambiguousIds) !== JSON.stringify(ambiguousCandidateIds)) errors.push('Candidats ambigus incomplets ou non déterministes');
+  if (ambiguousIds.some(pointId => candidateStatus.pointToStation?.[pointId] || candidateStatus.pointToStations?.[pointId])) {
+    errors.push('Identifiant ambigu encore attribué à une station');
+  }
+  for (const [pointId, stationIds] of multipleLinks) {
+    const sorted = Array.isArray(stationIds) ? [...new Set(stationIds)].sort() : [];
+    if (sorted.length < 2 || JSON.stringify(stationIds) !== JSON.stringify(sorted)) errors.push(`Association multiple non déterministe ou invalide : ${pointId}`);
+    if (candidateStatus.pointToStation?.[pointId] !== sorted[0]) errors.push(`Repli pointToStation incohérent : ${pointId}`);
+  }
+  for (const [pointId, stationIds] of ambiguousCandidates) {
+    const sorted = Array.isArray(stationIds) ? [...new Set(stationIds)].sort() : [];
+    if (sorted.length < 2 || JSON.stringify(stationIds) !== JSON.stringify(sorted)) errors.push(`Candidats ambigus non déterministes ou invalides : ${pointId}`);
+  }
+  const computedAssociations = indexedPointIds - multipleLinks.length
+    + multipleLinks.reduce((total, [, stationIds]) => total + (Array.isArray(stationIds) ? stationIds.length : 0), 0)
+    + ambiguousCandidates.reduce((total, [, stationIds]) => total + (Array.isArray(stationIds) ? stationIds.length : 0), 0);
+  if (afterAssociations !== computedAssociations) errors.push(`Métrique associations incohérente (${afterAssociations} annoncées, ${computedAssociations} conservées)`);
+  if (conflictingPointIds !== multipleLinks.length + ambiguousIds.length) errors.push(`Métrique conflictingPointIds incohérente (${conflictingPointIds} annoncés, ${multipleLinks.length + ambiguousIds.length} classés)`);
+  if (resolvedNearbyConflicts !== multipleLinks.length) errors.push(`Métrique resolvedNearbyConflicts incohérente (${resolvedNearbyConflicts} annoncés, ${multipleLinks.length} résolus)`);
+  if (distantConflicts > ambiguousIds.length) errors.push(`Métrique distantConflicts incohérente (${distantConflicts} > ${ambiguousIds.length})`);
+  if (overwrittenAssociations !== null && overwrittenAssociations !== 0) errors.push(`Associations encore écrasées : ${overwrittenAssociations}`);
   if (afterAssociations < afterPointIds) errors.push(`Associations point–station inférieures aux identifiants de points (${afterAssociations} < ${afterPointIds})`);
   if (candidateStations.updatedAt < currentStations.updatedAt) {
     errors.push(`Date source antérieure aux données publiées (${currentStations.updatedAt} → ${candidateStations.updatedAt})`);
@@ -93,11 +135,15 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
   const report = {
     sourceDate: candidateStations.updatedAt,
     before: { stations: beforeStations.length, pointIds: beforePointIds, associations: beforeAssociations, conflictingPointIds: beforeConflictingPointIds },
-    after: { stations: afterStations.length, pointIds: afterPointIds, associations: afterAssociations },
+    after: { stations: afterStations.length, pointIds: afterPointIds, indexedPointIds, associations: afterAssociations },
     duplicateStations,
     invalidCoordinates,
     danglingAssociations,
     conflictingPointIds,
+    resolvedNearbyConflicts,
+    ambiguousPointIds,
+    distantConflicts,
+    overwrittenAssociations,
     operators: Object.fromEntries(IRVE_OPERATOR_KEYS.map(key => [key, {
       before: beforeByOperator[key], after: afterByOperator[key], variation: variation(beforeByOperator[key], afterByOperator[key])
     }])),
@@ -117,7 +163,11 @@ export function formatIrveReport(report) {
     `- Coordonnées invalides : **${report.invalidCoordinates}**\n` +
     `- Doublons de station : **${report.duplicateStations}**\n` +
     `- Associations orphelines : **${report.danglingAssociations}**\n` +
-    `- Identifiants associés à plusieurs stations : **${report.conflictingPointIds}**\n\n` +
+    `- Identifiants associés à plusieurs stations : **${report.conflictingPointIds}**\n` +
+    `- Conflits proches résolus : **${report.resolvedNearbyConflicts}**\n` +
+    `- Conflits ambigus exclus : **${report.ambiguousPointIds}**\n` +
+    `- Conflits dépassant 500 m : **${report.distantConflicts}**\n` +
+    `- Associations encore écrasées : **${report.overwrittenAssociations ?? 'indisponible (ancien format)'}**\n\n` +
     `| Opérateur | Avant | Après | Écart |\n| --- | ---: | ---: | ---: |\n${rows}\n\n` +
     (report.errors.length ? `### Échec des contrôles\n\n${report.errors.map(error => `- ${error}`).join('\n')}\n` : `Tous les contrôles de variation sont satisfaits.\n`);
 }

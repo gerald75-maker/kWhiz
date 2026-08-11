@@ -2,6 +2,7 @@ import { createReadStream, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
+import { buildStatusAssociations } from './irve-status-associations.mjs';
 
 const [input, output = 'public/irve-fast.json', requestedDate] = process.argv.slice(2);
 const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
@@ -26,6 +27,7 @@ function networkFor(row) {
 
 const stations = new Map();
 const stationPointIds = new Map();
+const stationStatusMetadata = new Map();
 const parser = createReadStream(input).pipe(parse({ columns: true, relax_quotes: true, skip_empty_lines: true }));
 
 for await (const row of parser) {
@@ -42,6 +44,26 @@ for await (const row of parser) {
   const pointId = String(row.id_pdc_itinerance || '').trim().toUpperCase();
   if (!stationPointIds.has(id)) stationPointIds.set(id, new Set());
   const pointIds = stationPointIds.get(id);
+  if (!stationStatusMetadata.has(id)) {
+    stationStatusMetadata.set(id, {
+      stationId: id,
+      operator,
+      lat,
+      lon,
+      pointIds,
+      sourceStationIds: new Set(),
+      names: new Set(),
+      addresses: new Set(),
+      cities: new Set()
+    });
+  }
+  const statusMetadata = stationStatusMetadata.get(id);
+  const sourceStationId = String(row.id_station_itinerance || '').trim().toUpperCase();
+  if (sourceStationId) statusMetadata.sourceStationIds.add(sourceStationId);
+  if (row.nom_station) statusMetadata.names.add(row.nom_station);
+  if (row.nom_enseigne) statusMetadata.names.add(row.nom_enseigne);
+  if (row.adresse_station) statusMetadata.addresses.add(row.adresse_station);
+  if (row.consolidated_commune) statusMetadata.cities.add(row.consolidated_commune);
   const isNewPoint = !pointId || !pointIds.has(pointId);
   if (pointId) pointIds.add(pointId);
   const existing = stations.get(id);
@@ -72,25 +94,13 @@ for await (const row of parser) {
 
 const data = [...stations.values()].sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name));
 writeFileSync(output, JSON.stringify({ updatedAt: sourceDate, source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
-const pointToStation = {};
-let associationCount = 0;
-const stationsByPoint = new Map();
-for (const [stationId, pointIds] of stationPointIds) {
-  associationCount += pointIds.size;
-  for (const pointId of pointIds) {
-    if (!stationsByPoint.has(pointId)) stationsByPoint.set(pointId, new Set());
-    stationsByPoint.get(pointId).add(stationId);
-    pointToStation[pointId] = stationId;
-  }
-}
-const conflictingPointIds = [...stationsByPoint.values()].filter(stationIds => stationIds.size > 1).length;
+const statusAssociations = buildStatusAssociations(stationStatusMetadata.values());
 writeFileSync(statusIndexOutput, JSON.stringify({
   updatedAt: sourceDate,
-  metrics: { pointIds: Object.keys(pointToStation).length, associations: associationCount, conflictingPointIds },
-  pointToStation
+  ...statusAssociations
 }));
 
 const counts = Object.fromEntries(IRVE_NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
 console.log(`Generated ${data.length} fast stations in ${output}`);
-console.log(`Generated ${Object.keys(pointToStation).length} status links in ${statusIndexOutput}`);
+console.log(`Generated ${statusAssociations.metrics.indexedPointIds} safe status links in ${statusIndexOutput}`);
 console.table(counts);

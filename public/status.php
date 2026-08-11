@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store, max-age=0');
-
 const DYNAMIC_URL = 'https://www.data.gouv.fr/api/1/datasets/r/89185b1f-f958-4c5b-9282-399a66ecee97';
 const CACHE_SECONDS = 120;
 const FRESH_SECONDS = 900;
@@ -19,6 +16,26 @@ function serveCache(string $path): bool {
     return true;
 }
 
+function stationIdsForPoint(array $index, string $pointId): array {
+    $ambiguousPointIds = $index['ambiguousPointIds'] ?? [];
+    if (in_array($pointId, $ambiguousPointIds, true)) return [];
+
+    $multiple = $index['pointToStations'][$pointId] ?? null;
+    if (is_array($multiple)) {
+        $stationIds = array_values(array_unique(array_filter($multiple, 'is_string')));
+        sort($stationIds, SORT_STRING);
+        return $stationIds;
+    }
+
+    $legacy = $index['pointToStation'][$pointId] ?? null;
+    return is_string($legacy) && $legacy !== '' ? [$legacy] : [];
+}
+
+if (defined('KWHIZ_STATUS_LIBRARY_ONLY') && KWHIZ_STATUS_LIBRARY_ONLY) return;
+
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, max-age=0');
+
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < CACHE_SECONDS) {
     serveCache($cacheFile);
     exit;
@@ -33,11 +50,10 @@ if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
 }
 
 $index = json_decode((string) file_get_contents(__DIR__ . '/irve-status-index.json'), true);
-$pointToStation = $index['pointToStation'] ?? [];
 $context = stream_context_create(['http' => ['timeout' => 20, 'user_agent' => 'kWhiz/2.23']]);
 $stream = @fopen(DYNAMIC_URL, 'r', false, $context);
 
-if ($stream === false || !$pointToStation) {
+if ($stream === false || !is_array($index)) {
     flock($lock, LOCK_UN);
     if (serveCache($cacheFile)) exit;
     http_response_code(503);
@@ -62,8 +78,8 @@ $latestPoints = [];
 $now = time();
 while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
     $pointId = strtoupper(trim($row[$columns['id_pdc_itinerance']] ?? ''));
-    $stationId = $pointToStation[$pointId] ?? null;
-    if ($stationId === null) continue;
+    $stationIds = stationIdsForPoint($index, $pointId);
+    if (!$stationIds) continue;
     $observedAt = strtotime($row[$columns['horodatage']] ?? '');
     if ($observedAt === false || $now - $observedAt > FRESH_SECONDS || $observedAt > $now + 60) continue;
     $state = $row[$columns['etat_pdc']] ?? 'inconnu';
@@ -71,28 +87,29 @@ while (($row = fgetcsv($stream, null, ',', '"', '\\')) !== false) {
     if ($state === 'inconnu' || $occupation === 'inconnu') continue;
 
     if (!isset($latestPoints[$pointId]) || $observedAt > $latestPoints[$pointId]['observedAt']) {
-        $latestPoints[$pointId] = ['stationId' => $stationId, 'state' => $state, 'occupation' => $occupation, 'observedAt' => $observedAt];
+        $latestPoints[$pointId] = ['stationIds' => $stationIds, 'state' => $state, 'occupation' => $occupation, 'observedAt' => $observedAt];
     }
 }
 fclose($stream);
 
 $stations = [];
 foreach ($latestPoints as $point) {
-    $stationId = $point['stationId'];
     $state = $point['state'];
     $occupation = $point['occupation'];
     $observedAt = $point['observedAt'];
-    if (!isset($stations[$stationId])) {
-        $stations[$stationId] = ['free' => 0, 'occupied' => 0, 'reserved' => 0, 'outOfService' => 0, 'known' => 0, 'observedAt' => gmdate('c', $observedAt)];
+    foreach ($point['stationIds'] as $stationId) {
+        if (!isset($stations[$stationId])) {
+            $stations[$stationId] = ['free' => 0, 'occupied' => 0, 'reserved' => 0, 'outOfService' => 0, 'known' => 0, 'observedAt' => gmdate('c', $observedAt)];
+        }
+        $item = &$stations[$stationId];
+        $item['known']++;
+        if ($state === 'hors_service') $item['outOfService']++;
+        elseif ($occupation === 'libre') $item['free']++;
+        elseif ($occupation === 'occupe') $item['occupied']++;
+        elseif ($occupation === 'reserve') $item['reserved']++;
+        if ($observedAt > strtotime($item['observedAt'])) $item['observedAt'] = gmdate('c', $observedAt);
+        unset($item);
     }
-    $item = &$stations[$stationId];
-    $item['known']++;
-    if ($state === 'hors_service') $item['outOfService']++;
-    elseif ($occupation === 'libre') $item['free']++;
-    elseif ($occupation === 'occupe') $item['occupied']++;
-    elseif ($occupation === 'reserve') $item['reserved']++;
-    if ($observedAt > strtotime($item['observedAt'])) $item['observedAt'] = gmdate('c', $observedAt);
-    unset($item);
 }
 
 foreach ($stations as &$station) {
