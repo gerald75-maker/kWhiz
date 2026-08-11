@@ -21,6 +21,10 @@ Par rapport aux fichiers publiés, le workflow échoue si :
 
 Ces seuils relatifs tolèrent la croissance et les corrections normales de la consolidation sans figer les volumes. Une rupture de publication, une disparition de réseau ou une duplication massive produit un rapport explicite dans le résumé Actions et un artefact `rapport-irve`.
 
+Le déclenchement manuel propose une option exceptionnelle `allow_station_alias_migration`. Elle autorise ponctuellement une baisse dépassant les seuils de stations uniquement si chaque identifiant supprimé possède un alias canonique valide, si la cible existe dans le même réseau et si tous les identifiants de points sont conservés. L'option est désactivée par défaut et n'est jamais active lors des exécutions hebdomadaires planifiées : les seuils habituels de 15 % globalement et de 30 % par opérateur restent alors intégralement appliqués.
+
+Le détail des conflits de métadonnées et une copie de contrôle des alias sont écrits dans `irve-grouping-audit.json`, archivé avec `rapport-irve` mais jamais copié dans `public/` ni ajouté à la PR. `irve-fast.json` ne conserve que les métriques compactes nécessaires au suivi. La table complète `stationAliases` reste uniquement dans `irve-status-index.json` : elle documente la migration des associations de statuts, permet au validateur de prouver la couverture de chaque station supprimée et fournit la table de rollback, sans alourdir les données cartographiques téléchargées par le frontend.
+
 L'ancien `irve-status-index.json` ne contient pas le volume brut des associations. La première exécution affiche donc cette valeur comme indisponible et amorce les métriques sans lui appliquer de seuil ; toutes les exécutions suivantes comparent normalement associations et conflits au fichier publié.
 
 Le rapport distingue également les conflits proches résolus, les conflits ambigus exclus, les conflits dépassant 500 mètres et les associations encore écrasées. Cette dernière métrique doit toujours rester à zéro.

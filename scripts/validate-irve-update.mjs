@@ -32,7 +32,7 @@ function checkVariation(errors, label, before, after, decreaseLimit, increaseLim
   if (before > 0 && delta > increaseLimit) errors.push(`${label}: hausse anormale (${before} → ${after}, ${percent(delta)}, seuil +${increaseLimit * 100} %)`);
 }
 
-export function analyzeIrveUpdate({ currentStations, candidateStations, currentStatus, candidateStatus, tariffs, thresholds = IRVE_UPDATE_THRESHOLDS }) {
+export function analyzeIrveUpdate({ currentStations, candidateStations, currentStatus, candidateStatus, tariffs, groupingAudit = null, thresholds = IRVE_UPDATE_THRESHOLDS, allowStationAliasMigration = false }) {
   const errors = [];
   const beforeStations = currentStations.stations || [];
   const afterStations = candidateStations.stations || [];
@@ -49,6 +49,32 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
   }
   if (duplicateStations) errors.push(`${duplicateStations} identifiant(s) de station dupliqué(s)`);
   if (invalidCoordinates) errors.push(`${invalidCoordinates} station(s) avec coordonnées invalides`);
+
+  const statusAliases = candidateStatus.stationAliases || {};
+  const auditAliases = groupingAudit?.stationAliases || {};
+  const aliasEntries = Object.entries(statusAliases);
+  const removedStationIds = [...beforeIds].filter(id => !afterIds.has(id)).sort();
+  const invalidAliases = aliasEntries.filter(([alias, canonical]) => alias === canonical
+    || afterIds.has(alias) || !afterIds.has(canonical)
+    || alias.split(':', 1)[0] !== canonical.split(':', 1)[0]);
+  if (invalidAliases.length) errors.push(`${invalidAliases.length} alias de station invalide(s)`);
+  if (JSON.stringify(statusAliases) !== JSON.stringify(Object.fromEntries([...aliasEntries].sort()))) {
+    errors.push('Alias de station non déterministes');
+  }
+  if (groupingAudit && JSON.stringify(statusAliases) !== JSON.stringify(auditAliases)) {
+    errors.push('Alias de station différents entre l’index de statuts et l’audit de regroupement');
+  }
+  const uncoveredRemovedStations = removedStationIds.filter(id => !statusAliases[id]);
+  const pointIdsPreservedForMigration = (currentStatus.metrics?.pointIds ?? Object.keys(currentStatus.pointToStation || {}).length)
+    === (candidateStatus.metrics?.pointIds ?? Object.keys(candidateStatus.pointToStation || {}).length);
+  const stationAliasMigrationValid = allowStationAliasMigration
+    && removedStationIds.length > 0
+    && uncoveredRemovedStations.length === 0
+    && invalidAliases.length === 0
+    && pointIdsPreservedForMigration;
+  if (allowStationAliasMigration && !stationAliasMigrationValid) {
+    errors.push(`Migration d’alias refusée (${uncoveredRemovedStations.length} station(s) supprimée(s) sans alias, points préservés : ${pointIdsPreservedForMigration ? 'oui' : 'non'})`);
+  }
 
   const candidateLinks = Object.entries(candidateStatus.pointToStation || {});
   const multipleLinks = Object.entries(candidateStatus.pointToStations || {});
@@ -120,17 +146,27 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
   const absentActive = activeOperators.filter(key => IRVE_OPERATOR_KEYS.includes(key) && !afterByOperator[key]);
   if (absentActive.length) errors.push(`Opérateur(s) actif(s) absent(s) de la nouvelle base : ${absentActive.join(', ')}`);
 
-  checkVariation(errors, 'Stations globales', beforeStations.length, afterStations.length, thresholds.globalDecrease, thresholds.globalIncrease);
+  checkVariation(errors, 'Stations globales', beforeStations.length, afterStations.length,
+    stationAliasMigrationValid ? Infinity : thresholds.globalDecrease, thresholds.globalIncrease);
   checkVariation(errors, 'Identifiants de points', beforePointIds, afterPointIds, thresholds.pointDecrease, thresholds.pointIncrease);
   if (beforeAssociations !== null) {
     checkVariation(errors, 'Associations point–station', beforeAssociations, afterAssociations, thresholds.pointDecrease, thresholds.pointIncrease);
   }
   if (beforeConflictingPointIds !== null && beforeConflictingPointIds > 0) {
-    checkVariation(errors, 'Identifiants associés à plusieurs stations', beforeConflictingPointIds, conflictingPointIds, thresholds.conflictIncrease, thresholds.conflictIncrease);
+    checkVariation(errors, 'Identifiants associés à plusieurs stations', beforeConflictingPointIds, conflictingPointIds,
+      stationAliasMigrationValid ? Infinity : thresholds.conflictIncrease, thresholds.conflictIncrease);
   }
   for (const key of IRVE_OPERATOR_KEYS) {
-    checkVariation(errors, `Stations ${key}`, beforeByOperator[key], afterByOperator[key], thresholds.operatorDecrease, thresholds.operatorIncrease);
+    checkVariation(errors, `Stations ${key}`, beforeByOperator[key], afterByOperator[key],
+      stationAliasMigrationValid ? Infinity : thresholds.operatorDecrease, thresholds.operatorIncrease);
   }
+
+  const grouping = candidateStations.grouping || {};
+  const metadataConflicts = Array.isArray(groupingAudit?.metadataConflicts) ? groupingAudit.metadataConflicts : [];
+  if (grouping.aliases !== undefined && grouping.aliases !== aliasEntries.length) errors.push('Métrique d’alias de regroupement incohérente');
+  if (grouping.removedStations !== undefined && grouping.removedStations !== aliasEntries.length) errors.push('Métrique de stations regroupées incohérente');
+  if (grouping.metadataConflictCount !== undefined && grouping.metadataConflictCount !== metadataConflicts.length) errors.push('Métrique de conflits de métadonnées incohérente');
+  if (groupingAudit && JSON.stringify(groupingAudit.grouping) !== JSON.stringify(grouping)) errors.push('Métriques de regroupement différentes entre les données et l’audit');
 
   const report = {
     sourceDate: candidateStations.updatedAt,
@@ -144,6 +180,17 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
     ambiguousPointIds,
     distantConflicts,
     overwrittenAssociations,
+    stationAliases: aliasEntries.length,
+    removedStations: removedStationIds.length,
+    uncoveredRemovedStations: uncoveredRemovedStations.length,
+    stationAliasMigrationRequested: allowStationAliasMigration,
+    stationAliasMigrationValid,
+    grouping: {
+      certainGroups: grouping.certainGroups ?? 0,
+      probableGroups: grouping.probableGroups ?? 0,
+      ambiguousGroups: grouping.ambiguousGroups ?? 0,
+      metadataConflicts
+    },
     operators: Object.fromEntries(IRVE_OPERATOR_KEYS.map(key => [key, {
       before: beforeByOperator[key], after: afterByOperator[key], variation: variation(beforeByOperator[key], afterByOperator[key])
     }])),
@@ -168,7 +215,16 @@ export function formatIrveReport(report) {
     `- Conflits ambigus exclus : **${report.ambiguousPointIds}**\n` +
     `- Conflits dépassant 500 m : **${report.distantConflicts}**\n` +
     `- Associations encore écrasées : **${report.overwrittenAssociations ?? 'indisponible (ancien format)'}**\n\n` +
+    `- Groupes visuels certains regroupés : **${report.grouping.certainGroups}**\n` +
+    `- Groupes probables conservés séparés : **${report.grouping.probableGroups}**\n` +
+    `- Groupes ambigus conservés séparés : **${report.grouping.ambiguousGroups}**\n` +
+    `- Alias de stations : **${report.stationAliases}**\n` +
+    `- Conflits de métadonnées signalés : **${report.grouping.metadataConflicts.length}**\n` +
+    `- Migration ponctuelle d’alias : **${report.stationAliasMigrationRequested ? (report.stationAliasMigrationValid ? 'autorisée et valide' : 'demandée mais refusée') : 'non demandée'}**\n\n` +
     `| Opérateur | Avant | Après | Écart |\n| --- | ---: | ---: | ---: |\n${rows}\n\n` +
+    (report.grouping.metadataConflicts.length
+      ? `<details><summary>Stations avec conflits de métadonnées</summary>\n\n${report.grouping.metadataConflicts.map(conflict => `- ${conflict.canonicalId} : ${conflict.fields.map(field => field.field).join(', ')}`).join('\n')}\n\n</details>\n\n`
+      : '') +
     (report.errors.length ? `### Échec des contrôles\n\n${report.errors.map(error => `- ${error}`).join('\n')}\n` : `Tous les contrôles de variation sont satisfaits.\n`);
 }
 
@@ -177,11 +233,16 @@ function readJson(path) {
 }
 
 function run() {
-  const [currentStationsPath, candidateStationsPath, currentStatusPath, candidateStatusPath, tariffsPath, reportPath] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const allowStationAliasMigration = args.includes('--allow-station-alias-migration');
+  const auditArgument = args.find(arg => arg.startsWith('--grouping-audit='));
+  const groupingAuditPath = auditArgument?.slice('--grouping-audit='.length);
+  const [currentStationsPath, candidateStationsPath, currentStatusPath, candidateStatusPath, tariffsPath, reportPath] = args.filter(arg => arg !== '--allow-station-alias-migration' && arg !== auditArgument);
   if (!tariffsPath) throw new Error('Usage: node scripts/validate-irve-update.mjs <current-stations> <candidate-stations> <current-status> <candidate-status> <tariffs> [report.md]');
   const report = analyzeIrveUpdate({
     currentStations: readJson(currentStationsPath), candidateStations: readJson(candidateStationsPath),
-    currentStatus: readJson(currentStatusPath), candidateStatus: readJson(candidateStatusPath), tariffs: readJson(tariffsPath)
+    currentStatus: readJson(currentStatusPath), candidateStatus: readJson(candidateStatusPath), tariffs: readJson(tariffsPath),
+    groupingAudit: groupingAuditPath ? readJson(groupingAuditPath) : null, allowStationAliasMigration
   });
   const markdown = formatIrveReport(report);
   process.stdout.write(markdown);

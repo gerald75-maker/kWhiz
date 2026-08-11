@@ -134,13 +134,53 @@ test('documente des seuils relatifs non liés aux volumes courants', () => {
   assert.deepEqual(IRVE_UPDATE_THRESHOLDS, { globalDecrease: 0.15, globalIncrease: 0.15, pointDecrease: 0.25, pointIncrease: 0.25, conflictIncrease: 0.25, operatorDecrease: 0.30, operatorIncrease: 0.60 });
 });
 
+test('autorise ponctuellement une migration entièrement couverte par des alias', () => {
+  const current = fixture(10);
+  const candidate = fixture(10, '2026-08-18');
+  const removed = candidate.stations.stations.filter((_, index) => index % 5 === 0);
+  const removedIds = new Set(removed.map(station => station.id));
+  const aliases = {};
+  for (const station of removed) {
+    const canonical = candidate.stations.stations.find(item => item.operator === station.operator && !removedIds.has(item.id));
+    aliases[station.id] = canonical.id;
+    for (const [pointId, stationId] of Object.entries(candidate.status.pointToStation)) {
+      if (stationId === station.id) candidate.status.pointToStation[pointId] = canonical.id;
+    }
+  }
+  candidate.stations.stations = candidate.stations.stations.filter(station => !aliases[station.id]);
+  candidate.status.stationAliases = Object.fromEntries(Object.entries(aliases).sort());
+  candidate.stations.grouping = { aliases: removed.length, removedStations: removed.length, certainGroups: removed.length, probableGroups: 0, ambiguousGroups: 0, metadataConflictCount: 1 };
+  const groupingAudit = {
+    grouping: candidate.stations.grouping,
+    stationAliases: candidate.status.stationAliases,
+    metadataConflicts: [{ canonicalId: Object.values(aliases)[0], fields: [{ field: 'access', kept: 'Libre', alternatives: ['Libre', 'Réservé'] }] }]
+  };
+
+  let report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs() });
+  assert.ok(report.errors.some(error => /Stations globales.*baisse anormale/.test(error)));
+  report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs(), groupingAudit, allowStationAliasMigration: true });
+  assert.deepEqual(report.errors, []);
+  assert.equal(report.stationAliasMigrationValid, true);
+  assert.match(formatIrveReport(report), /Migration ponctuelle d’alias : \*\*autorisée et valide\*\*/);
+  assert.match(formatIrveReport(report), /Stations avec conflits de métadonnées[\s\S]*access/);
+
+  delete candidate.status.stationAliases[removed[0].id];
+  report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs(), groupingAudit, allowStationAliasMigration: true });
+  assert.ok(report.errors.some(error => /Migration d’alias refusée/.test(error)));
+});
+
 test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', async () => {
   const workflow = await readFile(new URL('.github/workflows/update-irve.yml', root), 'utf8');
   assert.match(workflow, /schedule:[\s\S]*cron: '23 4 \* \* 3'/);
   assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /allow_station_alias_migration/);
+  assert.match(workflow, /--allow-station-alias-migration/);
+  assert.match(workflow, /--grouping-audit=.*irve-grouping-audit\.json/);
+  assert.match(workflow, /candidate\/irve-grouping-audit\.json/);
   assert.match(workflow, /https:\/\/www\.data\.gouv\.fr\/api\/1\/datasets\/r\/eb76d20a-8501-400e-b336-d85724de5435/);
   assert.match(workflow, /static\.data\.gouv\.fr\/resources\/base-nationale-des-irve/);
   assert.match(workflow, /git add -- public\/irve-fast\.json public\/irve-status-index\.json/);
+  assert.doesNotMatch(workflow, /git add --[^\n]*irve-grouping-audit/);
   assert.match(workflow, /gh pr create/);
   assert.match(workflow, /gh pr edit/);
   assert.doesNotMatch(workflow, /git add -A|gh pr merge|npm version|deploy/i);
