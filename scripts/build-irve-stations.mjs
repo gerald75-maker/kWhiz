@@ -1,25 +1,13 @@
 import { createReadStream, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parse } from 'csv-parse';
+import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 
-const [input, output = 'public/irve-fast.json'] = process.argv.slice(2);
+const [input, output = 'public/irve-fast.json', requestedDate] = process.argv.slice(2);
 const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
-if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json]');
+if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json] [source-date]');
 
-const NETWORKS = [
-  ['engie-vianeo', /\b(?:engie\s+)?vianeo\b/],
-  ['ionity', /\bionity\b/],
-  ['tesla', /\btesla\b|supercharger/],
-  ['electra', /\belectra\b/],
-  ['iecharge', /\biecharge\b|nw ie charge/],
-  ['fastned', /\bfastned\b/],
-  ['atlante', /\batlante\b/],
-  ['zunder', /\bzunder\b/],
-  ['pluginn', /\bplug inn fast charge\b/],
-  ['iziviafast', /\bizivia\b/],
-  ['lidl', /\blidl\b/],
-  ['statione', /\bstation[ -]?e\b/]
-];
+const sourceDate = resolveIrveDate({ sourceDate: requestedDate, inputPath: input });
 
 function normalize(value = '') {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -33,7 +21,7 @@ function networkFor(row) {
   const stationId = String(row.id_station_itinerance || row.id_pdc_itinerance || '').trim().toUpperCase();
   if (stationId.startsWith('FRMFC')) return 'pluginn';
   const haystack = normalize([row.nom_operateur, row.nom_enseigne, row.nom_amenageur, row.nom_station].join(' '));
-  return NETWORKS.find(([, pattern]) => pattern.test(haystack))?.[0] ?? null;
+  return IRVE_NETWORKS.find(([, pattern]) => pattern.test(haystack))?.[0] ?? null;
 }
 
 const stations = new Map();
@@ -83,14 +71,26 @@ for await (const row of parser) {
 }
 
 const data = [...stations.values()].sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name));
-writeFileSync(output, JSON.stringify({ updatedAt: '2026-08-11', source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
+writeFileSync(output, JSON.stringify({ updatedAt: sourceDate, source: 'Base nationale IRVE — data.gouv.fr', stations: data }));
 const pointToStation = {};
+let associationCount = 0;
+const stationsByPoint = new Map();
 for (const [stationId, pointIds] of stationPointIds) {
-  for (const pointId of pointIds) pointToStation[pointId] = stationId;
+  associationCount += pointIds.size;
+  for (const pointId of pointIds) {
+    if (!stationsByPoint.has(pointId)) stationsByPoint.set(pointId, new Set());
+    stationsByPoint.get(pointId).add(stationId);
+    pointToStation[pointId] = stationId;
+  }
 }
-writeFileSync(statusIndexOutput, JSON.stringify({ updatedAt: '2026-08-11', pointToStation }));
+const conflictingPointIds = [...stationsByPoint.values()].filter(stationIds => stationIds.size > 1).length;
+writeFileSync(statusIndexOutput, JSON.stringify({
+  updatedAt: sourceDate,
+  metrics: { pointIds: Object.keys(pointToStation).length, associations: associationCount, conflictingPointIds },
+  pointToStation
+}));
 
-const counts = Object.fromEntries(NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
+const counts = Object.fromEntries(IRVE_NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
 console.log(`Generated ${data.length} fast stations in ${output}`);
 console.log(`Generated ${Object.keys(pointToStation).length} status links in ${statusIndexOutput}`);
 console.table(counts);

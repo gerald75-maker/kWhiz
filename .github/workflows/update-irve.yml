@@ -1,0 +1,148 @@
+name: Actualisation hebdomadaire IRVE
+
+on:
+  schedule:
+    - cron: '23 4 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-irve-update
+  cancel-in-progress: false
+
+env:
+  IRVE_RESOURCE_URL: https://www.data.gouv.fr/api/1/datasets/r/eb76d20a-8501-400e-b336-d85724de5435
+  UPDATE_BRANCH: automation/weekly-irve
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Déterminer la branche de base
+        id: base
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CURRENT_REF: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "branch=$CURRENT_REF" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=$DEFAULT_BRANCH" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extraire le dépôt
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.base.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances verrouillées
+        run: npm ci
+
+      - name: Télécharger la consolidation officielle
+        id: source
+        shell: bash
+        run: |
+          headers="$RUNNER_TEMP/irve-headers.txt"
+          csv="$RUNNER_TEMP/consolidation-irve.csv"
+          effective_url=$(curl --fail --show-error --silent --location \
+            --dump-header "$headers" --output "$csv" --write-out '%{url_effective}' \
+            "$IRVE_RESOURCE_URL")
+          case "$effective_url" in
+            https://static.data.gouv.fr/resources/base-nationale-des-irve-infrastructures-de-recharge-pour-vehicules-electriques/*.csv) ;;
+            *) echo "Source finale non officielle ou inattendue : $effective_url" >&2; exit 1 ;;
+          esac
+          if [[ "$effective_url" =~ (20[0-9]{6}) ]]; then
+            compact="${BASH_REMATCH[1]}"
+            source_date="${compact:0:4}-${compact:4:2}-${compact:6:2}"
+            date_origin="nom de la ressource officielle"
+          else
+            source_date=$(date -u +%F)
+            date_origin="date UTC de génération (date source indisponible)"
+          fi
+          test "$(wc -c < "$csv")" -gt 1000000
+          head -n 1 "$csv" | grep -q 'id_station_itinerance'
+          echo "csv=$csv" >> "$GITHUB_OUTPUT"
+          echo "date=$source_date" >> "$GITHUB_OUTPUT"
+          echo "date_origin=$date_origin" >> "$GITHUB_OUTPUT"
+          echo "url=$effective_url" >> "$GITHUB_OUTPUT"
+
+      - name: Régénérer et contrôler les fichiers IRVE
+        id: validate
+        shell: bash
+        run: |
+          candidate="$RUNNER_TEMP/candidate"
+          mkdir -p "$candidate"
+          node scripts/build-irve-stations.mjs \
+            "${{ steps.source.outputs.csv }}" "$candidate/irve-fast.json" "${{ steps.source.outputs.date }}"
+          set +e
+          node scripts/validate-irve-update.mjs \
+            public/irve-fast.json "$candidate/irve-fast.json" \
+            public/irve-status-index.json "$candidate/irve-status-index.json" \
+            public/tarifs.json "$RUNNER_TEMP/irve-report.md"
+          validation_exit=$?
+          set -e
+          cat "$RUNNER_TEMP/irve-report.md" >> "$GITHUB_STEP_SUMMARY"
+          printf '\n_Date déterminée depuis : %s._\n' "${{ steps.source.outputs.date_origin }}" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$validation_exit" -ne 0 ]]; then
+            exit "$validation_exit"
+          fi
+          cp "$candidate/irve-fast.json" public/irve-fast.json
+          cp "$candidate/irve-status-index.json" public/irve-status-index.json
+          changed=$(git diff --name-only)
+          unexpected=$(printf '%s\n' "$changed" | grep -Ev '^(public/irve-fast.json|public/irve-status-index.json)$' || true)
+          if [[ -n "$unexpected" ]]; then
+            echo "Fichiers inattendus modifiés :" >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+          if [[ -z "$changed" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Archiver le rapport de contrôle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-irve
+          path: ${{ runner.temp }}/irve-report.md
+          if-no-files-found: ignore
+
+      - name: Créer ou actualiser la pull request dédiée
+        if: steps.validate.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ steps.base.outputs.branch }}
+          SOURCE_DATE: ${{ steps.source.outputs.date }}
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$UPDATE_BRANCH"
+          git add -- public/irve-fast.json public/irve-status-index.json
+          git commit -m "Actualise la base IRVE au $SOURCE_DATE"
+          git push --force-with-lease origin "$UPDATE_BRANCH"
+          title="Actualise la base IRVE au $SOURCE_DATE"
+          body="$RUNNER_TEMP/irve-pr-body.md"
+          cp "$RUNNER_TEMP/irve-report.md" "$body"
+          printf '\nSource : [%s](%s)\n\nCette PR est créée automatiquement mais ne sera jamais fusionnée ou déployée par ce workflow.\n' \
+            "$SOURCE_DATE" "${{ steps.source.outputs.url }}" >> "$body"
+          number=$(gh pr list --state open --head "$UPDATE_BRANCH" --json number --jq '.[0].number // empty')
+          if [[ -n "$number" ]]; then
+            gh pr edit "$number" --base "$BASE_BRANCH" --title "$title" --body-file "$body"
+          else
+            gh pr create --base "$BASE_BRANCH" --head "$UPDATE_BRANCH" --title "$title" --body-file "$body"
+          fi
