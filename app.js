@@ -311,7 +311,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         logos: LOGOS,
         onModal: openInfoModal,
         favorites,
-        onToggleFavorite: handleToggleFavorite
+        onToggleFavorite: handleToggleFavorite,
+        onDetail: openFormulaDetail
     });
     // Recalcule le comparateur profil si c'est la vue active ou si déjà rendu
     if (navigation?.getCurrentView() === 'profile' || document.getElementById('profile-body')?.hasChildNodes()) {
@@ -444,12 +445,6 @@ function initApp() {
     } else {
         setApplicationStatus('offline', 'appStatus.offline');
     }
-
-    const viewMode = document.getElementById('view-mode');
-    viewMode?.addEventListener('change', event => {
-        document.getElementById('operators-compact').hidden = event.target.checked;
-        document.getElementById('operators-detailed').hidden = !event.target.checked;
-    });
 
     document.getElementById('compare-km')?.addEventListener('input', event => {
         profileControls?.setMonthlyKm(event.target.value);

@@ -14,7 +14,7 @@ const requiredBindings = [
   'comparison.heading.kicker', 'comparison.heading.title', 'comparison.heading.intro',
   'comparison.search.label', 'comparison.search.placeholder',
   'comparison.controls.monthlyMileage', 'comparison.controls.monthlyMileageUnit', 'comparison.controls.editProfile',
-  'operators.heading.kicker', 'operators.heading.title', 'operators.heading.intro', 'operators.viewMode.details',
+  'operators.heading.kicker', 'operators.heading.title', 'operators.heading.intro',
   'map.heading.kicker', 'map.heading.title', 'map.heading.intro',
   'map.filters.title', 'map.filters.all', 'map.filters.none', 'map.canvasLabel',
   'map.source.prefix', 'map.source.notice',
@@ -56,7 +56,7 @@ test('rend les textes et attributs structurés en français et en anglais', () =
 test('conserve les identifiants, les valeurs et la structure interactive', () => {
   for (const id of [
     'conso-slider', 'vehicles', 'compare-search', 'compare-km', 'compare-profile-link',
-    'view-mode', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
+    'operators-compact', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
     'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-ranking-list',
     'bnav-profile', 'bnav-compare', 'bnav-operators', 'bnav-map', 'bnav-menu'
   ]) assert.match(html, new RegExp(`id="${id}"`), id);

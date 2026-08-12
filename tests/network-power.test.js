@@ -84,8 +84,8 @@ test('le catalogue porte uniquement les nouvelles puissances IZIVIA et Tesla', a
 test('IZIVIA conserve 150 kW DC dans les deux langues et dans les deux vues', () => {
     assert.match(renderDetail('fr', '150 kW DC'), /Réseau : 150 kW DC/);
     assert.match(renderDetail('en', '150 kW DC'), /Network: 150 kW DC/);
-    assert.match(renderOperator('fr', 'IZIVIA Fast chez McDonald’s', '150 kW DC'), /Bornes 150 kW DC/);
-    assert.match(renderOperator('en', 'IZIVIA Fast chez McDonald’s', '150 kW DC'), /Chargers 150 kW DC/);
+    assert.match(renderOperator('fr', 'IZIVIA Fast chez McDonald’s', '150 kW DC'), /150 kW DC · 1 formule/);
+    assert.match(renderOperator('en', 'IZIVIA Fast chez McDonald’s', '150 kW DC'), /150 kW DC · 1 plan/);
 });
 
 test('Tesla conserve la réserve par site et bascule immédiatement en FR et EN', () => {
@@ -97,5 +97,5 @@ test('Tesla conserve la réserve par site et bascule immédiatement en FR et EN'
     setLanguage('en', { persist: false, translate: false });
     assert.equal(localizeNetworkDescription(teslaFrench), teslaEnglish);
     assert.match(renderDetail('en', teslaFrench), /Network: up to 250 kW \(V3\) and 500 kW \(V4\) · power varies by site/);
-    assert.match(renderOperator('en', 'Tesla Supercharger', teslaFrench), /Chargers up to 250 kW \(V3\) and 500 kW \(V4\) · power varies by site/);
+    assert.match(renderOperator('en', 'Tesla Supercharger', teslaFrench), /up to 250 kW \(V3\) and 500 kW \(V4\) · power varies by site · 1 plan/);
 });
