@@ -2,88 +2,75 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { setLanguage, t, translateDocument } from '../src/i18n/i18n.js';
+import { tariffSources } from '../src/ui/tariffs-info.js';
 
 const root = new URL('../', import.meta.url);
-const [html, i18nSource] = await Promise.all([
+const [html, i18nSource, tariffs] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
-  readFile(new URL('src/i18n/i18n.js', root), 'utf8')
+  readFile(new URL('src/i18n/i18n.js', root), 'utf8'),
+  readFile(new URL('public/tarifs.json', root), 'utf8').then(JSON.parse)
 ]);
 const infos = html.slice(html.indexOf('id="page-infos"'), html.indexOf('id="formula-detail-overlay"'));
-const staticKeys = [
-  'tariffsInfo.title', 'tariffsInfo.closeLabel', 'tariffsInfo.estimateNotice',
-  'tariffsInfo.calculationTitle', 'tariffsInfo.formulaKwh', 'tariffsInfo.formulaKm',
-  'tariffsInfo.notesTitle', 'tariffsInfo.iechargeNote', 'tariffsInfo.teslaNote',
-  'tariffsInfo.electraNote', 'tariffsInfo.lidlNote', 'tariffsInfo.iziviaNote',
-  'tariffsInfo.multiNetworkTipTitle', 'tariffsInfo.multiNetworkTipBefore', 'tariffsInfo.sourcesLabel'
+const keys = [
+  'tariffsInfo.calculationTitle', 'tariffsInfo.calculationText', 'tariffsInfo.energyFormula',
+  'tariffsInfo.costFormula', 'tariffsInfo.variableTitle', 'tariffsInfo.variableText',
+  'tariffsInfo.verificationTitle', 'tariffsInfo.verificationText', 'tariffsInfo.sourcesTitle'
 ];
 
-test('Tarifs et sources utilise ses clés structurées sans toucher aux données dynamiques', () => {
-  for (const key of staticKeys) assert.match(infos, new RegExp(`(?:data-i18n|data-i18n-aria-label)="${key.replaceAll('.', '\\.')}`));
-  assert.match(infos, /id="infos-atlante-cb-text"/);
-  assert.match(infos, /id="infos-tarifs-date"/);
-  assert.match(infos, /data-i18n="tariffsInfo\.sourcesLabel"/);
-  assert.doesNotMatch(infos, /innerHTML/);
+test('Tarifs et sources contient exactement quatre blocs courts et structurés', () => {
+  assert.equal((infos.match(/class="tariffs-info-block"/g) || []).length, 4);
+  for (const key of keys) assert.match(infos, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
+  assert.doesNotMatch(infos, /Notes importantes|Astuce multi-réseaux|notes-list|formula-code|infos-atlante|infos-tarifs-date/);
+  assert.doesNotMatch(infos, /\d+[,.]\d+\s*€|Happy Hours|McDonald’s|Octopus Electroverse/);
 });
 
-test('les textes Tarifs et sources sont naturels en FR et EN et conservent les marques', () => {
+test('la méthode est naturelle et équivalente en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
-  assert.equal(t('tariffsInfo.title'), 'Tarifs et sources');
-  assert.ok(t('tariffsInfo.electraNote').includes('4,99 €/mois'));
-  assert.match(t('tariffsInfo.iziviaNote'), /McDonald’s/);
-  assert.match(t('tariffsInfo.multiNetworkTipBefore'), /réseaux partenaires/);
+  assert.match(t('tariffsInfo.calculationText'), /consommation.*kilométrage.*part de recharge rapide.*tarifs connus/);
+  assert.equal(t('tariffsInfo.energyFormula'), 'Énergie consommée = distance × consommation');
+  assert.match(t('tariffsInfo.variableText'), /promotions ponctuelles.*tarifs permanents/);
+  assert.match(t('tariffsInfo.verificationText'), /pages officielles.*date de vérification/);
 
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(t('tariffsInfo.title'), 'Prices and sources');
-  assert.match(t('tariffsInfo.formulaKwh'), /Min\. kWh\/month/);
-  assert.ok(t('tariffsInfo.teslaNote').includes('€0.12 to €0.17/kWh'));
-  assert.match(t('tariffsInfo.iziviaNote'), /McDonald’s/);
-  const english = staticKeys.map(t).join(' ');
-  assert.doesNotMatch(english, /Tarifs|Formule|Notes|tarif|abonnement|réseaux|application/);
-  for (const name of ['IECharge', 'Tesla', 'Electra', 'Lidl', 'Izivia', 'Happy Hours', 'McDonald’s', 'Octopus Electroverse']) {
-    assert.match(`${infos} ${i18nSource}`, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  }
+  assert.equal(t('tariffsInfo.calculationTitle'), 'How are costs calculated?');
+  assert.equal(t('tariffsInfo.costFormula'), 'Charging cost = energy × price per kWh');
+  assert.match(t('tariffsInfo.variableText'), /Temporary promotions.*permanent prices/);
+  assert.match(t('tariffsInfo.verificationText'), /official pages.*verification date/);
 });
 
-test('les URL officielles restent inchangées et la langue ne ferme pas la fenêtre', () => {
-  const urls = [...infos.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
-  assert.deepEqual(urls, [
-    'https://electroverse.com/fr-FR/map',
-    'https://www.ionity.eu/fr/abonnements',
-    'https://www.go-electra.com/fr/electra-plus/',
-    'https://atlante.energy/fr/myatlante-app/',
-    'https://iecharge.io/fr/prix/',
-    'https://www.tesla.com/fr_fr/support/supercharger'
-  ]);
-  const details = [{ open: true }, { open: false }];
+test('les sources proviennent de tous les opérateurs actifs et sont alphabétiques', () => {
+  delete tariffs._comment;
+  delete tariffs._updated;
+  const sources = tariffSources(tariffs);
+  const expected = Object.values(tariffs).filter(operator => operator.name && operator.sourceUrl);
+  assert.equal(sources.length, expected.length);
+  assert.deepEqual(sources.map(source => source.name), [...sources.map(source => source.name)].sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' })));
+  assert.ok(sources.some(source => source.name === 'ENGIE Vianeo'));
+  assert.ok(sources.every(source => source.url === tariffs[Object.keys(tariffs).find(key => tariffs[key].name === source.name)].sourceUrl));
+  assert.ok(sources.every(source => ['http:', 'https:'].includes(new URL(source.url).protocol)));
+  assert.ok(!sources.some(source => /Stations-e/i.test(source.name)));
+  assert.deepEqual(tariffSources(), []);
+  assert.deepEqual(tariffSources({ incomplete: { name: 'Sans URL' }, statione: { name: 'Stations-e', sourceUrl: 'https://example.com' } }), []);
+  assert.match(infos, /id="tariffs-source-list"/);
+  assert.doesNotMatch(infos, /href="https?:\/\//);
+});
+
+test('la bascule FR/EN ne ferme pas la fenêtre', () => {
   const previousDocument = globalThis.document;
   const previousNode = globalThis.Node;
   const previousNodeFilter = globalThis.NodeFilter;
   globalThis.Node = { ELEMENT_NODE: 1 };
   globalThis.NodeFilter = { SHOW_TEXT: 4 };
-  globalThis.document = {
-    documentElement: { lang: '' }, title: '',
-    createTreeWalker: () => ({ nextNode: () => false }),
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    dispatchEvent: () => {}
-  };
+  globalThis.document = { documentElement: { lang: '' }, title: '', createTreeWalker: () => ({ nextNode: () => false }), querySelector: () => null, querySelectorAll: () => [], dispatchEvent: () => {} };
   try {
     setLanguage('fr', { persist: false, translate: false });
     translateDocument({ querySelectorAll: () => [] });
     setLanguage('en', { persist: false, translate: false });
     translateDocument({ querySelectorAll: () => [] });
-    assert.deepEqual(details.map(item => item.open), [true, false]);
+    assert.doesNotMatch(i18nSource.slice(i18nSource.indexOf('export function translateDocument'), i18nSource.indexOf('export function setLanguage')), /close|classList\.remove/);
   } finally {
     globalThis.document = previousDocument;
     globalThis.Node = previousNode;
     globalThis.NodeFilter = previousNodeFilter;
   }
-});
-
-test('les anciennes correspondances exactes propres à Tarifs et sources ont disparu', () => {
-  const phrases = '';
-  for (const oldText of ['Tarifs et sources', 'Formule de calcul', 'Notes importantes', 'Astuce multi-réseaux', 'Sources :', 'tarif fixe de 0,25 €/kWh', 'super heures creuses de 0,12 à 0,17 €/kWh la nuit', 'permet d’accéder à de nombreux réseaux partenaires']) {
-    assert.doesNotMatch(phrases, new RegExp(oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  }
-  assert.match(i18nSource, /tariffsInfo\.atlanteChargeback\.summary/);
 });

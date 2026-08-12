@@ -11,6 +11,7 @@ import { openComparisonRecommendation, renderTarifsDateBanner, renderComparisonT
 import { renderProfileView } from './src/ui/views/profile-view.js';
 import { renderOperatorsViews } from './src/ui/views/operators-view.js';
 import { renderOfferDetail } from './src/ui/views/offer-detail-view.js';
+import { renderTariffSources } from './src/ui/tariffs-info.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // kWhiz — app.js
@@ -184,6 +185,7 @@ async function loadTarifs() {
             OPERATORS = Object.fromEntries(
                 Object.entries(result.data).filter(([key]) => key !== 'statione')
             );
+            renderTariffSources(OPERATORS);
             const snapshot = buildTariffSnapshot(OPERATORS, result.updatedAt);
             tariffHistory = appendTariffSnapshot(tariffHistory, snapshot);
             try { localStorage.setItem(STORAGE_KEYS.tariffHistory, JSON.stringify(tariffHistory)); } catch (_) {}
