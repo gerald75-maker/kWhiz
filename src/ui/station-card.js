@@ -47,5 +47,5 @@ export function renderStationCardHtml(station, { operatorLabel = '', logo = '', 
 }
 
 export function renderStationPopupHtml(station, { operatorLabel = '', status = {}, now = Date.now() } = {}) {
-  return `<strong>${escapeHtml(station.name)}</strong><br>${escapeHtml(operatorLabel)} · ${formatNumber(station.power)} kW<br>${escapeHtml(station.address)}<br>${stationStatusBadge(status, 'station-status--popup', now)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name: station.name }))}">${t('map.station.startDirections')}</button>`;
+  return `<strong>${escapeHtml(station.name)}</strong><br>${formatStationSummary(station, operatorLabel)}<br>${escapeHtml(station.address)}<br>${stationStatusBadge(status, 'station-status--popup', now)}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name: station.name }))}">${t('map.station.startDirections')}</button>`;
 }

@@ -19,8 +19,12 @@ const station = {
   lat: 48.867,
   lon: 2.364,
   power: 250,
-  points: 2
+  connectors: 2
 };
+
+function stationSummaryFrom(html) {
+  return html.match(/<strong>[^<]+<\/strong>(?:<br>|<span>)([^<]+)/)?.[1];
+}
 
 test('localise la fraîcheur du statut à l’instant, à une minute et à plusieurs minutes', () => {
   setLanguage('fr', { persist: false, translate: false });
@@ -77,15 +81,42 @@ test('rend la popup en place dans la langue courante sans altérer les données 
   const french = renderStationPopupHtml(station, { operatorLabel: 'Tesla', status });
   assert.match(french, /Occupée ou réservée/);
   assert.match(french, /Lancer l’itinéraire/);
+  assert.match(french, /Tesla · jusqu’à 250 kW · 2 points/);
 
   setLanguage('en', { persist: false, translate: false });
   const english = renderStationPopupHtml(station, { operatorLabel: 'Tesla', status });
   assert.match(english, /Occupied or reserved/);
   assert.match(english, /Start directions/);
   assert.match(english, /Directions to Station République/);
-  assert.match(english, /Station République.*Tesla · 250 kW.*1 place de la République/s);
+  assert.match(english, /Station République.*Tesla · up to 250 kW · 2 charging points.*1 place de la République/s);
   assert.doesNotMatch(english, /Occupée|Lancer l’itinéraire|Itinéraire vers/);
   assert.equal(station.id, 'FR*ABC*E123');
+});
+
+test('la fiche et la popup partagent exactement le même résumé, au singulier comme au pluriel', () => {
+  for (const [language, connectors, expected] of [
+    ['fr', 1, 'Tesla · jusqu’à 250 kW · 1 point'],
+    ['fr', 8, 'Tesla · jusqu’à 250 kW · 8 points'],
+    ['en', 1, 'Tesla · up to 250 kW · 1 charging point'],
+    ['en', 8, 'Tesla · up to 250 kW · 8 charging points']
+  ]) {
+    setLanguage(language, { persist: false, translate: false });
+    const current = { ...station, connectors };
+    assert.equal(stationSummaryFrom(renderStationCardHtml(current, { operatorLabel: 'Tesla' })), expected);
+    assert.equal(stationSummaryFrom(renderStationPopupHtml(current, { operatorLabel: 'Tesla' })), expected);
+  }
+});
+
+test('Ametzondo reste unique et présente le même résumé de 8 points dans la fiche et la popup', async () => {
+  const payload = JSON.parse(await readFile(new URL('../public/irve-fast.json', import.meta.url), 'utf8'));
+  const matches = payload.stations.filter(item => /ametzondo/i.test(`${item.name} ${item.address}`));
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].power, 300);
+  assert.equal(matches[0].connectors, 8);
+  setLanguage('fr', { persist: false, translate: false });
+  const expected = 'Electra · jusqu’à 300 kW · 8 points';
+  assert.equal(stationSummaryFrom(renderStationCardHtml(matches[0], { operatorLabel: 'Electra' })), expected);
+  assert.equal(stationSummaryFrom(renderStationPopupHtml(matches[0], { operatorLabel: 'Electra' })), expected);
 });
 
 test('localise la liste vide, les titres et le repli de station sélectionnée', () => {
