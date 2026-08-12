@@ -5793,6 +5793,7 @@ body[data-view="compare"] .sticky-top {
 }
 .compare-gap.is-lowest { color: var(--text-primary); }
 .compare-meta { grid-area: meta; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.compare-meta span::before { content: none; }
 .compare-meta .compare-pricing-badge { align-self: flex-start; }
 .compare-rate-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
 .compare-detail-btn {
@@ -5836,6 +5837,10 @@ body[data-view="compare"] .sticky-top {
     .compare-identity { padding-left: 22px; }
     .compare-prices { padding: 0; }
     .compare-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+    .compare-meta > .compare-meta-threshold {
+        grid-column: 1 / -1;
+        white-space: nowrap;
+    }
     .compare-item > *, .compare-meta > span { min-width: 0; max-width: 100%; }
 }
 
@@ -5843,6 +5848,10 @@ body[data-view="compare"] .sticky-top {
     .compare-item { padding: 12px 10px; }
     .compare-meta { grid-template-columns: minmax(0, 1fr); }
     .compare-gap { font-size: .76rem; }
+}
+
+@media (max-width: 340px) {
+    .compare-meta > .compare-meta-threshold { white-space: normal; }
 }
 
 /* Annuaire compact des opérateurs */

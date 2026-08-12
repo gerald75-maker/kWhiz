@@ -209,7 +209,7 @@ export function renderComparisonTable(formulasData, {
             : t('comparison.unavailable');
         const threshold = formula.monthlyCost > 0 && fastPercentage > 0
             && Number.isFinite(formula.adjustedThresholdKm) && formula.adjustedThresholdKm > 0
-            ? `<span><small>${t('comparison.profitability')}</small>${profileThresholdLabel(formula, fastPercentage, language)}</span>`
+            ? `<span class="compare-meta-threshold"><small>${t('comparison.profitability')}</small>${profileThresholdLabel(formula, fastPercentage, language)}</span>`
             : '';
 
         return `<article class="compare-item${isLowest ? ' compare-item--best' : ''}">

@@ -253,6 +253,7 @@ test('affiche une seule explication du seuil pertinent et la masque lorsqu’il 
     assert.equal(explanation.hidden, false);
     assert.equal(explanation.textContent, 'Le seuil indique à partir de quel kilométrage l’abonnement devient avantageux par rapport à l’offre sans abonnement du même réseau, selon votre profil. Il ne signifie pas nécessairement que cette formule est la moins chère de kWhiz.');
     assert.match(list.innerHTML, /Abonnement rentabilisé dès 600 km\/mois/);
+    assert.match(list.innerHTML, /class="compare-meta-threshold"/);
     assert.equal((list.innerHTML.match(/Le seuil indique/g) || []).length, 0);
 
     setLanguage('en', { persist: false, translate: false });
@@ -374,6 +375,10 @@ test('les dernières règles mobiles empêchent le débordement et empilent le c
     assert.match(mobile, /\.compare-item > \*[\s\S]*min-width:\s*0/);
     assert.match(mobile, /max-width:\s*100%/);
     assert.match(css, /@media \(max-width: 390px\)[\s\S]*compare-meta[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+    assert.match(mobile, /compare-meta > \.compare-meta-threshold[\s\S]*grid-column:\s*1 \/ -1/);
+    assert.match(mobile, /compare-meta-threshold[\s\S]*white-space:\s*nowrap/);
+    assert.match(css, /compare-meta span::before\s*\{\s*content:\s*none/);
+    assert.match(css, /@media \(max-width: 340px\)[\s\S]*compare-meta-threshold[\s\S]*white-space:\s*normal/);
 });
 
 test('la carte de consommation cesse d’être sticky uniquement dans Comparer', async () => {
