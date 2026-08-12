@@ -1020,7 +1020,7 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   'Powerdot - DC au-delà de 100 kW': 'Powerdot — DC above 100 kW', 'Powerdot - DC, remise 28 %': 'Powerdot — DC, 28% discount',
   'IONITY via Electroverse - sans abonnement': 'IONITY via Electroverse — no subscription', 'IONITY via Electroverse - remise annoncée': 'IONITY via Electroverse — advertised discount',
   'Tarif national direct confirmé par IECharge.': 'Nationwide direct price confirmed by IECharge.',
-  'Prix variable selon la station et l’affluence. Le calcul utilise le milieu de la plage officielle.': 'Price varies by charger and demand. The calculation uses the midpoint of the official range.',
+  'Tarif variable selon la station, l’heure et l’affluence. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle.': 'Price varies by station, time of day and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.',
   'À partir de 0,64 €/kWh par carte bancaire ou pass. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul.': 'From €0.64/kWh by bank card or charging pass. Price varies by charger; the calculation uses an indicative minimum.',
   'Sans engagement. Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'No commitment. Official €0.10/kWh discount on Electra’s variable price.',
   'Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'Official €0.10/kWh discount on Electra’s variable price.',

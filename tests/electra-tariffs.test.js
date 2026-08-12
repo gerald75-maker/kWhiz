@@ -12,6 +12,8 @@ test('Electra conserve six formules et les tarifs français vérifiés', () => {
   const app = byId.get('Application Electra - prix variable');
   const direct = byId.get('Paiement par badge ou carte');
   assert.deepEqual([app.rateMin, app.rateMax, app.rate, app.calculationBasis], [0.39, 0.61, 0.5, 'midpoint']);
+  assert.match(app.note, /station, l’heure et l’affluence/);
+  assert.match(app.note, /prix exact est affiché dans l’application Electra avant la recharge/);
   assert.deepEqual([direct.rate, direct.ref, direct.pricingType, direct.calculationBasis], [0.64, 0.64, 'station', 'estimate']);
   assert.equal(app.verifiedAt, '2026-08-12');
   assert.equal(direct.verifiedAt, '2026-08-12');
@@ -47,4 +49,6 @@ test('les notes Electra contrôlées sont entièrement localisées en anglais', 
     assert.notEqual(localized, formula.note);
     assert.doesNotMatch(localized, /Sans engagement|Remise officielle|L’offre annuelle|tarif partenaire/);
   }
+  const appNote = localizeTariffText(byId.get('Application Electra - prix variable').note);
+  assert.equal(appNote, 'Price varies by station, time of day and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.');
 });

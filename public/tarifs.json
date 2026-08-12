@@ -92,7 +92,7 @@
         "calculationBasis": "midpoint",
         "rateMin": 0.39,
         "rateMax": 0.61,
-        "note": "Prix variable selon la station et l’affluence. Le calcul utilise le milieu de la plage officielle."
+        "note": "Tarif variable selon la station, l’heure et l’affluence. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle."
       },
       {
         "name": "Paiement par badge ou carte",
