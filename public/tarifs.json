@@ -86,25 +86,25 @@
         "period": "none",
         "rate": 0.5,
         "ref": 0.5,
-        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
-        "verifiedAt": "2026-07-27",
+        "sourceUrl": "https://www.go-electra.com/fr/price",
+        "verifiedAt": "2026-08-12",
         "pricingType": "range",
         "calculationBasis": "midpoint",
         "rateMin": 0.39,
         "rateMax": 0.61,
-        "note": "Prix variable selon la station et l’affluence. Le calcul utilise le milieu de la plage officielle."
+        "note": "Tarif variable selon la station, l’heure et l’affluence. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle."
       },
       {
         "name": "Paiement par badge ou carte",
         "cost": 0,
         "period": "none",
-        "rate": 0.61,
-        "ref": 0.61,
-        "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
-        "verifiedAt": "2026-07-27",
+        "rate": 0.64,
+        "ref": 0.64,
+        "sourceUrl": "https://www.go-electra.com/fr/price",
+        "verifiedAt": "2026-08-12",
         "pricingType": "station",
         "calculationBasis": "estimate",
-        "note": "Prix dépendant de la station et du moyen de paiement."
+        "note": "À partir de 0,64 €/kWh par carte bancaire ou pass. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul."
       },
       {
         "name": "Electra+ Essential - mensuel",
@@ -114,13 +114,13 @@
         "ref": 0.5,
         "id": "electra-essential",
         "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
-        "verifiedAt": "2026-07-27",
+        "verifiedAt": "2026-08-12",
         "pricingType": "discount",
         "calculationBasis": "midpoint",
         "discountPerKwh": 0.1,
         "rateMin": 0.29,
         "rateMax": 0.51,
-        "note": "Remise officielle de 0,10 €/kWh sur le tarif Electra variable."
+        "note": "Sans engagement. Remise officielle de 0,10 €/kWh sur le tarif Electra variable."
       },
       {
         "name": "Electra+ Essential - annuel",
@@ -136,7 +136,7 @@
         "discountPerKwh": 0.1,
         "rateMin": 0.29,
         "rateMax": 0.51,
-        "note": "Remise officielle de 0,10 €/kWh sur le tarif Electra variable."
+        "note": "Remise officielle de 0,10 €/kWh sur le tarif Electra variable. L’offre annuelle et sa réduction de 16 % sont confirmées, mais son montant actuel n’est pas publié sur la page officielle ; 19,99 €/an reste une valeur historique non revérifiée."
       },
       {
         "name": "Electra+ Smart - mensuel",
@@ -146,13 +146,13 @@
         "ref": 0.5,
         "id": "electra-smart",
         "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",
-        "verifiedAt": "2026-07-27",
+        "verifiedAt": "2026-08-12",
         "pricingType": "discount",
         "calculationBasis": "midpoint",
         "discountPerKwh": 0.2,
         "rateMin": 0.19,
         "rateMax": 0.41,
-        "note": "Remise officielle de 0,20 €/kWh sur le tarif Electra variable."
+        "note": "Sans engagement. Remise officielle de 0,20 €/kWh sur le tarif Electra variable. Avec Smart, tarif partenaire informatif de 0,49 €/kWh chez Atlante, Fastned et IONITY ; ce tarif n’entre pas dans le classement des recharges Electra."
       },
       {
         "name": "Electra+ Smart - annuel",
@@ -168,7 +168,7 @@
         "discountPerKwh": 0.2,
         "rateMin": 0.19,
         "rateMax": 0.41,
-        "note": "Remise officielle de 0,20 €/kWh sur le tarif Electra variable."
+        "note": "Remise officielle de 0,20 €/kWh sur le tarif Electra variable. Avec Smart, tarif partenaire informatif de 0,49 €/kWh chez Atlante, Fastned et IONITY ; ce tarif n’entre pas dans le classement des recharges Electra. L’offre annuelle et sa réduction de 16 % sont confirmées, mais son montant actuel n’est pas publié sur la page officielle ; 49,99 €/an reste une valeur historique non revérifiée."
       }
     ],
     "sourceUrl": "https://www.go-electra.com/fr/electra-plus/",

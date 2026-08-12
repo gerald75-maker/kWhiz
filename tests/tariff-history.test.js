@@ -60,6 +60,17 @@ test('détecte une hausse de tarif', () => {
     assert.ok(Math.abs(change.deltaRate - 0.03) < 1e-9);
 });
 
+test('enregistre la hausse Electra de 0,61 à 0,64 sans observation artificielle', () => {
+    const history = [
+        buildTariffSnapshot(operators(0.61, '2026-07-27', 0, 'none'), '2026-07-27'),
+        buildTariffSnapshot(operators(0.64, '2026-08-12', 0, 'none'), '2026-08-12'),
+        buildTariffSnapshot(operators(0.64, '2026-08-12', 0, 'none'), '2026-08-12')
+    ];
+    const entries = getFormulaHistory(history, 'electra::Smart');
+    assert.deepEqual(entries.map(entry => entry.rate), [0.61, 0.64]);
+    assert.equal(describeTariffChange(entries).state, 'up');
+});
+
 test('retourne uniquement un état sémantique sans historique', () => {
     const change = describeTariffChange([]);
     assert.deepEqual(change, { state: 'unknown', deltaRate: 0, deltaCost: 0 });
