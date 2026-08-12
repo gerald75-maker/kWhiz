@@ -1,9 +1,8 @@
 import { computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml } from '../../shared/dom.js';
-import { rankTierClass } from './comparison-view.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
-import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, localizeTariffText, t } from '../../i18n/i18n.js';
+import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 
 function currency(value, fractionDigits = 2) {
     return formatCurrency(value, {
@@ -258,6 +257,40 @@ export function renderProfileShortlist(profileData, logos, favorites, onToggleFa
     });
 }
 
+export function renderProfileRanking(profileData, logos, favorites, onToggleFavorite) {
+    const list = document.getElementById('profile-ranking-list');
+    if (!list) return;
+
+    const best = profileData[0]?.profileMonthlyCost;
+    list.innerHTML = profileData.map((formula, index) => {
+        const costIsFinite = Number.isFinite(formula.profileMonthlyCost);
+        const gap = costIsFinite && Number.isFinite(best) ? formula.profileMonthlyCost - best : null;
+        const isFavorite = favorites.has(formulaFavoriteId(formula.opKey, formula.name));
+        const logo = renderOperatorLogo(logos, formula.opKey, 'profile-ranking-logo', 'profile-ranking-logo-frame');
+        const cost = costIsFinite ? profileMonthlyAmount(formula.profileMonthlyCost) : t('profile.ranking.costUnavailable');
+        const difference = index === 0 && costIsFinite
+            ? t('profile.ranking.lowestCost')
+            : Number.isFinite(gap)
+                ? t('recommendation.favoriteGap', { amount: currency(gap) })
+                : t('profile.ranking.costUnavailable');
+
+        return `<article class="profile-ranking-item${index === 0 ? ' profile-ranking-item--best' : ''}">
+            <span class="profile-ranking-rank" aria-hidden="true">${index + 1}</span>
+            ${logo}
+            <div class="profile-ranking-identity">
+                <strong>${escapeHtml(localizeCommercialLabel(formula.operator))}</strong>
+                <span>${escapeHtml(localizeCommercialLabel(formula.name))}</span>
+            </div>
+            <div class="profile-ranking-cost"><strong>${cost}</strong><span>${difference}</span></div>
+            <button type="button" class="favorite-btn profile-ranking-favorite${isFavorite ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(formula.opKey, formula.name))}" aria-label="${favoriteLabel(isFavorite)}" aria-pressed="${isFavorite}">★</button>
+        </article>`;
+    }).join('');
+
+    list.querySelectorAll('[data-favorite-id]').forEach(button => {
+        button.addEventListener('click', () => onToggleFavorite?.(button.dataset.favoriteId));
+    });
+}
+
 export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite }) {
     renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos });
     const km = Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
@@ -271,57 +304,5 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
     // Tri par coût mensuel croissant
     profileData.sort((a, b) => a.profileMonthlyCost - b.profileMonthlyCost);
     renderProfileShortlist(profileData, logos, favorites, onToggleFavorite);
-
-    const tbody = document.getElementById('profile-body');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    const best = profileData[0]?.profileMonthlyCost ?? Infinity;
-
-    profileData.forEach((f, idx) => {
-        const row = document.createElement('tr');
-        const isBest = idx === 0;
-
-        // Badges rang
-        const rankBadge = isBest
-            ? '<span class="profile-rank profile-rank--best">🥇</span>'
-            : idx === 1 ? '<span class="profile-rank">🥈</span>'
-            : idx === 2 ? '<span class="profile-rank">🥉</span>'
-            : '';
-
-        // Écart vs meilleure formule — coloré selon l'ampleur de l'écart
-        const diff = f.profileMonthlyCost - best;
-        const diffTier = isBest ? '' : rankTierClass(f.profileMonthlyCost, best);
-        const diffHtml = isBest
-            ? `<span class="profile-diff profile-diff--best">${t('recommendation.lowestCost')}</span>`
-            : `<span class="profile-diff ${diffTier}">${t('recommendation.favoriteGap', { amount: currency(diff) })}</span>`;
-
-        // Affichage tarif (barré si ChargeBack)
-        const rateDisplay = f.chargebackRate !== null
-            ? `<span class="cb-struck">${currency(f.rateRaw)}</span><br><span class="cb-effective-rate">${currency(f.rate, 3)}</span>`
-            : currency(f.rate);
-
-        // Abonnement mensuel
-        const subDisplay = f.monthlyCost > 0
-            ? `<br><span class="formula-sub">${profileMonthlyAmount(f.monthlyCost)}${f.previousCost ? ` <span class="formula-prev-cost">(${currency(f.previousCost)})</span>` : ''}</span>`
-            : '';
-        const noteDisplay = f.note ? `<br><span class="formula-note">${escapeHtml(localizeTariffText(f.note))}</span>` : '';
-        const isFavorite = favorites.has(formulaFavoriteId(f.opKey, f.name));
-
-        const logoHtml = logos[f.opKey] ? `<img src="${logos[f.opKey]}" class="operator-logo operator-logo--sm" alt="" loading="lazy">` : '';
-        row.className = isBest ? 'profile-row--best' : '';
-        row.innerHTML = `
-            <td class="row-operator ${escapeHtml(f.color)}">${rankBadge}${logoHtml}${escapeHtml(localizeCommercialLabel(f.operator))}</td>
-            <td><button type="button" class="favorite-btn${isFavorite ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(f.opKey, f.name))}" aria-label="${favoriteLabel(isFavorite)}" aria-pressed="${isFavorite}">★</button>${escapeHtml(localizeCommercialLabel(f.name))}${subDisplay}${noteDisplay}</td>
-            <td>${rateDisplay}</td>
-            <td class="profile-col-monthly">
-                <strong>${currency(f.profileMonthlyCost)}</strong>
-                ${diffHtml}
-            </td>
-        `;
-        row.querySelector('[data-favorite-id]')?.addEventListener('click', event => {
-            onToggleFavorite?.(event.currentTarget.dataset.favoriteId);
-        });
-        tbody.appendChild(row);
-    });
+    renderProfileRanking(profileData, logos, favorites, onToggleFavorite);
 }

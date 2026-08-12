@@ -52,7 +52,7 @@ test('le menu complet utilise ses clés sans modifier son ordre ni ses fonctions
 
 test('À propos est complet en FR et EN et préserve version, e-mail et URL', () => {
   const about = fragment('id="page-about"', '<!-- Page : Données et réglages');
-  for (const key of ['about.title', 'about.tagline', 'about.scope', 'about.privacy', 'about.version', 'about.enjoy', 'about.feedback', 'about.otherApps']) {
+  for (const key of ['about.title', 'about.tagline', 'about.scope', 'about.selectionScope', 'about.privacy', 'about.version', 'about.enjoy', 'about.feedback', 'about.otherApps']) {
     assert.match(about, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`), key);
   }
   assert.match(about, /<span>__VERSION__<\/span>/);
@@ -63,9 +63,28 @@ test('À propos est complet en FR et EN et préserve version, e-mail et URL', ()
   assert.match(t('about.scope'), /operating in France/);
   assert.match(t('about.privacy'), /stored locally/);
   assert.equal(t('about.tagline'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
+  assert.equal(t('about.selectionScope'), 'kWhiz does not list every French charging network: it selects fast-charging offers that may genuinely reduce your charging costs.');
   assert.equal((i18nSource.match(/kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger\./g) || []).length, 2);
   assert.equal((i18nSource.match(/kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price\./g) || []).length, 2);
   assert.doesNotMatch(html, /quasi indispensable/i);
+});
+
+test('la mention de périmètre reste exclusivement dans À propos et suit la langue', () => {
+  const expectedFr = 'kWhiz ne recense pas tous les réseaux français : il sélectionne des offres de recharge rapide susceptibles de réduire réellement votre coût de recharge.';
+  const expectedEn = 'kWhiz does not list every French charging network: it selects fast-charging offers that may genuinely reduce your charging costs.';
+  const about = fragment('id="page-about"', '<!-- Page : Données et réglages');
+  const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
+  const help = fragment('id="page-aide"', '<!-- Page : Plus d’infos');
+  const tariffsInfo = fragment('id="page-infos"', '<!-- Popup détail');
+  assert.match(about, /data-i18n="about\.selectionScope"/);
+  for (const excluded of [landing, help, tariffsInfo]) assert.doesNotMatch(excluded, /about\.selectionScope|ne recense pas tous les réseaux|does not list every French/);
+  setLanguage('fr', { persist: false, translate: false });
+  assert.equal(t('about.selectionScope'), expectedFr);
+  setLanguage('en', { persist: false, translate: false });
+  assert.equal(t('about.selectionScope'), expectedEn);
+  assert.doesNotMatch(`${expectedFr} ${expectedEn}`, /TotalEnergies|Esso|Shell|BP|pétrolier/i);
+  const callback = appSource.slice(appSource.indexOf('onLanguageChange(() => {'), appSource.indexOf('\n    });', appSource.indexOf('onLanguageChange(() => {')));
+  assert.doesNotMatch(callback, /closeAllPages|hideLanding/);
 });
 
 test('la bascule de langue conserve les couches ouvertes et le focus', () => {

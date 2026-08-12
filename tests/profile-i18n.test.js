@@ -7,6 +7,7 @@ import {
     profileShareStatusLabel,
     profileThresholdLabel,
     renderProfileHero,
+    renderProfileRanking,
     renderProfileShortlist,
     renderProfileView
 } from '../src/ui/views/profile-view.js';
@@ -28,7 +29,7 @@ function installDocument(km = 1000) {
     const elements = new Map([
         ['profile-best-card', new FakeElement()],
         ['profile-shortlist-list', new FakeElement()],
-        ['profile-body', new FakeElement()],
+        ['profile-ranking-list', new FakeElement()],
         ['profile-km', new FakeElement({ value: String(km) })]
     ]);
     globalThis.document = {
@@ -180,29 +181,45 @@ test('localise le Top 3, ses monnaies et les aria-labels sans traduire les noms 
     assert.doesNotMatch(english, /Sans abonnement|d’abonnement|Ajouter aux favoris|Retirer des favoris|coût le plus bas/);
 });
 
-test('localise le tableau détaillé, les notes tarifaires et les coûts', () => {
+test('rend le classement complet compact sans dupliquer les détails tarifaires', () => {
     const elements = installDocument(1000);
-    setLanguage('en', { persist: false, translate: false });
+    setLanguage('fr', { persist: false, translate: false });
     renderProfileView({
-        formulasData: [formula('Tarif unique', {
-            operator: 'IECharge',
-            opKey: 'iecharge',
-            rate: 0.25,
-            monthlyCost: 9.99,
-            note: 'Tarif national direct confirmé par IECharge.'
-        })],
+        formulasData: [
+            formula('Tarif unique', { operator: 'IECharge', opKey: 'iecharge', rate: 0.25, note: 'Note à masquer.' }),
+            formula('Atlante Go - mensuel', { operator: 'Atlante', opKey: 'atlante', rate: 0.20, monthlyCost: 9.99 })
+        ],
         consumption: 0.18,
         fastPercentage: 100,
         homeRate: 0.20,
         logos: {},
-        favorites: new Set()
+        favorites: new Set(['atlante::Atlante Go - mensuel'])
     });
-    const row = elements.get('profile-body').children[0].innerHTML;
-    assert.match(row, /€9\.99\/month/);
-    assert.match(row, /€0\.25/);
-    assert.match(row, /Nationwide direct price confirmed by IECharge/);
-    assert.match(row, /aria-label="Add to favourites"/);
-    assert.doesNotMatch(row, /Tarif national direct confirmé|\/mois|coût le plus bas|Ajouter aux favoris/);
+    const html = elements.get('profile-ranking-list').innerHTML;
+    assert.equal((html.match(/<article/g) || []).length, 2);
+    assert.match(html, /Meilleur coût/);
+    assert.match(html, /Retirer des favoris/);
+    assert.doesNotMatch(html, /Note à masquer|0,25|d’abonnement|Seuil|<table|<th|<td/);
+});
+
+test('préserve le nombre, l’ordre, les coûts et les écarts avec Intl en FR et EN', () => {
+    const ranked = [
+        formula('Première', { operator: 'A', opKey: 'a', profileMonthlyCost: 45 }),
+        formula('Deuxième', { operator: 'B', opKey: 'b', profileMonthlyCost: 47.51 }),
+        formula('Indisponible', { operator: 'C', opKey: 'c', profileMonthlyCost: Infinity })
+    ];
+    for (const language of ['fr', 'en']) {
+        const elements = installDocument();
+        setLanguage(language, { persist: false, translate: false });
+        renderProfileRanking(ranked, {}, new Set());
+        const html = elements.get('profile-ranking-list').innerHTML;
+        assert.equal((html.match(/<article/g) || []).length, ranked.length);
+        assert.ok(html.indexOf('Première') < html.indexOf('Deuxième'));
+        assert.match(html, language === 'fr' ? /45,00(?: |\s)€\/mois/ : /€45\.00\/month/);
+        assert.match(html, language === 'fr' ? /47,51(?: |\s)€\/mois/ : /€47\.51\/month/);
+        assert.match(html, language === 'fr' ? /\+2,51(?: |\s)€/ : /\+€2\.51/);
+        assert.match(html, language === 'fr' ? /Coût indisponible/ : /Cost unavailable/);
+    }
 });
 
 test('formate exactement les coûts mensuels et annuels avec Intl', () => {
