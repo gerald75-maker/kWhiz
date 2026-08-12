@@ -112,7 +112,7 @@ test('retire les 34 entrées couvertes par les clés structurées et conserve le
     'map.gps.appOrBrowser', 'map.gps.note', 'comparison.controls.monthlyMileageUnit',
     'appStatus.badge.checking', 'appStatus.initial', 'tariffs.status.loading', 'install.nativeButton',
     'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'map.station.directions',
-    'favorites.add', 'favorites.remove'
+    'favorites.add', 'favorites.remove', 'favorites.added', 'favorites.removed'
   ]) assert.notEqual(t(key), key, key);
 });
 

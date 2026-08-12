@@ -2949,6 +2949,25 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
 .favorite-btn:hover { transform: scale(1.12); }
 .favorite-btn:focus-visible { outline: 2px solid #00c2ff; outline-offset: 2px; border-radius: 4px; }
 .favorite-btn.is-favorite { color: #f5b800; }
+.favorite-feedback {
+    position: fixed;
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    z-index: 11000;
+    max-width: calc(100vw - 32px);
+    padding: 0.55rem 0.85rem;
+    transform: translateX(-50%);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    pointer-events: none;
+}
+.favorite-feedback[hidden] { display: none; }
 .favorite-btn--shortlist { margin: 0; align-self: center; }
 
 .phm-favorite-comparison {
@@ -5748,4 +5767,97 @@ body[data-view="compare"] .sticky-top {
 
 @media (max-width: 390px) {
     .compare-meta { grid-template-columns: minmax(0, 1fr); }
+}
+/* Annuaire compact des opérateurs */
+#tab-operators .operators-compact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+}
+
+#tab-operators .operator-directory-card {
+    min-width: 0;
+    overflow: clip;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+}
+
+#tab-operators .operator-directory-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 4.5rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    list-style: none;
+}
+
+#tab-operators .operator-directory-summary::-webkit-details-marker { display: none; }
+#tab-operators .operator-directory-summary:focus-visible,
+#tab-operators .operator-plan-detail:focus-visible,
+#tab-operators .operator-directory-map:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+#tab-operators .operator-directory-name,
+#tab-operators .operator-directory-actions,
+#tab-operators .operator-directory-map {
+    display: flex;
+    align-items: center;
+}
+
+#tab-operators .operator-directory-name { min-width: 0; gap: 0.75rem; }
+#tab-operators .operator-directory-name > span { min-width: 0; }
+#tab-operators .operator-directory-name strong,
+#tab-operators .operator-directory-name small { display: block; }
+#tab-operators .operator-directory-name strong { color: var(--text-primary); }
+#tab-operators .operator-directory-name small { margin-top: 0.2rem; color: var(--text-secondary); }
+#tab-operators .operator-directory-actions { gap: 0.7rem; flex: 0 0 auto; }
+#tab-operators .operator-directory-map { gap: 0.25rem; color: var(--accent); font-weight: 700; text-decoration: none; }
+#tab-operators .operator-directory-chevron { color: var(--accent); font-size: 1.4rem; transition: transform 160ms ease; }
+#tab-operators .operator-directory-card[open] .operator-directory-chevron { transform: rotate(90deg); }
+
+#tab-operators .operator-plan-list { border-top: 1px solid var(--border-color); }
+#tab-operators .operator-plan-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.8rem 1rem;
+    color: var(--text-primary);
+}
+#tab-operators .operator-plan-row + .operator-plan-row { border-top: 1px solid var(--border-color); }
+#tab-operators .operator-plan-copy { min-width: 0; }
+#tab-operators .operator-plan-copy strong {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--text-primary);
+    overflow-wrap: normal;
+    word-break: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+#tab-operators .operator-plan-copy > span { display: block; margin-top: 0.2rem; color: var(--text-primary); }
+#tab-operators .operator-plan-copy .operator-plan-threshold { color: var(--text-secondary); }
+#tab-operators .operator-plan-detail {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@media (max-width: 375px) {
+    #tab-operators .operator-directory-summary,
+    #tab-operators .operator-plan-row { padding-inline: 0.7rem; }
+    #tab-operators .operator-directory-map span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    #tab-operators .operator-plan-row { gap: 0.45rem; }
+    #tab-operators .operator-plan-detail { padding-inline: 0.35rem; }
 }

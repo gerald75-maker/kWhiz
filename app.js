@@ -52,6 +52,7 @@ import { renderAtlanteChargebackInfo, renderAtlanteChargebackState } from './src
 import { initPullToRefresh } from './src/ui/pull-to-refresh.js';
 import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
+import { showFavoriteFeedback } from './src/ui/favorite-feedback.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
 import { initMenuLanguage } from './src/ui/menu-language.js';
@@ -311,7 +312,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         logos: LOGOS,
         onModal: openInfoModal,
         favorites,
-        onToggleFavorite: handleToggleFavorite
+        onToggleFavorite: handleToggleFavorite,
+        onDetail: openFormulaDetail
     });
     // Recalcule le comparateur profil si c'est la vue active ou si déjà rendu
     if (navigation?.getCurrentView() === 'profile' || document.getElementById('profile-body')?.hasChildNodes()) {
@@ -323,9 +325,19 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
 
 
 function handleToggleFavorite(id) {
+    const wasFavorite = favorites.has(id);
+    const activeElement = document.activeElement;
+    const focusScope = activeElement?.closest?.('.tab-content, .page-overlay');
     favorites = toggleFavorite(favorites, id);
     saveFavorites(FAVORITES_KEY, favorites);
     updateCalculations();
+    const candidates = focusScope?.querySelectorAll?.('[data-favorite-id]')
+        || document.querySelectorAll('[data-favorite-id]');
+    Array.from(candidates).find(button => button.dataset.favoriteId === id)?.focus();
+    showFavoriteFeedback(
+        document.getElementById('favorite-status'),
+        t(wasFavorite ? 'favorites.removed' : 'favorites.added')
+    );
 }
 
 function openInfoModal(name) {
@@ -444,12 +456,6 @@ function initApp() {
     } else {
         setApplicationStatus('offline', 'appStatus.offline');
     }
-
-    const viewMode = document.getElementById('view-mode');
-    viewMode?.addEventListener('change', event => {
-        document.getElementById('operators-compact').hidden = event.target.checked;
-        document.getElementById('operators-detailed').hidden = !event.target.checked;
-    });
 
     document.getElementById('compare-km')?.addEventListener('input', event => {
         profileControls?.setMonthlyKm(event.target.value);
