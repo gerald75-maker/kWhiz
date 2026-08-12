@@ -1,6 +1,6 @@
 import { debounce, on } from '../../shared/dom.js';
 
-export function initProfileControls({ initialFastPercentage = 100, storageKey, onChange }) {
+export function initProfileControls({ initialFastPercentage = 100, initialMonthlyKm = 1000, storageKey, monthlyKmStorageKey, onChange }) {
     let fastPercentage = initialFastPercentage;
     const profileKmInput = document.getElementById('profile-km');
     const kmChipsEl = document.getElementById('profile-km-chips');
@@ -30,8 +30,7 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
         }
 
         kmOtherWrap?.classList.remove('visible');
-        if (profileKmInput) profileKmInput.value = value;
-        notify();
+        setMonthlyKm(value);
     }
 
     function setMonthlyKm(value, { notifyChange = true } = {}) {
@@ -41,6 +40,7 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
         kmChipsEl?.querySelectorAll('.km-chip').forEach(chip => chip.classList.remove('active'));
         (matchingChip || kmChipOther)?.classList.add('active');
         kmOtherWrap?.classList.toggle('visible', !matchingChip);
+        if (monthlyKmStorageKey) localStorage.setItem(monthlyKmStorageKey, String(km));
         if (notifyChange) notify();
         return km;
     }
@@ -54,6 +54,7 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
         if (profileKmInput.value.length > 4) {
             profileKmInput.value = profileKmInput.value.slice(0, 4);
         }
+        if (monthlyKmStorageKey) localStorage.setItem(monthlyKmStorageKey, String(Math.min(9999, Math.max(0, parseInt(profileKmInput.value, 10) || 0))));
         notify();
     }, 150));
 
@@ -73,11 +74,21 @@ export function initProfileControls({ initialFastPercentage = 100, storageKey, o
         notify();
     });
 
+    function setFastPercentage(value, { notifyChange = true } = {}) {
+        fastPercentage = Math.min(100, Math.max(0, parseInt(value, 10) || 0));
+        if (storageKey) localStorage.setItem(storageKey, String(fastPercentage));
+        renderFastPercentage();
+        if (notifyChange) notify();
+        return fastPercentage;
+    }
+
+    setMonthlyKm(initialMonthlyKm, { notifyChange: false });
     renderFastPercentage();
 
     return {
         getFastPercentage: () => fastPercentage,
         getMonthlyKm: () => Math.max(0, parseInt(profileKmInput?.value, 10) || 0),
-        setMonthlyKm
+        setMonthlyKm,
+        setFastPercentage
     };
 }

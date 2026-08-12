@@ -40,6 +40,7 @@ const CRITICAL_PUBLIC_ASSETS = [
 const OPTIONAL_PUBLIC_ASSETS = [
   './irve-fast.json',
   './manifest.json',
+  './icon.svg',
   './logos/engie-vianeo.webp',
   './icons/icon-72.png',
   './icons/icon-96.png',

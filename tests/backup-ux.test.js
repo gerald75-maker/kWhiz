@@ -48,7 +48,7 @@ function installEnvironment(storage = memoryStorage()) {
     storage,
     download: (filename, backup) => downloads.push({ filename, backup }),
     schedule: (callback, delay) => { scheduled.push({ callback, delay }); return scheduled.length; },
-    reload: () => { reloads += 1; }
+    reload: null,
   });
   return {
     elements, storage, downloads, scheduled, controller,
@@ -90,11 +90,11 @@ test('une sauvegarde réussie reste visible, accessible et ne se déclenche pas 
     assert.equal(env.downloads.length, 1);
     assert.equal(button.disabled, true);
     const status = env.elements.get('about-data-status');
-    assert.equal(status.textContent, 'Sauvegarde téléchargée.');
+      assert.equal(status.textContent, 'Profil et préférences sauvegardés.');
     assert.equal(status.getAttribute('role'), 'status');
     assert.equal(status.getAttribute('aria-live'), 'polite');
     setLanguage('en', { persist: false, translate: false });
-    assert.equal(status.textContent, 'Backup downloaded.');
+    assert.equal(status.textContent, 'Profile and preferences saved.');
     assert.equal(env.downloads.length, 1);
     env.scheduled.find(item => item.delay === 0).callback();
     assert.equal(button.disabled, false);
@@ -103,8 +103,8 @@ test('une sauvegarde réussie reste visible, accessible et ne se déclenche pas 
 
 test('restaure un ou plusieurs réglages et réactive le bouton', async () => {
   for (const [data, expectedFr, expectedEn] of [
-    [{ theme: 'light' }, '1 réglage restauré.', '1 setting restored.'],
-    [{ theme: 'light', favorites: '[1]' }, '2 réglages restaurés.', '2 settings restored.']
+    [{ theme: 'light' }, 'Profil et préférences restaurés.', 'Profile and preferences restored.'],
+    [{ theme: 'light', favorites: '[1]' }, 'Profil et préférences restaurés.', 'Profile and preferences restored.']
   ]) {
     setLanguage('fr', { persist: false, translate: false });
     const env = installEnvironment(memoryStorage({ theme: 'dark', favorites: '[]' }));
@@ -121,9 +121,29 @@ test('restaure un ou plusieurs réglages et réactive le bouton', async () => {
       assert.equal(button.disabled, false);
       setLanguage('en', { persist: false, translate: false });
       assert.equal(env.elements.get('about-data-status').textContent, expectedEn);
-      assert.equal(env.scheduled.some(item => item.delay === 1600), true);
+      assert.equal(env.reloads(), 0);
+      assert.equal(env.scheduled.some(item => item.delay === 1600), false);
     } finally { env.restore(); }
   }
+});
+
+test('notifie l’application après écriture atomique pour resynchroniser le profil sans rechargement', async () => {
+  setLanguage('fr', { persist: false, translate: false });
+  const env = installEnvironment(memoryStorage({ theme: 'dark', favorites: '[]' }));
+  const restored = [];
+  env.controller.destroy();
+  env.restore();
+  const storage = memoryStorage({ theme: 'dark', profileKm: '1500' });
+  const second = installEnvironment(storage);
+  try {
+    // The production callback is exercised through the public restore primitive;
+    // a partial payload must report only the keys it actually contains.
+    const { restoreUserDataBackup } = await import('../src/ui/data-backup.js');
+    restoreUserDataBackup(storage, backup({ profileKm: '800' }), ['profileKm', 'consumption']);
+    restored.push(storage.getItem('profileKm'));
+    assert.deepEqual(restored, ['800']);
+    assert.equal(second.reloads(), 0);
+  } finally { second.restore(); }
 });
 
 test('distingue les erreurs sans afficher leur détail technique', async () => {

@@ -75,15 +75,18 @@ export function initDataBackup({
     storage = localStorage,
     download = downloadJson,
     schedule = window.setTimeout.bind(window),
-    reload = () => window.location.reload()
+    reload = null,
+    onRestored = () => {}
 }) {
     const keys = [
         storageKeys.landingSeen,
         storageKeys.fastPercentage,
         storageKeys.favorites,
         storageKeys.language,
-        storageKeys.theme
-    ];
+        storageKeys.theme,
+        storageKeys.profileKm,
+        storageKeys.consumption
+    ].filter(Boolean);
     const status = document.getElementById('about-data-status');
     const input = document.getElementById('about-import-data-file');
     let currentStatus = null;
@@ -164,8 +167,9 @@ export function initDataBackup({
         }
         try {
             const restored = restoreUserDataBackup(storage, backup, keys);
+            onRestored({ count: restored, keys: Object.keys(validateUserDataBackup(backup, keys)) });
             setStatus(restored === 1 ? 'backup.restoredOne' : 'backup.restoredMany', { count: restored });
-            schedule(reload, 1600);
+            if (typeof reload === 'function') schedule(reload, 1600);
         } catch (error) {
             const knownKeys = new Set(['backup.invalid', 'backup.unsupportedFormat', 'backup.missingData']);
             setStatus(knownKeys.has(error?.message) ? error.message : 'backup.restoreFailed', {}, 'error');

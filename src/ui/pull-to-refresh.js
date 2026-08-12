@@ -12,12 +12,12 @@ export function refreshStatusLabel(state) { return t(`refresh.${state}`); }
  * Active le geste « tirer pour rafraîchir » sur les écrans tactiles.
  * Le rafraîchissement ne démarre que lorsque la page est déjà tout en haut.
  */
-export function initPullToRefresh({ onRefresh, ...options } = {}) {
+export function initPullToRefresh({ onRefresh, trigger = document.getElementById('app-refresh-button'), ...options } = {}) {
     const indicator = document.getElementById('pull-to-refresh');
     const label = indicator?.querySelector('.pull-to-refresh__label');
     const icon = indicator?.querySelector('.pull-to-refresh__icon');
     const supportsTouch = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
-    if (!indicator || typeof onRefresh !== 'function' || !supportsTouch) {
+    if (!indicator || typeof onRefresh !== 'function') {
         return { destroy() {} };
     }
 
@@ -59,6 +59,37 @@ export function initPullToRefresh({ onRefresh, ...options } = {}) {
     const scheduleReset = delay => {
         if (resetTimer) window.clearTimeout(resetTimer);
         resetTimer = window.setTimeout(reset, delay);
+    };
+
+    const runRefresh = async () => {
+        if (refreshing) return { ok: false, busy: true };
+        refreshing = true;
+        trigger?.setAttribute('aria-busy', 'true');
+        trigger?.setAttribute('aria-disabled', 'true');
+        indicator.classList.add('is-visible', 'is-refreshing');
+        setState('refreshing', config.threshold);
+
+        try {
+            const setRefreshState = state => setState(state, config.threshold);
+            const result = await onRefresh({ setStatus: setRefreshState });
+            const succeeded = result?.ok !== false;
+            const finalState = result?.state || (succeeded ? 'success' : 'error');
+            setState(finalState, config.threshold);
+            navigator.vibrate?.(succeeded ? 18 : [30, 45, 30]);
+            if (!result?.reloadPending) scheduleReset(succeeded ? 850 : 1500);
+            return result;
+        } catch (error) {
+            console.warn('[PullToRefresh] Actualisation impossible', error);
+            setState('error', config.threshold);
+            navigator.vibrate?.([30, 45, 30]);
+            scheduleReset(1500);
+            return { ok: false, state: 'error', error };
+        } finally {
+            refreshing = false;
+            indicator.classList.remove('is-refreshing');
+            trigger?.removeAttribute('aria-busy');
+            trigger?.removeAttribute('aria-disabled');
+        }
     };
 
     const handleStart = event => {
@@ -104,42 +135,28 @@ export function initPullToRefresh({ onRefresh, ...options } = {}) {
             return;
         }
 
-        refreshing = true;
-        indicator.classList.add('is-visible', 'is-refreshing');
-        setState('refreshing', config.threshold);
-
-        try {
-            const setRefreshState = state => setState(state, config.threshold);
-            const result = await onRefresh({ setStatus: setRefreshState });
-            const succeeded = result?.ok !== false;
-            const finalState = result?.state || (succeeded ? 'success' : 'error');
-            setState(finalState, config.threshold);
-            navigator.vibrate?.(succeeded ? 18 : [30, 45, 30]);
-            if (!result?.reloadPending) scheduleReset(succeeded ? 850 : 1500);
-        } catch (error) {
-            console.warn('[PullToRefresh] Actualisation impossible', error);
-            setState('error', config.threshold);
-            navigator.vibrate?.([30, 45, 30]);
-            scheduleReset(1500);
-        } finally {
-            refreshing = false;
-            indicator.classList.remove('is-refreshing');
-        }
+        await runRefresh();
     };
 
-    document.addEventListener('touchstart', handleStart, { passive: true });
-    document.addEventListener('touchmove', handleMove, { passive: false });
-    document.addEventListener('touchend', handleEnd, { passive: true });
-    document.addEventListener('touchcancel', reset, { passive: true });
+    const handleTrigger = () => { void runRefresh(); };
+    if (supportsTouch) {
+        document.addEventListener('touchstart', handleStart, { passive: true });
+        document.addEventListener('touchmove', handleMove, { passive: false });
+        document.addEventListener('touchend', handleEnd, { passive: true });
+        document.addEventListener('touchcancel', reset, { passive: true });
+    }
+    trigger?.addEventListener('click', handleTrigger);
     const stopLanguageListener = onLanguageChange(renderLabel);
 
     return {
+        refresh: runRefresh,
         destroy() {
             if (resetTimer) window.clearTimeout(resetTimer);
             document.removeEventListener('touchstart', handleStart);
             document.removeEventListener('touchmove', handleMove);
             document.removeEventListener('touchend', handleEnd);
             document.removeEventListener('touchcancel', reset);
+            trigger?.removeEventListener('click', handleTrigger);
             stopLanguageListener();
         }
     };
