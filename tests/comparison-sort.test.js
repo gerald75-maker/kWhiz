@@ -7,6 +7,7 @@ import { formatTariffsVerifiedOn, setLanguage } from '../src/i18n/i18n.js';
 import {
     adjustedThreshold,
     buildComparisonRanking,
+    comparisonGapLabel,
     filterComparisonFormulas,
     openComparisonRecommendation,
     profileThresholdLabel,
@@ -58,22 +59,50 @@ test('le rendu marque uniquement la première formule comme meilleure et affiche
     assert.match(list.innerHTML, /9,99 €\/mois/);
 });
 
-test('le badge de vérification utilise Intl et suit immédiatement la langue', () => {
+test('les offres ex æquo au centime portent aussi le libellé Meilleur coût', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
+    const formulas = [
+        formula('Première', { rate: 0.40, opKey: 'first' }),
+        formula('Ex æquo', { rate: 0.40, opKey: 'tie' }),
+        formula('Plus chère', { rate: 0.60, opKey: 'high' })
+    ];
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable(formulas, profile);
+    assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 2);
+    assert.equal((list.innerHTML.match(/Meilleur coût/g) || []).length, 2);
+});
+
+test('les dates et notes quittent les cartes et restent disponibles dans le détail', async () => {
     const list = { innerHTML: '', onclick: null, onkeydown: null };
     globalThis.document = {
         getElementById: id => id === 'ranking-list' ? list : { textContent: '' },
         dispatchEvent: () => true
     };
-    const formulas = [formula('Formule datée', { rate: 0.40, opKey: 'datee', verifiedAt: '2026-07-27' })];
+    const formulas = [formula('Formule datée', { rate: 0.40, opKey: 'datee', verifiedAt: '2026-07-27', note: 'Note documentaire complète' })];
 
     setLanguage('fr', { persist: false, translate: false });
     renderComparisonTable(formulas, profile);
-    assert.match(list.innerHTML, /Vérifié le 27 juillet 2026/);
+    assert.doesNotMatch(list.innerHTML, /Vérifié le 27 juillet 2026|Note documentaire complète|compare-verified|compare-note/);
 
     setLanguage('en', { persist: false, translate: false });
     renderComparisonTable(formulas, profile);
-    assert.match(list.innerHTML, /Verified on 27 July 2026/);
-    assert.doesNotMatch(list.innerHTML, /Vérifié le/);
+    assert.doesNotMatch(list.innerHTML, /Verified on 27 July 2026|Note documentaire complète|compare-verified|compare-note/);
+    const detail = await readFile(new URL('../src/ui/views/offer-detail-view.js', import.meta.url), 'utf8');
+    assert.match(detail, /formatTariffsVerifiedOn\(formula\.verifiedAt\)/);
+    assert.match(detail, /formula-detail-note/);
+});
+
+test('calcule l’écart depuis le coût classé et localise égalités et valeurs indisponibles', () => {
+    setLanguage('fr', { persist: false, translate: false });
+    assert.equal(comparisonGapLabel(45, 45, 'fr'), 'Meilleur coût');
+    assert.equal(comparisonGapLabel(45.004, 45, 'fr'), 'Meilleur coût');
+    assert.equal(comparisonGapLabel(47.51, 45, 'fr'), '+2,51 € par rapport à la meilleure');
+    assert.equal(comparisonGapLabel(Infinity, 45, 'fr'), 'Coût non calculable');
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(comparisonGapLabel(45, 45, 'en'), 'Lowest cost');
+    assert.equal(comparisonGapLabel(47.51, 45, 'en'), '€2.51 more than the lowest');
+    assert.equal(comparisonGapLabel(Infinity, 45, 'en'), 'Cost unavailable');
 });
 
 test('les badges et libellés de Comparer sont structurés et suivent la langue sans MutationObserver', () => {
@@ -156,6 +185,37 @@ test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () =
     assert.equal(subscriptionBenefitLabel(ranking[0], 'fr'), 'Vous économisez 49,69 €/mois');
 });
 
+test('le rendu résume ChargeBack et conserve exactement le coût calculé', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
+    const plan = formula('ChargeBack', { rate: 0.25, ref: 0.50, monthlyCost: 5, opKey: 'atlante', chargebackConfig: { enabled: true } });
+    const expected = buildComparisonRanking([plan], profile)[0].estimatedMonthlyCost;
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable([plan], profile);
+    assert.match(list.innerHTML, new RegExp(expected.toFixed(2).replace('.', ',')));
+    assert.match(list.innerHTML, /ChargeBack estimé inclus/);
+    assert.doesNotMatch(list.innerHTML, /4 sessions|tarif public|compare-benefit/);
+});
+
+test('le bouton Détails ouvre la fenêtre existante au clic et au clavier', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
+    const plan = formula('Accessible', { rate: 0.40, opKey: 'accessible' });
+    const calls = [];
+    renderComparisonTable([plan], { ...profile, onDetail: (formulaValue, trigger) => calls.push([formulaValue, trigger]) });
+    const card = { dataset: { detail: 'accessible::Accessible' } };
+    const target = { closest: selector => selector === '[data-detail]' ? card : null };
+    list.onclick({ target });
+    let prevented = false;
+    list.onkeydown({ key: 'Enter', target, preventDefault() { prevented = true; } });
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0][0], plan);
+    assert.equal(calls[0][1], card);
+    assert.equal(prevented, true);
+    assert.match(list.innerHTML, /class="compare-detail-btn"[^>]*data-detail="accessible::Accessible"/);
+    assert.match(list.innerHTML, /aria-label="Voir le détail/);
+});
+
 test('un abonnement annuel conserve son prix officiel et son équivalent mensuel', () => {
     setLanguage('fr', { persist: false, translate: false });
     const annualResult = calculateBreakeven({ rate: 0.30, ref: 0.50, cost: 60, period: PERIOD.ANNUAL }, 0.18);
@@ -170,9 +230,40 @@ test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => 
     const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
     const adjusted = { ...subscribed, adjustedThresholdKm: adjustedThreshold(subscribed.km, 40) };
     assert.equal(adjusted.adjustedThresholdKm, 1500);
-    assert.equal(profileThresholdLabel(adjusted, 40, 'fr'), 'Rentable dès 1 500 km/mois au total, soit 600 km rechargés sur bornes rapides');
+    assert.equal(profileThresholdLabel(adjusted, 40, 'fr'), 'Abonnement rentabilisé dès 1 500 km/mois au total, soit 600 km rechargés sur bornes rapides');
     assert.equal(adjustedThreshold(subscribed.km, 0), Infinity);
     assert.equal(profileThresholdLabel({ ...subscribed, adjustedThresholdKm: Infinity }, 0, 'fr'), 'Abonnement non pertinent sans recharge rapide');
+});
+
+test('affiche une seule explication du seuil pertinent et la masque lorsqu’il disparaît', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    const explanation = { hidden: true, textContent: '' };
+    globalThis.document = {
+        getElementById: id => ({
+            'ranking-list': list,
+            'compare-threshold-explanation': explanation
+        })[id] || { textContent: '' },
+        dispatchEvent: () => true
+    };
+    const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
+    const withoutSubscription = formula('Sans abonnement', { rate: 0.50 });
+
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable([subscribed, withoutSubscription], profile);
+    assert.equal(explanation.hidden, false);
+    assert.equal(explanation.textContent, 'Le seuil indique à partir de quel kilométrage l’abonnement devient avantageux par rapport à l’offre sans abonnement du même réseau, selon votre profil. Il ne signifie pas nécessairement que cette formule est la moins chère de kWhiz.');
+    assert.match(list.innerHTML, /Abonnement rentabilisé dès 600 km\/mois/);
+    assert.equal((list.innerHTML.match(/Le seuil indique/g) || []).length, 0);
+
+    setLanguage('en', { persist: false, translate: false });
+    renderComparisonTable([subscribed, withoutSubscription], profile);
+    assert.equal(explanation.hidden, false);
+    assert.equal(explanation.textContent, 'The threshold shows the monthly mileage from which the subscription becomes cheaper than the same network’s no-subscription plan, based on your profile. It does not necessarily mean that this plan is the cheapest in kWhiz.');
+    assert.match(list.innerHTML, /Subscription pays for itself from 600 km\/month/);
+
+    renderComparisonTable([withoutSubscription], profile);
+    assert.equal(explanation.hidden, true);
+    assert.equal(explanation.textContent, '');
 });
 
 test('un kilométrage nul ne produit aucun classement', () => {
@@ -277,13 +368,12 @@ test('les dernières règles mobiles empêchent le débordement et empilent le c
     const mobileStart = css.lastIndexOf('@media (max-width: 700px)');
     const mobileEnd = css.indexOf('@media (max-width: 390px)', mobileStart);
     const mobile = css.slice(mobileStart, mobileEnd);
-    assert.match(mobile, /grid-template-columns:\s*minmax\(0, 1fr\) 18px/);
-    assert.match(mobile, /"identity chevron"\s*"price chevron"\s*"meta chevron"/);
+    assert.match(mobile, /grid-template-columns:\s*minmax\(0, 1fr\) auto/);
+    assert.match(mobile, /"identity identity"\s*"price price"\s*"gap detail"\s*"meta meta"/);
     assert.match(mobile, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     assert.match(mobile, /\.compare-item > \*[\s\S]*min-width:\s*0/);
     assert.match(mobile, /max-width:\s*100%/);
-    assert.match(mobile, /flex-wrap:\s*wrap/);
-    assert.match(mobile, /overflow-wrap:\s*anywhere/);
+    assert.match(css, /@media \(max-width: 390px\)[\s\S]*compare-meta[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\)/);
 });
 
 test('la carte de consommation cesse d’être sticky uniquement dans Comparer', async () => {
