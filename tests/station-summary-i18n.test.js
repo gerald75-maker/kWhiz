@@ -24,6 +24,13 @@ test('omet proprement une puissance absente et localise les grands nombres', () 
     assert.equal(formatStationSummary({ connectors: 1234 }, 'Lidl'), 'Lidl · 1,234 charging points');
 });
 
+test('omet les valeurs absentes sans produire de séparateur isolé', () => {
+    setLanguage('fr', { persist: false, translate: false });
+    assert.equal(formatStationSummary({}, 'Lidl'), 'Lidl');
+    assert.equal(formatStationSummary({ power: 180 }, 'Lidl'), 'Lidl · jusqu’à 180 kW');
+    assert.equal(formatStationSummary({ connectors: 1 }, ''), '1 point');
+});
+
 test('le changement de langue rerend les fiches sans recharger les données ni altérer leurs identifiants', async () => {
     const [mapSource, cardSource, appSource] = await Promise.all([
         readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8'),
