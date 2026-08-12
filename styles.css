@@ -2949,6 +2949,25 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
 .favorite-btn:hover { transform: scale(1.12); }
 .favorite-btn:focus-visible { outline: 2px solid #00c2ff; outline-offset: 2px; border-radius: 4px; }
 .favorite-btn.is-favorite { color: #f5b800; }
+.favorite-feedback {
+    position: fixed;
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    z-index: 11000;
+    max-width: calc(100vw - 32px);
+    padding: 0.55rem 0.85rem;
+    transform: translateX(-50%);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    pointer-events: none;
+}
+.favorite-feedback[hidden] { display: none; }
 .favorite-btn--shortlist { margin: 0; align-self: center; }
 
 .phm-favorite-comparison {

@@ -99,3 +99,23 @@ test('les styles restent verticaux, compacts à 320 px et accessibles', async ()
     assert.match(css, /color:\s*var\(--text-primary\)/);
     assert.match(css, /color:\s*var\(--text-secondary\)/);
 });
+
+test('le retour favori est annoncé sans popup et restaure le focus', async () => {
+    const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+    const index = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+    assert.match(index, /class="favorite-feedback"[^>]*id="favorite-status"[^>]*role="status"/);
+    assert.match(index, /id="favorite-status"[^>]*aria-live="polite"|aria-live="polite"[^>]*id="favorite-status"/);
+    assert.match(app, /favorites\.has\(id\)/);
+    assert.match(app, /showFavoriteFeedback/);
+    assert.match(app, /favorites\.removed.*favorites\.added/);
+    assert.match(app, /dataset\.favoriteId === id\)\?\.focus\(\)/);
+    assert.doesNotMatch(app, /alert\([^)]*favorites|openModal\([^)]*favorite/i);
+
+    setLanguage('fr', { persist: false, translate: false });
+    const { t } = await import('../src/i18n/i18n.js');
+    assert.equal(t('favorites.added'), 'Ajouté aux favoris');
+    assert.equal(t('favorites.removed'), 'Retiré des favoris');
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(t('favorites.added'), 'Added to favourites');
+    assert.equal(t('favorites.removed'), 'Removed from favourites');
+});

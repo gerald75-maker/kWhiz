@@ -208,6 +208,8 @@ const messages = {
     'recommendation.lowestCost': 'coût le plus bas',
     'favorites.add': 'Ajouter aux favoris',
     'favorites.remove': 'Retirer des favoris',
+    'favorites.added': 'Ajouté aux favoris',
+    'favorites.removed': 'Retiré des favoris',
     'backup.invalid': 'Sauvegarde invalide.',
     'backup.unsupportedFormat': 'Format de sauvegarde inconnu ou non pris en charge.',
     'backup.missingData': 'Données de sauvegarde manquantes.',
@@ -589,6 +591,8 @@ const messages = {
     'recommendation.lowestCost': 'lowest cost',
     'favorites.add': 'Add to favourites',
     'favorites.remove': 'Remove from favourites',
+    'favorites.added': 'Added to favourites',
+    'favorites.removed': 'Removed from favourites',
     'backup.invalid': 'Invalid backup.',
     'backup.unsupportedFormat': 'Unknown or unsupported backup format.',
     'backup.missingData': 'Backup data is missing.',
@@ -896,6 +900,7 @@ export function localizeCommercialLabel(value) {
 }
 
 const NETWORK_DESCRIPTIONS = Object.freeze({
+  'de 150 à 200 kW': 'from 150 to 200 kW',
   'Recharge DC ultra-rapide de 300 à 400 kW selon le site': 'Ultra-fast DC charging from 300 to 400 kW depending on the site',
   'Jusqu’à 600 kW selon le site': 'Up to 600 kW depending on the site',
   'jusqu’à 50 kW DC': 'up to 50 kW DC',

@@ -330,8 +330,8 @@
   "iziviafast": {
     "name": "IZIVIA Fast chez McDonald’s",
     "color": "izivia",
-    "badge": "150 kW DC",
-    "mapUrl": "",
+    "badge": "de 150 à 200 kW",
+    "mapUrl": "https://izivia.com/installation-bornes-de-recharge/izivia-bornes-recharge-ultra-rapide-mcdonalds-france",
     "formulas": [
       {
         "name": "Happy Hours - heures creuses",
@@ -339,7 +339,7 @@
         "period": "none",
         "rate": 0.3,
         "ref": 0.3,
-        "sourceUrl": "https://izivia.com/",
+        "sourceUrl": "https://izivia.com/installation-bornes-de-recharge/izivia-bornes-recharge-ultra-rapide-mcdonalds-france",
         "verifiedAt": "2026-07-27",
         "pricingType": "station",
         "calculationBasis": "estimate",
@@ -351,7 +351,7 @@
         "period": "none",
         "rate": 0.35,
         "ref": 0.35,
-        "sourceUrl": "https://izivia.com/",
+        "sourceUrl": "https://izivia.com/installation-bornes-de-recharge/izivia-bornes-recharge-ultra-rapide-mcdonalds-france",
         "verifiedAt": "2026-07-27",
         "pricingType": "station",
         "calculationBasis": "estimate",
@@ -359,7 +359,7 @@
       }
     ],
     "iziviaInfo": true,
-    "sourceUrl": "https://izivia.com/",
+    "sourceUrl": "https://izivia.com/installation-bornes-de-recharge/izivia-bornes-recharge-ultra-rapide-mcdonalds-france",
     "verifiedAt": "2026-07-27"
   },
   "atlante": {
