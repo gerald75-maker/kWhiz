@@ -1032,8 +1032,6 @@ body.light .phm-row { border-bottom-color: rgba(0,0,0,0.05); }
     font-size: 0.85rem;
     padding: 28px 16px;
 }
-.profile-table-wrap { margin-top: 14px; }
-
 /* Anciens styles conservés pour compatibilité */
 .profile-input-wrap {
     display: flex;
@@ -1072,42 +1070,6 @@ body.light .phm-row { border-bottom-color: rgba(0,0,0,0.05); }
     color: var(--text-muted);
     margin-top: 8px;
     text-align: center;
-}
-
-/* Colonne coût mensuel — alignée à droite, mise en valeur */
-.profile-col-monthly {
-    text-align: right !important;
-}
-.profile-col-monthly strong {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-}
-
-/* Ligne meilleure formule */
-.profile-row--best {
-    background: rgba(0, 194, 255, 0.06);
-}
-body.light .profile-row--best {
-    background: rgba(0, 194, 255, 0.05);
-}
-
-/* Badge rang */
-.profile-rank {
-    font-size: 0.8rem;
-    margin-right: 3px;
-}
-
-/* Écart vs meilleure formule */
-.profile-diff {
-    display: block;
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    margin-top: 1px;
-}
-.profile-diff--best {
-    color: #00C2FF;
-    font-weight: 600;
 }
 
 .sort-hint {
@@ -1259,10 +1221,6 @@ body.light .profile-row--best {
     }
     #tab-profile .profile-best-card {
         grid-area: best;
-    }
-    #tab-profile .profile-table-wrap {
-        grid-area: table;
-        margin-top: 0;
     }
 }
 
@@ -2487,10 +2445,32 @@ body.light .menu-drawer-sep { background: rgba(0,0,0,0.06); }
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.profile-comparison-details .profile-table-wrap {
-    margin-top: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+.profile-ranking-list { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-top: 0; border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-card); }
+.profile-ranking-item { display: grid; grid-template-columns: 28px 42px minmax(0, 1fr) auto 34px; align-items: center; gap: 10px; min-width: 0; padding: 10px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); color: var(--text-primary); }
+.profile-ranking-item--best { border-color: rgba(22, 199, 132, 0.55); background: rgba(22, 199, 132, 0.08); }
+.profile-ranking-rank { color: var(--text-primary); font-weight: 800; text-align: center; }
+.profile-ranking-logo-frame { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: var(--bg-card); }
+.profile-ranking-logo { max-width: 34px; max-height: 34px; object-fit: contain; }
+.profile-ranking-identity { min-width: 0; }
+.profile-ranking-identity strong, .profile-ranking-identity span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.profile-ranking-identity strong { color: var(--text-primary); font-size: .82rem; }
+.profile-ranking-identity span { display: -webkit-box; color: var(--text-secondary); font-size: .78rem; line-height: 1.3; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.profile-ranking-cost { min-width: 112px; text-align: right; }
+.profile-ranking-cost strong, .profile-ranking-cost span { display: block; white-space: nowrap; }
+.profile-ranking-cost strong { color: var(--text-primary); font-size: .9rem; }
+.profile-ranking-cost span { color: var(--text-secondary); font-size: .72rem; }
+.profile-ranking-favorite { margin: 0; min-width: 32px; min-height: 32px; }
+
+@media (max-width: 480px) {
+    .profile-ranking-list { padding: 8px; }
+    .profile-ranking-item { grid-template-columns: 24px 36px minmax(0, 1fr) 32px; grid-template-areas: "rank logo identity favorite" "rank logo cost favorite"; gap: 3px 8px; padding: 9px 8px; }
+    .profile-ranking-rank { grid-area: rank; }
+    .profile-ranking-logo-frame { grid-area: logo; width: 36px; height: 36px; }
+    .profile-ranking-logo { max-width: 30px; max-height: 30px; }
+    .profile-ranking-identity { grid-area: identity; }
+    .profile-ranking-identity span { -webkit-line-clamp: 1; }
+    .profile-ranking-cost { grid-area: cost; display: flex; align-items: baseline; gap: 7px; min-width: 0; text-align: left; }
+    .profile-ranking-favorite { grid-area: favorite; }
 }
 
 @media (min-width: 900px) {
@@ -2755,9 +2735,6 @@ body.light .menu-drawer-sep { background: rgba(0,0,0,0.06); }
 }
 .profile-comparison-details {
     margin-top: 0;
-}
-.profile-row--best {
-    background: rgba(22, 199, 132, 0.08);
 }
 @media (min-width: 900px) {
     #tab-profile.active {
@@ -3999,26 +3976,6 @@ body.light .menu-drawer-sheet { border-color: rgba(15,23,42,.1); }
     color: var(--text-primary);
     font-size: .82rem;
     font-weight: 760;
-}
-.profile-comparison-details .profile-table-wrap {
-    margin: 0;
-    border: 0;
-    border-top: 1px solid var(--border-color);
-    border-radius: 0;
-}
-#profile-table th {
-    color: var(--text-secondary);
-    font-size: .7rem;
-}
-#profile-table td {
-    font-size: .78rem;
-}
-#profile-table .formula-note,
-#profile-table .formula-sub,
-#profile-table .profile-diff {
-    color: var(--text-secondary);
-    font-size: .7rem;
-    line-height: 1.35;
 }
 @media (min-width: 900px) {
     #tab-profile.active {
@@ -5493,25 +5450,6 @@ body.light .page-overlay-sheet {
     flex: none;
 }
 
-/* Le tableau du classement reste dans le flux : aucun en-tête ne recouvre les lignes. */
-.profile-comparison-details .profile-table-wrap {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding-top: 0;
-}
-#profile-table thead,
-#profile-table th {
-    position: static !important;
-    top: auto !important;
-    z-index: auto !important;
-}
-#profile-table thead { display: table-header-group; }
-#profile-table th {
-    background: var(--bg-card);
-    box-shadow: none;
-}
-#profile-table tbody tr:first-child td { padding-top: 16px; }
-
 /* Cohérence textuelle et typographique des données tarifaires. */
 .formula-note,
 .formula-meta,
@@ -5536,38 +5474,6 @@ body.light .page-overlay-sheet {
     .izivia-badge .benefit-copy,
     .ionity-badge .benefit-copy { font-size: .74rem; }
 
-    .profile-comparison-details { overflow: hidden; }
-    .profile-comparison-details .profile-table-wrap {
-        margin-inline: 0;
-        max-width: 100%;
-    }
-    #profile-table {
-        width: 100%;
-        min-width: 0;
-        table-layout: fixed;
-    }
-    #profile-table th:nth-child(1), #profile-table td:nth-child(1) { width: 25%; }
-    #profile-table th:nth-child(2), #profile-table td:nth-child(2) { width: 39%; }
-    #profile-table th:nth-child(3), #profile-table td:nth-child(3) { width: 15%; }
-    #profile-table th:nth-child(4), #profile-table td:nth-child(4) { width: 21%; }
-    #profile-table th,
-    #profile-table td {
-        padding-inline: 5px;
-        overflow-wrap: anywhere;
-        vertical-align: top;
-    }
-    #profile-table th {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        font-size: .65rem;
-        line-height: 1.15;
-    }
-    #profile-table td { font-size: .76rem; line-height: 1.32; }
-    #profile-table .operator-logo--sm { width: 42px; height: 42px; }
-    #profile-table .row-operator { text-align: left; }
-    #profile-table .formula-note { font-size: .68rem; line-height: 1.32; }
-    #profile-table .formula-sub { font-size: .68rem; }
-    #profile-table .profile-col-monthly { text-align: right; }
 }
 
 /* v2.18.0 — Mon choix simplifié */

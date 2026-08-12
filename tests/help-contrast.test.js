@@ -51,3 +51,14 @@ test('Tarifs et sources partage le contraste AA de l’aide', () => {
   assert.match(css, /#page-infos \.tariffs-source-list a\s*\{[^}]*color:var\(--accent\)/s);
   assert.match(css, /#page-infos \.tariffs-source-list a:focus-visible\s*\{[^}]*outline:2px solid var\(--accent\)/s);
 });
+
+test('le classement compact respecte le contraste AA en clair et sombre', () => {
+  const dark = variables(css.slice(css.indexOf(':root {'), css.indexOf('}', css.indexOf(':root {'))));
+  const lightStart = css.indexOf('body.light {');
+  const light = variables(css.slice(lightStart, css.indexOf('}', lightStart)));
+  assert.ok(contrast(dark['text-secondary'], dark['bg-card']) >= 4.5);
+  assert.ok(contrast(light['text-secondary'], light['bg-card']) >= 4.5);
+  assert.match(css, /\.profile-ranking-identity strong[^}]*color: var\(--text-primary\)/s);
+  assert.match(css, /\.profile-ranking-cost span[^}]*color: var\(--text-secondary\)/s);
+  assert.match(css, /\.favorite-btn:focus-visible[^}]*outline: 2px solid/s);
+});

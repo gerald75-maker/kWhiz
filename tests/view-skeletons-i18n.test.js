@@ -24,8 +24,7 @@ const requiredBindings = [
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
   'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.controls.homeRateHint',
   'profile.ranking.kicker', 'profile.ranking.title', 'profile.ranking.estimatedMonthlyCost',
-  'profile.ranking.full', 'profile.ranking.operator', 'profile.ranking.plan',
-  'profile.ranking.rate', 'profile.ranking.monthly',
+  'profile.ranking.full',
   'navigation.profile', 'navigation.profileLabel', 'navigation.compare', 'navigation.compareLabel',
   'navigation.operators', 'navigation.operatorsLabel', 'navigation.map', 'navigation.mapLabel',
   'navigation.menu', 'navigation.menuLabel'
@@ -58,7 +57,7 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   for (const id of [
     'conso-slider', 'vehicles', 'compare-search', 'compare-km', 'compare-profile-link',
     'view-mode', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
-    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-table',
+    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-ranking-list',
     'bnav-profile', 'bnav-compare', 'bnav-operators', 'bnav-map', 'bnav-menu'
   ]) assert.match(html, new RegExp(`id="${id}"`), id);
 
@@ -66,6 +65,11 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   assert.match(html, /id="compare-km"[^>]*max="9999"[^>]*min="0"[^>]*step="50"[^>]*value="1000"/);
   assert.match(html, /id="profile-km"[^>]*max="9999"[^>]*min="0"[^>]*step="50"[^>]*value="1000"/);
   assert.match(html, /class="bnav-item active"[^>]*id="bnav-profile"/);
+});
+
+test('le classement complet est une liste compacte sans tableau horizontal', () => {
+  assert.match(html, /<details class="profile-comparison-details">\s*<summary[^>]*>[^<]+<\/summary>\s*<div class="profile-ranking-list" id="profile-ranking-list"><\/div>\s*<\/details>/s);
+  assert.doesNotMatch(html, /id="profile-table"|id="profile-body"/);
 });
 
 test('les anciennes correspondances exactes propres à ces squelettes ont disparu', () => {
