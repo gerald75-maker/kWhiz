@@ -395,7 +395,7 @@ const messages = {
     'tariffsInfo.notesTitle': '⚠️ Notes importantes',
     'tariffsInfo.iechargeNote': ' : tarif fixe de 0,25 €/kWh',
     'tariffsInfo.teslaNote': ' : super heures creuses de 0,12 à 0,17 €/kWh la nuit',
-    'tariffsInfo.electraNote': ' (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, réduit à 0,29 €/kWh pour les abonnés',
+    'tariffsInfo.electraNote': ' (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, remise Smart de 0,20 €/kWh chez Electra et tarif partenaire informatif de 0,49 €/kWh chez Atlante, Fastned et IONITY',
     'tariffsInfo.lidlNote': ' : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus',
     'tariffsInfo.iziviaNote': ' : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s',
     'tariffsInfo.multiNetworkTipTitle': '💡 Astuce multi-réseaux',
@@ -821,7 +821,7 @@ const messages = {
     'tariffsInfo.notesTitle': '⚠️ Important notes',
     'tariffsInfo.iechargeNote': ': fixed price of €0.25/kWh',
     'tariffsInfo.teslaNote': ': super off-peak price of €0.12 to €0.17/kWh at night',
-    'tariffsInfo.electraNote': ' (€4.99/month): dynamic price of €0.39 to €0.61/kWh in the app, reduced to €0.29/kWh for subscribers',
+    'tariffsInfo.electraNote': ' (€4.99/month): dynamic price of €0.39 to €0.61/kWh in the app, a €0.20/kWh Smart discount at Electra, and an informative partner price of €0.49/kWh at Atlante, Fastned and IONITY',
     'tariffsInfo.lidlNote': ': DC fast charging at €0.39/kWh through the Lidl Plus app',
     'tariffsInfo.iziviaNote': ': Happy Hours at €0.30/kWh from 9:00 to 11:30 and from 15:00 to 18:00 — €0.35/kWh outside these periods, at McDonald’s',
     'tariffsInfo.multiNetworkTipTitle': '💡 Multi-network tip',
@@ -1021,9 +1021,13 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   'IONITY via Electroverse - sans abonnement': 'IONITY via Electroverse — no subscription', 'IONITY via Electroverse - remise annoncée': 'IONITY via Electroverse — advertised discount',
   'Tarif national direct confirmé par IECharge.': 'Nationwide direct price confirmed by IECharge.',
   'Prix variable selon la station et l’affluence. Le calcul utilise le milieu de la plage officielle.': 'Price varies by charger and demand. The calculation uses the midpoint of the official range.',
-  'Prix dépendant de la station et du moyen de paiement.': 'Price depends on the charger and payment method.',
+  'À partir de 0,64 €/kWh par carte bancaire ou pass. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul.': 'From €0.64/kWh by bank card or charging pass. Price varies by charger; the calculation uses an indicative minimum.',
+  'Sans engagement. Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'No commitment. Official €0.10/kWh discount on Electra’s variable price.',
   'Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'Official €0.10/kWh discount on Electra’s variable price.',
+  'Remise officielle de 0,10 €/kWh sur le tarif Electra variable. L’offre annuelle et sa réduction de 16 % sont confirmées, mais son montant actuel n’est pas publié sur la page officielle ; 19,99 €/an reste une valeur historique non revérifiée.': 'Official €0.10/kWh discount on Electra’s variable price. The annual plan and its 16% discount are confirmed, but its current amount is not published on the official page; €19.99/year remains an unverified historical value.',
+  'Sans engagement. Remise officielle de 0,20 €/kWh sur le tarif Electra variable. Avec Smart, tarif partenaire informatif de 0,49 €/kWh chez Atlante, Fastned et IONITY ; ce tarif n’entre pas dans le classement des recharges Electra.': 'No commitment. Official €0.20/kWh discount on Electra’s variable price. Smart also offers an informative partner price of €0.49/kWh at Atlante, Fastned and IONITY; this price is not used to rank charging at Electra.',
   'Remise officielle de 0,20 €/kWh sur le tarif Electra variable.': 'Official €0.20/kWh discount on Electra’s variable price.',
+  'Remise officielle de 0,20 €/kWh sur le tarif Electra variable. Avec Smart, tarif partenaire informatif de 0,49 €/kWh chez Atlante, Fastned et IONITY ; ce tarif n’entre pas dans le classement des recharges Electra. L’offre annuelle et sa réduction de 16 % sont confirmées, mais son montant actuel n’est pas publié sur la page officielle ; 49,99 €/an reste une valeur historique non revérifiée.': 'Official €0.20/kWh discount on Electra’s variable price. Smart also offers an informative partner price of €0.49/kWh at Atlante, Fastned and IONITY; this price is not used to rank charging at Electra. The annual plan and its 16% discount are confirmed, but its current amount is not published on the official page; €49.99/year remains an unverified historical value.',
   'Tarif variable selon la station et parfois l’horaire. Valeur utilisée uniquement comme estimation.': 'Price varies by charger and sometimes by time. The value is used as an estimate only.'
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Motion.': 'Annual subscription with the same per-kWh price as the monthly Motion plan.'
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Power.': 'Annual subscription with the same per-kWh price as the monthly Power plan.'
