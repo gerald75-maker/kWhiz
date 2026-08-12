@@ -381,8 +381,23 @@ test('les dernières règles mobiles empêchent le débordement et empilent le c
     assert.match(css, /@media \(max-width: 340px\)[\s\S]*compare-meta-threshold[\s\S]*white-space:\s*normal/);
 });
 
-test('la carte de consommation cesse d’être sticky uniquement dans Comparer', async () => {
-    const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
-    assert.match(css, /body\[data-view="compare"\] \.sticky-top\s*\{\s*position:\s*static;/);
-    assert.doesNotMatch(css, /body\[data-view="profile"\] \.sticky-top[\s\S]*position:\s*static/);
+test('Mon choix, Comparer et Opérateurs partagent la même zone fixe au-dessus de leur contenu défilant', async () => {
+    const [css, html] = await Promise.all([
+        readFile(new URL('../styles.css', import.meta.url), 'utf8'),
+        readFile(new URL('../index.html', import.meta.url), 'utf8')
+    ]);
+    const stickyStart = html.indexOf('<div class="sticky-top" id="sticky-top">');
+    const stickyEnd = html.indexOf('</div><!-- /sticky-top -->', stickyStart);
+    const compareStart = html.indexOf('<div class="tab-content" id="tab-ranking">');
+    const operatorsStart = html.indexOf('<div class="tab-content" id="tab-operators">');
+    const profileStart = html.indexOf('<div class="tab-content active" id="tab-profile">');
+
+    assert.ok(stickyStart >= 0 && stickyEnd > stickyStart);
+    assert.match(html.slice(stickyStart, stickyEnd), /class="params-card"/);
+    assert.ok(stickyEnd < compareStart && stickyEnd < operatorsStart && stickyEnd < profileStart);
+    assert.equal((html.match(/id="sticky-top"/g) || []).length, 1);
+    assert.match(css, /\.sticky-top\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?padding-bottom:\s*2px;/);
+    assert.doesNotMatch(css, /body\[data-view="(?:profile|compare|operators)"\] \.sticky-top\s*\{[\s\S]*?position:\s*(?:static|fixed)/);
+    assert.match(css, /\.container\s*\{[\s\S]*?padding:[^;]*calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+    assert.match(css, /\.bottom-nav\s*\{[\s\S]*?position:\s*fixed/);
 });

@@ -5697,10 +5697,6 @@ body.light .page-overlay-sheet {
     .compare-km-input input { font-size: 16px; }
 }
 
-body[data-view="compare"] .sticky-top {
-    position: static;
-}
-
 @media (max-width: 700px) {
     .compare-item {
         grid-template-columns: minmax(0, 1fr) 18px;
