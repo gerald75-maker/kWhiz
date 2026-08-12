@@ -5785,6 +5785,12 @@ body[data-view="compare"] .sticky-top {
     font-size: .8rem;
     font-weight: 700;
 }
+.compare-threshold-explanation {
+    margin: 6px 0 14px;
+    color: var(--text-secondary);
+    font-size: .82rem;
+    line-height: 1.5;
+}
 .compare-gap.is-lowest { color: var(--text-primary); }
 .compare-meta { grid-area: meta; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .compare-meta .compare-pricing-badge { align-self: flex-start; }

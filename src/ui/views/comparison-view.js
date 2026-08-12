@@ -175,12 +175,19 @@ export function renderComparisonTable(formulasData, {
     const list = document.getElementById('ranking-list');
     const count = document.getElementById('compare-count');
     const summary = document.getElementById('compare-summary');
+    const thresholdExplanation = document.getElementById('compare-threshold-explanation');
     if (!list) return { query };
 
     if (summary) summary.textContent = monthlyKm > 0
         ? t('comparison.summary', { km: formatComparisonNumber(monthlyKm, language), fast: formatComparisonNumber(fastPercentage, language), consumption: formatComparisonNumber(consumption * 100, language) })
         : t('comparison.enterMileage');
     if (count) count.textContent = monthlyKm > 0 ? t(data.length === 1 ? 'comparison.countOne' : 'comparison.countMany', { count: formatComparisonNumber(data.length, language) }) : '';
+    if (thresholdExplanation) {
+        const hasRelevantThreshold = data.some(formula => formula.monthlyCost > 0 && fastPercentage > 0
+            && Number.isFinite(formula.adjustedThresholdKm) && formula.adjustedThresholdKm > 0);
+        thresholdExplanation.hidden = !hasRelevantThreshold;
+        thresholdExplanation.textContent = hasRelevantThreshold ? t('comparison.thresholdExplanation') : '';
+    }
     if (monthlyKm <= 0) {
         list.innerHTML = `<p class="compare-empty">${t('comparison.enterMileage')}</p>`;
         return { query };

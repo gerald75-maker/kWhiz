@@ -230,9 +230,40 @@ test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => 
     const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
     const adjusted = { ...subscribed, adjustedThresholdKm: adjustedThreshold(subscribed.km, 40) };
     assert.equal(adjusted.adjustedThresholdKm, 1500);
-    assert.equal(profileThresholdLabel(adjusted, 40, 'fr'), 'Rentable dès 1 500 km/mois au total, soit 600 km rechargés sur bornes rapides');
+    assert.equal(profileThresholdLabel(adjusted, 40, 'fr'), 'Abonnement rentabilisé dès 1 500 km/mois au total, soit 600 km rechargés sur bornes rapides');
     assert.equal(adjustedThreshold(subscribed.km, 0), Infinity);
     assert.equal(profileThresholdLabel({ ...subscribed, adjustedThresholdKm: Infinity }, 0, 'fr'), 'Abonnement non pertinent sans recharge rapide');
+});
+
+test('affiche une seule explication du seuil pertinent et la masque lorsqu’il disparaît', () => {
+    const list = { innerHTML: '', onclick: null, onkeydown: null };
+    const explanation = { hidden: true, textContent: '' };
+    globalThis.document = {
+        getElementById: id => ({
+            'ranking-list': list,
+            'compare-threshold-explanation': explanation
+        })[id] || { textContent: '' },
+        dispatchEvent: () => true
+    };
+    const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
+    const withoutSubscription = formula('Sans abonnement', { rate: 0.50 });
+
+    setLanguage('fr', { persist: false, translate: false });
+    renderComparisonTable([subscribed, withoutSubscription], profile);
+    assert.equal(explanation.hidden, false);
+    assert.equal(explanation.textContent, 'Le seuil indique à partir de quel kilométrage l’abonnement devient avantageux par rapport à l’offre sans abonnement du même réseau, selon votre profil. Il ne signifie pas nécessairement que cette formule est la moins chère de kWhiz.');
+    assert.match(list.innerHTML, /Abonnement rentabilisé dès 600 km\/mois/);
+    assert.equal((list.innerHTML.match(/Le seuil indique/g) || []).length, 0);
+
+    setLanguage('en', { persist: false, translate: false });
+    renderComparisonTable([subscribed, withoutSubscription], profile);
+    assert.equal(explanation.hidden, false);
+    assert.equal(explanation.textContent, 'The threshold shows the monthly mileage from which the subscription becomes cheaper than the same network’s no-subscription plan, based on your profile. It does not necessarily mean that this plan is the cheapest in kWhiz.');
+    assert.match(list.innerHTML, /Subscription pays for itself from 600 km\/month/);
+
+    renderComparisonTable([withoutSubscription], profile);
+    assert.equal(explanation.hidden, true);
+    assert.equal(explanation.textContent, '');
 });
 
 test('un kilométrage nul ne produit aucun classement', () => {
