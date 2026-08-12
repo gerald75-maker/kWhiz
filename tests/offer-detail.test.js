@@ -155,3 +155,10 @@ test('le cycle modal existant reste branché au détail et les anciennes phrases
     assert.match(viewSource, /t\('offerDetail\./);
     assert.doesNotMatch(viewSource, />Prix de l’énergie<|>Abonnement<|>Coût estimé<|>Seuil de rentabilité</);
 });
+
+test('le groupe de badges du détail est neutre et les badges individuels restent flexibles', async () => {
+    const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+    assert.match(css, /\.formula-detail-badges\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap[^}]*border:\s*0[^}]*background:\s*transparent/);
+    assert.match(css, /\.detail-badge\s*\{[^}]*border:\s*1px/);
+    assert.doesNotMatch(css, /\.formula-detail-badges\s*\{[^}]*overflow-x/);
+});

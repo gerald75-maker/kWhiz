@@ -72,6 +72,25 @@ test('restoreUserDataBackup ignores unauthorized keys', () => {
     assert.deepEqual(storage.dump(), { a: 'new-a', rogue: 'keep', cache: 'keep' });
 });
 
+test('une sauvegarde de profil conserve les valeurs persistantes sans géolocalisation', () => {
+    const storage = memoryStorage({
+        profileKm: '1500', consumption: '22', fast: '70', favorites: '["electra|Smart"]',
+        language: 'fr', theme: 'dark', latitude: '48.8'
+    });
+    const backup = createUserDataBackup(storage, ['profileKm', 'consumption', 'fast', 'favorites', 'language', 'theme']);
+    assert.deepEqual(backup.data, {
+        profileKm: '1500', consumption: '22', fast: '70', favorites: '["electra|Smart"]', language: 'fr', theme: 'dark'
+    });
+    assert.equal('latitude' in backup.data, false);
+});
+
+test('une restauration partielle du profil conserve les valeurs locales absentes', () => {
+    const storage = memoryStorage({ profileKm: '1500', consumption: '22', fast: '70' });
+    const count = restoreUserDataBackup(storage, { format: 'kwhiz-user-data', version: 1, data: { profileKm: '800', unknown: 'x' } }, ['profileKm', 'consumption', 'fast']);
+    assert.equal(count, 1);
+    assert.deepEqual(storage.dump(), { profileKm: '800', consumption: '22', fast: '70' });
+});
+
 test('an old backup ignores scenarioHistory while restoring other settings', () => {
     const storage = memoryStorage({
         language: 'fr',

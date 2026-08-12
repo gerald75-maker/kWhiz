@@ -11,11 +11,11 @@ test('localise les erreurs et comptes de sauvegarde sans exposer de message tech
   assert.throws(() => validateUserDataBackup(null, []), error => error.message === 'backup.invalid');
   assert.throws(() => validateUserDataBackup({ format: 'old', version: 0, data: {} }, []), error => error.message === 'backup.unsupportedFormat');
   assert.throws(() => validateUserDataBackup({ format: 'kwhiz-user-data', version: 1 }, []), error => error.message === 'backup.missingData');
-  assert.equal(backupStatusLabel('backup.restoredOne', 1), '1 réglage restauré.');
-  assert.equal(backupStatusLabel('backup.restoredMany', 3), '3 réglages restaurés.');
+  assert.equal(backupStatusLabel('backup.restoredOne', 1), 'Profil et préférences restaurés.');
+  assert.equal(backupStatusLabel('backup.restoredMany', 3), 'Profil et préférences restaurés.');
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(backupStatusLabel('backup.restoredOne', 1), '1 setting restored.');
-  assert.equal(backupStatusLabel('backup.restoredMany', 3), '3 settings restored.');
+  assert.equal(backupStatusLabel('backup.restoredOne', 1), 'Profile and preferences restored.');
+  assert.equal(backupStatusLabel('backup.restoredMany', 3), 'Profile and preferences restored.');
   for (const key of ['backup.invalid', 'backup.unsupportedFormat', 'backup.missingData', 'backup.downloaded', 'backup.importFailed', 'backup.restoreFailed']) {
     assert.doesNotMatch(t(key), /Sauvegarde|sauvegarde|Données|Échec|Restauration/);
   }

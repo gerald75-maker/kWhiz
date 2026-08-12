@@ -1,11 +1,11 @@
-export function initConsumptionController({ initialValue = 18, onChange }) {
+export function initConsumptionController({ initialValue = 18, onChange, storageKey }) {
     const vehicleNodes = [...document.querySelectorAll('.vehicle')];
     const sliderInput = document.getElementById('conso-slider');
     const fillEl = document.getElementById('conso-slider-fill');
     const thumbEl = document.getElementById('conso-slider-thumb');
     const valueEl = document.getElementById('consumption-value');
 
-    let value = initialValue;
+    let value = Math.min(30, Math.max(10, Number.parseInt(initialValue, 10) || 18));
     let rafPending = false;
 
     function render({ animate = false } = {}) {
@@ -52,10 +52,20 @@ export function initConsumptionController({ initialValue = 18, onChange }) {
         notify();
     }
 
+    function setValue(nextValue, { notifyChange = true } = {}) {
+        value = Math.min(30, Math.max(10, Number.parseInt(nextValue, 10) || 18));
+        if (sliderInput) sliderInput.value = String(value);
+        render();
+        if (storageKey) localStorage.setItem(storageKey, String(value));
+        if (notifyChange) notify();
+        return value;
+    }
+
     if (sliderInput) {
         sliderInput.value = String(value);
         sliderInput.addEventListener('input', () => {
             value = Number.parseInt(sliderInput.value, 10);
+            if (storageKey) localStorage.setItem(storageKey, String(value));
             render();
             if (!rafPending) {
                 rafPending = true;
@@ -81,6 +91,7 @@ export function initConsumptionController({ initialValue = 18, onChange }) {
 
     return {
         getConsumption: () => value / 100,
-        getValue: () => value
+        getValue: () => value,
+        setValue
     };
 }

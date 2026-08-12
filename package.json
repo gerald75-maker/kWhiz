@@ -1,6 +1,6 @@
 {
   "name": "kwhiz",
-  "version": "2.25.0",
+  "version": "2.25.2",
   "private": true,
   "type": "module",
   "scripts": {

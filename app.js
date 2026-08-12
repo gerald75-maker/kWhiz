@@ -61,6 +61,8 @@ import { formatTariffsFreshness, formatTariffsStatusLine, initI18n, getLanguage,
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
 const FAST_PCT_KEY = STORAGE_KEYS.fastPercentage;
+const PROFILE_KM_KEY = STORAGE_KEYS.profileKm;
+const CONSUMPTION_KEY = STORAGE_KEYS.consumption;
 const FAVORITES_KEY = STORAGE_KEYS.favorites;
 
 initI18n();
@@ -88,6 +90,11 @@ let tariffHistory = (() => {
 let appInitialized = false;
 let currentFormulaDetail = null;
 let currentApplicationStatus = null;
+
+const savedConsumption = Number.parseInt(localStorage.getItem(CONSUMPTION_KEY), 10);
+const initialConsumption = Number.isFinite(savedConsumption) && savedConsumption >= 10 && savedConsumption <= 30 ? savedConsumption : 18;
+const savedMonthlyKm = Number.parseInt(localStorage.getItem(PROFILE_KM_KEY), 10);
+const initialMonthlyKm = Number.isFinite(savedMonthlyKm) && savedMonthlyKm >= 0 && savedMonthlyKm <= 9999 ? savedMonthlyKm : 1000;
 let currentTariffsStatus = null;
 
 function renderApplicationStatus() {
@@ -412,13 +419,16 @@ function initApp() {
     ]);
 
     consumptionController = initConsumptionController({
-        initialValue: 18,
+        initialValue: initialConsumption,
+        storageKey: CONSUMPTION_KEY,
         onChange: updateCalculations
     });
 
     profileControls = initProfileControls({
         initialFastPercentage: fastPct,
+        initialMonthlyKm,
         storageKey: FAST_PCT_KEY,
+        monthlyKmStorageKey: PROFILE_KM_KEY,
         onChange: updateCalculations
     });
 
@@ -435,7 +445,15 @@ function initApp() {
 
     on('install-native-btn', 'click', triggerNativeInstall);
     on('about-check-update', 'click', checkStatusFromAbout);
-    initDataBackup({ storageKeys: STORAGE_KEYS });
+    initDataBackup({
+        storageKeys: STORAGE_KEYS,
+        onRestored: ({ keys = [] } = {}) => {
+            if (keys.includes(CONSUMPTION_KEY)) consumptionController?.setValue(localStorage.getItem(CONSUMPTION_KEY), { notifyChange: false });
+            if (keys.includes(FAST_PCT_KEY)) profileControls?.setFastPercentage(localStorage.getItem(FAST_PCT_KEY), { notifyChange: false });
+            if (keys.includes(PROFILE_KM_KEY)) profileControls?.setMonthlyKm(localStorage.getItem(PROFILE_KM_KEY), { notifyChange: false });
+            updateCalculations();
+        }
+    });
     const languageMenu = initMenuLanguage({ getLanguage, setLanguage, t });
     onLanguageChange(() => {
         languageMenu.update();
