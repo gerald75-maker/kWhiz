@@ -1544,6 +1544,7 @@ body.light .planner-badge.freemium { color: #c2410c; }
     margin-bottom: 14px;
     line-height: 1.4;
 }
+.landing-positioning { margin:0 auto 18px; max-width:34rem; color:var(--text-primary); font-size:.92rem; line-height:1.55; }
 .about-desc {
     font-size: 0.92rem;
     color: var(--text-secondary);
@@ -1595,6 +1596,15 @@ body.light .os-logo--dark  { display: none; }
     color: var(--text-faint);
     margin-bottom: 6px;
 }
+
+#page-infos .page-body { display:grid; gap:10px; }
+#page-infos .tariffs-info-block { padding:16px; border:1px solid color-mix(in srgb, var(--text-secondary) 42%, transparent); border-radius:14px; background:var(--bg-element); }
+#page-infos .tariffs-info-block h2 { margin:0 0 8px; color:var(--text-primary); font-size:.9rem; line-height:1.4; }
+#page-infos .tariffs-info-block p { margin:0; color:var(--text-primary); font-size:.84rem; line-height:1.58; }
+#page-infos .tariffs-info-principles { margin-top:8px; font-weight:650; }
+#page-infos .tariffs-source-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px 14px; margin:0; padding:0; list-style:none; }
+#page-infos .tariffs-source-list a { color:var(--accent); font-size:.84rem; font-weight:650; text-underline-offset:3px; }
+#page-infos .tariffs-source-list a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
 .about-profile-steps {
     margin: 0 0 10px 0;
     padding-left: 18px;

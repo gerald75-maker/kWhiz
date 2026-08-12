@@ -18,6 +18,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
         });
         unlockBackgroundScroll();
         setActiveNav(`bnav-${currentView}`);
+        document.getElementById('bnav-menu')?.setAttribute('aria-expanded', 'false');
         if (restoreFocus && pageTrigger instanceof HTMLElement) pageTrigger.focus();
         pageTrigger = null;
     }
@@ -105,6 +106,11 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
         event.preventDefault();
         event.stopPropagation();
         const drawer = document.getElementById('menu-drawer');
+        const openPage = document.querySelector('.page-overlay.open');
+        if (openPage) {
+            closeAllPages();
+            return;
+        }
         if (drawer?.classList.contains('open')) {
             closeDrawer();
             return;

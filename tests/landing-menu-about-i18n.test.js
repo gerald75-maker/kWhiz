@@ -17,15 +17,17 @@ function fragment(start, end) {
 
 test('l’introduction complète repose sur landing.* en FR et EN', () => {
   const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
-  for (const key of ['landing.title', 'landing.step.profile', 'landing.step.compare', 'landing.step.map', 'landing.continue', 'landing.help']) {
+  for (const key of ['landing.title', 'landing.positioning', 'landing.step.profile', 'landing.step.compare', 'landing.step.map', 'landing.continue', 'landing.help']) {
     assert.match(landing, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
   }
   assert.equal((landing.match(/<li /g) || []).length, 3);
   setLanguage('fr', { persist: false, translate: false });
   assert.equal(t('landing.continue'), 'Commencer');
+  assert.equal(t('landing.positioning'), 'kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.');
   setLanguage('en', { persist: false, translate: false });
   assert.equal(t('landing.title'), 'Find the right fast-charging plan for your usage');
   assert.equal(t('landing.help'), 'How does kWhiz work?');
+  assert.equal(t('landing.positioning'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
 });
 
 test('le menu complet utilise ses clés sans modifier son ordre ni ses fonctions', () => {
@@ -60,6 +62,10 @@ test('À propos est complet en FR et EN et préserve version, e-mail et URL', ()
   assert.equal(t('about.title'), 'About');
   assert.match(t('about.scope'), /operating in France/);
   assert.match(t('about.privacy'), /stored locally/);
+  assert.equal(t('about.tagline'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
+  assert.equal((i18nSource.match(/kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger\./g) || []).length, 2);
+  assert.equal((i18nSource.match(/kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price\./g) || []).length, 2);
+  assert.doesNotMatch(html, /quasi indispensable/i);
 });
 
 test('la bascule de langue conserve les couches ouvertes et le focus', () => {

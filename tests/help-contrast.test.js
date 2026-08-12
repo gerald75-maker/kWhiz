@@ -40,3 +40,14 @@ test('le bleu reste interactif et le texte courant utilise text-primary', () => 
 test('le focus clavier de l’aide reste nettement visible', () => {
   assert.match(css, /\.help-topic > summary:focus-visible\s*\{[^}]*outline:2px solid var\(--accent\)[^}]*outline-offset/s);
 });
+
+test('Tarifs et sources partage le contraste AA de l’aide', () => {
+  const dark = variables(css.slice(css.indexOf(':root {'), css.indexOf('}', css.indexOf(':root {'))));
+  const lightStart = css.indexOf('body.light {');
+  const light = variables(css.slice(lightStart, css.indexOf('}', lightStart)));
+  assert.ok(contrast(dark['text-primary'], dark['bg-card']) >= 4.5);
+  assert.ok(contrast(light['text-primary'], light['bg-card']) >= 4.5);
+  assert.match(css, /#page-infos \.tariffs-info-block p\s*\{[^}]*color:var\(--text-primary\)/s);
+  assert.match(css, /#page-infos \.tariffs-source-list a\s*\{[^}]*color:var\(--accent\)/s);
+  assert.match(css, /#page-infos \.tariffs-source-list a:focus-visible\s*\{[^}]*outline:2px solid var\(--accent\)/s);
+});

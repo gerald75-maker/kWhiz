@@ -254,6 +254,7 @@
 <svg viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="lbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#lbg)" height="32" rx="6" width="32"></rect><path d="M18 4L8 18h6l-2 10 10-14h-6l2-10z" fill="white"></path></svg>
 </div>
 <h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Trouvez l’offre de recharge rapide adaptée à votre usage</h1>
+<p class="landing-positioning" data-i18n="landing.positioning">kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.</p>
 <ol class="landing-pitch landing-steps">
 <li data-i18n="landing.step.profile">Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
 <li data-i18n="landing.step.compare">Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
@@ -275,7 +276,7 @@
 <button aria-label="Fermer" class="page-close" data-i18n-aria-label="common.close" id="close-about" type="button">✕</button>
 </div><div class="page-body" id="about-content">
 <div class="about-hero">
-<p class="about-title" data-i18n="about.tagline">kWhiz rend les tarifs de recharge rapide plus faciles à comprendre et à comparer.</p>
+<p class="about-title" data-i18n="about.tagline">kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.</p>
 <p class="about-desc" data-i18n="about.scope">kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.</p>
 <p class="about-desc" data-i18n="about.privacy">kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.</p>
 <p class="about-desc"><span data-i18n="about.version">Version</span> <span>__VERSION__</span></p>
@@ -357,38 +358,23 @@
 <span class="page-title" data-i18n="tariffsInfo.title" id="page-infos-title">Tarifs et sources</span>
 <button aria-label="Fermer les tarifs et sources" class="page-close" data-i18n-aria-label="tariffsInfo.closeLabel" id="close-infos" type="button">✕</button>
 </div><div class="page-body">
-<div class="about-hero">
-<p class="about-desc" data-i18n="tariffsInfo.estimateNotice">Les résultats sont des estimations fondées sur les tarifs publiés et les hypothèses affichées. Ils ne garantissent ni le prix facturé par l’opérateur ni la disponibilité d’une station.</p>
+<div class="tariffs-info-block">
+<h2 data-i18n="tariffsInfo.calculationTitle">Comment sont calculés les coûts ?</h2>
+<p data-i18n="tariffsInfo.calculationText">kWhiz estime les coûts à partir de votre consommation, de votre kilométrage, de votre part de recharge rapide et des tarifs connus. Les abonnements sont intégrés au calcul.</p>
+<p class="tariffs-info-principles"><span data-i18n="tariffsInfo.energyFormula">Énergie consommée = distance × consommation</span><span aria-hidden="true"> • </span><span data-i18n="tariffsInfo.costFormula">Coût de recharge = énergie × prix du kWh</span></p>
 </div>
-<div class="about-install">
-<div class="install-label" data-i18n="tariffsInfo.calculationTitle">📐 Formule de calcul</div>
-<code class="formula-code" data-i18n="tariffsInfo.formulaKwh">kWh min./mois = coût de l’abonnement ÷ (tarif de référence − tarif abonné)</code>
-<code class="formula-code" data-i18n="tariffsInfo.formulaKm">km min./mois = kWh min. ÷ (consommation / 100)</code>
+<div class="tariffs-info-block">
+<h2 data-i18n="tariffsInfo.variableTitle">Tarifs variables et promotions</h2>
+<p data-i18n="tariffsInfo.variableText">Certains prix varient selon la station, l’heure, l’affluence ou le moyen de paiement. kWhiz utilise alors une valeur représentative clairement signalée. Les promotions ponctuelles ne sont pas considérées comme des tarifs permanents.</p>
 </div>
-<div class="about-origin">
-<div class="origin-label" data-i18n="tariffsInfo.notesTitle">⚠️ Notes importantes</div>
-<ul class="notes-list">
-<li class="notes-item"><span class="notes-bullet">•</span><strong>IECharge</strong><span data-i18n="tariffsInfo.iechargeNote"> : tarif fixe de 0,25 €/kWh</span></li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Tesla</strong><span data-i18n="tariffsInfo.teslaNote"> : super heures creuses de 0,12 à 0,17 €/kWh la nuit</span></li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Electra+ Smart</strong><span data-i18n="tariffsInfo.electraNote"> (4,99 €/mois) : tarif dynamique de 0,39 à 0,61 €/kWh dans l’application, réduit à 0,29 €/kWh pour les abonnés</span></li>
-<li class="notes-item" id="infos-atlante-cb-li"><span class="notes-bullet">•</span><strong>Atlante ChargeBack</strong> : <span id="infos-atlante-cb-text">1 € payé génère 0,50 € de crédit en Gems, soit un taux de 50 % • prix effectif estimé à 0,193 €/kWh en usage régulier</span></li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Lidl</strong><span data-i18n="tariffsInfo.lidlNote"> : recharge rapide DC à 0,39 €/kWh via l’application Lidl Plus</span></li>
-<li class="notes-item"><span class="notes-bullet">•</span><strong>Izivia Fast</strong><span data-i18n="tariffsInfo.iziviaNote"> : Happy Hours à 0,30 €/kWh de 9 h à 11 h 30 et de 15 h à 18 h — 0,35 €/kWh en dehors de ces plages, chez McDonald’s</span></li>
-<li class="notes-item"><span class="notes-bullet--faint">•</span><span id="infos-tarifs-date">Tarifs vérifiés le 6 août 2026</span></li>
-</ul>
+<div class="tariffs-info-block">
+<h2 data-i18n="tariffsInfo.verificationTitle">Vérification des tarifs</h2>
+<p data-i18n="tariffsInfo.verificationText">Les tarifs proviennent des pages officielles des opérateurs. La date de vérification figure sur chaque formule. Vérifiez toujours le prix affiché par l’opérateur avant de lancer la recharge.</p>
 </div>
-<div class="about-contact about-contact--left">
-<div class="section-label" data-i18n="tariffsInfo.multiNetworkTipTitle">💡 Astuce multi-réseaux</div>
-<p class="about-tip-text"><strong><a class="accent-link" href="https://electroverse.com/fr-FR/map" rel="noopener noreferrer" target="_blank">Octopus Electroverse</a></strong><span data-i18n="tariffsInfo.multiNetworkTipBefore"> permet d’accéder à de nombreux réseaux partenaires. Les prix varient selon la borne et doivent être confirmés dans l’application avant la recharge.</span></p>
+<div class="tariffs-info-block">
+<h2 data-i18n="tariffsInfo.sourcesTitle">Sources officielles</h2>
+<ul class="tariffs-source-list" id="tariffs-source-list"></ul>
 </div>
-<p class="source-info">
-                <span data-i18n="tariffsInfo.sourcesLabel">Sources :</span>
-                <a href="https://www.ionity.eu/fr/abonnements" rel="noopener noreferrer" target="_blank">IONITY</a> •
-                <a href="https://www.go-electra.com/fr/electra-plus/" rel="noopener noreferrer" target="_blank">Electra</a> •
-                <a href="https://atlante.energy/fr/myatlante-app/" rel="noopener noreferrer" target="_blank">Atlante</a> •
-                <a href="https://iecharge.io/fr/prix/" rel="noopener noreferrer" target="_blank">IECharge</a> •
-                <a href="https://www.tesla.com/fr_fr/support/supercharger" rel="noopener noreferrer" target="_blank">Tesla</a>
-</p>
 </div></div></div>
 <div aria-hidden="true" aria-labelledby="formula-detail-title" aria-modal="true" class="help-overlay" id="formula-detail-overlay" role="dialog" tabindex="-1">
 <div class="help-modal formula-detail-modal">
