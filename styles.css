@@ -2121,29 +2121,17 @@ body.light .menu-drawer-sep { background: rgba(0,0,0,0.06); }
 .notes-item { padding: 3px 0 3px 14px; position: relative; }
 .notes-bullet { position: absolute; left: 0; color: #fbbf24; }
 .notes-bullet--faint { position: absolute; left: 0; color: var(--text-faint); }
-.help-faq { display:grid; gap:8px; }
-.help-faq details { overflow:hidden; border:1px solid var(--border-color); border-radius:13px; background:var(--bg-card); }
-.help-faq summary { position:relative; padding:13px 42px 13px 14px; color:var(--text-primary); font-size:.82rem; font-weight:700; line-height:1.35; cursor:pointer; list-style:none; }
-.help-faq summary::-webkit-details-marker { display:none; }
-.help-faq summary::after { content:'+'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:1.25rem; font-weight:500; transition:transform .2s; }
-.help-faq details[open] summary::after { transform:translateY(-50%) rotate(45deg); }
-.help-faq details[open] summary { color:var(--accent); border-bottom:1px solid var(--border-color); }
-.help-faq details p { margin:0; padding:12px 14px 14px; color:var(--text-secondary); font-size:.8rem; line-height:1.55; }
 .help-topics { display:grid; gap:10px; }
-.help-topic { overflow:hidden; border:1px solid var(--border-color); border-radius:14px; background:var(--bg-element); }
+.help-topic { overflow:hidden; border:1px solid color-mix(in srgb, var(--text-secondary) 42%, transparent); border-radius:14px; background:var(--bg-element); }
 .help-topic > summary { position:relative; padding:15px 44px 15px 16px; color:var(--text-primary); font-size:.9rem; font-weight:750; cursor:pointer; list-style:none; }
 .help-topic > summary::-webkit-details-marker { display:none; }
 .help-topic > summary::after { content:'+'; position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:1.3rem; transition:transform .2s; }
-.help-topic[open] > summary { color:var(--accent); border-bottom:1px solid var(--border-color); }
+.help-topic[open] > summary { color:var(--text-primary); border-bottom:1px solid color-mix(in srgb, var(--text-secondary) 42%, transparent); }
 .help-topic[open] > summary::after { transform:translateY(-50%) rotate(45deg); }
 .help-topic > :not(summary) { margin-left:14px; margin-right:14px; }
-.help-topic > p { color:var(--text-secondary); font-size:.82rem; line-height:1.55; }
-.planner-links { padding-left:20px; color:var(--text-secondary); font-size:.82rem; line-height:1.55; }
-.planner-links li { margin-bottom:8px; }
-.planner-links a { color:var(--accent); }
-.help-ordered-list { counter-reset:help-step; display:grid; gap:10px; margin:0 0 18px; padding:0; list-style:none; }
-.help-ordered-list li { counter-increment:help-step; position:relative; min-height:34px; padding:9px 10px 9px 46px; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-card); color:var(--text-secondary); font-size:.82rem; line-height:1.5; }
-.help-ordered-list li::before { content:counter(help-step); position:absolute; left:10px; top:9px; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); font-weight:800; }
+.help-topic > p { color:var(--text-primary); font-size:.84rem; line-height:1.58; }
+.help-topic > p:last-child { margin-bottom:16px; }
+.help-topic > summary:focus-visible { outline:2px solid var(--accent); outline-offset:-4px; box-shadow:inset 0 0 0 1px var(--bg-card); }
 
 /* Formules de calcul */
 .formula-code {

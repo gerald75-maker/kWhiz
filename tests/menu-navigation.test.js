@@ -41,13 +41,13 @@ test('les données, la sauvegarde et l’installation partagent une page utile',
     assert.doesNotMatch(app, /installBlock\.hidden/);
 });
 
-test('les planificateurs ont quitté le menu et sont résumés dans l’aide', () => {
+test('les planificateurs nominatifs ont quitté le menu et l’aide conserve la limite essentielle', () => {
     const menu = fragment('id="menu-drawer"', '<script src="./app.js"');
     const help = fragment('id="page-aide"', 'id="page-infos"');
     assert.doesNotMatch(menu, /menu-planners|Planificateurs d’itinéraire/);
-    assert.match(help, /Besoin d’un véritable planificateur de recharge/);
-    for (const name of ['myAtlante', 'ABRP', 'Chargemap', 'IECharge', 'Electus']) assert.match(help, new RegExp(name));
-    assert.match(help, /ne calcule pas les arrêts selon la batterie/);
+    assert.doesNotMatch(help, /Besoin d’un véritable planificateur de recharge/);
+    for (const name of ['myAtlante', 'ABRP', 'Chargemap', 'IECharge', 'Electus']) assert.doesNotMatch(help, new RegExp(name));
+    assert.match(help, /ne planifie pas les arrêts selon votre véhicule/);
 });
 
 test('l’introduction simplifiée ouvre Aide et FAQ depuis son lien secondaire', () => {

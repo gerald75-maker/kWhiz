@@ -325,70 +325,31 @@
 
 
 <div aria-hidden="true" class="page-overlay-backdrop" data-page-close="true"></div><div aria-labelledby="page-aide-title" aria-modal="true" class="page-overlay-sheet" role="dialog"><div aria-hidden="true" class="page-overlay-handle"></div><div class="page-header">
-<span class="page-title" data-i18n="help.title" id="page-aide-title">Aide et FAQ</span>
+<span class="page-title" data-i18n="help.title" id="page-aide-title">Aide</span>
 <button aria-label="Fermer l’aide" class="page-close" data-i18n-aria-label="help.closeLabel" id="close-aide" type="button">✕</button>
 </div><div class="page-body">
 <div class="help-topics">
-<details class="help-topic"><summary data-i18n="help.gettingStarted.title">Bien démarrer</summary>
-<ol class="help-ordered-list">
-<li><span data-i18n="help.gettingStarted.consumptionBefore">Réglez votre</span> <strong data-i18n="help.gettingStarted.consumptionStrong">consommation moyenne</strong> <span data-i18n="help.gettingStarted.consumptionAfter">en kWh/100 km à l’aide du curseur situé en haut de l’écran.</span></li>
-<li><strong data-i18n="navigation.profile">Mon choix</strong> <span data-i18n="help.gettingStarted.recommendation">affiche immédiatement l’offre la plus avantageuse selon votre consommation et votre kilométrage mensuel.</span></li>
-<li><strong data-i18n="navigation.compare">Comparer</strong> <span data-i18n="help.gettingStarted.compare">classe tous les opérateurs du moins cher au plus cher, abonnement compris.</span></li>
-<li><strong data-i18n="navigation.operators">Opérateurs</strong> <span data-i18n="help.gettingStarted.operators">présente le détail de chaque offre ainsi que son seuil de rentabilité.</span></li>
-<li><strong data-i18n="navigation.map">Carte</strong> <span data-i18n="help.gettingStarted.map">affiche les stations rapides en France. Sélectionnez un ou plusieurs opérateurs, puis déplacez la carte pour consulter les stations proches du centre affiché.</span></li>
-</ol>
+<details class="help-topic"><summary data-i18n="help.plan.title">Choisir une offre</summary>
+<p data-i18n="help.plan.profile">Réglez la consommation de votre véhicule, votre kilométrage mensuel et la part de recharge rapide. Mon choix recommande les offres adaptées à ce profil. Comparer les classe par coût mensuel estimé, abonnement compris.</p>
+<p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>
 </details>
-<details class="help-topic"><summary data-i18n="help.results.title">Comprendre les résultats</summary>
-<p data-i18n="help.results.explanation">Mon choix estime le coût mensuel selon votre consommation, votre kilométrage et votre part de recharge rapide. Comparer classe les offres, abonnement compris, tandis qu’Opérateurs en présente les conditions et le seuil de rentabilité.</p>
-<p data-i18n="help.results.warning">Les prix variables restent des estimations : confirmez toujours le tarif dans l’application ou sur le site de l’opérateur avant de recharger.</p>
+<details class="help-topic"><summary data-i18n="help.prices.title">Comprendre les prix</summary>
+<p data-i18n="help.prices.estimate">Le coût affiché est une estimation fondée sur votre profil. Le seuil de rentabilité indique le kilométrage mensuel à partir duquel un abonnement devient avantageux.</p>
+<p data-i18n="help.prices.variable">Certains prix varient selon la station, l’heure, l’affluence ou le moyen de paiement. Vérifiez toujours le tarif affiché par l’opérateur avant de recharger.</p>
+<p data-i18n="help.prices.scope">kWhiz compare une sélection de réseaux rapides opérant en France. La liste à jour se trouve dans l’onglet Opérateurs.</p>
 </details>
 <details class="help-topic"><summary data-i18n="help.map.title">Utiliser la carte</summary>
-<ol class="help-ordered-list">
-<li><span data-i18n="help.map.locationBefore">À la première ouverture de</span> <strong data-i18n="navigation.map">Carte</strong>, <span data-i18n="help.map.locationAfter">autorisez la localisation pour afficher directement les stations autour de votre position ; vos coordonnées ne sont pas transmises à kWhiz et restent sur votre appareil.</span></li>
-<li><span data-i18n="help.map.retryBefore">Si la localisation est refusée ou indisponible, la carte nationale reste utilisable. Appuyez ultérieurement sur</span> <strong data-i18n="map.location.locate">Me localiser</strong> <span data-i18n="help.map.retryMiddle">pour réessayer, ou sur</span> <strong data-i18n="map.location.recenter">Recentrer</strong> <span data-i18n="help.map.retryAfter">pour revenir à votre position.</span></li>
-<li><span data-i18n="help.map.networksBefore">Appuyez sur les opérateurs pour les afficher ou les masquer. Avec plusieurs choix, kWhiz affiche les stations appartenant à</span> <strong data-i18n="help.map.networksStrong">l’un des réseaux sélectionnés</strong><span data-i18n="help.map.networksAfter">.</span></li>
-<li><span data-i18n="help.map.filtersBefore">Utilisez</span> <strong data-i18n="map.filters.all">Tous</strong> <span data-i18n="help.map.filtersMiddle">pour afficher tous les réseaux disponibles ou</span> <strong data-i18n="map.filters.none">Aucun</strong> <span data-i18n="help.map.filtersAfter">pour repartir d’une sélection vide.</span></li>
-<li><span data-i18n="help.map.statusBefore">Lisez le statut de chaque station :</span> <strong data-i18n="help.map.statusGreen">vert</strong> <span data-i18n="help.map.statusGreenAfter">signifie qu’au moins un point est libre,</span> <strong data-i18n="help.map.statusOrange">orange</strong> <span data-i18n="help.map.statusOrangeAfter">qu’ils sont occupés ou réservés,</span> <strong data-i18n="help.map.statusRed">rouge</strong> <span data-i18n="help.map.statusRedAfter">qu’ils sont hors service et</span> <strong data-i18n="help.map.statusGrey">gris</strong> <span data-i18n="help.map.statusGreyAfter">que l’information est absente, incomplète ou trop ancienne.</span></li>
-<li data-i18n="help.map.selection">Appuyez sur un point, un logo ou une fiche de la liste pour mettre la station en évidence sur la carte et consulter son état détaillé.</li>
-<li><span data-i18n="help.map.directionsBefore">Utilisez</span> <strong data-i18n="map.station.directions">Itinéraire</strong><span data-i18n="help.map.directionsAfter">, puis choisissez Plans, Google Maps ou Waze pour ouvrir le guidage vers la borne.</span></li>
-</ol>
-<div class="help-note" data-i18n="help.map.irveNote">📍 La carte utilise la Base nationale IRVE. Elle indique l’emplacement et les caractéristiques déclarées des stations, mais pas leur disponibilité en temps réel.</div>
-<div class="help-note" data-i18n="help.map.statusNote">🟢 Les statuts libre, occupé ou hors service ne sont colorés que si l’information complète date de moins de 15 minutes. Un statut gris est absent, inconnu ou trop ancien et ne doit pas être interprété comme une indisponibilité.</div>
+<p data-i18n="help.map.usage">Autorisez la localisation pour afficher les stations proches, puis sélectionnez les opérateurs à montrer. Appuyez sur un marqueur ou une fiche pour sélectionner une station et sur Itinéraire pour ouvrir Plans, Google Maps ou Waze.</p>
+<p data-i18n="help.map.updated">La date affichée sous le compteur indique la mise à jour de la liste des stations.</p>
+<p data-i18n="help.map.statuses">Vert : au moins un point libre. Orange : occupé ou réservé. Rouge : hors service. Gris : information absente, incomplète ou trop ancienne. Les statuts restent indicatifs.</p>
+<p data-i18n="help.map.privacy">Votre position reste sur votre appareil et n’est pas transmise à kWhiz.</p>
 </details>
 <details class="help-topic"><summary data-i18n="help.route.title">Stations sur mon trajet</summary>
-<p><span data-i18n="help.route.introBefore">Sélectionnez les opérateurs, ouvrez</span> <strong data-i18n="help.route.title">Stations sur mon trajet</strong><span data-i18n="help.route.introAfter">, puis utilisez votre position ou saisissez une ville, une adresse ou un code postal en France. Les lieux sont transmis à OpenRouteService uniquement pour calculer le tracé.</span></p>
-<div class="help-note">🧭 <strong data-i18n="help.route.limitStrong">kWhiz repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie.</strong> <span data-i18n="help.route.limitAfter">Il ne tient compte ni de l’autonomie, ni du niveau de batterie, du relief, de la météo ou du temps de recharge.</span></div>
-<div class="help-note"><span data-i18n="help.route.directionsBefore">🚗 Le bouton</span> <strong data-i18n="map.station.directions">Itinéraire</strong> <span data-i18n="help.route.directionsAfter">ouvre le guidage vers une seule station ; il ne transmet pas l’intégralité du trajet ni les autres stations affichées.</span></div>
+<p data-i18n="help.route.usage">Saisissez un départ et une arrivée, ou utilisez votre position. kWhiz affiche les stations des opérateurs sélectionnés situées à proximité du trajet.</p>
+<p data-i18n="help.route.limit">Ce calcul ne planifie pas les arrêts selon votre véhicule, sa batterie, son autonomie, la météo ou le temps de recharge. Il sert uniquement à repérer une station, puis à lancer le guidage vers celle-ci.</p>
+<p data-i18n="help.route.privacy">Les adresses sont transmises à OpenRouteService uniquement pour calculer le tracé.</p>
 </details>
-<details class="help-topic"><summary data-i18n="help.planners.title">Besoin d’un véritable planificateur de recharge ?</summary>
-<p data-i18n="help.planners.intro">Pour calculer les arrêts selon le véhicule, la batterie et l’autonomie, utilisez un outil spécialisé :</p>
-<ul class="planner-links">
-<li><a href="https://atlante.energy/fr/myatlante-app/" rel="noopener noreferrer" target="_blank"><strong>myAtlante</strong></a> <span data-i18n="help.planners.myAtlante">— itinéraires, bornes et disponibilité.</span></li>
-<li><a href="https://abetterrouteplanner.com/" rel="noopener noreferrer" target="_blank"><strong>ABRP</strong></a> <span data-i18n="help.planners.abrp">— planification avancée selon le véhicule.</span></li>
-<li><a href="https://chargemap.com/fr-fr/mobile" rel="noopener noreferrer" target="_blank"><strong>Chargemap</strong></a> <span data-i18n="help.planners.chargemap">— trajets et données communautaires.</span></li>
-<li><a href="https://iecharge.io/" rel="noopener noreferrer" target="_blank"><strong>IECharge</strong></a> <span data-i18n="help.planners.iecharge">— planification et réseau IECharge.</span></li>
-<li><a href="https://electus.app/" rel="noopener noreferrer" target="_blank"><strong>Electus</strong></a> <span data-i18n="help.planners.electus">— itinéraires adaptés au véhicule.</span></li>
-</ul>
-</details>
-<details class="help-topic"><summary data-i18n="faq.title">Questions fréquentes</summary>
-<div class="help-faq" id="help-faq">
-<details><summary data-i18n="faq.recommendation.question">Comment obtenir une recommandation personnalisée ?</summary><p data-i18n="faq.recommendation.answer">Réglez la consommation du véhicule, indiquez votre kilométrage mensuel et précisez la part de recharge rapide. L’onglet « Mon choix » affiche alors les offres les moins chères pour ce profil.</p></details>
-<details><summary data-i18n="faq.fastShare.question">Que signifie la part de recharge rapide ?</summary><p data-i18n="faq.fastShare.answer">Il s’agit de la proportion de votre énergie rechargée sur des bornes rapides. Le reste est estimé au tarif de recharge à domicile.</p></details>
-<details><summary data-i18n="faq.subscriptions.question">Les abonnements sont-ils pris en compte ?</summary><p data-i18n="faq.subscriptions.answer">Oui. Leur coût, mensuel ou annualisé, est intégré au calcul du coût total.</p></details>
-<details><summary data-i18n="faq.breakEven.question">Qu’est-ce que le seuil de rentabilité ?</summary><p data-i18n="faq.breakEven.answer">C’est le kilométrage mensuel à partir duquel l’économie réalisée sur le prix du kWh compense le coût de l’abonnement.</p></details>
-<details><summary data-i18n="faq.ranking.question">Pourquoi le classement change-t-il ?</summary><p data-i18n="faq.ranking.answer">Il dépend de la consommation du véhicule, du kilométrage, de la part de recharge rapide, du prix du kWh et du coût des abonnements.</p></details>
-<details><summary data-i18n="faq.variablePrices.question">Pourquoi certains tarifs sont-ils variables ou estimés ?</summary><p data-i18n="faq.variablePrices.answer">Certains opérateurs adaptent leurs prix selon la station, l’horaire ou le moyen de paiement. kWhiz utilise alors une valeur représentative, clairement signalée comme une estimation.</p></details>
-<details><summary data-i18n="faq.priceGuarantee.question">Les tarifs sont-ils garantis ?</summary><p data-i18n="faq.priceGuarantee.answer">Non. Les opérateurs peuvent les modifier sans préavis. Vérifiez toujours le prix affiché par l’opérateur avant de lancer une recharge.</p></details>
-<details><summary data-i18n="faq.location.question">Pourquoi la carte ne trouve-t-elle pas ma position ?</summary><p data-i18n="faq.location.answer">Vérifiez que la localisation est autorisée pour Safari ou pour la PWA dans les réglages de l’appareil, puis appuyez de nouveau sur « Me localiser ».</p></details>
-<details><summary data-i18n="faq.availability.question">Les bornes affichées sont-elles disponibles ?</summary><p data-i18n="faq.availability.answer">Pas nécessairement. La carte recense les stations déclarées dans la Base nationale IRVE ; vérifiez leur disponibilité dans l’application de l’opérateur avant de vous déplacer.</p></details>
-<details><summary data-i18n="faq.status.question">Comment interpréter le statut d’une station ?</summary><p data-i18n="faq.status.answer">Seules les informations complètes datant de moins de 15 minutes sont colorées. Le statut est indicatif et peut changer avant votre arrivée ; ne supprimez pas une étape de votre trajet sur cette seule information.</p></details>
-<details><summary data-i18n="faq.route.question">Comment trouver les stations sur un trajet ?</summary><p data-i18n="faq.route.answer">Dans l’onglet Carte, sélectionnez d’abord les opérateurs à afficher. Ouvrez ensuite « Stations sur mon trajet », utilisez votre position ou saisissez le départ, indiquez l’arrivée, puis lancez la recherche. kWhiz montre les stations des réseaux choisis situées à moins de 15 km du tracé. « Effacer le trajet » restaure la carte habituelle.</p></details>
-<details><summary data-i18n="faq.routeLimits.question">kWhiz planifie-t-il mes arrêts de recharge ?</summary><p data-i18n="faq.routeLimits.answer">Non. Le trajet sert uniquement à repérer les stations des opérateurs sélectionnés. kWhiz ne connaît ni votre batterie ni votre autonomie et ne décide pas où vous devez vous arrêter. Après avoir choisi une station, le bouton « Itinéraire » lance simplement votre application GPS vers cette borne.</p></details>
-<details><summary data-i18n="faq.favorites.question">À quoi servent les favoris ?</summary><p data-i18n="faq.favorites.answer">L’étoile permet de retrouver plus facilement vos formules préférées et de les faire apparaître en priorité dans la liste des opérateurs.</p></details>
-<details><summary data-i18n="faq.backup.question">Comment sauvegarder et restaurer mes réglages ?</summary><p data-i18n="faq.backup.answer">Vos réglages sont conservés localement sur votre appareil. Dans « Données et réglages », utilisez « Créer une sauvegarde » pour télécharger un fichier, puis « Restaurer une sauvegarde » pour le réutiliser sur cet appareil ou un autre.</p></details>
-<details><summary data-i18n="faq.offline.question">L’application fonctionne-t-elle hors ligne ?</summary><p data-i18n="faq.offline.answer">Oui, si elle a déjà été chargée ou installée. Elle utilise alors les derniers tarifs enregistrés et signale que la connexion est indisponible.</p></details>
-<details><summary data-i18n="faq.update.question">Comment actualiser l’application et les tarifs ?</summary><p data-i18n="faq.update.answer">Ouvrez « Données et réglages » puis utilisez le bouton d’actualisation, ou tirez la page vers le bas. Si une nouvelle version est disponible, kWhiz vous proposera de l’installer.</p></details>
-</div></details></div></div></div></div>
+</div></div></div></div></div>
 <div aria-hidden="true" class="page-overlay aux-drawer" id="page-infos">
 
 
@@ -507,7 +468,7 @@
 <div class="menu-drawer-group">
 <button class="menu-drawer-item" id="menu-help" type="button">
 <span class="menu-drawer-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" x2="12.01" y1="17" y2="17"></line></svg></span>
-<span class="menu-drawer-copy"><strong data-i18n="menu.items.help">Aide et FAQ</strong><small data-i18n="menu.items.helpDescription">Utiliser le comparateur et la carte</small></span>
+<span class="menu-drawer-copy"><strong data-i18n="menu.items.help">Aide</strong><small data-i18n="menu.items.helpDescription">Utiliser le comparateur et la carte</small></span>
 <span aria-hidden="true" class="menu-drawer-chevron">›</span>
 </button>
 <button class="menu-drawer-item" id="menu-landing" type="button">

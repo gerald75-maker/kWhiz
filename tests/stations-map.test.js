@@ -73,16 +73,17 @@ test('la carte partage un seul renderer pour préserver la mémoire de Safari', 
 test('l’aide explique la carte, la localisation et la fraîcheur des bornes', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   assert.match(html, /Utiliser la carte/);
-  assert.match(html, /vos coordonnées ne sont pas transmises à kWhiz/);
-  assert.match(html, /pas leur disponibilité en temps réel/);
+  assert.match(html, /Votre position reste sur votre appareil et n’est pas transmise à kWhiz/);
+  assert.match(html, /Les statuts restent indicatifs/);
 });
 
-test('la FAQ utilise des accordéons indépendants', async () => {
+test('les quatre rubriques d’aide utilisent des accordéons indépendants', async () => {
   const [html, navigation] = await Promise.all([
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('src/ui/navigation.js', root), 'utf8')
   ]);
-  assert.ok((html.match(/<details>/g) || []).length >= 10);
+  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
+  assert.equal((help.match(/<details class="help-topic">/g) || []).length, 4);
   assert.doesNotMatch(navigation, /#help-faq details\[open\]/);
 });
 
@@ -93,10 +94,10 @@ test('la navigation suit le parcours Mon choix, Comparer, Opérateurs, Carte, Me
   assert.deepEqual([...navigation.matchAll(/id="(bnav-[^"]+)"/g)].map(match => match[1]), ids);
 });
 
-test('les parcours de l’aide sont de vraies listes ordonnées', async () => {
+test('l’aide concise ne réintroduit ni étapes artificielles ni numérotation', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
-  assert.equal((html.match(/<ol class="help-ordered-list">/g) || []).length, 2);
-  assert.doesNotMatch(html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"')), /class="help-num"/);
+  const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
+  assert.doesNotMatch(help, /<ol|class="help-num"/);
 });
 
 test('un itinéraire propose Plans, Google Maps et Waze', async () => {
@@ -174,7 +175,7 @@ test('les statuts dynamiques restent indicatifs, récents et non bloquants', asy
   assert.match(php, /FRESH_SECONDS = 900/);
   assert.match(php, /CACHE_SECONDS = 120/);
   assert.match(php, /\$latestPoints\[\$pointId\]/);
-  assert.match(html, /date de moins de 15 minutes/);
+  assert.match(html, /Les statuts restent indicatifs/);
   assert.ok(Object.keys(JSON.parse(index).pointToStation).length > 10000);
 });
 
@@ -266,23 +267,22 @@ test('les erreurs d’itinéraire donnent une action corrective', async () => {
   assert.match(routeUi, /map\.route\.networkError/);
 });
 
-test('l’aide en accordéons couvre localisation, statuts, sélection et itinéraire', async () => {
+test('l’aide concise couvre localisation, statuts, sélection et itinéraire', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
-  for (const title of ['Bien démarrer', 'Comprendre les résultats', 'Utiliser la carte', 'Stations sur mon trajet', 'Questions fréquentes']) {
+  for (const title of ['Choisir une offre', 'Comprendre les prix', 'Utiliser la carte', 'Stations sur mon trajet']) {
     assert.match(help, new RegExp(`<summary[^>]*>${title}`));
   }
   const mapStart = help.indexOf('data-i18n="help.map.title"');
   const mapHelp = help.slice(mapStart, help.indexOf('</details>', mapStart));
-  assert.match(mapHelp, /première ouverture/);
-  assert.match(mapHelp, /vert/);
-  assert.match(mapHelp, /point, un logo ou une fiche/);
+  assert.match(mapHelp, /Autorisez la localisation/);
+  assert.match(mapHelp, /Vert/);
+  assert.match(mapHelp, /marqueur ou une fiche/);
   assert.match(mapHelp, /Google Maps ou Waze/);
   assert.match(help, /OpenRouteService/);
-  assert.match(help, /repère les stations sur un trajet, mais ne calcule pas les arrêts selon la batterie/);
-  assert.match(help, /Sélectionnez les opérateurs/);
-  assert.match(help, /ne tient compte ni de l’autonomie, ni du niveau de batterie/);
-  assert.match(help, /ouvre le guidage vers une seule station/);
+  assert.match(help, /affiche les stations des opérateurs sélectionnés/);
+  assert.match(help, /ne planifie pas les arrêts selon votre véhicule/);
+  assert.match(help, /lancer le guidage vers celle-ci/);
 });
 
 test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {
