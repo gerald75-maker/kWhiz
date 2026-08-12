@@ -5768,6 +5768,77 @@ body[data-view="compare"] .sticky-top {
 @media (max-width: 390px) {
     .compare-meta { grid-template-columns: minmax(0, 1fr); }
 }
+/* Comparer — synthèse économique légère */
+.compare-item {
+    grid-template-columns: 24px minmax(0, 1fr) minmax(150px, auto);
+    grid-template-areas:
+        "rank identity price"
+        ". gap detail"
+        ". meta meta"
+        ". chargeback chargeback";
+    overflow: hidden;
+}
+.compare-gap {
+    grid-area: gap;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: .8rem;
+    font-weight: 700;
+}
+.compare-gap.is-lowest { color: var(--text-primary); }
+.compare-meta { grid-area: meta; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.compare-meta .compare-pricing-badge { align-self: flex-start; }
+.compare-rate-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.compare-detail-btn {
+    grid-area: detail;
+    justify-self: end;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+.compare-detail-btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--accent) 24%, transparent);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+.compare-chargeback-note {
+    padding: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+    .compare-item {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "identity identity"
+            "price price"
+            "gap detail"
+            "meta meta"
+            "chargeback chargeback";
+        width: 100%;
+        max-width: 100%;
+    }
+    .compare-rank { position: absolute; top: 12px; left: 12px; }
+    .compare-identity { padding-left: 22px; }
+    .compare-prices { padding: 0; }
+    .compare-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+    .compare-item > *, .compare-meta > span { min-width: 0; max-width: 100%; }
+}
+
+@media (max-width: 390px) {
+    .compare-item { padding: 12px 10px; }
+    .compare-meta { grid-template-columns: minmax(0, 1fr); }
+    .compare-gap { font-size: .76rem; }
+}
+
 /* Annuaire compact des opérateurs */
 #tab-operators .operators-compact {
     display: grid;
