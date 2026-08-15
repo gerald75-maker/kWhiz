@@ -1,11 +1,16 @@
-import { createReadStream, writeFileSync } from 'node:fs';
+import { createReadStream, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 import { buildStatusAssociations } from './irve-status-associations.mjs';
 import { groupCertainStations } from './irve-station-groups.mjs';
+import { preservePublishedStationIds } from './irve-station-identity.mjs';
 
-const [input, output = 'public/irve-fast.json', requestedDate] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const previousStationsArgument = args.find(arg => arg.startsWith('--previous-stations='));
+const previousStatusArgument = args.find(arg => arg.startsWith('--previous-status='));
+const positional = args.filter(arg => arg !== previousStationsArgument && arg !== previousStatusArgument);
+const [input, output = 'public/irve-fast.json', requestedDate] = positional;
 const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
 const groupingAuditOutput = join(dirname(output), 'irve-grouping-audit.json');
 if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json] [source-date]');
@@ -29,6 +34,16 @@ function networkFor(row) {
 
 function stableValue(values, fallback = '') {
   return [...values].filter(Boolean).sort((a, b) => normalize(a).localeCompare(normalize(b)) || a.localeCompare(b))[0] || fallback;
+}
+
+function stableStationName(names, operatorNames, operator) {
+  if (operator === 'engie-vianeo') {
+    const brandedNames = [...names].filter(name => /(?:engie\s+)?vianeo/i.test(name));
+    if (brandedNames.length) return stableValue(brandedNames);
+  }
+  const genericNames = new Set([...operatorNames].map(normalize).filter(Boolean));
+  const descriptiveNames = [...names].filter(name => !genericNames.has(normalize(name)));
+  return stableValue(descriptiveNames.length ? descriptiveNames : names, stableValue(operatorNames));
 }
 
 function stableCoordinates(values) {
@@ -106,7 +121,7 @@ const preparedStations = [...rawStations.values()].map(station => {
     lat: coordinates.lat,
     lon: coordinates.lon,
     display: {
-      name: stableValue(station.names, stableValue(station.operatorNames)),
+      name: stableStationName(station.names, station.operatorNames, station.operator),
       address: stableValue(station.addresses),
       city: stableValue(station.cities),
       access: stableValue(station.accesses),
@@ -116,6 +131,19 @@ const preparedStations = [...rawStations.values()].map(station => {
 });
 
 const grouped = groupCertainStations(preparedStations);
+const previousStations = previousStationsArgument
+  ? JSON.parse(readFileSync(previousStationsArgument.slice('--previous-stations='.length), 'utf8'))
+  : null;
+const previousStatus = previousStatusArgument
+  ? JSON.parse(readFileSync(previousStatusArgument.slice('--previous-status='.length), 'utf8'))
+  : null;
+const stabilized = previousStations && previousStatus
+  ? preservePublishedStationIds(grouped.stations, previousStations, previousStatus)
+  : { stations: grouped.stations, renames: {} };
+grouped.stations = stabilized.stations;
+for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
+  if (stabilized.renames[canonical]) grouped.stationAliases[alias] = stabilized.renames[canonical];
+}
 const data = grouped.stations.map(station => {
   const points = [...station.points.values()];
   return {
@@ -179,6 +207,7 @@ writeFileSync(statusIndexOutput, JSON.stringify({
 const counts = Object.fromEntries(IRVE_NETWORKS.map(([key]) => [key, data.filter(item => item.operator === key).length]));
 console.log(`Generated ${data.length} fast stations in ${output}`);
 console.log(`Grouped ${grouping.certainGroups} certain visual duplicates (${grouping.aliases} aliases)`);
+console.log(`Preserved ${Object.keys(stabilized.renames).length} published station identifiers`);
 console.log(`Kept ${grouping.probableGroups} probable and ${grouping.ambiguousGroups} ambiguous groups separate`);
 console.log(`Wrote grouping audit to ${groupingAuditOutput}`);
 console.log(`Generated ${statusAssociations.metrics.indexedPointIds} safe status links in ${statusIndexOutput}`);

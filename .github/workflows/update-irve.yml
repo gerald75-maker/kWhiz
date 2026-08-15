@@ -1,6 +1,13 @@
 name: Actualisation hebdomadaire IRVE
 
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/update-irve.yml'
+      - 'scripts/*irve*.mjs'
+      - 'tests/*irve*.test.js'
+      - 'tests/irve-status-associations.php'
+      - 'public/status.php'
   schedule:
     - cron: '23 4 * * 3'
   workflow_dispatch:
@@ -34,11 +41,17 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           CURRENT_REF: ${{ github.ref_name }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            echo "branch=$PR_HEAD_SHA" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "branch=$CURRENT_REF" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "branch=$DEFAULT_BRANCH" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Extraire le dépôt
@@ -99,7 +112,9 @@ jobs:
           candidate="$RUNNER_TEMP/candidate"
           mkdir -p "$candidate"
           node scripts/build-irve-stations.mjs \
-            "${{ steps.source.outputs.csv }}" "$candidate/irve-fast.json" "${{ steps.source.outputs.date }}"
+            "${{ steps.source.outputs.csv }}" "$candidate/irve-fast.json" "${{ steps.source.outputs.date }}" \
+            --previous-stations=public/irve-fast.json \
+            --previous-status=public/irve-status-index.json
           set +e
           migration_args=()
           if [[ "$ALLOW_STATION_ALIAS_MIGRATION" == "true" ]]; then
@@ -132,6 +147,26 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Tester les données candidates et la production
+        if: steps.validate.outputs.changed == 'true'
+        run: |
+          node --test \
+            tests/irve-station-identity.test.js \
+            tests/irve-station-groups.test.js \
+            tests/irve-status-associations.test.js \
+            tests/irve-update.test.js \
+            tests/stations-map.test.js \
+            tests/map-stations-i18n.test.js \
+            tests/operators-i18n.test.js \
+            tests/commercial-labels.test.js \
+            tests/network-power.test.js
+          npm test
+          npm run build
+          node --test tests/service-worker.test.js tests/version-consistency.test.js
+          php -l public/status.php
+          php tests/irve-status-associations.php
+          git diff --check
+
       - name: Archiver le rapport de contrôle
         if: always()
         uses: actions/upload-artifact@v4
@@ -143,7 +178,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Créer ou actualiser la pull request dédiée
-        if: steps.validate.outputs.changed == 'true'
+        if: steps.validate.outputs.changed == 'true' && steps.base.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ steps.base.outputs.branch }}
