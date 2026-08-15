@@ -172,10 +172,13 @@ test('autorise ponctuellement une migration entièrement couverte par des alias'
 test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', async () => {
   const workflow = await readFile(new URL('.github/workflows/update-irve.yml', root), 'utf8');
   assert.match(workflow, /schedule:[\s\S]*cron: '23 4 \* \* 3'/);
+  assert.match(workflow, /pull_request:[\s\S]*scripts\/\*irve\*\.mjs/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /allow_station_alias_migration/);
   assert.match(workflow, /--allow-station-alias-migration/);
   assert.match(workflow, /--grouping-audit=.*irve-grouping-audit\.json/);
+  assert.match(workflow, /--previous-stations=public\/irve-fast\.json/);
+  assert.match(workflow, /--previous-status=public\/irve-status-index\.json/);
   assert.match(workflow, /candidate\/irve-grouping-audit\.json/);
   assert.match(workflow, /https:\/\/www\.data\.gouv\.fr\/api\/1\/datasets\/r\/eb76d20a-8501-400e-b336-d85724de5435/);
   assert.match(workflow, /static\.data\.gouv\.fr\/resources\/base-nationale-des-irve/);
@@ -183,6 +186,13 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.doesNotMatch(workflow, /git add --[^\n]*irve-grouping-audit/);
   assert.match(workflow, /gh pr create/);
   assert.match(workflow, /gh pr edit/);
+  assert.match(workflow, /npm test/);
+  assert.match(workflow, /npm run build/);
+  assert.match(workflow, /tests\/service-worker\.test\.js tests\/version-consistency\.test\.js/);
+  assert.match(workflow, /php -l public\/status\.php/);
+  assert.match(workflow, /php tests\/irve-status-associations\.php/);
+  assert.match(workflow, /git diff --check/);
+  assert.match(workflow, /steps\.base\.outputs\.publish == 'true'/);
   assert.doesNotMatch(workflow, /git add -A|gh pr merge|npm version|deploy/i);
 });
 
