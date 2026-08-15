@@ -28,6 +28,7 @@ concurrency:
 
 env:
   IRVE_RESOURCE_URL: https://www.data.gouv.fr/api/1/datasets/r/eb76d20a-8501-400e-b336-d85724de5435
+  ATLANTE_RESOURCE_URL: https://map.atlante.energy/geodata.json
   UPDATE_BRANCH: automation/weekly-irve
 
 jobs:
@@ -103,6 +104,19 @@ jobs:
           echo "date_origin=$date_origin" >> "$GITHUB_OUTPUT"
           echo "url=$effective_url" >> "$GITHUB_OUTPUT"
 
+      - name: Télécharger le catalogue officiel Atlante
+        id: atlante
+        shell: bash
+        run: |
+          json="$RUNNER_TEMP/atlante-geodata.json"
+          effective_url=$(curl --fail --show-error --silent --location \
+            --output "$json" --write-out '%{url_effective}' "$ATLANTE_RESOURCE_URL")
+          test "$effective_url" = "$ATLANTE_RESOURCE_URL"
+          test "$(wc -c < "$json")" -gt 1000000
+          jq -e 'type == "array" and length > 1000' "$json" >/dev/null
+          echo "json=$json" >> "$GITHUB_OUTPUT"
+          echo "url=$effective_url" >> "$GITHUB_OUTPUT"
+
       - name: Régénérer et contrôler les fichiers IRVE
         id: validate
         shell: bash
@@ -114,7 +128,8 @@ jobs:
           node scripts/build-irve-stations.mjs \
             "${{ steps.source.outputs.csv }}" "$candidate/irve-fast.json" "${{ steps.source.outputs.date }}" \
             --previous-stations=public/irve-fast.json \
-            --previous-status=public/irve-status-index.json
+            --previous-status=public/irve-status-index.json \
+            --atlante-source="${{ steps.atlante.outputs.json }}"
           set +e
           migration_args=()
           if [[ "$ALLOW_STATION_ALIAS_MIGRATION" == "true" ]]; then

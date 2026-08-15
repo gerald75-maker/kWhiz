@@ -180,9 +180,11 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.match(workflow, /--grouping-audit=.*irve-grouping-audit\.json/);
   assert.match(workflow, /--previous-stations=public\/irve-fast\.json/);
   assert.match(workflow, /--previous-status=public\/irve-status-index\.json/);
+  assert.match(workflow, /--atlante-source=.*steps\.atlante\.outputs\.json/);
   assert.match(workflow, /candidate\/irve-grouping-audit\.json/);
   assert.match(workflow, /https:\/\/www\.data\.gouv\.fr\/api\/1\/datasets\/r\/eb76d20a-8501-400e-b336-d85724de5435/);
   assert.match(workflow, /static\.data\.gouv\.fr\/resources\/base-nationale-des-irve/);
+  assert.match(workflow, /https:\/\/map\.atlante\.energy\/geodata\.json/);
   assert.match(workflow, /git add -- public\/irve-fast\.json public\/irve-status-index\.json/);
   assert.doesNotMatch(workflow, /git add --[^\n]*irve-grouping-audit/);
   assert.match(workflow, /gh pr create/);

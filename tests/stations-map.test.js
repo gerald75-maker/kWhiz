@@ -50,7 +50,7 @@ test('la vue Carte masque le slider et permet une géolocalisation volontaire', 
   assert.match(mapSource, /navigator\.geolocation\.getCurrentPosition/);
 });
 
-test('les stations rapides officielles sont compactes et sans doublon', async () => {
+test('toutes les stations publiées sont compactes, uniques et atteignent 100 kW', async () => {
   const payload = JSON.parse(await readFile(new URL('public/irve-fast.json', root), 'utf8'));
   assert.equal(payload.source, 'Base nationale IRVE — data.gouv.fr');
   assert.ok(payload.stations.length > 500);

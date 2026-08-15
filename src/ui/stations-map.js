@@ -421,6 +421,7 @@ export function initStationsMap() {
   }
 
   document.addEventListener('click', event => {
+    if (event.target.closest('.atlante-availability-link')) return;
     const trigger = event.target.closest('.map-route-trigger');
     if (trigger) {
       openRouteChoice(trigger);
@@ -433,7 +434,7 @@ export function initStationsMap() {
   list.addEventListener('keydown', event => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     const stationCard = event.target.closest('.map-station-card');
-    if (!stationCard || event.target.closest('.map-route-trigger')) return;
+    if (!stationCard || event.target.closest('.map-route-trigger, .atlante-availability-link')) return;
     event.preventDefault();
     selectStation(stationCard.dataset.stationId);
   });

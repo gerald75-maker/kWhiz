@@ -1,21 +1,22 @@
 import { createReadStream, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 import { buildStatusAssociations } from './irve-status-associations.mjs';
 import { groupCertainStations } from './irve-station-groups.mjs';
 import { preservePublishedStationIds } from './irve-station-identity.mjs';
-import { loadVerifiedSupplements, mergeVerifiedSupplements, formatVerifiedSupplementsReport } from './irve-verified-supplements.mjs';
+import { loadAtlanteCatalog, mergeAtlanteCatalog, formatAtlanteReport } from './irve-atlante-connector.mjs';
+import { qualifyFastStation } from './irve-fast-qualification.mjs';
 
 const args = process.argv.slice(2);
 const previousStationsArgument = args.find(arg => arg.startsWith('--previous-stations='));
 const previousStatusArgument = args.find(arg => arg.startsWith('--previous-status='));
-const positional = args.filter(arg => arg !== previousStationsArgument && arg !== previousStatusArgument);
+const atlanteSourceArgument = args.find(arg => arg.startsWith('--atlante-source='));
+const positional = args.filter(arg => arg !== previousStationsArgument && arg !== previousStatusArgument && arg !== atlanteSourceArgument);
 const [input, output = 'public/irve-fast.json', requestedDate] = positional;
 const statusIndexOutput = join(dirname(output), 'irve-status-index.json');
 const groupingAuditOutput = join(dirname(output), 'irve-grouping-audit.json');
-if (!input) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json] [source-date]');
+if (!input || !atlanteSourceArgument) throw new Error('Usage: node scripts/build-irve-stations.mjs <source.csv> [output.json] [source-date] --atlante-source=<geodata.json>');
 
 const sourceDate = resolveIrveDate({ sourceDate: requestedDate, inputPath: input });
 
@@ -118,7 +119,7 @@ for await (const row of parser) {
 
 const preparedStations = [...rawStations.values()].map(station => {
   const coordinates = stableCoordinates(station.coordinateVariants.values());
-  return {
+  const normalized = {
     ...station,
     lat: coordinates.lat,
     lon: coordinates.lon,
@@ -130,23 +131,33 @@ const preparedStations = [...rawStations.values()].map(station => {
       hours: stableValue(station.hoursVariants)
     }
   };
+  return normalized;
 });
 
 const grouped = groupCertainStations(preparedStations);
-const supplementsPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'irve-verified-supplements.json');
-const supplements = mergeVerifiedSupplements(grouped.stations, loadVerifiedSupplements(supplementsPath));
-grouped.stations = supplements.stations;
 const previousStations = previousStationsArgument
   ? JSON.parse(readFileSync(previousStationsArgument.slice('--previous-stations='.length), 'utf8'))
   : null;
 const previousStatus = previousStatusArgument
   ? JSON.parse(readFileSync(previousStatusArgument.slice('--previous-status='.length), 'utf8'))
   : null;
+const atlante = mergeAtlanteCatalog(
+  grouped.stations,
+  loadAtlanteCatalog(atlanteSourceArgument.slice('--atlante-source='.length), sourceDate),
+  previousStations?.atlanteCatalog
+);
+grouped.stations = atlante.stations;
+const fastQualification = grouped.stations.map(station => ({ station, ...qualifyFastStation(station) }));
+grouped.stations = fastQualification.filter(item => item.category === 'fast').map(item => item.station);
+const publishedStationIds = new Set(grouped.stations.map(station => station.stationId));
+for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
+  if (!publishedStationIds.has(canonical)) delete grouped.stationAliases[alias];
+}
 const stabilized = previousStations && previousStatus
   ? preservePublishedStationIds(grouped.stations, previousStations, previousStatus)
   : { stations: grouped.stations, renames: {} };
 grouped.stations = stabilized.stations;
-for (const item of supplements.audit) {
+for (const item of atlante.audit) {
   item.stationIds = item.stationIds.map(id => stabilized.renames[id] || id).sort();
 }
 for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
@@ -154,7 +165,8 @@ for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
 }
 const data = grouped.stations.map(station => {
   const points = [...station.points.values()];
-  return {
+  const maxPower = qualifyFastStation(station).maxPowerKw;
+  const normalized = {
     id: station.stationId,
     operator: station.operator,
     name: station.display.name,
@@ -162,13 +174,20 @@ const data = grouped.stations.map(station => {
     city: station.display.city,
     lat: Number(station.lat.toFixed(6)),
     lon: Number(station.lon.toFixed(6)),
-    power: Math.max(...points.map(point => point.power)),
-    connectors: station.pointIds.size,
-    ccs: points.some(point => point.ccs),
-    chademo: points.some(point => point.chademo),
+    power: maxPower,
+    connectors: station.officialEvseCount ?? station.pointIds.size,
+    ccs: points.some(point => point.ccs) || station.officialCcs === true,
+    chademo: points.some(point => point.chademo) || station.officialChademo === true,
     access: station.display.access,
     hours: station.display.hours
   };
+  if (station.atlanteOfficialId) normalized.officialStationId = station.atlanteOfficialId;
+  if (station.officialEvseCount !== undefined) normalized.officialEvseCount = station.officialEvseCount;
+  if (station.officialMaxPower !== undefined) normalized.officialMaxPower = station.officialMaxPower;
+  if (station.officialUrl) normalized.officialUrl = station.officialUrl;
+  if (station.atlanteCollectedAt) normalized.collectedAt = station.atlanteCollectedAt;
+  if (station.provenance) normalized.provenance = station.provenance;
+  return normalized;
 }).sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
 
 const metadataConflicts = grouped.grouping.metadataConflicts;
@@ -183,6 +202,7 @@ const grouping = {
 writeFileSync(output, JSON.stringify({
   updatedAt: sourceDate,
   source: 'Base nationale IRVE — data.gouv.fr',
+  atlanteCatalog: atlante.metadata,
   grouping,
   stations: data
 }));
@@ -192,7 +212,13 @@ writeFileSync(groupingAuditOutput, JSON.stringify({
   grouping,
   stationAliases: grouped.stationAliases,
   metadataConflicts,
-  verifiedSupplements: supplements.audit
+  fastQualification: {
+    published: fastQualification.filter(item => item.category === 'fast').length,
+    excluded: fastQualification.filter(item => item.category === 'slow').map(item => ({ id: item.station.stationId, power: item.maxPowerKw })),
+    review: fastQualification.filter(item => item.category === 'review').map(item => ({ id: item.station.stationId }))
+  },
+  atlanteCatalog: atlante.metadata,
+  atlanteReconciliation: atlante.audit
 }, null, 2));
 
 const statusMetadata = grouped.stations.map(station => ({
@@ -220,5 +246,5 @@ console.log(`Preserved ${Object.keys(stabilized.renames).length} published stati
 console.log(`Kept ${grouping.probableGroups} probable and ${grouping.ambiguousGroups} ambiguous groups separate`);
 console.log(`Wrote grouping audit to ${groupingAuditOutput}`);
 console.log(`Generated ${statusAssociations.metrics.indexedPointIds} safe status links in ${statusIndexOutput}`);
-console.log(formatVerifiedSupplementsReport(supplements.audit));
+console.log(formatAtlanteReport(atlante));
 console.table(counts);

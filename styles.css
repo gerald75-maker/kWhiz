@@ -1753,6 +1753,9 @@ body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-t
 .station-status[data-status="out_of_service"] { --status-color:#dc2626; }
 .station-status[data-status="unknown"] { --status-color:#94a3b8; }
 .station-status--popup { margin:7px 0 2px !important; }
+.map-station-card .atlante-availability-link { display:inline-flex; align-items:center; gap:4px; width:max-content; max-width:100%; margin-top:7px; color:var(--accent); font-size:.7rem; font-weight:750; text-decoration:underline; text-underline-offset:2px; }
+.map-station-card .atlante-availability-link span { display:inline; color:inherit; margin:0; }
+.atlante-availability-link--popup { display:inline-block; margin-top:4px; }
 .map-route-trigger { border:0; padding:6px 2px; background:transparent; color:var(--accent); font:inherit; font-size:.72rem; font-weight:700; cursor:pointer; }
 .leaflet-route-trigger { padding:6px 0 0; }
 .map-empty, .map-source { color:var(--text-secondary); font-size:.76rem; }
