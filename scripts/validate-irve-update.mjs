@@ -2,6 +2,7 @@ import { appendFileSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ACTIVE_WITHOUT_OWN_STATIONS, IRVE_OPERATOR_KEYS } from './irve-networks.mjs';
+import { formatVerifiedSupplementsReport } from './irve-verified-supplements.mjs';
 
 export const IRVE_UPDATE_THRESHOLDS = Object.freeze({
   globalDecrease: 0.15,
@@ -189,7 +190,8 @@ export function analyzeIrveUpdate({ currentStations, candidateStations, currentS
       certainGroups: grouping.certainGroups ?? 0,
       probableGroups: grouping.probableGroups ?? 0,
       ambiguousGroups: grouping.ambiguousGroups ?? 0,
-      metadataConflicts
+      metadataConflicts,
+      verifiedSupplements: groupingAudit?.verifiedSupplements || []
     },
     operators: Object.fromEntries(IRVE_OPERATOR_KEYS.map(key => [key, {
       before: beforeByOperator[key], after: afterByOperator[key], variation: variation(beforeByOperator[key], afterByOperator[key])
@@ -225,6 +227,7 @@ export function formatIrveReport(report) {
     (report.grouping.metadataConflicts.length
       ? `<details><summary>Stations avec conflits de métadonnées</summary>\n\n${report.grouping.metadataConflicts.map(conflict => `- ${conflict.canonicalId} : ${conflict.fields.map(field => field.field).join(', ')}`).join('\n')}\n\n</details>\n\n`
       : '') +
+    (report.grouping.verifiedSupplements?.length ? formatVerifiedSupplementsReport(report.grouping.verifiedSupplements) : '') +
     (report.errors.length ? `### Échec des contrôles\n\n${report.errors.map(error => `- ${error}`).join('\n')}\n` : `Tous les contrôles de variation sont satisfaits.\n`);
 }
 

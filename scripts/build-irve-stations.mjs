@@ -1,10 +1,12 @@
 import { createReadStream, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 import { buildStatusAssociations } from './irve-status-associations.mjs';
 import { groupCertainStations } from './irve-station-groups.mjs';
 import { preservePublishedStationIds } from './irve-station-identity.mjs';
+import { loadVerifiedSupplements, mergeVerifiedSupplements, formatVerifiedSupplementsReport } from './irve-verified-supplements.mjs';
 
 const args = process.argv.slice(2);
 const previousStationsArgument = args.find(arg => arg.startsWith('--previous-stations='));
@@ -131,6 +133,9 @@ const preparedStations = [...rawStations.values()].map(station => {
 });
 
 const grouped = groupCertainStations(preparedStations);
+const supplementsPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'irve-verified-supplements.json');
+const supplements = mergeVerifiedSupplements(grouped.stations, loadVerifiedSupplements(supplementsPath));
+grouped.stations = supplements.stations;
 const previousStations = previousStationsArgument
   ? JSON.parse(readFileSync(previousStationsArgument.slice('--previous-stations='.length), 'utf8'))
   : null;
@@ -141,6 +146,9 @@ const stabilized = previousStations && previousStatus
   ? preservePublishedStationIds(grouped.stations, previousStations, previousStatus)
   : { stations: grouped.stations, renames: {} };
 grouped.stations = stabilized.stations;
+for (const item of supplements.audit) {
+  item.stationIds = item.stationIds.map(id => stabilized.renames[id] || id).sort();
+}
 for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
   if (stabilized.renames[canonical]) grouped.stationAliases[alias] = stabilized.renames[canonical];
 }
@@ -183,7 +191,8 @@ writeFileSync(groupingAuditOutput, JSON.stringify({
   updatedAt: sourceDate,
   grouping,
   stationAliases: grouped.stationAliases,
-  metadataConflicts
+  metadataConflicts,
+  verifiedSupplements: supplements.audit
 }, null, 2));
 
 const statusMetadata = grouped.stations.map(station => ({
@@ -211,4 +220,5 @@ console.log(`Preserved ${Object.keys(stabilized.renames).length} published stati
 console.log(`Kept ${grouping.probableGroups} probable and ${grouping.ambiguousGroups} ambiguous groups separate`);
 console.log(`Wrote grouping audit to ${groupingAuditOutput}`);
 console.log(`Generated ${statusAssociations.metrics.indexedPointIds} safe status links in ${statusIndexOutput}`);
+console.log(formatVerifiedSupplementsReport(supplements.audit));
 console.table(counts);
