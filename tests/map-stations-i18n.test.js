@@ -93,6 +93,19 @@ test('rend la popup en place dans la langue courante sans altérer les données 
   assert.equal(station.id, 'FR*ABC*E123');
 });
 
+test('ajoute le lien officiel Atlante localisé sans remplacer le statut IRVE', () => {
+  const atlante = { ...station, operator: 'atlante', officialUrl: 'https://map.atlante.energy/?iframe=true&lang=fr' };
+  const status = { status: 'available', free: 2, known: 4 };
+  setLanguage('fr', { persist: false, translate: false });
+  const french = renderStationCardHtml(atlante, { operatorLabel: 'Atlante', status });
+  assert.match(french, /2 libres sur 4/);
+  assert.match(french, />Voir les disponibilités chez Atlante <span/);
+  assert.match(french, /target="_blank" rel="noopener noreferrer"/);
+  setLanguage('en', { persist: false, translate: false });
+  assert.match(renderStationPopupHtml(atlante, { operatorLabel: 'Atlante', status }), />Check availability on Atlante <span/);
+  assert.doesNotMatch(renderStationCardHtml({ ...atlante, officialUrl: '' }), /Atlante <span aria-hidden="true">↗/);
+});
+
 test('la fiche et la popup partagent exactement le même résumé, au singulier comme au pluriel', () => {
   for (const [language, connectors, expected] of [
     ['fr', 1, 'Tesla · jusqu’à 250 kW · 1 point'],
