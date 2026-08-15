@@ -1,0 +1,34 @@
+{
+  "supplements": [
+    {
+      "id": "verified:atlante:fratlfr00716",
+      "officialSiteId": "FRATLFR00716",
+      "operator": "atlante",
+      "name": "Atlante Saint-Pierre-d'Irube - Centre Commercial Ametzondo Shopping",
+      "address": "2-4 avenue du Portou, 64990 Saint-Pierre-d'Irube",
+      "city": "Saint-Pierre-d'Irube",
+      "lat": 43.48227,
+      "lon": -1.44582,
+      "power": 300,
+      "connectors": 34,
+      "pointIds": [
+        "FR*ATL*E10257*1", "FR*ATL*E10257*2", "FR*ATL*E10258*1", "FR*ATL*E10258*2",
+        "FR*ATL*E10259*1", "FR*ATL*E10259*2", "FR*ATL*E10260*1", "FR*ATL*E10260*2",
+        "FR*ATL*E10261*1", "FR*ATL*E10261*2", "FR*ATL*E10262*1", "FR*ATL*E10262*2",
+        "FR*ATL*E10263*1", "FR*ATL*E10263*2", "FR*ATL*E10264*1", "FR*ATL*E10264*2",
+        "FR*ATL*E10265*1", "FR*ATL*E10265*2", "FR*ATL*E10266*1", "FR*ATL*E10266*2",
+        "FR*ATL*E10267*1", "FR*ATL*E10268*1", "FR*ATL*E10268*2", "FR*ATL*E10269*1",
+        "FR*ATL*E10269*2", "FR*ATL*E10270*1", "FR*ATL*E10271*1", "FR*ATL*E10271*2",
+        "FR*ATL*E10272*1", "FR*ATL*E10272*2", "FR*ATL*E10273*1", "FR*ATL*E10273*2",
+        "FR*ATL*E10274*1", "FR*ATL*E10274*2"
+      ],
+      "powerRangeKw": [50, 300],
+      "officialUrl": "https://map.atlante.energy/?iframe=true&lang=fr",
+      "openedAt": "2026-08-13",
+      "lastVerifiedAt": "2026-08-15",
+      "provenance": "operator_verified",
+      "verification": "Existence physique confirmée sur place par le propriétaire de kWhiz ; caractéristiques recoupées avec les données publiques de la carte officielle Atlante.",
+      "temporary": true
+    }
+  ]
+}

@@ -53,6 +53,7 @@ test('accepte une évolution hebdomadaire modérée et produit le rapport PR', (
   assert.match(markdown, /Associations encore écrasées : \*\*0\*\*/);
 });
 
+
 test('amorce les associations lorsque le fichier publié utilise encore l’ancien format', () => {
   const current = fixture(10);
   delete current.status.metrics;

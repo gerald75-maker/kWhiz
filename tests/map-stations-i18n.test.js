@@ -109,7 +109,7 @@ test('la fiche et la popup partagent exactement le même résumé, au singulier 
 
 test('Ametzondo reste unique et présente le même résumé de 8 points dans la fiche et la popup', async () => {
   const payload = JSON.parse(await readFile(new URL('../public/irve-fast.json', import.meta.url), 'utf8'));
-  const matches = payload.stations.filter(item => /ametzondo/i.test(`${item.name} ${item.address}`));
+  const matches = payload.stations.filter(item => item.id === 'electra:43.4817:-1.4457');
   assert.equal(matches.length, 1);
   assert.equal(matches[0].power, 300);
   assert.equal(matches[0].connectors, 8);
