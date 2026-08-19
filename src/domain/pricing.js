@@ -88,6 +88,10 @@ export function calculateBreakeven(formula, consumption) {
         return { kwh: 0, km: 0, costPer100km, monthlyCost: 0 };
     }
 
+    if (formula.referenceUnavailable === true) {
+        return { kwh: Infinity, km: Infinity, costPer100km, monthlyCost };
+    }
+
     const saving = ref - rate;
     if (saving <= 0) return { kwh: Infinity, km: Infinity, costPer100km, monthlyCost };
 
@@ -103,6 +107,7 @@ export function calculateBreakeven(formula, consumption) {
 export function chargebackBreakeven(formula, consumption, gemsRate) {
     if (!formula || !Number.isFinite(consumption) || consumption <= 0) return Infinity;
     if (formula.period === PERIOD.NONE || formula.cost === 0) return 0;
+    if (formula.referenceUnavailable === true) return Infinity;
 
     const effectiveRate = atlanteSteadyStateRate(formula.rate, gemsRate);
     const saving = formula.ref - effectiveRate;

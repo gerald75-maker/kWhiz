@@ -62,7 +62,8 @@ export function offerDetailSubscriptionLabel(formula) {
     return t('offerDetail.monthlySubscription', { amount: currency(formula.cost) });
 }
 
-export function offerDetailThresholdLabel(value) {
+export function offerDetailThresholdLabel(value, { referenceUnavailable = false } = {}) {
+    if (referenceUnavailable) return t('offerDetail.referenceUnavailable');
     if (value === 0) return t('offerDetail.noBreakEven');
     if (value === Infinity) return t('offerDetail.notProfitable');
     return t('offerDetail.breakEvenValue', { distance: formatNumber(Math.round(value)) });
@@ -125,7 +126,7 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
             <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>${t('offerDetail.energyPrice')}</dt><dd>${offerDetailPricingLabel(formula)}</dd></span></div>
             <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>${t('offerDetail.subscription')}</dt><dd>${offerDetailSubscriptionLabel(formula)}</dd></span></div>
             <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>${t('offerDetail.estimatedCost')}</dt><dd>${t('offerDetail.costPer100km', { amount: currency(formula.costPer100km) })}</dd></span></div>
-            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>${t('offerDetail.breakEven')}</dt><dd>${offerDetailThresholdLabel(formula.km)}</dd></span></div>
+            <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>${t('offerDetail.breakEven')}</dt><dd>${offerDetailThresholdLabel(formula.km, formula)}</dd></span></div>
         </dl>
         <section class="formula-history" data-state="${evolution.state}">
             <div class="formula-history-heading"><h3>${t('offerDetail.history.title')}</h3><span>${rateDelta}</span></div>

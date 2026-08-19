@@ -33,7 +33,7 @@ const messages = {
     'comparison.breakEvenFrom': 'Abonnement rentabilisé dès {distance} km/mois', 'comparison.breakEvenWithFastShare': 'Abonnement rentabilisé dès {total} km/mois au total, soit {fast} km rechargés sur bornes rapides',
     'comparison.details': 'Détails tarifaires', 'comparison.viewDetails': 'Voir le détail de {operator} · {formula}', 'comparison.empty': 'Aucune formule ne correspond à cette recherche.',
     'comparison.badge.variable': 'Tarif variable', 'comparison.badge.range': 'Plage tarifaire', 'comparison.badge.discount': 'Remise', 'comparison.badge.fixed': 'Tarif fixe',
-    'comparison.estimatedFastCost': 'Recharge rapide estimée, abonnement compris', 'comparison.lowestCost': 'Meilleur coût', 'comparison.moreThanLowest': '+{amount} par rapport à la meilleure', 'comparison.unavailable': 'Coût non calculable', 'comparison.chargebackIncluded': 'ChargeBack estimé inclus', 'comparison.detailButton': 'Détails',
+    'comparison.estimatedFastCost': 'Recharge rapide estimée, abonnement compris', 'comparison.lowestCost': 'Meilleur coût', 'comparison.moreThanLowest': '+{amount} par rapport à la meilleure', 'comparison.unavailable': 'Coût non calculable', 'comparison.chargebackIncluded': 'ChargeBack inclus', 'comparison.detailButton': 'Détails',
     'operators.heading.kicker': 'Réseaux de recharge rapide', 'operators.heading.title': 'Opérateurs et formules',
     'operators.heading.intro': 'Consultez les prix publiés, les abonnements et leur seuil de rentabilité.',
     'operators.viewMode.details': 'Afficher le détail des prix',
@@ -331,6 +331,7 @@ const messages = {
     'offerDetail.unknownDate': 'Date inconnue',
     'offerDetail.validUntil': 'Conditions valables jusqu’au {date}',
     'offerDetail.estimateWarning': 'Le classement utilise une estimation, pas un prix garanti.',
+    'offerDetail.referenceUnavailable': 'Référence variable · seuil non calculé',
     'offerDetail.officialSource': 'Consulter la source officielle',
     'offerDetail.operatorStations': 'Voir les bornes de l’opérateur',
     'tariffs.freshness.today': 'Tarifs vérifiés aujourd’hui',
@@ -420,7 +421,7 @@ const messages = {
     'comparison.breakEvenFrom': 'Subscription pays for itself from {distance} km/month', 'comparison.breakEvenWithFastShare': 'Subscription pays for itself from {total} km/month total, including {fast} km at fast chargers',
     'comparison.details': 'Pricing details', 'comparison.viewDetails': 'View details for {operator} · {formula}', 'comparison.empty': 'No plan matches this search.',
     'comparison.badge.variable': 'Variable price', 'comparison.badge.range': 'Price range', 'comparison.badge.discount': 'Discount', 'comparison.badge.fixed': 'Fixed price',
-    'comparison.estimatedFastCost': 'Estimated fast charging, subscription included', 'comparison.lowestCost': 'Lowest cost', 'comparison.moreThanLowest': '{amount} more than the lowest', 'comparison.unavailable': 'Cost unavailable', 'comparison.chargebackIncluded': 'Estimated ChargeBack included', 'comparison.detailButton': 'Details',
+    'comparison.estimatedFastCost': 'Estimated fast charging, subscription included', 'comparison.lowestCost': 'Lowest cost', 'comparison.moreThanLowest': '{amount} more than the lowest', 'comparison.unavailable': 'Cost unavailable', 'comparison.chargebackIncluded': 'ChargeBack included', 'comparison.detailButton': 'Details',
     'operators.heading.kicker': 'Fast-charging networks', 'operators.heading.title': 'Networks and plans',
     'operators.heading.intro': 'View published prices, subscriptions and their break-even point.',
     'operators.viewMode.details': 'Show price details',
@@ -718,6 +719,7 @@ const messages = {
     'offerDetail.unknownDate': 'Unknown date',
     'offerDetail.validUntil': 'Terms valid until {date}',
     'offerDetail.estimateWarning': 'The ranking uses an estimate, not a guaranteed price.',
+    'offerDetail.referenceUnavailable': 'Variable reference · break-even not calculated',
     'offerDetail.officialSource': 'View official source',
     'offerDetail.operatorStations': 'View this network’s chargers',
     'tariffs.freshness.today': 'Prices checked today',
@@ -956,7 +958,10 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Power.': 'Annual subscription with the same per-kWh price as the monthly Power plan.'
   ,'Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul.': 'Price varies by charger or partner network. The calculation uses an indicative value.'
   ,'Tarif standard dépendant du point de charge et du moyen de paiement.': 'Standard price depending on the charger and payment method.'
+  ,'Tarif sans abonnement variable selon la station et le moyen de paiement. 0,54 €/kWh est une hypothèse de calcul, pas un tarif national ; consultez myAtlante avant la recharge.': 'The no-subscription price varies by station and payment method. €0.54/kWh is a calculation assumption, not a nationwide price; check myAtlante before charging.'
   ,'0,29 €/kWh chez Atlante. ChargeBack à 50 %.': '€0.29/kWh at Atlante. 50% ChargeBack.'
+  ,'0,29 €/kWh chez Atlante pour 9,99 €/mois. ChargeBack à 50 % intégré comme estimation. Tarifs partenaires informatifs : 0,42 €/kWh chez Powerdot et 0,49 €/kWh chez Electra, Fastned et IONITY ; ils n’ajoutent aucune formule au classement Atlante.': '€0.29/kWh at Atlante for €9.99/month. 50% ChargeBack is included as an estimate. Informational partner prices: €0.42/kWh at Powerdot and €0.49/kWh at Electra, Fastned and IONITY; they do not add plans to Atlante’s ranking.'
+  ,'0,29 €/kWh uniquement avec Atlante Go à 9,99 €/mois. ChargeBack : 50 % de cagnottage Green Gems chez Atlante. Powerdot — 0,42 €/kWh. ChargeLeague — ChargeBack : 10 % de cagnottage Green Gems, avec un tarif de 0,49 €/kWh uniquement pour Atlante Go sur les réseaux partenaires Electra, Fastned et IONITY. Ces tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante.': '€0.29/kWh available only with Atlante Go at €9.99/month. ChargeBack: 50% back in Green Gems at Atlante. Powerdot — €0.42/kWh. ChargeLeague — ChargeBack: 10% back in Green Gems, with a €0.49/kWh price available only to Atlante Go members on the Electra, Fastned and IONITY partner networks. These partner prices are informational and do not add plans to Atlante’s ranking.'
   ,'Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.': 'Earn Green Gems with every charge and convert them into credit for your next sessions at Atlante or Powerdot.'
   ,'Abonnement à 5,99 €/mois jusqu’au 31 août 2026.': '€5.99/month subscription until 31 August 2026.'
   ,'1 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': '1% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'

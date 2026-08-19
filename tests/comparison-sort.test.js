@@ -193,7 +193,7 @@ test('le rendu résume ChargeBack et conserve exactement le coût calculé', () 
     setLanguage('fr', { persist: false, translate: false });
     renderComparisonTable([plan], profile);
     assert.match(list.innerHTML, new RegExp(expected.toFixed(2).replace('.', ',')));
-    assert.match(list.innerHTML, /ChargeBack estimé inclus/);
+    assert.match(list.innerHTML, /ChargeBack inclus/);
     assert.doesNotMatch(list.innerHTML, /4 sessions|tarif public|compare-benefit/);
 });
 

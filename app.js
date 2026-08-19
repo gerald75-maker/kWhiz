@@ -292,6 +292,7 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
                 rateMin:        Number.isFinite(formula.rateMin) ? formula.rateMin : null,
                 rateMax:        Number.isFinite(formula.rateMax) ? formula.rateMax : null,
                 discountPerKwh: Number.isFinite(formula.discountPerKwh) ? formula.discountPerKwh : null,
+                referenceUnavailable: formula.referenceUnavailable === true,
                 sourceUrl:      formula.sourceUrl || operator.sourceUrl || null,
                 verifiedAt:     formula.verifiedAt || operator.verifiedAt || null,
                 validUntil:     formula.validUntil || null,

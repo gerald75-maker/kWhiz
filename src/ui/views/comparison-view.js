@@ -70,7 +70,9 @@ export function buildComparisonRanking(formulas, { monthlyKm, consumption, fastP
         const fastChargingCost = Number.isFinite(estimatedMonthlyCost)
             ? Math.max(0, estimatedMonthlyCost - subscriptionCost)
             : Infinity;
-        const referenceCost = Number.isFinite(formula.ref) ? fastKwh * formula.ref : Infinity;
+        const referenceCost = formula.referenceUnavailable === true
+            ? Infinity
+            : Number.isFinite(formula.ref) ? fastKwh * formula.ref : Infinity;
         const subscriptionBenefit = subscriptionCost > 0 && Number.isFinite(referenceCost) && Number.isFinite(estimatedMonthlyCost)
             ? referenceCost - estimatedMonthlyCost
             : null;

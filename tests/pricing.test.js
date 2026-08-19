@@ -68,6 +68,14 @@ describe('ChargeBack Atlante', () => {
         assert.ok(km > 0);
         assert.equal(Number.isFinite(km), true);
     });
+
+    it('neutralise le seuil quand aucune référence nationale fiable n’est disponible', () => {
+        const formula = { rate: 0.29, ref: 0.54, cost: 9.99, period: PERIOD.MONTHLY, referenceUnavailable: true };
+        const result = calculateBreakeven(formula, 0.18);
+        assert.equal(result.monthlyCost, 9.99);
+        assert.equal(result.km, Infinity);
+        assert.equal(chargebackBreakeven(formula, 0.18, 0.5), Infinity);
+    });
 });
 
 
