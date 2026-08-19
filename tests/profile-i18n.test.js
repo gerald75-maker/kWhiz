@@ -6,6 +6,7 @@ import {
     profileMonthlyAmount,
     profileShareStatusLabel,
     profileThresholdLabel,
+    recommendationSubscriptionLabel,
     renderProfileHero,
     renderProfileRanking,
     renderProfileShortlist,
@@ -30,6 +31,7 @@ function installDocument(km = 1000) {
         ['profile-best-card', new FakeElement()],
         ['profile-shortlist-list', new FakeElement()],
         ['profile-ranking-list', new FakeElement()],
+        ['profile-ranking-details', new FakeElement()],
         ['profile-km', new FakeElement({ value: String(km) })]
     ]);
     globalThis.document = {
@@ -49,6 +51,8 @@ function formula(name, overrides = {}) {
         rate: 0.40,
         rateRaw: 0.40,
         chargebackRate: null,
+        cost: 0,
+        period: 'none',
         monthlyCost: 0,
         km: 0,
         profileMonthlyCost: 40,
@@ -61,7 +65,7 @@ function renderShortlist(language) {
     setLanguage(language, { persist: false, translate: false });
     renderProfileShortlist([
         formula('Tarif unique', { opKey: 'iecharge', operator: 'IECharge', profileMonthlyCost: 40 }),
-        formula('Atlante Go - mensuel', { opKey: 'atlante', operator: 'Atlante', monthlyCost: 9.99, profileMonthlyCost: 45 }),
+        formula('Atlante Go - mensuel', { opKey: 'atlante', operator: 'Atlante', cost: 9.99, period: 'monthly', monthlyCost: 9.99, profileMonthlyCost: 45 }),
         formula('Happy Hours - heures creuses', { opKey: 'izivia', operator: 'Izivia', profileMonthlyCost: 50 })
     ], {}, new Set(['atlante::Atlante Go - mensuel']));
     return elements.get('profile-shortlist-list').innerHTML;
@@ -169,25 +173,47 @@ test('rend le singulier et un abonnement déjà rentabilisé', () => {
 test('localise le Top 3, ses monnaies et les aria-labels sans traduire les noms commerciaux', () => {
     const french = renderShortlist('fr');
     assert.match(french, /Tarif unique · Sans abonnement/);
-    assert.match(french, /Atlante Go - mensuel · 9,99(?: |\s)€\/mois d’abonnement/);
+    assert.match(french, /Atlante Go - mensuel · 9,99(?: |\s)€\/mois/);
+    assert.match(french, /Détails ›/);
+    assert.match(french, /aria-label="Voir le détail de Atlante · Atlante Go - mensuel"/);
     assert.match(french, /aria-label="Retirer des favoris"/);
 
     const english = renderShortlist('en');
     assert.match(english, /Standard price · No subscription/);
-    assert.match(english, /Atlante Go — monthly · €9\.99\/month subscription/);
+    assert.match(english, /Atlante Go — monthly · €9\.99\/month/);
     assert.match(english, /Happy Hours — off-peak · No subscription/);
     assert.match(english, /aria-label="Remove from favourites"/);
     assert.match(english, />€40\.00</);
     assert.doesNotMatch(english, /Sans abonnement|d’abonnement|Ajouter aux favoris|Retirer des favoris|coût le plus bas/);
 });
 
-test('rend le classement complet compact sans dupliquer les détails tarifaires', () => {
+test('affiche les abonnements mensuel et annuel puis ouvre le détail existant', () => {
+    const elements = installDocument();
+    setLanguage('fr', { persist: false, translate: false });
+    assert.equal(recommendationSubscriptionLabel(formula('Mensuel', { cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '9,99 €/mois');
+    assert.equal(recommendationSubscriptionLabel(formula('Annuel', { cost: 49.99, monthlyCost: 49.99 / 12, period: 'annual' })), '49,99 €/an, soit 4,17 €/mois');
+
+    const plans = [formula('Atlante Go - mensuel', { operator: 'Atlante', opKey: 'atlante', cost: 9.99, monthlyCost: 9.99 })];
+    let opened = null;
+    renderProfileShortlist(plans, {}, new Set(), undefined, formula => { opened = formula; });
+    const trigger = {
+        dataset: { detail: 'atlante::Atlante Go - mensuel' },
+        closest: selector => selector === '[data-detail]' ? trigger : null
+    };
+    elements.get('profile-shortlist-list').onclick({ target: trigger });
+    assert.equal(opened, plans[0]);
+});
+
+test('rend uniquement la suite compacte à partir de la quatrième offre', () => {
     const elements = installDocument(1000);
     setLanguage('fr', { persist: false, translate: false });
     renderProfileView({
         formulasData: [
             formula('Tarif unique', { operator: 'IECharge', opKey: 'iecharge', rate: 0.25, note: 'Note à masquer.' }),
-            formula('Atlante Go - mensuel', { operator: 'Atlante', opKey: 'atlante', rate: 0.20, monthlyCost: 9.99 })
+            formula('Atlante Go - mensuel', { operator: 'Atlante', opKey: 'atlante', rate: 0.20, cost: 9.99, period: 'monthly', monthlyCost: 9.99 }),
+            formula('Troisième', { operator: 'C', opKey: 'c', rate: 0.30 }),
+            formula('Quatrième', { operator: 'D', opKey: 'd', rate: 0.40 }),
+            formula('Cinquième', { operator: 'E', opKey: 'e', rate: 0.50 })
         ],
         consumption: 0.18,
         fastPercentage: 100,
@@ -197,27 +223,42 @@ test('rend le classement complet compact sans dupliquer les détails tarifaires'
     });
     const html = elements.get('profile-ranking-list').innerHTML;
     assert.equal((html.match(/<article/g) || []).length, 2);
-    assert.match(html, /Meilleur coût/);
-    assert.match(html, /Retirer des favoris/);
+    assert.match(html, />4<\/span>/);
+    assert.match(html, />5<\/span>/);
+    assert.doesNotMatch(html, /IECharge|Atlante|Troisième|Meilleur coût/);
     assert.doesNotMatch(html, /Note à masquer|0,25|d’abonnement|Seuil|<table|<th|<td/);
+});
+
+test('masque la suite lorsqu’il n’existe pas plus de trois offres', () => {
+    const elements = installDocument();
+    renderProfileRanking([
+        formula('Première'),
+        formula('Deuxième'),
+        formula('Troisième')
+    ], {}, new Set());
+    assert.equal(elements.get('profile-ranking-list').innerHTML, '');
+    assert.equal(elements.get('profile-ranking-details').hidden, true);
 });
 
 test('préserve le nombre, l’ordre, les coûts et les écarts avec Intl en FR et EN', () => {
     const ranked = [
         formula('Première', { operator: 'A', opKey: 'a', profileMonthlyCost: 45 }),
         formula('Deuxième', { operator: 'B', opKey: 'b', profileMonthlyCost: 47.51 }),
-        formula('Indisponible', { operator: 'C', opKey: 'c', profileMonthlyCost: Infinity })
+        formula('Troisième', { operator: 'C', opKey: 'c', profileMonthlyCost: 50 }),
+        formula('Quatrième', { operator: 'D', opKey: 'd', profileMonthlyCost: 55 }),
+        formula('Indisponible', { operator: 'E', opKey: 'e', profileMonthlyCost: Infinity })
     ];
     for (const language of ['fr', 'en']) {
         const elements = installDocument();
         setLanguage(language, { persist: false, translate: false });
         renderProfileRanking(ranked, {}, new Set());
         const html = elements.get('profile-ranking-list').innerHTML;
-        assert.equal((html.match(/<article/g) || []).length, ranked.length);
-        assert.ok(html.indexOf('Première') < html.indexOf('Deuxième'));
-        assert.match(html, language === 'fr' ? /45,00(?: |\s)€\/mois/ : /€45\.00\/month/);
-        assert.match(html, language === 'fr' ? /47,51(?: |\s)€\/mois/ : /€47\.51\/month/);
-        assert.match(html, language === 'fr' ? /\+2,51(?: |\s)€/ : /\+€2\.51/);
+        assert.equal((html.match(/<article/g) || []).length, 2);
+        assert.equal(elements.get('profile-ranking-details').hidden, false);
+        assert.doesNotMatch(html, /Première|Deuxième|Troisième/);
+        assert.ok(html.indexOf('Quatrième') < html.indexOf('Indisponible'));
+        assert.match(html, language === 'fr' ? /55,00(?: |\s)€\/mois/ : /€55\.00\/month/);
+        assert.match(html, language === 'fr' ? /\+10,00(?: |\s)€/ : /\+€10\.00/);
         assert.match(html, language === 'fr' ? /Coût indisponible/ : /Cost unavailable/);
     }
 });
@@ -232,8 +273,8 @@ test('formate exactement les coûts mensuels et annuels avec Intl', () => {
 });
 
 test('la bascule FR ↔ EN rerend toutes les zones et localise les messages de partage', () => {
-    assert.match(renderShortlist('fr'), /9,99(?: |\s)€\/mois d’abonnement/);
-    assert.match(renderShortlist('en'), /Atlante Go — monthly · €9\.99\/month subscription/);
+    assert.match(renderShortlist('fr'), /9,99(?: |\s)€\/mois/);
+    assert.match(renderShortlist('en'), /Atlante Go — monthly · €9\.99\/month/);
     assert.match(renderShortlist('fr'), /Sans abonnement/);
 
     setLanguage('fr', { persist: false, translate: false });

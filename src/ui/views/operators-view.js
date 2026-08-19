@@ -80,11 +80,9 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
     if (!container) return;
     const open = new Set(Array.from(container.querySelectorAll?.('details[open][data-operator]') || [], node => node.dataset.operator));
     container.innerHTML = '';
-    const sorted = Object.entries(operators).sort((a, b) => {
-        const aFav = a[1].formulas.some(formula => favorites.has(formulaFavoriteId(a[0], formula.name)));
-        const bFav = b[1].formulas.some(formula => favorites.has(formulaFavoriteId(b[0], formula.name)));
-        return Number(bFav) - Number(aFav) || a[1].name.localeCompare(b[1].name, getLocale());
-    });
+    const sorted = Object.entries(operators).sort((a, b) =>
+        a[1].name.localeCompare(b[1].name, getLocale(), { sensitivity: 'base' })
+    );
 
     for (const [opKey, operator] of sorted) {
         const card = document.createElement('details');

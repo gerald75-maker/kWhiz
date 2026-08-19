@@ -361,7 +361,8 @@ function renderProfile() {
         homeRate: HOME_RATE_KWH,
         logos: LOGOS,
         favorites,
-        onToggleFavorite: handleToggleFavorite
+        onToggleFavorite: handleToggleFavorite,
+        onDetail: openFormulaDetail
     });
 }
 

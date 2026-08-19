@@ -24,7 +24,7 @@ const requiredBindings = [
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
   'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.controls.homeRateHint',
   'profile.ranking.kicker', 'profile.ranking.title', 'profile.ranking.estimatedMonthlyCost',
-  'profile.ranking.full',
+  'profile.ranking.next', 'profile.ranking.hideNext',
   'navigation.profile', 'navigation.profileLabel', 'navigation.compare', 'navigation.compareLabel',
   'navigation.operators', 'navigation.operatorsLabel', 'navigation.map', 'navigation.mapLabel',
   'navigation.menu', 'navigation.menuLabel'
@@ -67,8 +67,8 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   assert.match(html, /class="bnav-item active"[^>]*id="bnav-profile"/);
 });
 
-test('le classement complet est une liste compacte sans tableau horizontal', () => {
-  assert.match(html, /<details class="profile-comparison-details">\s*<summary[^>]*>[^<]+<\/summary>\s*<div class="profile-ranking-list" id="profile-ranking-list"><\/div>\s*<\/details>/s);
+test('la suite du classement est une liste compacte sans tableau horizontal', () => {
+  assert.match(html, /<details class="profile-comparison-details" id="profile-ranking-details">\s*<summary>.*profile\.ranking\.next.*profile\.ranking\.hideNext.*<\/summary>\s*<div class="profile-ranking-list" id="profile-ranking-list"><\/div>\s*<\/details>/s);
   assert.doesNotMatch(html, /id="profile-table"|id="profile-body"/);
 });
 

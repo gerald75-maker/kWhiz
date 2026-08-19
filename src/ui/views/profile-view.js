@@ -3,6 +3,7 @@ import { escapeHtml } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
 import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
+import { offerDetailSubscriptionLabel } from './offer-detail-view.js';
 
 function currency(value, fractionDigits = 2) {
     return formatCurrency(value, {
@@ -210,13 +211,29 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
 
 
 export function recommendationSubscriptionLabel(formula) {
-    if (!(formula.monthlyCost > 0)) return t('recommendation.noSubscription');
-    return t('recommendation.subscriptionMonthly', {
-        amount: currency(formula.monthlyCost)
-    });
+    return offerDetailSubscriptionLabel(formula);
 }
 
-export function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite) {
+function detailKey(formula) {
+    return `${formula.opKey}::${formula.name}`;
+}
+
+function detailButton(formula) {
+    const operator = localizeCommercialLabel(formula.operator);
+    const name = localizeCommercialLabel(formula.name);
+    return `<button type="button" class="profile-card-open" data-detail="${escapeHtml(detailKey(formula))}" aria-label="${escapeHtml(t('profile.ranking.viewDetails', { operator, formula: name }))}"></button>`;
+}
+
+function bindProfileList(list, formulas, onDetail) {
+    list.onclick = event => {
+        const trigger = event.target.closest?.('[data-detail]');
+        if (!trigger) return;
+        const formula = formulas.find(item => detailKey(item) === trigger.dataset.detail);
+        if (formula) onDetail?.(formula, trigger);
+    };
+}
+
+export function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail) {
     const list = document.getElementById('profile-shortlist-list');
     if (!list) return;
 
@@ -240,6 +257,7 @@ export function renderProfileShortlist(profileData, logos, favorites, onToggleFa
 
         return `
             <article class="profile-shortlist-item${index === 0 ? ' profile-shortlist-item--best' : ''}">
+                ${detailButton(formula)}
                 <button type="button" class="favorite-btn favorite-btn--shortlist${isFavorite ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(formula.opKey, formula.name))}" aria-label="${favoriteLabel(isFavorite)}" aria-pressed="${isFavorite}">★</button>
                 <div class="profile-shortlist-rank">${index + 1}</div>
                 <div class="profile-shortlist-name">
@@ -249,39 +267,48 @@ export function renderProfileShortlist(profileData, logos, favorites, onToggleFa
                 <div class="profile-shortlist-cost">
                     <strong>${currency(formula.profileMonthlyCost)}</strong>
                     <span>${index === 0 ? t('recommendation.lowestCost') : t('recommendation.favoriteGap', { amount: currency(gap) })}</span>
+                    <span class="profile-card-detail" aria-hidden="true">${t('profile.ranking.details')} ›</span>
                 </div>
             </article>`;
     }).join('');
     list.querySelectorAll('[data-favorite-id]').forEach(button => {
         button.addEventListener('click', () => onToggleFavorite?.(button.dataset.favoriteId));
     });
+    bindProfileList(list, top, onDetail);
 }
 
-export function renderProfileRanking(profileData, logos, favorites, onToggleFavorite) {
+export function renderProfileRanking(profileData, logos, favorites, onToggleFavorite, onDetail) {
     const list = document.getElementById('profile-ranking-list');
     if (!list) return;
 
+    const details = document.getElementById('profile-ranking-details');
+    const remaining = profileData.slice(3);
+    if (details) {
+        details.hidden = remaining.length === 0;
+        if (details.hidden) details.open = false;
+    }
+
     const best = profileData[0]?.profileMonthlyCost;
-    list.innerHTML = profileData.map((formula, index) => {
+    list.innerHTML = remaining.map((formula, index) => {
+        const rank = index + 4;
         const costIsFinite = Number.isFinite(formula.profileMonthlyCost);
         const gap = costIsFinite && Number.isFinite(best) ? formula.profileMonthlyCost - best : null;
         const isFavorite = favorites.has(formulaFavoriteId(formula.opKey, formula.name));
         const logo = renderOperatorLogo(logos, formula.opKey, 'profile-ranking-logo', 'profile-ranking-logo-frame');
         const cost = costIsFinite ? profileMonthlyAmount(formula.profileMonthlyCost) : t('profile.ranking.costUnavailable');
-        const difference = index === 0 && costIsFinite
-            ? t('profile.ranking.lowestCost')
-            : Number.isFinite(gap)
-                ? t('recommendation.favoriteGap', { amount: currency(gap) })
-                : t('profile.ranking.costUnavailable');
+        const difference = Number.isFinite(gap)
+            ? t('recommendation.favoriteGap', { amount: currency(gap) })
+            : t('profile.ranking.costUnavailable');
 
-        return `<article class="profile-ranking-item${index === 0 ? ' profile-ranking-item--best' : ''}">
-            <span class="profile-ranking-rank" aria-hidden="true">${index + 1}</span>
+        return `<article class="profile-ranking-item">
+            ${detailButton(formula)}
+            <span class="profile-ranking-rank" aria-hidden="true">${rank}</span>
             ${logo}
             <div class="profile-ranking-identity">
                 <strong>${escapeHtml(localizeCommercialLabel(formula.operator))}</strong>
-                <span>${escapeHtml(localizeCommercialLabel(formula.name))}</span>
+                <span>${escapeHtml(localizeCommercialLabel(formula.name))} · ${recommendationSubscriptionLabel(formula)}</span>
             </div>
-            <div class="profile-ranking-cost"><strong>${cost}</strong><span>${difference}</span></div>
+            <div class="profile-ranking-cost"><strong>${cost}</strong><span>${difference}</span><span class="profile-card-detail" aria-hidden="true">${t('profile.ranking.details')} ›</span></div>
             <button type="button" class="favorite-btn profile-ranking-favorite${isFavorite ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(formulaFavoriteId(formula.opKey, formula.name))}" aria-label="${favoriteLabel(isFavorite)}" aria-pressed="${isFavorite}">★</button>
         </article>`;
     }).join('');
@@ -289,9 +316,10 @@ export function renderProfileRanking(profileData, logos, favorites, onToggleFavo
     list.querySelectorAll('[data-favorite-id]').forEach(button => {
         button.addEventListener('click', () => onToggleFavorite?.(button.dataset.favoriteId));
     });
+    bindProfileList(list, remaining, onDetail);
 }
 
-export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite }) {
+export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail }) {
     renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos });
     const km = Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
 
@@ -303,6 +331,6 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
 
     // Tri par coût mensuel croissant
     profileData.sort((a, b) => a.profileMonthlyCost - b.profileMonthlyCost);
-    renderProfileShortlist(profileData, logos, favorites, onToggleFavorite);
-    renderProfileRanking(profileData, logos, favorites, onToggleFavorite);
+    renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail);
+    renderProfileRanking(profileData, logos, favorites, onToggleFavorite, onDetail);
 }

@@ -80,6 +80,16 @@ test('les compteurs conservent le nombre et l’ordre des formules', () => {
     assert.ok(html.indexOf('Offre test') < html.indexOf('Second'));
 });
 
+test('conserve un ordre alphabétique stable même lorsqu’une formule est favorite', () => {
+    const operators = {
+        z: { name: 'Zeta', color: 'z', formulas: [base] },
+        a: { name: 'Alpha', color: 'a', formulas: [{ ...base, name: 'Favorite' }] }
+    };
+    const { html } = render('fr', operators, { favorites: new Set(['z::Offre test']) });
+    assert.ok(html.indexOf('Alpha') < html.indexOf('Zeta'));
+    assert.match(html, /Retirer des favoris/);
+});
+
 test('la vue Opérateurs est sans tableau horizontal et le détail réutilise la modale existante', async () => {
     const source = await readFile(new URL('../src/ui/views/operators-view.js', import.meta.url), 'utf8');
     const index = await readFile(new URL('../index.html', import.meta.url), 'utf8');
