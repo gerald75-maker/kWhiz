@@ -165,6 +165,12 @@ test('autorise ponctuellement une migration entièrement couverte par des alias'
   assert.match(formatIrveReport(report), /Migration ponctuelle d’alias : \*\*autorisée et valide\*\*/);
   assert.match(formatIrveReport(report), /Stations avec conflits de métadonnées[\s\S]*access/);
 
+  const [alias] = Object.keys(candidate.status.stationAliases);
+  candidate.status.stationAliases[alias] = alias;
+  report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs(), groupingAudit, allowStationAliasMigration: true });
+  assert.ok(report.errors.some(error => /alias de station invalide/.test(error)));
+
+  candidate.status.stationAliases[alias] = groupingAudit.stationAliases[alias];
   delete candidate.status.stationAliases[removed[0].id];
   report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs(), groupingAudit, allowStationAliasMigration: true });
   assert.ok(report.errors.some(error => /Migration d’alias refusée/.test(error)));
@@ -183,7 +189,10 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.match(workflow, /--atlante-source=.*steps\.atlante\.outputs\.json/);
   assert.match(workflow, /candidate\/irve-grouping-audit\.json/);
   assert.match(workflow, /https:\/\/www\.data\.gouv\.fr\/api\/1\/datasets\/r\/eb76d20a-8501-400e-b336-d85724de5435/);
-  assert.match(workflow, /static\.data\.gouv\.fr\/resources\/base-nationale-des-irve/);
+  assert.match(workflow, /static\[\.\]data\[\.\]gouv\[\.\]fr\/resources\/base-nationale-des-irve/);
+  assert.match(workflow, /actions\/checkout@v6/);
+  assert.match(workflow, /actions\/setup-node@v6[\s\S]*node-version: 22/);
+  assert.match(workflow, /actions\/upload-artifact@v6/);
   assert.match(workflow, /https:\/\/map\.atlante\.energy\/geodata\.json/);
   assert.match(workflow, /git add -- public\/irve-fast\.json public\/irve-status-index\.json/);
   assert.doesNotMatch(workflow, /git add --[^\n]*irve-grouping-audit/);
@@ -197,6 +206,28 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.match(workflow, /git diff --check/);
   assert.match(workflow, /steps\.base\.outputs\.publish == 'true'/);
   assert.doesNotMatch(workflow, /git add -A|gh pr merge|npm version|deploy/i);
+});
+
+test('le workflow limite la redirection aux consolidations CSV IRVE officielles', async () => {
+  const workflow = await readFile(new URL('.github/workflows/update-irve.yml', root), 'utf8');
+  const source = workflow.match(/^  IRVE_EFFECTIVE_URL_REGEX: '(.+)'$/m);
+  assert.ok(source, 'expression de validation de la source IRVE absente');
+  const isOfficialIrveCsv = url => new RegExp(source[1]).test(url);
+
+  assert.equal(isOfficialIrveCsv('https://static.data.gouv.fr/resources/base-nationale-des-irve-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv'), true);
+  assert.equal(isOfficialIrveCsv('https://static.data.gouv.fr/resources/base-nationale-des-irve-data-gouv-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv'), true);
+
+  const forbidden = [
+    'http://static.data.gouv.fr/resources/base-nationale-des-irve-data-gouv-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv',
+    'https://static.data.gouv.fr.evil.example/resources/base-nationale-des-irve/20260826/consolidation-irve.csv',
+    'https://evil.static.data.gouv.fr/resources/base-nationale-des-irve/20260826/consolidation-irve.csv',
+    'https://static.data.gouv.fr/resources/autre-base/20260826/consolidation-irve.csv',
+    'https://static.data.gouv.fr/resources/base-nationale-des-irve/20260826/consolidation-irve.json',
+    'https://static.data.gouv.fr/resources/base-nationale-des-irve/20260826/export-irve.csv',
+    'https://static.data.gouv.fr/resources/base-nationale-des-irve/20260826/consolidation.csv',
+    'https://static.data.gouv.fr/resources/base-nationale-des-irve/20260826/consolidation-irve.csv?download=1'
+  ];
+  for (const url of forbidden) assert.equal(isOfficialIrveCsv(url), false, url);
 });
 
 test('le registre couvre tous les opérateurs actifs ou leur exception documentée', async () => {

@@ -28,6 +28,7 @@ concurrency:
 
 env:
   IRVE_RESOURCE_URL: https://www.data.gouv.fr/api/1/datasets/r/eb76d20a-8501-400e-b336-d85724de5435
+  IRVE_EFFECTIVE_URL_REGEX: '^https://static[.]data[.]gouv[.]fr/resources/base-nationale-des-irve[^?#]*/[^/?#]*consolidation[^/?#]*irve[^/?#]*[.]csv$'
   ATLANTE_RESOURCE_URL: https://map.atlante.energy/geodata.json
   UPDATE_BRANCH: automation/weekly-irve
 
@@ -56,7 +57,7 @@ jobs:
           fi
 
       - name: Extraire le dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ steps.base.outputs.branch }}
           fetch-depth: 0
@@ -68,7 +69,7 @@ jobs:
           php tests/irve-status-associations.php
 
       - name: Installer Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -85,10 +86,10 @@ jobs:
           effective_url=$(curl --fail --show-error --silent --location \
             --dump-header "$headers" --output "$csv" --write-out '%{url_effective}' \
             "$IRVE_RESOURCE_URL")
-          case "$effective_url" in
-            https://static.data.gouv.fr/resources/base-nationale-des-irve-infrastructures-de-recharge-pour-vehicules-electriques/*.csv) ;;
-            *) echo "Source finale non officielle ou inattendue : $effective_url" >&2; exit 1 ;;
-          esac
+          if [[ ! "$effective_url" =~ $IRVE_EFFECTIVE_URL_REGEX ]]; then
+            echo "Source finale non officielle ou inattendue : $effective_url" >&2
+            exit 1
+          fi
           if [[ "$effective_url" =~ (20[0-9]{6}) ]]; then
             compact="${BASH_REMATCH[1]}"
             source_date="${compact:0:4}-${compact:4:2}-${compact:6:2}"
@@ -184,7 +185,7 @@ jobs:
 
       - name: Archiver le rapport de contrôle
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: rapport-irve
           path: |

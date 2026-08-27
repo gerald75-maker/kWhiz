@@ -50,4 +50,11 @@ export function preservePublishedStationIds(stations, previousStationsPayload, p
   };
 }
 
+export function stabilizeStationAliases(stationAliases, renames) {
+  return Object.fromEntries(Object.entries(stationAliases)
+    .map(([alias, canonical]) => [alias, renames[canonical] || canonical])
+    .filter(([alias, canonical]) => alias !== canonical)
+    .sort(([left], [right]) => left.localeCompare(right)));
+}
+
 export { MAX_STABLE_ID_DISTANCE_METERS };
