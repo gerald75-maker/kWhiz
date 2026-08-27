@@ -4,7 +4,7 @@ import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 import { buildStatusAssociations } from './irve-status-associations.mjs';
 import { groupCertainStations } from './irve-station-groups.mjs';
-import { preservePublishedStationIds } from './irve-station-identity.mjs';
+import { preservePublishedStationIds, stabilizeStationAliases } from './irve-station-identity.mjs';
 import { loadAtlanteCatalog, mergeAtlanteCatalog, formatAtlanteReport } from './irve-atlante-connector.mjs';
 import { qualifyFastStation } from './irve-fast-qualification.mjs';
 
@@ -160,9 +160,7 @@ grouped.stations = stabilized.stations;
 for (const item of atlante.audit) {
   item.stationIds = item.stationIds.map(id => stabilized.renames[id] || id).sort();
 }
-for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
-  if (stabilized.renames[canonical]) grouped.stationAliases[alias] = stabilized.renames[canonical];
-}
+grouped.stationAliases = stabilizeStationAliases(grouped.stationAliases, stabilized.renames);
 const data = grouped.stations.map(station => {
   const points = [...station.points.values()];
   const maxPower = qualifyFastStation(station).maxPowerKw;
@@ -191,12 +189,13 @@ const data = grouped.stations.map(station => {
 }).sort((a, b) => a.operator.localeCompare(b.operator) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
 
 const metadataConflicts = grouped.grouping.metadataConflicts;
+const aliasCount = Object.keys(grouped.stationAliases).length;
 const grouping = {
   certainGroups: grouped.grouping.certainGroups,
   probableGroups: grouped.grouping.probableGroups,
   ambiguousGroups: grouped.grouping.ambiguousGroups,
-  removedStations: grouped.grouping.removedStations,
-  aliases: Object.keys(grouped.stationAliases).length,
+  removedStations: aliasCount,
+  aliases: aliasCount,
   metadataConflictCount: metadataConflicts.length
 };
 writeFileSync(output, JSON.stringify({
