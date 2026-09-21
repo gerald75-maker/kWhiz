@@ -100,12 +100,15 @@ test('l’aide concise ne réintroduit ni étapes artificielles ni numérotation
   assert.doesNotMatch(help, /<ol|class="help-num"/);
 });
 
-test('un itinéraire propose Plans, Google Maps et Waze', async () => {
+test('une borne peut être envoyée vers Wattway ou ouverte dans une app GPS', async () => {
   const [html, source] = await Promise.all([
     readFile(new URL('index.html', root), 'utf8'),
     readFile(new URL('src/ui/stations-map.js', root), 'utf8')
   ]);
-  assert.match(html, /data-i18n="map\.gps\.chooseApp"/);
+  assert.match(html, /data-i18n="map\.station\.actionsTitle"/);
+  assert.match(html, /id="route-wattway-destination"/);
+  assert.match(html, /id="route-wattway-via"/);
+  assert.match(source, /buildWattwayLink/);
   assert.match(source, /maps\.apple\.com/);
   assert.match(source, /google\.com\/maps\/dir/);
   assert.match(source, /waze\.com\/ul/);

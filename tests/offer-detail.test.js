@@ -73,11 +73,11 @@ test('rend une offre sans abonnement en français et en anglais sans traduire so
 
 test('localise les abonnements mensuel et annuel avec leur équivalent mensuel', () => {
     setLanguage('fr', { persist: false, translate: false });
-    assert.match(offerDetailSubscriptionLabel(formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), /9,99 €\/mois/);
+    assert.equal(offerDetailSubscriptionLabel(formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '9,99 €/mois · Sans engagement');
     assert.match(offerDetailSubscriptionLabel(formula({ cost: 60, monthlyCost: 5, period: 'annual' })), /60,00 €\/an, soit 5,00 €\/mois/);
 
     setLanguage('en', { persist: false, translate: false });
-    assert.equal(offerDetailSubscriptionLabel(formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '€9.99/month');
+    assert.equal(offerDetailSubscriptionLabel(formula({ cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '€9.99/month · No commitment');
     assert.equal(offerDetailSubscriptionLabel(formula({ cost: 60, monthlyCost: 5, period: 'annual' })), '€60.00/year, equivalent to €5.00/month');
 });
 

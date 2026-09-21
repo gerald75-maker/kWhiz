@@ -12,11 +12,12 @@ test('Electra conserve six formules et les tarifs français vérifiés', () => {
   const app = byId.get('Application Electra - prix variable');
   const direct = byId.get('Paiement par badge ou carte');
   assert.deepEqual([app.rateMin, app.rateMax, app.rate, app.calculationBasis], [0.39, 0.61, 0.5, 'midpoint']);
-  assert.match(app.note, /station, l’heure et l’affluence/);
+  assert.match(app.note, /heures creuses, heures standard et heures de pointe/);
+  assert.match(app.note, /station, l’heure, le jour de la semaine et la demande/);
   assert.match(app.note, /prix exact est affiché dans l’application Electra avant la recharge/);
-  assert.deepEqual([direct.rate, direct.ref, direct.pricingType, direct.calculationBasis], [0.64, 0.64, 'station', 'estimate']);
-  assert.equal(app.verifiedAt, '2026-08-12');
-  assert.equal(direct.verifiedAt, '2026-08-12');
+  assert.deepEqual([direct.rate, direct.ref, direct.pricingType, direct.calculationBasis, direct.isMinimum], [0.61, 0.61, 'station', 'estimate', true]);
+  assert.equal(app.verifiedAt, '2026-09-21');
+  assert.equal(direct.verifiedAt, '2026-09-21');
 });
 
 test('Essential et Smart appliquent uniquement leurs remises Electra au calcul', () => {
@@ -50,5 +51,5 @@ test('les notes Electra contrôlées sont entièrement localisées en anglais', 
     assert.doesNotMatch(localized, /Sans engagement|Remise officielle|L’offre annuelle|tarif partenaire/);
   }
   const appNote = localizeTariffText(byId.get('Application Electra - prix variable').note);
-  assert.equal(appNote, 'Price varies by station, time of day and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.');
+  assert.equal(appNote, 'Three price levels apply in France and Belgium: off-peak, standard and peak hours. The level varies by station, time of day, day of the week and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.');
 });

@@ -190,7 +190,7 @@ test('localise le Top 3, ses monnaies et les aria-labels sans traduire les noms 
 test('affiche les abonnements mensuel et annuel puis ouvre le détail existant', () => {
     const elements = installDocument();
     setLanguage('fr', { persist: false, translate: false });
-    assert.equal(recommendationSubscriptionLabel(formula('Mensuel', { cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '9,99 €/mois');
+    assert.equal(recommendationSubscriptionLabel(formula('Mensuel', { cost: 9.99, monthlyCost: 9.99, period: 'monthly' })), '9,99 €/mois · Sans engagement');
     assert.equal(recommendationSubscriptionLabel(formula('Annuel', { cost: 49.99, monthlyCost: 49.99 / 12, period: 'annual' })), '49,99 €/an, soit 4,17 €/mois');
 
     const plans = [formula('Atlante Go - mensuel', { operator: 'Atlante', opKey: 'atlante', cost: 9.99, monthlyCost: 9.99 })];

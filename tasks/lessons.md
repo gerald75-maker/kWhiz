@@ -1,5 +1,15 @@
 # kWhiz — Leçons
 
+[2026-09-21] | Certains opérateurs publient uniquement leurs prix exacts dans l’application (Tesla, Electroverse) | Ne jamais transformer une estimation en tarif officiel : conserver `calculationBasis: estimate`, dater seulement les offres réellement contrôlées et le signaler dans la note.
+
+[2026-09-21] | Une promotion affichée comme prolongée peut ne plus avoir de date de fin publiée (Lidl) | Reprendre le prix actuel officiel sans inventer de `validUntil`, et préciser explicitement que la durée n’est pas annoncée.
+
+[2026-09-11] | La fenêtre de regroupement de dix minutes du nettoyage des assets fusionnait plusieurs builds successifs et conservait plus d’un ancien bundle | Regrouper les fichiers d’un même build sur une fenêtre courte correspondant à la durée réelle de Vite (30 secondes), puis vérifier le contenu final de `dist/assets/` après chaque livraison.
+
+[2026-09-11] | Une modification générique de `verifiedAt` n’a pas ciblé la formule Atlante Go attendue parmi plusieurs dates similaires | Pour actualiser une date de formule, inclure systématiquement son `id` ou son nom dans le contexte du patch, puis relire immédiatement le bloc JSON concerné avant de lancer les tests.
+
+[2026-09-11] | La date globale `_updated` de `public/tarifs.json` était vérifiée par un test consacré à Zunder, donc une mise à jour d’un autre opérateur a fait échouer la suite | Lors de toute actualisation de `_updated`, rechercher aussi les assertions exactes sur cette date dans tous les tests, même ceux dont le nom semble lié à un autre opérateur.
+
 [2026-07-28] | Les textes visibles ne se trouvent pas uniquement dans `index.html` : certaines chaînes sont générées dans les vues JavaScript, proviennent de `public/tarifs.json`, du manifeste PWA ou de pseudo-éléments CSS | Pour tout audit éditorial, inventorier séparément les textes statiques, dynamiques, accessibles (`aria-label`, `alt`, `title`), les données affichées et les contenus CSS avant de corriger ; préserver les identifiants et les constantes qui participent à la logique.
 
 [2026-06-22] | Remplacement de couleurs par `sed`/regex en aveugle peut corrompre des valeurs hex qui partagent un préfixe (ex. `#22c55e` est préfixe de `#22c55e22`, une couleur 8 chiffres avec alpha utilisée dans `.planner-badge`) | Avant tout remplacement en masse d'une couleur hex, grep d'abord toutes les occurrences de cette chaîne (y compris en sous-chaîne) et les couleurs de marque opérateur qui pourraient coïncider, puis traiter les cas ambigus avec des Edit ciblés plutôt qu'un remplacement global.

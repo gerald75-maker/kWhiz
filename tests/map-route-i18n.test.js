@@ -8,8 +8,9 @@ test('le formulaire et le choix GPS utilisent des clés structurées sans tradui
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   for (const key of [
     'map.route.title', 'map.route.start', 'map.route.destination', 'map.route.myLocation',
-    'map.route.showChargers', 'map.route.clear', 'map.gps.openDirections', 'map.gps.chooseApp',
-    'map.gps.appOrBrowser', 'map.gps.note'
+    'map.route.showChargers', 'map.route.clear', 'map.station.actionsKicker', 'map.station.actionsTitle',
+    'map.station.wattwayDestination', 'map.station.wattwayVia', 'map.station.openWattway',
+    'map.station.directNavigation', 'map.gps.appOrBrowser', 'map.gps.note'
   ]) assert.match(html, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
   assert.match(html, /data-i18n-placeholder="map\.route\.addressPlaceholder"/);
   assert.match(html, /data-i18n-aria-label="map\.route\.startInputLabel"/);
@@ -18,6 +19,8 @@ test('le formulaire et le choix GPS utilisent des clés structurées sans tradui
   assert.match(html, />Apple Maps</);
   assert.match(html, />Google Maps</);
   assert.match(html, />Waze</);
+  assert.match(html, /id="route-wattway-destination"/);
+  assert.match(html, /id="route-wattway-via"/);
 });
 
 test('seul le chevron du planificateur pivote à son ouverture', async () => {
@@ -74,6 +77,8 @@ test('localise le formulaire, les états courants, la liste et le choix GPS en F
   assert.equal(t('map.route.searchingAddresses'), 'Recherche des adresses…');
   assert.equal(t('map.route.calculating'), 'Calcul de l’itinéraire…');
   assert.equal(t('map.list.route'), 'Stations sur votre trajet');
+  assert.equal(t('map.station.wattwayDestination'), 'Utiliser comme destination');
+  assert.equal(t('map.station.wattwayVia'), 'Ajouter comme passage via');
   assert.equal(t('map.gps.chooseApp'), 'Choisir une application de navigation');
 
   setLanguage('en', { persist: false, translate: false });
@@ -84,6 +89,8 @@ test('localise le formulaire, les états courants, la liste et le choix GPS en F
   assert.equal(t('map.route.searchingAddresses'), 'Searching for addresses…');
   assert.equal(t('map.route.calculating'), 'Calculating route…');
   assert.equal(t('map.list.route'), 'Chargers along your route');
+  assert.equal(t('map.station.wattwayDestination'), 'Use as destination');
+  assert.equal(t('map.station.wattwayVia'), 'Add as a via point');
   assert.equal(t('map.gps.chooseApp'), 'Choose a navigation app');
   assert.equal(t('map.gps.openWith', { app: 'Waze' }), 'Open directions with Waze');
 });

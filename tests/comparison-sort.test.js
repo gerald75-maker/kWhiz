@@ -225,6 +225,14 @@ test('un abonnement annuel conserve son prix officiel et son équivalent mensuel
     assert.equal(subscriptionLabel(annual, 'fr'), '60,00 €/an, soit 5,00 €/mois');
 });
 
+test('un abonnement mensuel est présenté sans engagement en français et en anglais', () => {
+    const monthly = formula('Mensuel', { rate: 0.30, ref: 0.50, cost: 9.99, period: PERIOD.MONTHLY, monthlyCost: 9.99 });
+    assert.equal(subscriptionLabel(monthly, 'fr'), '9,99 €/mois · Sans engagement');
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(subscriptionLabel(monthly, 'en'), '€9.99/month · No commitment');
+    setLanguage('fr', { persist: false, translate: false });
+});
+
 test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => {
     setLanguage('fr', { persist: false, translate: false });
     const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });

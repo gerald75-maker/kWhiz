@@ -42,6 +42,8 @@ import {
     triggerNativeInstall,
     getInstallEnvironment,
     checkForApplicationUpdate,
+    markUpdateApplied,
+    showUpdateStatus,
     reloadApplication
 } from './src/pwa/pwa-manager.js';
 import { initModalManager, openModal } from './src/ui/modal-manager.js';
@@ -136,7 +138,10 @@ function setTariffsStatus(status) {
 
 async function checkStatusFromAbout() {
     const button = document.getElementById('about-check-update');
-    if (button) button.disabled = true;
+    if (button) {
+        button.disabled = true;
+        button.classList.add('is-checking');
+    }
     setApplicationStatus('checking', 'appStatus.checking');
 
     try {
@@ -144,13 +149,19 @@ async function checkStatusFromAbout() {
         if (result.reloadPending) return;
         if (!navigator.onLine) {
             setApplicationStatus('offline', 'appStatus.offline');
+            showUpdateStatus('pwa.status.checkFailed');
         } else {
             setApplicationStatus('current', 'appStatus.current');
+            showUpdateStatus('pwa.status.current');
         }
     } catch (error) {
         setApplicationStatus('error', 'appStatus.error');
+        showUpdateStatus('pwa.status.checkFailed');
     } finally {
-        if (button) button.disabled = false;
+        if (button) {
+            button.disabled = false;
+            button.classList.remove('is-checking');
+        }
     }
 }
 
@@ -161,6 +172,7 @@ async function refreshApplicationAndTariffs({ setStatus } = {}) {
     try {
         const updateResult = await checkForApplicationUpdate({ onStatus: setStatus });
         if (updateResult.updated) {
+            markUpdateApplied();
             setStatus?.('appUpdated');
             window.setTimeout(reloadApplication, 650);
             return { ok: true, state: 'appUpdated', reloadPending: true };

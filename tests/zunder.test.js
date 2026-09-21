@@ -26,7 +26,7 @@ test('contient les trois forfaits officiels Zunder', () => {
 });
 
 test('conserve la date de vérification dans les données sans la dupliquer dans la page Sources', () => {
-    assert.equal(tariffs._updated, '2026-08-06');
+    assert.equal(tariffs._updated, '2026-09-21');
     const infos = indexHtml.slice(indexHtml.indexOf('id="page-infos"'), indexHtml.indexOf('id="formula-detail-overlay"'));
     assert.doesNotMatch(infos, /Tarifs vérifiés le 6 août 2026/);
 });

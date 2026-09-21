@@ -1809,6 +1809,10 @@ body[data-view="map"] > .container { padding-top:max(10px, env(safe-area-inset-t
 .route-choice-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:11px; background:#111; color:#fff; font-size:1.2rem; font-weight:800; }
 .route-choice-icon--google { background:linear-gradient(135deg,#4285f4,#34a853); }
 .route-choice-icon--waze { background:#33ccff; color:#102a36; }
+.route-choice-icon--wattway { background:linear-gradient(135deg,#0aa7d8,#34c759); }
+.route-choice-link--wattway { border-color:color-mix(in srgb, var(--accent) 55%, var(--border-color)); }
+.route-choice-separator { display:flex; align-items:center; gap:8px; margin:5px 2px 0; color:var(--text-secondary); font-size:.7rem; font-weight:700; }
+.route-choice-separator::before, .route-choice-separator::after { content:""; height:1px; flex:1; background:var(--border-color); }
 .route-choice-note { margin:14px 2px 0; color:var(--text-secondary); font-size:.72rem; line-height:1.45; }
 @media (max-width:600px) {
     .map-page-heading { display:block; margin-bottom:10px; }
@@ -3130,6 +3134,46 @@ body.light .network-status[data-state="error"] { color: #991b1b; }
     cursor: pointer;
 }
 .app-status-check-btn:disabled { opacity: 0.6; cursor: wait; }
+.app-status-check-btn.is-checking::after {
+    content: '';
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-left: 0.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    vertical-align: -0.12rem;
+    animation: app-status-spin 0.6s linear infinite;
+}
+@keyframes app-status-spin { to { transform: rotate(360deg); } }
+
+.update-status-banner {
+    position: fixed;
+    z-index: 12000;
+    left: 50%;
+    top: 50%;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    padding: 15px 22px;
+    border: 2px solid rgba(255, 255, 255, 0.72);
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    color: #fff;
+    box-shadow: 0 12px 38px rgba(0, 194, 255, 0.42);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.94);
+    transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.update-status-banner.is-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
 
 
 /* v2.4.5 — fraîcheur des tarifs */

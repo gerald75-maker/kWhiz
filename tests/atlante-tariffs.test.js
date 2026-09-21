@@ -13,8 +13,8 @@ const go = atlante.formulas.find(formula => formula.id === 'atlante-go');
 test('Atlante conserve exactement ses deux offres directes vérifiées', () => {
     assert.equal(atlante.formulas.length, 2);
     assert.deepEqual([go.rate, go.cost, go.period], [0.29, 9.99, 'monthly']);
-    assert.equal(go.verifiedAt, '2026-08-19');
-    assert.equal(atlante.verifiedAt, '2026-08-19');
+    assert.equal(go.verifiedAt, '2026-09-21');
+    assert.equal(atlante.verifiedAt, '2026-09-21');
     assert.equal(go.chargebackEligible, true);
     assert.equal(go.referenceUnavailable, true);
 });
@@ -45,11 +45,11 @@ test('les tarifs partenaires et ChargeBack restent uniquement dans le détail At
             chargebackRate: go.rate / 1.5
         }
     });
-    assert.match(body.innerHTML, /0,29 €\/kWh uniquement avec Atlante Go à 9,99 €\/mois/);
-    assert.match(body.innerHTML, /ChargeBack : 50 % de cagnottage Green Gems chez Atlante/);
-    assert.match(body.innerHTML, /Powerdot — 0,42 €\/kWh/);
-    assert.match(body.innerHTML, /ChargeLeague — ChargeBack : 10 % de cagnottage Green Gems/);
-    assert.match(body.innerHTML, /0,49 €\/kWh uniquement pour Atlante Go sur les réseaux partenaires Electra, Fastned et IONITY/);
+    assert.match(body.innerHTML, /Atlante Go à 9,99 €\/mois, sans engagement/);
+    assert.match(body.innerHTML, /Atlante — 0,29 €\/kWh, ChargeBack à 50 % et décagnottage des Green Gems/);
+    assert.match(body.innerHTML, /Powerdot — 0,42 €\/kWh, ChargeBack à 10 % et décagnottage des Green Gems/);
+    assert.match(body.innerHTML, /ChargeLeague — 0,49 €\/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %/);
+    assert.match(body.innerHTML, /avantages sont réservés aux abonnés Atlante Go/);
     assert.match(body.innerHTML, /Référence variable · seuil non calculé/);
 
     setLanguage('en', { persist: false, translate: false });
@@ -66,7 +66,8 @@ test('les tarifs partenaires et ChargeBack restent uniquement dans le détail At
             chargebackRate: go.rate / 1.5
         }
     });
-    assert.match(body.innerHTML, /ChargeLeague — ChargeBack: 10% back in Green Gems/);
-    assert.match(body.innerHTML, /ChargeBack: 50% back in Green Gems at Atlante/);
-    assert.match(body.innerHTML, /€0.49\/kWh price available only to Atlante Go members on the Electra, Fastned and IONITY partner networks/);
+    assert.match(body.innerHTML, /Atlante Go costs €9.99\/month with no commitment/);
+    assert.match(body.innerHTML, /Atlante — €0.29\/kWh, 50% ChargeBack and redemption of Green Gems/);
+    assert.match(body.innerHTML, /Powerdot — €0.42\/kWh, 10% ChargeBack and redemption of Green Gems/);
+    assert.match(body.innerHTML, /ChargeLeague — €0.49\/kWh on the Electra, Fastned and IONITY partner networks, with 10% ChargeBack/);
 });

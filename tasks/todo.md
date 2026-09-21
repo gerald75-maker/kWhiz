@@ -1,5 +1,44 @@
 # kWhiz — Refonte UI/UX (palette brief + carte gagnante + desktop)
 
+## Audit tarifaire complet des opérateurs (2026-09-21)
+
+- [x] Vérifier les 12 opérateurs actifs sur leurs sources officielles
+- [x] Distinguer tarifs fixes, variables, promotions et valeurs non publiées
+- [x] Corriger `public/tarifs.json`, les traductions et les tests pour chaque écart confirmé
+- [x] Actualiser les dates uniquement pour les offres réellement vérifiées
+- [x] Versionner la livraison en 2.25.11 et exécuter toute la suite de tests
+- [x] Reconstruire `dist/` et vérifier le cache PWA ainsi que `assets/`
+
+## Tarification variable Electra (2026-09-11)
+
+- [x] Actualiser la description française des trois niveaux de prix Electra
+- [x] Mettre à jour la traduction anglaise correspondante
+- [x] Adapter les tests Electra sans modifier les montants faute de nouveaux prix annoncés
+- [x] Exécuter les tests et reconstruire `dist/`
+- [x] Vérifier que `dist/assets/` reste propre
+
+## Livraison 2.25.8 (2026-09-11)
+
+- [x] Passer les manifestes et le test de cohérence en 2.25.8
+- [x] Relancer toute la suite de tests
+- [x] Reconstruire `dist/` et vérifier la version injectée
+
+## Précisions Atlante Go — livraison 2.25.9 (2026-09-11)
+
+- [x] Ajouter l’absence d’engagement et les conditions de décagnottage
+- [x] Ajouter le ChargeBack Powerdot à 10 % sans intégrer les partenaires au classement
+- [x] Actualiser la traduction anglaise et les tests Atlante
+- [x] Passer la livraison en 2.25.9
+- [x] Exécuter les tests, reconstruire `dist/` et vérifier les assets
+
+## Abonnements mensuels sans engagement — livraison 2.25.10 (2026-09-11)
+
+- [x] Centraliser le libellé « Sans engagement » pour toutes les offres mensuelles
+- [x] Couvrir Comparer, Opérateurs, le détail et la recommandation en français et en anglais
+- [x] Vérifier que les offres annuelles restent inchangées
+- [x] Passer la livraison en 2.25.10
+- [x] Exécuter les tests et reconstruire `dist/`
+
 ## Relecture éditoriale et FAQ (2026-07-28)
 
 - [x] Auditer tous les textes visibles et fixer les conventions de vocabulaire et de typographie

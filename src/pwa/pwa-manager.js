@@ -7,6 +7,46 @@ let updateInProgress = false;
 let serviceWorkerRegistrationPromise = null;
 
 const PWA_TRACKING_EVENT = 'kwhiz:pwa-tracking';
+const UPDATE_APPLIED_KEY = 'kwhiz_update_applied';
+
+export function markUpdateApplied() {
+    try { sessionStorage.setItem(UPDATE_APPLIED_KEY, '1'); } catch (_) { /* mode privé */ }
+}
+
+export function showUpdateStatus(messageKey, params = {}) {
+    document.getElementById('update-status-banner')?.remove();
+    const banner = document.createElement('div');
+    banner.id = 'update-status-banner';
+    banner.className = 'update-status-banner';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+
+    const render = () => { banner.textContent = t(messageKey, params); };
+    render();
+    const stopUpdatingTranslations = onLanguageChange(render);
+    document.body.appendChild(banner);
+    requestAnimationFrame(() => banner.classList.add('is-visible'));
+    window.setTimeout(() => {
+        banner.classList.remove('is-visible');
+        window.setTimeout(() => {
+            stopUpdatingTranslations();
+            banner.remove();
+        }, 250);
+    }, 3000);
+}
+
+function showAppliedUpdateConfirmation() {
+    let applied = false;
+    try {
+        applied = sessionStorage.getItem(UPDATE_APPLIED_KEY) === '1';
+        sessionStorage.removeItem(UPDATE_APPLIED_KEY);
+    } catch (_) { /* stockage indisponible */ }
+    if (!applied) return;
+    const version = document.querySelector('[data-app-version]')?.dataset.appVersion
+        || document.getElementById('about-app-version')?.textContent
+        || '';
+    showUpdateStatus('pwa.status.installed', { version });
+}
 
 export function getInstallEnvironment({ userAgent = '', displayModeStandalone = false, navigatorStandalone = false } = {}) {
     return {
@@ -229,6 +269,7 @@ export function reloadApplication() {
 export async function updateApplication() {
     const result = await checkForApplicationUpdate();
     if (result.updated) {
+        markUpdateApplied();
         window.setTimeout(reloadApplication, 300);
     }
     return result;
@@ -254,6 +295,7 @@ export function initServiceWorker() {
 }
 
 export function initPwa() {
+    showAppliedUpdateConfirmation();
     initInstallPrompt();
     initServiceWorker();
 }

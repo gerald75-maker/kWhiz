@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
+import { buildWattwayLink } from '../domain/wattway-link.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
@@ -414,6 +415,8 @@ export function initStationsMap() {
     document.getElementById('route-apple').href = `https://maps.apple.com/?daddr=${lat},${lon}&dirflg=d`;
     document.getElementById('route-google').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
     document.getElementById('route-waze').href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+    document.getElementById('route-wattway-destination').href = buildWattwayLink({ lat, lon, name: station }, 'destination');
+    document.getElementById('route-wattway-via').href = buildWattwayLink({ lat, lon, name: station }, 'via');
     const isAndroid = /Android/i.test(navigator.userAgent || '');
     document.querySelector('[data-route-app="apple"]').hidden = isAndroid;
     renderRouteChoice();

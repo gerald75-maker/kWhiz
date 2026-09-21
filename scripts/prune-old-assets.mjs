@@ -31,9 +31,9 @@ const indexPath  = resolve(root, 'dist', 'index.html');
 const assetsDir  = resolve(root, 'dist', 'assets');
 
 // Fenêtre de regroupement : les fichiers d'un même build vite sont écrits en
-// quelques secondes. 10 min laisse une marge confortable tout en séparant
-// clairement deux builds distincts.
-const CLUSTER_WINDOW_MS = 10 * 60 * 1000;
+// quelques secondes. 30 s couvre largement un build Vite sans fusionner
+// plusieurs livraisons produites à quelques minutes d’intervalle.
+const CLUSTER_WINDOW_MS = 30 * 1000;
 
 // ── 1. Lire dist/index.html → fichiers référencés (build courant) ───────────
 let indexContent;

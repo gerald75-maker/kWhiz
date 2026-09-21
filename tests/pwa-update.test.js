@@ -23,6 +23,15 @@ test('ne recharge la page que lorsqu’une mise à jour est activée', () => {
     assert.doesNotMatch(source, /finally \{\s*window\.setTimeout\(reloadApplication/);
 });
 
+test('confirme la version installée et affiche le résultat d’une vérification', async () => {
+    const appSource = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+    assert.match(source, /const UPDATE_APPLIED_KEY = 'kwhiz_update_applied'/);
+    assert.match(source, /showAppliedUpdateConfirmation\(\)/);
+    assert.match(source, /className = 'update-status-banner'/);
+    assert.match(appSource, /showUpdateStatus\('pwa\.status\.current'\)/);
+    assert.match(appSource, /showUpdateStatus\('pwa\.status\.checkFailed'\)/);
+});
+
 test('vérifie le Service Worker sans utiliser le cache HTTP', () => {
     assert.match(source, /register\('\.\/sw\.js', \{ updateViaCache: 'none' \}\)/);
 });

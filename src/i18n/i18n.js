@@ -29,7 +29,7 @@ const messages = {
     'comparison.saves': 'Vous économisez {amount}/mois', 'comparison.smallSaving': 'Économie inférieure à 0,50 €/mois', 'comparison.costsMore': 'L’abonnement vous coûte encore {amount}/mois de plus',
     'comparison.referenceUnavailable': 'Comparaison au tarif de référence indisponible', 'comparison.noSubscriptionComparison': 'Tarif sans abonnement',
     'comparison.atlanteEstimate': 'Tarif nominal et ChargeBack estimé selon 4 sessions : environ {rate}/kWh payé. Le résultat dépend du rythme des sessions et n’est pas garanti.',
-    'comparison.monthlySubscription': '{amount}/mois', 'comparison.annualSubscription': '{annual}/an, soit {monthly}/mois', 'comparison.perMonthSuffix': '/mois',
+    'comparison.monthlySubscription': '{amount}/mois · Sans engagement', 'comparison.annualSubscription': '{annual}/an, soit {monthly}/mois', 'comparison.perMonthSuffix': '/mois',
     'comparison.breakEvenFrom': 'Abonnement rentabilisé dès {distance} km/mois', 'comparison.breakEvenWithFastShare': 'Abonnement rentabilisé dès {total} km/mois au total, soit {fast} km rechargés sur bornes rapides',
     'comparison.details': 'Détails tarifaires', 'comparison.viewDetails': 'Voir le détail de {operator} · {formula}', 'comparison.empty': 'Aucune formule ne correspond à cette recherche.',
     'comparison.badge.variable': 'Tarif variable', 'comparison.badge.range': 'Plage tarifaire', 'comparison.badge.discount': 'Remise', 'comparison.badge.fixed': 'Tarif fixe',
@@ -134,6 +134,12 @@ const messages = {
     'map.station.directions': 'Itinéraire',
     'map.station.directionsLabel': 'Itinéraire vers {name}',
     'map.station.startDirections': 'Lancer l’itinéraire',
+    'map.station.actionsKicker': 'Actions pour cette borne',
+    'map.station.actionsTitle': 'Que souhaitez-vous faire ?',
+    'map.station.wattwayDestination': 'Utiliser comme destination',
+    'map.station.wattwayVia': 'Ajouter comme passage via',
+    'map.station.openWattway': 'Planifier avec Wattway',
+    'map.station.directNavigation': 'Navigation directe vers cette borne',
     'map.station.selected': 'Station sélectionnée',
     'map.station.atlanteAvailability': 'Voir les disponibilités chez Atlante',
     'map.list.nearby': 'Stations proches du centre de la carte',
@@ -254,7 +260,7 @@ const messages = {
     'share.shared': 'Résultat partagé.',
     'share.unavailable': 'Partage impossible sur cet appareil.',
     'share.copyFailed': 'Copie impossible.',
-    'operators.subscriptionMonthly': '{amount}/mois',
+    'operators.subscriptionMonthly': '{amount}/mois · Sans engagement',
     'operators.subscriptionAnnual': '{amount}/an',
     'operators.pricing.station': 'Tarif variable selon la station',
     'operators.pricing.range': 'Fourchette tarifaire',
@@ -308,7 +314,7 @@ const messages = {
     'offerDetail.energyPrice': 'Prix de l’énergie',
     'offerDetail.subscription': 'Abonnement',
     'offerDetail.noSubscription': 'Sans abonnement',
-    'offerDetail.monthlySubscription': '{amount}/mois',
+    'offerDetail.monthlySubscription': '{amount}/mois · Sans engagement',
     'offerDetail.annualSubscription': '{amount}/an, soit {monthlyAmount}/mois',
     'offerDetail.estimatedCost': 'Coût estimé',
     'offerDetail.costPer100km': '{amount}/100 km',
@@ -378,6 +384,9 @@ const messages = {
     'appStatus.error': 'Vérification impossible',
     'appStatus.ready': 'Version installée prête à être vérifiée',
     'appStatus.initial': 'Vérification en cours',
+    'pwa.status.installed': 'kWhiz a été mise à jour — version {version} installée.',
+    'pwa.status.current': 'kWhiz est à jour — aucune mise à jour disponible.',
+    'pwa.status.checkFailed': 'Vérification impossible — contrôlez votre connexion.',
     'install.openIn': 'Ouvrez kWhiz dans',
     'install.sectionEyebrow': 'Application web',
     'install.sectionTitle': 'Ajouter à l’écran d’accueil',
@@ -418,7 +427,7 @@ const messages = {
     'comparison.saves': 'You save {amount}/month', 'comparison.smallSaving': 'Saving is less than €0.50/month', 'comparison.costsMore': 'The subscription still costs you {amount}/month more',
     'comparison.referenceUnavailable': 'Reference-price comparison unavailable', 'comparison.noSubscriptionComparison': 'Pay-as-you-go plan',
     'comparison.atlanteEstimate': 'Nominal price with estimated ChargeBack over 4 sessions: approximately {rate}/kWh paid. The result depends on session timing and is not guaranteed.',
-    'comparison.monthlySubscription': '{amount}/month', 'comparison.annualSubscription': '{annual}/year, equivalent to {monthly}/month', 'comparison.perMonthSuffix': '/month',
+    'comparison.monthlySubscription': '{amount}/month · No commitment', 'comparison.annualSubscription': '{annual}/year, equivalent to {monthly}/month', 'comparison.perMonthSuffix': '/month',
     'comparison.breakEvenFrom': 'Subscription pays for itself from {distance} km/month', 'comparison.breakEvenWithFastShare': 'Subscription pays for itself from {total} km/month total, including {fast} km at fast chargers',
     'comparison.details': 'Pricing details', 'comparison.viewDetails': 'View details for {operator} · {formula}', 'comparison.empty': 'No plan matches this search.',
     'comparison.badge.variable': 'Variable price', 'comparison.badge.range': 'Price range', 'comparison.badge.discount': 'Discount', 'comparison.badge.fixed': 'Fixed price',
@@ -523,6 +532,12 @@ const messages = {
     'map.station.directions': 'Directions',
     'map.station.directionsLabel': 'Directions to {name}',
     'map.station.startDirections': 'Start directions',
+    'map.station.actionsKicker': 'Actions for this charger',
+    'map.station.actionsTitle': 'What would you like to do?',
+    'map.station.wattwayDestination': 'Use as destination',
+    'map.station.wattwayVia': 'Add as a via point',
+    'map.station.openWattway': 'Plan with Wattway',
+    'map.station.directNavigation': 'Direct navigation to this charger',
     'map.station.selected': 'Selected charger',
     'map.station.atlanteAvailability': 'Check availability on Atlante',
     'map.list.nearby': 'Chargers near the centre of the map',
@@ -643,7 +658,7 @@ const messages = {
     'share.shared': 'Result shared.',
     'share.unavailable': 'Sharing is unavailable on this device.',
     'share.copyFailed': 'Unable to copy.',
-    'operators.subscriptionMonthly': '{amount}/month',
+    'operators.subscriptionMonthly': '{amount}/month · No commitment',
     'operators.subscriptionAnnual': '{amount}/year',
     'operators.pricing.station': 'Variable price depending on the station',
     'operators.pricing.range': 'Price range',
@@ -697,7 +712,7 @@ const messages = {
     'offerDetail.energyPrice': 'Energy price',
     'offerDetail.subscription': 'Subscription',
     'offerDetail.noSubscription': 'No subscription',
-    'offerDetail.monthlySubscription': '{amount}/month',
+    'offerDetail.monthlySubscription': '{amount}/month · No commitment',
     'offerDetail.annualSubscription': '{amount}/year, equivalent to {monthlyAmount}/month',
     'offerDetail.estimatedCost': 'Estimated cost',
     'offerDetail.costPer100km': '{amount}/100 km',
@@ -767,6 +782,9 @@ const messages = {
     'appStatus.error': 'Unable to check',
     'appStatus.ready': 'Installed version ready to check',
     'appStatus.initial': 'Checking',
+    'pwa.status.installed': 'kWhiz has been updated — version {version} installed.',
+    'pwa.status.current': 'kWhiz is up to date — no update available.',
+    'pwa.status.checkFailed': 'Unable to check — verify your connection.',
     'install.openIn': 'Open kWhiz in',
     'install.sectionEyebrow': 'Web app',
     'install.sectionTitle': 'Add to Home Screen',
@@ -947,8 +965,8 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   'Powerdot - DC au-delà de 100 kW': 'Powerdot — DC above 100 kW', 'Powerdot - DC, remise 28 %': 'Powerdot — DC, 28% discount',
   'IONITY via Electroverse - sans abonnement': 'IONITY via Electroverse — no subscription', 'IONITY via Electroverse - remise annoncée': 'IONITY via Electroverse — advertised discount',
   'Tarif national direct confirmé par IECharge.': 'Nationwide direct price confirmed by IECharge.',
-  'Tarif variable selon la station, l’heure et l’affluence. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle.': 'Price varies by station, time of day and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.',
-  'À partir de 0,64 €/kWh par carte bancaire ou pass. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul.': 'From €0.64/kWh by bank card or charging pass. Price varies by charger; the calculation uses an indicative minimum.',
+  'Trois niveaux de prix s’appliquent en France et en Belgique : heures creuses, heures standard et heures de pointe. Le niveau varie selon la station, l’heure, le jour de la semaine et la demande. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle.': 'Three price levels apply in France and Belgium: off-peak, standard and peak hours. The level varies by station, time of day, day of the week and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.',
+  'À partir de 0,61 €/kWh par carte bancaire ou pass, sans passer par l’application Electra. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul.': 'From €0.61/kWh by bank card or charging pass, without using the Electra app. Price varies by charger; the calculation uses an indicative minimum.',
   'Sans engagement. Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'No commitment. Official €0.10/kWh discount on Electra’s variable price.',
   'Remise officielle de 0,10 €/kWh sur le tarif Electra variable.': 'Official €0.10/kWh discount on Electra’s variable price.',
   'Remise officielle de 0,10 €/kWh sur le tarif Electra variable. L’offre annuelle et sa réduction de 16 % sont confirmées, mais son montant actuel n’est pas publié sur la page officielle ; 19,99 €/an reste une valeur historique non revérifiée.': 'Official €0.10/kWh discount on Electra’s variable price. The annual plan and its 16% discount are confirmed, but its current amount is not published on the official page; €19.99/year remains an unverified historical value.',
@@ -959,13 +977,16 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Motion.': 'Annual subscription with the same per-kWh price as the monthly Motion plan.'
   ,'Abonnement annuel avec le même prix du kWh que l’offre mensuelle Power.': 'Annual subscription with the same per-kWh price as the monthly Power plan.'
   ,'Tarif variable selon la borne ou le réseau partenaire. Valeur indicative pour le calcul.': 'Price varies by charger or partner network. The calculation uses an indicative value.'
+  ,'Prix de 0,29 €/kWh prolongé exceptionnellement par Lidl, sans nouvelle date de fin publiée.': 'The €0.29/kWh price has been exceptionally extended by Lidl, with no new end date published.'
+  ,'Happy Hours annoncées de 9 h à 11 h et de 15 h à 17 h. Prix affiché à partir de 0,30 €/kWh ; vérifier la borne avant la recharge.': 'Happy Hours are advertised from 9am to 11am and from 3pm to 5pm. Price shown from €0.30/kWh; check the charger before charging.'
+  ,'Prix standard annoncé à 0,35 €/kWh hors Happy Hours ; vérifier la borne avant la recharge.': 'The advertised standard price is €0.35/kWh outside Happy Hours; check the charger before charging.'
   ,'Tarif standard dépendant du point de charge et du moyen de paiement.': 'Standard price depending on the charger and payment method.'
   ,'Tarif sans abonnement variable selon la station et le moyen de paiement. 0,54 €/kWh est une hypothèse de calcul, pas un tarif national ; consultez myAtlante avant la recharge.': 'The no-subscription price varies by station and payment method. €0.54/kWh is a calculation assumption, not a nationwide price; check myAtlante before charging.'
   ,'0,29 €/kWh chez Atlante. ChargeBack à 50 %.': '€0.29/kWh at Atlante. 50% ChargeBack.'
   ,'0,29 €/kWh chez Atlante pour 9,99 €/mois. ChargeBack à 50 % intégré comme estimation. Tarifs partenaires informatifs : 0,42 €/kWh chez Powerdot et 0,49 €/kWh chez Electra, Fastned et IONITY ; ils n’ajoutent aucune formule au classement Atlante.': '€0.29/kWh at Atlante for €9.99/month. 50% ChargeBack is included as an estimate. Informational partner prices: €0.42/kWh at Powerdot and €0.49/kWh at Electra, Fastned and IONITY; they do not add plans to Atlante’s ranking.'
-  ,'0,29 €/kWh uniquement avec Atlante Go à 9,99 €/mois. ChargeBack : 50 % de cagnottage Green Gems chez Atlante. Powerdot — 0,42 €/kWh. ChargeLeague — ChargeBack : 10 % de cagnottage Green Gems, avec un tarif de 0,49 €/kWh uniquement pour Atlante Go sur les réseaux partenaires Electra, Fastned et IONITY. Ces tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante.': '€0.29/kWh available only with Atlante Go at €9.99/month. ChargeBack: 50% back in Green Gems at Atlante. Powerdot — €0.42/kWh. ChargeLeague — ChargeBack: 10% back in Green Gems, with a €0.49/kWh price available only to Atlante Go members on the Electra, Fastned and IONITY partner networks. These partner prices are informational and do not add plans to Atlante’s ranking.'
+  ,'Atlante Go à 9,99 €/mois, sans engagement. Atlante — 0,29 €/kWh, ChargeBack à 50 % et décagnottage des Green Gems. Powerdot — 0,42 €/kWh, ChargeBack à 10 % et décagnottage des Green Gems. ChargeLeague — 0,49 €/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %. Ces avantages sont réservés aux abonnés Atlante Go. Les tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante.': 'Atlante Go costs €9.99/month with no commitment. Atlante — €0.29/kWh, 50% ChargeBack and redemption of Green Gems. Powerdot — €0.42/kWh, 10% ChargeBack and redemption of Green Gems. ChargeLeague — €0.49/kWh on the Electra, Fastned and IONITY partner networks, with 10% ChargeBack. These benefits are reserved for Atlante Go members. Partner prices are informational and do not add plans to Atlante’s ranking.'
   ,'Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.': 'Earn Green Gems with every charge and convert them into credit for your next sessions at Atlante or Powerdot.'
-  ,'Abonnement à 5,99 €/mois jusqu’au 31 août 2026.': '€5.99/month subscription until 31 August 2026.'
+  ,'Abonnement à 5,99 €/mois jusqu’au 30 septembre 2026.': '€5.99/month subscription until 30 September 2026.'
   ,'1 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': '1% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'
   ,'Sans engagement. 3 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': 'No commitment. 3% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'
   ,'Sans engagement. 5 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': 'No commitment. 5% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'

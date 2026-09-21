@@ -79,7 +79,7 @@ test('le catalogue porte uniquement les nouvelles puissances IZIVIA et Tesla', a
     assert.equal(catalog.iziviafast.badge, 'de 150 à 200 kW');
     assert.equal(catalog.tesla.badge, teslaFrench);
     assert.equal(catalog.fastned.badge, '300 kW');
-    assert.equal(catalog.iziviafast.verifiedAt, '2026-07-27');
+    assert.equal(catalog.iziviafast.verifiedAt, '2026-09-21');
     assert.equal(catalog.tesla.verifiedAt, '2026-07-27');
 });
 

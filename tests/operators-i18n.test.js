@@ -27,12 +27,12 @@ function render(language, operators, options = {}) {
 test('les helpers historiques restent localisés sans modifier les calculs', () => {
     const formula = { ...base, cost: 9.99, period: 'monthly', verifiedAt: '2026-07-27', sourceUrl: 'https://example.test' };
     setLanguage('fr', { persist: false, translate: false });
-    assert.equal(formatOperatorSubscription(formula), '9,99 €/mois');
+    assert.equal(formatOperatorSubscription(formula), '9,99 €/mois · Sans engagement');
     assert.equal(formatOperatorThreshold(1050), 'Rentable dès 1 050 km/mois');
     assert.equal(formatOperatorPlanCost(base), 'Sans abonnement');
     assert.match(buildFormulaMeta(formula), /Tarif fixe.*Vérifié le 27 juillet 2026.*Source officielle/);
     setLanguage('en', { persist: false, translate: false });
-    assert.equal(formatOperatorSubscription(formula), '€9.99/month');
+    assert.equal(formatOperatorSubscription(formula), '€9.99/month · No commitment');
     assert.equal(formatOperatorThreshold(Infinity), 'Not cost-effective');
 });
 
