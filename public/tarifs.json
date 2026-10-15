@@ -15,10 +15,10 @@
         "rate": 0.33,
         "ref": 0.54,
         "sourceUrl": "https://www.engie-vianeo.com/abonnement-recharge-voiture-electrique/",
-        "verifiedAt": "2026-08-11",
+        "verifiedAt": "2026-10-15",
         "pricingType": "fixed",
         "calculationBasis": "official",
-        "note": "Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station."
+        "note": "Abonnement sans engagement à souscrire dans l’application ENGIE Vianeo. Tarif unique de 0,33 €/kWh TTC sur l’ensemble du réseau public ENGIE Vianeo en France, y compris sur autoroute. Des frais à la minute peuvent s’appliquer selon la station."
       },
       {
         "id": "engie-vianeo-app",
