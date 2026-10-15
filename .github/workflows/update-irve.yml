@@ -27,8 +27,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IRVE_RESOURCE_URL: https://www.data.gouv.fr/api/1/datasets/r/eb76d20a-8501-400e-b336-d85724de5435
-  IRVE_EFFECTIVE_URL_REGEX: '^https://static[.]data[.]gouv[.]fr/resources/base-nationale-des-irve[^?#]*/[^/?#]*consolidation[^/?#]*irve[^/?#]*[.]csv$'
+  # La consolidation historique exclut désormais QualiCharge. Le PAN est son
+  # successeur officiel. Conserver les doublons source : nos propres règles
+  # contrôlent les regroupements et les associations point–station.
+  IRVE_RESOURCE_URL: https://proxy.transport.data.gouv.fr/resource/consolidation-transport-avec-doublons-irve-statique
+  IRVE_EFFECTIVE_URL_REGEX: '^https://proxy[.]transport[.]data[.]gouv[.]fr/resource/consolidation-transport-avec-doublons-irve-statique$'
   ATLANTE_RESOURCE_URL: https://map.atlante.energy/geodata.json
   UPDATE_BRANCH: automation/weekly-irve
 
@@ -84,6 +87,7 @@ jobs:
           headers="$RUNNER_TEMP/irve-headers.txt"
           csv="$RUNNER_TEMP/consolidation-irve.csv"
           effective_url=$(curl --fail --show-error --silent --location \
+            --retry 3 --retry-delay 10 --connect-timeout 30 --max-time 300 \
             --dump-header "$headers" --output "$csv" --write-out '%{url_effective}' \
             "$IRVE_RESOURCE_URL")
           if [[ ! "$effective_url" =~ $IRVE_EFFECTIVE_URL_REGEX ]]; then
@@ -96,10 +100,12 @@ jobs:
             date_origin="nom de la ressource officielle"
           else
             source_date=$(date -u +%F)
-            date_origin="date UTC de génération (date source indisponible)"
+            date_origin="date UTC de collecte PAN (date de génération source indisponible)"
           fi
           test "$(wc -c < "$csv")" -gt 1000000
           head -n 1 "$csv" | grep -q 'id_station_itinerance'
+          sha256sum "$csv" > "$RUNNER_TEMP/irve-source.sha256"
+          printf 'Source : %s\n' "$effective_url" > "$RUNNER_TEMP/irve-source.txt"
           echo "csv=$csv" >> "$GITHUB_OUTPUT"
           echo "date=$source_date" >> "$GITHUB_OUTPUT"
           echo "date_origin=$date_origin" >> "$GITHUB_OUTPUT"
@@ -190,6 +196,8 @@ jobs:
           name: rapport-irve
           path: |
             ${{ runner.temp }}/irve-report.md
+            ${{ runner.temp }}/irve-source.txt
+            ${{ runner.temp }}/irve-source.sha256
             ${{ runner.temp }}/candidate/irve-grouping-audit.json
           if-no-files-found: ignore
 

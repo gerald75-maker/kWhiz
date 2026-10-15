@@ -188,8 +188,8 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.match(workflow, /--previous-status=public\/irve-status-index\.json/);
   assert.match(workflow, /--atlante-source=.*steps\.atlante\.outputs\.json/);
   assert.match(workflow, /candidate\/irve-grouping-audit\.json/);
-  assert.match(workflow, /https:\/\/www\.data\.gouv\.fr\/api\/1\/datasets\/r\/eb76d20a-8501-400e-b336-d85724de5435/);
-  assert.match(workflow, /static\[\.\]data\[\.\]gouv\[\.\]fr\/resources\/base-nationale-des-irve/);
+  assert.match(workflow, /https:\/\/proxy\.transport\.data\.gouv\.fr\/resource\/consolidation-transport-avec-doublons-irve-statique/);
+  assert.match(workflow, /proxy\[\.\]transport\[\.\]data\[\.\]gouv\[\.\]fr\/resource\/consolidation-transport-avec-doublons-irve-statique/);
   assert.match(workflow, /actions\/checkout@v6/);
   assert.match(workflow, /actions\/setup-node@v6[\s\S]*node-version: 22/);
   assert.match(workflow, /actions\/upload-artifact@v6/);
@@ -214,10 +214,15 @@ test('le workflow limite la redirection aux consolidations CSV IRVE officielles'
   assert.ok(source, 'expression de validation de la source IRVE absente');
   const isOfficialIrveCsv = url => new RegExp(source[1]).test(url);
 
-  assert.equal(isOfficialIrveCsv('https://static.data.gouv.fr/resources/base-nationale-des-irve-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv'), true);
-  assert.equal(isOfficialIrveCsv('https://static.data.gouv.fr/resources/base-nationale-des-irve-data-gouv-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv'), true);
+  assert.equal(isOfficialIrveCsv('https://proxy.transport.data.gouv.fr/resource/consolidation-transport-avec-doublons-irve-statique'), true);
 
   const forbidden = [
+    'https://static.data.gouv.fr/resources/base-nationale-des-irve/20261015/consolidation-irve.csv',
+    'http://proxy.transport.data.gouv.fr/resource/consolidation-transport-avec-doublons-irve-statique',
+    'https://proxy.transport.data.gouv.fr.evil.example/resource/consolidation-transport-avec-doublons-irve-statique',
+    'https://proxy.transport.data.gouv.fr/resource/consolidation-transport-irve-statique',
+    'https://proxy.transport.data.gouv.fr/resource/consolidation-transport-avec-doublons-irve-statique?download=1',
+    'https://proxy.transport.data.gouv.fr/resource/qualicharge-irve-statique',
     'http://static.data.gouv.fr/resources/base-nationale-des-irve-data-gouv-infrastructures-de-recharge-pour-vehicules-electriques/20260826/consolidation-etalab-schema-irve-statique-v-2.3.1-20260826.csv',
     'https://static.data.gouv.fr.evil.example/resources/base-nationale-des-irve/20260826/consolidation-irve.csv',
     'https://evil.static.data.gouv.fr/resources/base-nationale-des-irve/20260826/consolidation-irve.csv',
