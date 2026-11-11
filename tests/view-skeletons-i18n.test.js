@@ -38,14 +38,14 @@ test('les squelettes principaux utilisent uniquement des clés structurées', ()
 
 test('rend les textes et attributs structurés en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
-  assert.equal(t('app.subtitle'), 'L’offre la moins chère selon votre usage');
+  assert.equal(t('app.subtitle'), 'Comparez les tarifs des bornes de recharge rapide hors autoroute');
   assert.equal(t('vehicle.cityCarLabel'), 'Citadine — 13 kWh/100 km');
   assert.equal(t('comparison.search.placeholder'), 'Rechercher un opérateur ou une formule');
   assert.equal(t('map.canvasLabel'), 'Carte des stations de recharge rapide');
   assert.equal(t('navigation.profileLabel'), 'Mon choix personnalisé');
 
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(t('app.subtitle'), 'The lowest-cost plan for your usage');
+  assert.equal(t('app.subtitle'), 'Compare fast-charging station prices off the motorway');
   assert.equal(t('vehicle.cityCarLabel'), 'City car — 13 kWh/100 km');
   assert.equal(t('comparison.search.placeholder'), 'Search for a network or plan');
   assert.equal(t('map.canvasLabel'), 'Fast-charger map');
@@ -75,8 +75,8 @@ test('la suite du classement est une liste compacte sans tableau horizontal', ()
 test('les anciennes correspondances exactes propres à ces squelettes ont disparu', () => {
   const legacyBlock = '';
   for (const phrase of [
-    'L’offre la moins chère selon votre usage', 'Consommation du véhicule', 'Comparer les offres',
-    'Opérateurs et formules', 'Bornes rapides en France', 'Votre recharge rapide, au juste prix',
+    'Comparez les tarifs des bornes de recharge rapide hors autoroute', 'Consommation du véhicule', 'Comparer les offres',
+    'Opérateurs et formules', 'Bornes rapides en France', 'Votre recharge rapide hors autoroute, au juste prix',
     'Mon profil de recharge', 'Les 3 meilleures offres', 'Mon choix personnalisé', 'Carte des bornes'
   ]) assert.doesNotMatch(legacyBlock, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
 });

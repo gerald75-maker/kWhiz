@@ -84,3 +84,49 @@
 
 - Tester réellement le rendu desktop dans un navigateur (aucune vérification visuelle n'a été possible dans cette session, seulement du raisonnement CSS) — à valider par Gérald avant de considérer ce point définitivement clos.
 - Si Gérald veut un jour le vrai layout "cartes côte à côte" de la preview, il faudra construire une fonction de rendu en cartes pour le classement desktop (changement plus large, JS + CSS).
+
+## Périmètre hors autoroute (2026-09-28)
+
+- [x] Repérer accueil, introduction, À propos et traductions.
+- [x] Remplacer les deux titres existants et ajouter la précision dans À propos, sans changement métier ; centrage sûr de l’introduction sur petit écran.
+- [x] Vérifier tests, build et rendu responsive : 347 tests réussis, build réussi, captures Chromium à 320×568, 390×844, 768×1024 et 1440×900 ; aucun débordement horizontal. Introduction accessible par défilement sur petit écran.
+
+- [x] Complément Mon choix : titre et traduction actualisés ; 347 tests réussis, build réussi, rendu vérifié de 320 à 1440 px.
+
+- [x] Reformulations finales appliquées : titre Mon choix, baseline et À propos harmonisés ; 347 tests réussis, build réussi, rendu contrôlé à 320, 390, 768 et 1440 px.
+
+- [x] Taille du prix alignée sur le titre : 30,4 px à 320/390 px, 35,2 px à 768/1440 px ; captures contrôlées, build réussi.
+
+## Powerdot direct (2026-10-08)
+
+- [x] Vérifier les tarifs et CGU Powerdot Adhoc, la carte officielle et les offres Octopus distinctes.
+- [x] Ajouter deux formules DC directes, conserver les prix AC et l'essai gratuit dans le détail ; mensualité normale pour les calculs.
+- [x] Enregistrer logo WebP et couleur, traductions FR/EN et reconnaissance IRVE pour la prochaine actualisation des stations.
+- [x] Vérifier les tests et le rendu puis construire dist : 350 tests réussis, build 2.25.12 réussi, annuaire et fiche Powerdot vérifiés en bureau et mobile à 390 px.
+
+Carte : lien officiel immédiat. Le jeu IRVE existant ne contient pas Powerdot ; aucune station inventée ou modification de date de ce jeu.
+Tarif sans abonnement non vérifié : seuil indisponible. Electroverse reste distinct ; Drive Pack lié au contrat d'électricité reste hors du comparateur de recharge publique autonome.
+
+## Promotion Atlante Go (2026-10-19)
+
+- [x] Vérifier les données Atlante et le périmètre de la promotion fournie par Gérald.
+- [x] Appliquer 4,99 €/mois au lieu de 9,99 €, avec la condition de souscription avant le 31 décembre 2026, en français et en anglais.
+- [x] Vérifier les calculs, les tests et le build ; relire le diff ciblé. 351 tests réussis, build réussi depuis le dossier canonique. Source officielle : prix conservé tant que l’abonnement reste actif ; ChargeBack 100 % jusqu’au 31/12/2026 intégré via la configuration existante.
+
+Plan validé par la demande explicite de Gérald ; conserver les autres modifications en cours.
+
+## Archive de livraison Atlante (2026-10-19)
+
+- [x] Vérifier le dossier de livraison existant et le contenu de dist.
+- [x] Créer une archive ZIP de publication sans fichiers macOS, en préservant les livraisons précédentes.
+- [x] Vérifier l’intégrité et la présence des tarifs Atlante actualisés dans l’archive.
+
+Archive : ../livraisons/2.25.13/kwhiz-2.25.13-atlante-2026-10-19-a-publier.zip ; intégrité ZIP et correspondance exacte avec dist vérifiées. Notice jointe. Ancienne livraison préservée ; aucune publication effectuée.
+
+## Livraison 2.25.14 (2026-10-19)
+
+- [x] Actualiser la version des manifestes et du test de cohérence.
+- [x] Exécuter les tests et reconstruire dist.
+- [x] Vérifier le ZIP 2.25.14 puis ranger les anciennes livraisons dans archives ; conserver un seul ZIP dans livraisons.
+
+Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vérifié dans ../livraisons/2.25.14/ ; une seule archive ZIP présente dans livraisons. Anciennes livraisons déplacées vers ../archives/livraisons/2.25.13/ avec contrôle des empreintes. Aucune publication effectuée.

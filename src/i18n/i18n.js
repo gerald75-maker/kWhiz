@@ -6,7 +6,7 @@ const messages = {
   fr: {
     'app.title': 'kWhiz — Comparateur de recharge rapide VE',
     'app.description': 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.',
-    'app.subtitle': 'L’offre la moins chère selon votre usage',
+    'app.subtitle': 'Comparez les tarifs des bornes de recharge rapide hors autoroute',
     'manifest.description': 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.',
     'consumption.title': 'Consommation du véhicule',
     'consumption.inputLabel': 'Consommation en kWh par 100 km',
@@ -43,7 +43,7 @@ const messages = {
     'map.canvasLabel': 'Carte des stations de recharge rapide',
     'map.source.prefix': 'Données : Base nationale IRVE, mises à jour le',
     'map.source.notice': 'La présence d’une station ne garantit pas sa disponibilité en temps réel.',
-    'profile.heading.kicker': 'Estimation personnalisée', 'profile.heading.title': 'Votre recharge rapide, au juste prix',
+    'profile.heading.kicker': 'Estimation personnalisée', 'profile.heading.title': 'Votre recharge rapide hors autoroute, au juste prix',
     'profile.heading.intro': 'Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.',
     'profile.controls.kicker': 'Mon profil', 'profile.controls.title': 'Mon profil de recharge',
     'profile.controls.instant': 'Calcul instantané', 'profile.controls.monthlyMileage': 'Kilométrage mensuel',
@@ -62,7 +62,7 @@ const messages = {
     'navigation.operators': 'Opérateurs', 'navigation.operatorsLabel': 'Opérateurs',
     'navigation.map': 'Carte', 'navigation.mapLabel': 'Carte des bornes',
     'navigation.menu': 'Menu', 'navigation.menuLabel': 'Menu',
-    'landing.title': 'Trouvez l’offre de recharge rapide adaptée à votre usage',
+    'landing.title': 'Comparez les tarifs des bornes de recharge rapide hors autoroute',
     'landing.positioning': 'kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.',
     'landing.step.profile': 'Indiquez la consommation de votre véhicule et votre kilométrage mensuel.',
     'landing.step.compare': 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.',
@@ -79,6 +79,7 @@ const messages = {
     'menu.dataSourced': 'Données sourcées',
     'about.title': 'À propos',
     'about.tagline': 'kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.',
+    'about.motorwayScope': 'kWhiz compare les stations de recharge rapide hors autoroute. Les stations situées sur les aires d’autoroute ne sont pas incluses.',
     'about.scope': 'kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.',
     'about.selectionScope': 'kWhiz ne recense pas tous les réseaux français : il sélectionne des offres de recharge rapide susceptibles de réduire réellement votre coût de recharge.',
     'about.privacy': 'kWhiz est gratuit. Vos préférences et vos données d’usage restent enregistrées localement sur votre appareil.',
@@ -404,7 +405,7 @@ const messages = {
   en: {
     'app.title': 'kWhiz — Fast EV charging price comparison',
     'app.description': 'Compare prices and subscriptions from major fast-charging networks operating in France.',
-    'app.subtitle': 'The lowest-cost plan for your usage',
+    'app.subtitle': 'Compare fast-charging station prices off the motorway',
     'manifest.description': 'Compare prices and subscriptions from major fast-charging networks operating in France.',
     'consumption.title': 'Vehicle efficiency',
     'consumption.inputLabel': 'Consumption in kWh per 100 km',
@@ -441,7 +442,7 @@ const messages = {
     'map.canvasLabel': 'Fast-charger map',
     'map.source.prefix': 'Data: French national IRVE database, updated on',
     'map.source.notice': 'A listed charger may not be available in real time.',
-    'profile.heading.kicker': 'Personal estimate', 'profile.heading.title': 'Pay the right price for fast charging',
+    'profile.heading.kicker': 'Personal estimate', 'profile.heading.title': 'Pay the right price for fast charging off the motorway',
     'profile.heading.intro': 'Adjust your usage. kWhiz compares total plan costs, including subscriptions.',
     'profile.controls.kicker': 'My profile', 'profile.controls.title': 'My charging profile',
     'profile.controls.instant': 'Instant calculation', 'profile.controls.monthlyMileage': 'Monthly mileage',
@@ -460,7 +461,7 @@ const messages = {
     'navigation.operators': 'Networks', 'navigation.operatorsLabel': 'Networks',
     'navigation.map': 'Map', 'navigation.mapLabel': 'Charger map',
     'navigation.menu': 'Menu', 'navigation.menuLabel': 'Menu',
-    'landing.title': 'Find the right fast-charging plan for your usage',
+    'landing.title': 'Compare fast-charging station prices off the motorway',
     'landing.positioning': 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.',
     'landing.step.profile': 'Enter your vehicle efficiency and monthly mileage.',
     'landing.step.compare': 'Compare prices and subscriptions from major fast-charging networks operating in France.',
@@ -477,6 +478,7 @@ const messages = {
     'menu.dataSourced': 'Sourced data',
     'about.title': 'About',
     'about.tagline': 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.',
+    'about.motorwayScope': 'kWhiz compares fast-charging stations off the motorway. Stations at motorway service areas are not included.',
     'about.scope': 'kWhiz is designed to compare a selection of fast-charging networks operating in France. It does not aim to cover every network or prices available in other countries.',
     'about.selectionScope': 'kWhiz does not list every French charging network: it selects fast-charging offers that may genuinely reduce your charging costs.',
     'about.privacy': 'kWhiz is free. Your preferences and usage data remain stored locally on your device.',
@@ -889,6 +891,9 @@ export function initI18n({ storage = localStorage, deviceLanguage = navigator.la
 }
 
 const COMMERCIAL_LABELS = Object.freeze({
+  "Abonnement direct — 1,99 €/mois": "Direct subscription — €1.99/month",
+  "Abonnement direct — 4,99 €/mois": "Direct subscription — €4.99/month",
+
   'Application ENGIE Vianeo — sans abonnement': 'ENGIE Vianeo app — no subscription',
   'Carte bancaire ENGIE Vianeo': 'ENGIE Vianeo bank card',
   'Tarif unique': 'Standard price',
@@ -930,6 +935,7 @@ export function localizeCommercialLabel(value) {
 }
 
 const NETWORK_DESCRIPTIONS = Object.freeze({
+  "Recharge rapide sur les parkings de commerces": "Fast charging in retail car parks",
   'de 150 à 200 kW': 'from 150 to 200 kW',
   'Recharge DC ultra-rapide de 300 à 400 kW selon le site': 'Ultra-fast DC charging from 300 to 400 kW depending on the site',
   'Jusqu’à 600 kW selon le site': 'Up to 600 kW depending on the site',
@@ -946,8 +952,11 @@ export function localizeNetworkDescription(value) {
 }
 
 export const TRANSLATED_TARIFF_TEXT = Object.freeze({
+  "Abonnement direct Powerdot à 1,99 €/mois : 0,52 €/kWh en DC et 0,36 €/kWh en AC. Recharge via Powerdot Adhoc avec le compte abonné ; ces tarifs ne s’appliquent pas aux sessions lancées via Electroverse ou un autre pass. Résiliable à tout moment, avec effet à la fin du cycle mensuel. Offre de lancement annoncée : premier mois d’abonnement offert pour une souscription avant le 30 octobre 2026, sous réserve d’éligibilité ; les recharges restent payantes et la mensualité est ensuite facturée automatiquement sauf résiliation. Le calcul utilise la mensualité normale et le tarif DC. Le tarif sans abonnement dépend du connecteur : aucun seuil de rentabilité n’est calculé faute de référence nationale vérifiée. La carte officielle est accessible par le lien Carte ; les stations Powerdot ne figurent pas encore dans la carte intégrée de kWhiz.": "Direct Powerdot subscription at €1.99/month: €0.52/kWh DC and €0.36/kWh AC. Charge through Powerdot Adhoc using the subscribed account; these prices do not apply to sessions started through Electroverse or another charging pass. Cancel at any time, effective at the end of the monthly billing cycle. Announced launch offer: first subscription month free when subscribing before 30 October 2026, subject to eligibility; charging remains payable and the subscription is automatically billed afterwards unless cancelled. The calculation uses the normal monthly fee and DC rate. The no-subscription price depends on the connector: no break-even threshold is calculated without a verified national reference. The official map is available via the Map link; Powerdot stations are not yet included in kWhiz’s built-in map.",
+  "Abonnement direct Powerdot à 4,99 €/mois : 0,41 €/kWh en DC et 0,29 €/kWh en AC. Recharge via Powerdot Adhoc avec le compte abonné ; ces tarifs ne s’appliquent pas aux sessions lancées via Electroverse ou un autre pass. Résiliable à tout moment, avec effet à la fin du cycle mensuel. Offre de lancement annoncée : premier mois d’abonnement offert pour une souscription avant le 30 octobre 2026, sous réserve d’éligibilité ; les recharges restent payantes et la mensualité est ensuite facturée automatiquement sauf résiliation. Le calcul utilise la mensualité normale et le tarif DC. Le tarif sans abonnement dépend du connecteur : aucun seuil de rentabilité n’est calculé faute de référence nationale vérifiée. La carte officielle est accessible par le lien Carte ; les stations Powerdot ne figurent pas encore dans la carte intégrée de kWhiz.": "Direct Powerdot subscription at €4.99/month: €0.41/kWh DC and €0.29/kWh AC. Charge through Powerdot Adhoc using the subscribed account; these prices do not apply to sessions started through Electroverse or another charging pass. Cancel at any time, effective at the end of the monthly billing cycle. Announced launch offer: first subscription month free when subscribing before 30 October 2026, subject to eligibility; charging remains payable and the subscription is automatically billed afterwards unless cancelled. The calculation uses the normal monthly fee and DC rate. The no-subscription price depends on the connector: no break-even threshold is calculated without a verified national reference. The official map is available via the Map link; Powerdot stations are not yet included in kWhiz’s built-in map.",
+
   'Application ENGIE Vianeo — sans abonnement': 'ENGIE Vianeo app — no subscription', 'Carte bancaire ENGIE Vianeo': 'ENGIE Vianeo bank card',
-  'Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station.': 'No commitment, at all compatible ENGIE Vianeo chargers in France. Per-minute fees may apply depending on the station.',
+  'Abonnement sans engagement à souscrire dans l’application ENGIE Vianeo. Tarif unique de 0,33 €/kWh TTC sur l’ensemble du réseau public ENGIE Vianeo en France, y compris sur autoroute. Des frais à la minute peuvent s’appliquer selon la station.': 'No-commitment subscription through the ENGIE Vianeo app. Single rate of €0.33/kWh including VAT across the public ENGIE Vianeo network in France, including motorways. Per-minute fees may apply depending on the station.',
   'À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement.': 'From €0.54/kWh on motorways, with 10% off the public price. Price varies by station; the calculation uses an indicative minimum. Per-minute fees may apply. Occasional 50% Happy Hours promotions may be announced in the app; they are not a permanent plan and are excluded from the ranking.',
   'À partir de 0,60 €/kWh sur autoroute. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer.': 'From €0.60/kWh on motorways. Price varies by station; the calculation uses an indicative minimum. Per-minute fees may apply.',
   'Sans abonnement': 'No subscription', 'Abonnement mensuel': 'Monthly subscription', 'Abonnement annuel': 'Annual subscription',
@@ -984,7 +993,7 @@ export const TRANSLATED_TARIFF_TEXT = Object.freeze({
   ,'Tarif sans abonnement variable selon la station et le moyen de paiement. 0,54 €/kWh est une hypothèse de calcul, pas un tarif national ; consultez myAtlante avant la recharge.': 'The no-subscription price varies by station and payment method. €0.54/kWh is a calculation assumption, not a nationwide price; check myAtlante before charging.'
   ,'0,29 €/kWh chez Atlante. ChargeBack à 50 %.': '€0.29/kWh at Atlante. 50% ChargeBack.'
   ,'0,29 €/kWh chez Atlante pour 9,99 €/mois. ChargeBack à 50 % intégré comme estimation. Tarifs partenaires informatifs : 0,42 €/kWh chez Powerdot et 0,49 €/kWh chez Electra, Fastned et IONITY ; ils n’ajoutent aucune formule au classement Atlante.': '€0.29/kWh at Atlante for €9.99/month. 50% ChargeBack is included as an estimate. Informational partner prices: €0.42/kWh at Powerdot and €0.49/kWh at Electra, Fastned and IONITY; they do not add plans to Atlante’s ranking.'
-  ,'Atlante Go à 9,99 €/mois, sans engagement. Atlante — 0,29 €/kWh, ChargeBack à 50 % et décagnottage des Green Gems. Powerdot — 0,42 €/kWh, ChargeBack à 10 % et décagnottage des Green Gems. ChargeLeague — 0,49 €/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %. Ces avantages sont réservés aux abonnés Atlante Go. Les tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante.': 'Atlante Go costs €9.99/month with no commitment. Atlante — €0.29/kWh, 50% ChargeBack and redemption of Green Gems. Powerdot — €0.42/kWh, 10% ChargeBack and redemption of Green Gems. ChargeLeague — €0.49/kWh on the Electra, Fastned and IONITY partner networks, with 10% ChargeBack. These benefits are reserved for Atlante Go members. Partner prices are informational and do not add plans to Atlante’s ranking.'
+  ,'Atlante Go à 4,99 €/mois au lieu de 9,99 €/mois, sans engagement, pour toute souscription avant le 31 décembre 2026. Le prix de 4,99 €/mois est conservé tant que vous restez abonné. Atlante — 0,29 €/kWh, ChargeBack à 100 % jusqu’au 31 décembre 2026, puis 50 % et décagnottage des Green Gems. Powerdot — 0,42 €/kWh, ChargeBack à 10 % et décagnottage des Green Gems. ChargeLeague — 0,49 €/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %. Ces avantages sont réservés aux abonnés Atlante Go. Les tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante.': 'Atlante Go costs €4.99/month instead of €9.99/month with no commitment, for subscriptions taken out before 31 December 2026. The €4.99/month price is maintained as long as you remain subscribed. Atlante — €0.29/kWh, 100% ChargeBack until 31 December 2026, then 50%, and redemption of Green Gems. Powerdot — €0.42/kWh, 10% ChargeBack and redemption of Green Gems. ChargeLeague — €0.49/kWh on the Electra, Fastned and IONITY partner networks, with 10% ChargeBack. These benefits are reserved for Atlante Go members. Partner prices are informational and do not add plans to Atlante’s ranking.'
   ,'Cumulez des Green Gems à chaque recharge et convertissez-les en crédit pour vos prochaines sessions chez Atlante ou Powerdot.': 'Earn Green Gems with every charge and convert them into credit for your next sessions at Atlante or Powerdot.'
   ,'Abonnement à 5,99 €/mois jusqu’au 30 septembre 2026.': '€5.99/month subscription until 30 September 2026.'
   ,'1 % du montant de chaque recharge est crédité dans l’application Zunder. Ce crédit n’est pas déduit du tarif affiché.': '1% of each charging payment is credited in the Zunder app. This credit is not deducted from the displayed price.'

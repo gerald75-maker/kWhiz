@@ -25,7 +25,7 @@ test('l’introduction complète repose sur landing.* en FR et EN', () => {
   assert.equal(t('landing.continue'), 'Commencer');
   assert.equal(t('landing.positioning'), 'kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.');
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(t('landing.title'), 'Find the right fast-charging plan for your usage');
+  assert.equal(t('landing.title'), 'Compare fast-charging station prices off the motorway');
   assert.equal(t('landing.help'), 'How does kWhiz work?');
   assert.equal(t('landing.positioning'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
 });
@@ -91,7 +91,7 @@ test('la bascule de langue conserve les couches ouvertes et le focus', () => {
   const callback = appSource.slice(appSource.indexOf('onLanguageChange(() => {'), appSource.indexOf('\n    });', appSource.indexOf('onLanguageChange(() => {')));
   assert.doesNotMatch(callback, /hideLanding|closeDrawer|closeAllPages|switchView/);
   assert.match(appSource, /landingTrigger = document\.activeElement/);
-  assert.match(appSource, /document\.getElementById\('landing-start'\)\?\.focus\(\)/);
+  assert.match(appSource, /document\.getElementById\('landing-start'\)\?\.focus\(\{ preventScroll: true \}\)/);
   assert.match(appSource, /landingTrigger instanceof HTMLElement/);
   assert.match(navigationSource, /on\('menu-landing'.*closeDrawer\(\).*onShowLanding/s);
 });

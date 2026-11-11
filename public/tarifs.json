@@ -1,6 +1,6 @@
 {
   "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
-  "_updated": "2026-09-21",
+  "_updated": "2026-10-08",
   "engie-vianeo": {
     "name": "ENGIE Vianeo",
     "color": "engie-vianeo",
@@ -15,10 +15,10 @@
         "rate": 0.33,
         "ref": 0.54,
         "sourceUrl": "https://www.engie-vianeo.com/abonnement-recharge-voiture-electrique/",
-        "verifiedAt": "2026-09-21",
+        "verifiedAt": "2026-10-15",
         "pricingType": "fixed",
         "calculationBasis": "official",
-        "note": "Sans engagement, sur toutes les bornes ENGIE Vianeo compatibles en France. Des frais à la minute peuvent s’appliquer selon la station."
+        "note": "Abonnement sans engagement à souscrire dans l’application ENGIE Vianeo. Tarif unique de 0,33 €/kWh TTC sur l’ensemble du réseau public ENGIE Vianeo en France, y compris sur autoroute. Des frais à la minute peuvent s’appliquer selon la station."
       },
       {
         "id": "engie-vianeo-app",
@@ -383,7 +383,7 @@
       },
       {
         "name": "Atlante Go - mensuel",
-        "cost": 9.99,
+        "cost": 4.99,
         "period": "monthly",
         "rate": 0.29,
         "ref": 0.54,
@@ -391,10 +391,10 @@
         "chargebackEligible": true,
         "referenceUnavailable": true,
         "sourceUrl": "https://atlante.energy/fr/myatlante-app/",
-        "verifiedAt": "2026-09-21",
+        "verifiedAt": "2026-10-19",
         "pricingType": "fixed",
         "calculationBasis": "official",
-        "note": "Atlante Go à 9,99 €/mois, sans engagement. Atlante — 0,29 €/kWh, ChargeBack à 50 % et décagnottage des Green Gems. Powerdot — 0,42 €/kWh, ChargeBack à 10 % et décagnottage des Green Gems. ChargeLeague — 0,49 €/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %. Ces avantages sont réservés aux abonnés Atlante Go. Les tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante."
+        "note": "Atlante Go à 4,99 €/mois au lieu de 9,99 €/mois, sans engagement, pour toute souscription avant le 31 décembre 2026. Le prix de 4,99 €/mois est conservé tant que vous restez abonné. Atlante — 0,29 €/kWh, ChargeBack à 100 % jusqu’au 31 décembre 2026, puis 50 % et décagnottage des Green Gems. Powerdot — 0,42 €/kWh, ChargeBack à 10 % et décagnottage des Green Gems. ChargeLeague — 0,49 €/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %. Ces avantages sont réservés aux abonnés Atlante Go. Les tarifs partenaires sont informatifs et n’ajoutent aucune formule au classement Atlante."
       }
     ],
     "loyalty": {
@@ -407,7 +407,9 @@
         "enabled": true,
         "beforeDate": "2026-07-01",
         "rateBefore": 1.0,
-        "rateAfter": 0.5,
+        "rateAfter": 1.0,
+        "promoEndDate": "2026-12-31",
+        "rateAfterPromo": 0.5,
         "sessionsPerMonth": 4,
         "gemsGenerateGems": false
       }
@@ -645,5 +647,43 @@
     ],
     "sourceUrl": "https://electroverse.com/fr/",
     "verifiedAt": "2026-07-27"
+  },
+  "powerdot": {
+    "name": "Powerdot",
+    "color": "powerdot",
+    "badge": "Recharge rapide sur les parkings de commerces",
+    "mapUrl": "https://www.powerdot.eu/locations",
+    "formulas": [
+      {
+        "id": "powerdot-direct-199",
+        "name": "Abonnement direct — 1,99 €/mois",
+        "cost": 1.99,
+        "period": "monthly",
+        "rate": 0.52,
+        "ref": 0.52,
+        "referenceUnavailable": true,
+        "sourceUrl": "https://adhoc.pwrdt.com/subscription-plans?country=FR",
+        "verifiedAt": "2026-10-08",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Abonnement direct Powerdot à 1,99 €/mois : 0,52 €/kWh en DC et 0,36 €/kWh en AC. Recharge via Powerdot Adhoc avec le compte abonné ; ces tarifs ne s’appliquent pas aux sessions lancées via Electroverse ou un autre pass. Résiliable à tout moment, avec effet à la fin du cycle mensuel. Offre de lancement annoncée : premier mois d’abonnement offert pour une souscription avant le 30 octobre 2026, sous réserve d’éligibilité ; les recharges restent payantes et la mensualité est ensuite facturée automatiquement sauf résiliation. Le calcul utilise la mensualité normale et le tarif DC. Le tarif sans abonnement dépend du connecteur : aucun seuil de rentabilité n’est calculé faute de référence nationale vérifiée. La carte officielle est accessible par le lien Carte ; les stations Powerdot ne figurent pas encore dans la carte intégrée de kWhiz."
+      },
+      {
+        "id": "powerdot-direct-499",
+        "name": "Abonnement direct — 4,99 €/mois",
+        "cost": 4.99,
+        "period": "monthly",
+        "rate": 0.41,
+        "ref": 0.41,
+        "referenceUnavailable": true,
+        "sourceUrl": "https://adhoc.pwrdt.com/subscription-plans?country=FR",
+        "verifiedAt": "2026-10-08",
+        "pricingType": "fixed",
+        "calculationBasis": "official",
+        "note": "Abonnement direct Powerdot à 4,99 €/mois : 0,41 €/kWh en DC et 0,29 €/kWh en AC. Recharge via Powerdot Adhoc avec le compte abonné ; ces tarifs ne s’appliquent pas aux sessions lancées via Electroverse ou un autre pass. Résiliable à tout moment, avec effet à la fin du cycle mensuel. Offre de lancement annoncée : premier mois d’abonnement offert pour une souscription avant le 30 octobre 2026, sous réserve d’éligibilité ; les recharges restent payantes et la mensualité est ensuite facturée automatiquement sauf résiliation. Le calcul utilise la mensualité normale et le tarif DC. Le tarif sans abonnement dépend du connecteur : aucun seuil de rentabilité n’est calculé faute de référence nationale vérifiée. La carte officielle est accessible par le lien Carte ; les stations Powerdot ne figurent pas encore dans la carte intégrée de kWhiz."
+      }
+    ],
+    "sourceUrl": "https://adhoc.pwrdt.com/subscription-plans?country=FR",
+    "verifiedAt": "2026-10-08"
   }
 }

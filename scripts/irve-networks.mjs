@@ -1,5 +1,6 @@
 export const IRVE_NETWORKS = Object.freeze([
   ['engie-vianeo', /\b(?:engie\s+)?vianeo\b/],
+  ['powerdot', /\bpower\s*dot\b/],
   ['ionity', /\bionity\b/],
   ['tesla', /\btesla\b|supercharger/],
   ['electra', /\belectra\b/],

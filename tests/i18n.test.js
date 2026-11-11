@@ -136,7 +136,7 @@ test('le rendu dynamique repose sur les attributs structurés et non sur un obse
   try {
     setLanguage('en', { persist: false, translate: false });
     translateDocument();
-    assert.equal(textNode.textContent, 'The lowest-cost plan for your usage');
+    assert.equal(textNode.textContent, 'Compare fast-charging station prices off the motorway');
     assert.equal(label['aria-label'], 'Charger map');
     assert.equal(title.title, 'kWhiz menu');
     assert.equal(alt.alt, 'Menu');

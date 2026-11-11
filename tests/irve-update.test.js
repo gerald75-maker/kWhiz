@@ -47,7 +47,7 @@ test('accepte une évolution hebdomadaire modérée et produit le rapport PR', (
   assert.deepEqual(report.errors, []);
   const markdown = formatIrveReport(report);
   assert.match(markdown, /Date de la source : \*\*2026-08-18\*\*/);
-  assert.match(markdown, /Stations : \*\*110 → 121\*\*/);
+  assert.ok(markdown.includes(`Stations : **${IRVE_OPERATOR_KEYS.length * 10} → ${IRVE_OPERATOR_KEYS.length * 11}**`));
   assert.match(markdown, /\| engie-vianeo \| 10 \| 11 \| \+10\.0 % \|/);
   assert.match(markdown, /Conflits proches résolus : \*\*0\*\*/);
   assert.match(markdown, /Associations encore écrasées : \*\*0\*\*/);
@@ -66,12 +66,12 @@ test('amorce les associations lorsque le fichier publié utilise encore l’anci
     candidate.status.pointToStation[pointId] = stationIds[0];
     candidate.status.pointToStations[pointId] = stationIds;
   }
-  candidate.status.metrics.associations = 145;
+  candidate.status.metrics.associations = candidate.stations.stations.length + pointIds.length;
   candidate.status.metrics.conflictingPointIds = 35;
   candidate.status.metrics.resolvedNearbyConflicts = 35;
   const report = analyzeIrveUpdate({ currentStations: current.stations, candidateStations: candidate.stations, currentStatus: current.status, candidateStatus: candidate.status, tariffs: activeTariffs() });
   assert.deepEqual(report.errors, []);
-  assert.match(formatIrveReport(report), /indisponible \(ancien format\) → 145/);
+  assert.ok(formatIrveReport(report).includes(`indisponible (ancien format) → ${candidate.status.metrics.associations}`));
 });
 
 test('refuse disparition, variation de points et opérateur sans règle', () => {

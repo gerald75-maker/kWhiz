@@ -52,7 +52,7 @@ test('les planificateurs nominatifs ont quitté le menu et l’aide conserve la 
 
 test('l’introduction simplifiée ouvre Aide et FAQ depuis son lien secondaire', () => {
     const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
-    assert.match(landing, /Trouvez l’offre de recharge rapide adaptée à votre usage/);
+    assert.match(landing, /Comparez les tarifs des bornes de recharge rapide hors autoroute/);
     assert.equal((landing.match(/<li\b/g) || []).length, 3);
     assert.match(landing, /id="landing-start"[^>]*>Commencer</);
     assert.match(landing, /id="landing-help-link">Comment fonctionne kWhiz/);

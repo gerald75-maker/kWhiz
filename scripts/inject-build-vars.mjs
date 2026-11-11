@@ -42,6 +42,7 @@ const OPTIONAL_PUBLIC_ASSETS = [
   './manifest.json',
   './icon.svg',
   './logos/engie-vianeo.webp',
+  './logos/powerdot.webp',
   './icons/icon-72.png',
   './icons/icon-96.png',
   './icons/icon-128.png',

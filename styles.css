@@ -656,6 +656,7 @@ body.light .formula-note {
 .atlante { color: #10b981; }
 .fastned { color: #d4a017; }
 .electroverse { color: #e040fb; }
+.powerdot { color: #00bce0; }
 .iecharge { color: #06b6d4; }
 .tesla { color: #e31937; }
 .lidl { color: #facc15; }
@@ -1304,7 +1305,7 @@ body.light .phm-row { border-bottom-color: rgba(0,0,0,0.05); }
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: safe center;
     padding: 28px 20px 36px;
     overflow-y: auto;
     /* Entrée : démarre invisible et translateY */
@@ -5674,7 +5675,7 @@ body.light .page-overlay-sheet {
     gap: 5px;
     margin-top: 5px;
     color: var(--text-primary);
-    font-size: clamp(2.05rem, 5vw, 2.65rem);
+    font-size: clamp(1.72rem, 7vw, 2.2rem);
     font-weight: 800;
     font-variant-numeric: tabular-nums lining-nums;
     line-height: 1;
@@ -5705,7 +5706,7 @@ body.light .page-overlay-sheet {
 
     .phm-price-main,
     .phm-price-hero--compact .phm-price-main {
-        font-size: 2.15rem;
+        font-size: 1.9rem;
     }
 }
 

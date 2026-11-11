@@ -21,6 +21,10 @@ test('ENGIE Vianeo expose exactement trois formules permanentes', () => {
 
 test('Vianeo Max calcule le prix, la mensualisation et les seuils exacts', () => {
   const max = operator.formulas[0];
+  assert.equal(max.cost, 9.99);
+  assert.equal(max.rate, 0.33);
+  assert.match(max.note, /TTC.*France, y compris sur autoroute/);
+  assert.match(max.note, /dans l’application ENGIE Vianeo/);
   const result = calculateBreakeven(max, 0.18);
   assert.equal(result.monthlyCost, 9.99);
   assert.ok(Math.abs(result.kwh - (9.99 / (0.54 - 0.33))) < 1e-12);
@@ -46,6 +50,7 @@ test('les tarifs sans abonnement restent variables et explicitement minimaux', (
 test('les libellés et notes Vianeo basculent en anglais puis reviennent en français', () => {
   setLanguage('en', { persist: false, translate: false });
   assert.equal(localizeCommercialLabel(operator.formulas[1].name), 'ENGIE Vianeo app — no subscription');
+  assert.match(localizeTariffText(operator.formulas[0].note), /including VAT.*including motorways/);
   assert.equal(localizeNetworkDescription(operator.badge), 'Ultra-fast DC charging from 300 to 400 kW depending on the site');
   assert.match(localizeTariffText(operator.formulas[1].note), /^From €0\.54\/kWh/);
   setLanguage('fr', { persist: false, translate: false });

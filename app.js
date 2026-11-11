@@ -387,7 +387,7 @@ function showLanding() {
     overlay.classList.remove('hidden');
     requestAnimationFrame(() => requestAnimationFrame(() => {
         overlay.classList.add('visible');
-        document.getElementById('landing-start')?.focus();
+        document.getElementById('landing-start')?.focus({ preventScroll: true });
     }));
 }
 

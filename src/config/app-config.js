@@ -16,6 +16,7 @@ export const LOGOS = Object.freeze({
     atlante: './logos/atlante.webp',
     fastned: './logos/fastned.webp',
     electroverse: './logos/electroverse.webp',
+    powerdot: './logos/powerdot.webp',
     zunder: './logos/zunder.png',
     pluginn: './logos/pluginn.webp',
     'engie-vianeo': './logos/engie-vianeo.webp'
@@ -23,7 +24,7 @@ export const LOGOS = Object.freeze({
 
 export const VALID_COLORS = new Set([
     'atlante', 'electra', 'electroverse', 'fastned', 'iecharge',
-    'engie-vianeo', 'ionity', 'izivia', 'lidl', 'pluginn', 'statione', 'tesla', 'zunder'
+    'powerdot', 'engie-vianeo', 'ionity', 'izivia', 'lidl', 'pluginn', 'statione', 'tesla', 'zunder'
 ]);
 
 export const STORAGE_KEYS = Object.freeze({
