@@ -40,6 +40,7 @@ export const STORAGE_KEYS = Object.freeze({
     fastPercentage: 'kwhiz_fast_pct',
     profileKm: 'kwhiz_profile_km',
     consumption: 'kwhiz_consumption',
+    vehicleModel: 'kwhiz_vehicle_model',
     favorites: 'kwhiz_favorites',
     tariffHistory: 'kwhiz_tariff_history',
     mapOperators: 'kwhiz_map_operators',

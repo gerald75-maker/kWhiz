@@ -530,6 +530,7 @@ function initApp() {
     consumptionController = initConsumptionController({
         initialValue: initialConsumption,
         storageKey: CONSUMPTION_KEY,
+        vehicleStorageKey: STORAGE_KEYS.vehicleModel,
         onChange: updateCalculations
     });
 

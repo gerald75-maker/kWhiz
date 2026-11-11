@@ -323,7 +323,9 @@ test('le kilométrage est synchronisé autour de profile-km et les anciens tris 
         readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
     ]);
     assert.match(html, /id="compare-km"/);
-    assert.doesNotMatch(html, /<select|Trier par|costPer100km|monthlyCost/);
+    assert.doesNotMatch(html, /Trier par|costPer100km|monthlyCost/);
+    // Seul sélecteur autorisé : le choix du modèle de véhicule.
+    assert.deepEqual(html.match(/<select[^>]*>/g), ['<select class="vehicle-model-select" id="vehicle-model">']);
     assert.match(app, /profileControls\?\.setMonthlyKm\(event\.target\.value\)/);
     assert.match(app, /comparisonKm\.value = String\(monthlyKm\)/);
     assert.match(controller, /getMonthlyKm/);
