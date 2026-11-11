@@ -1523,6 +1523,17 @@ body.light .planner-badge.freemium { color: #c2410c; }
     line-height: 1.4;
 }
 .landing-positioning { margin:0 auto 18px; max-width:34rem; color:var(--text-primary); font-size:.92rem; line-height:1.55; }
+.landing-usage-choices { display: grid; gap: 10px; margin: 0 0 14px; }
+.landing-usage-choice { display: grid; gap: 3px; width: 100%; padding: 14px 16px; border: 1px solid rgba(0, 194, 255, 0.22); border-radius: 16px; background: rgba(0, 194, 255, 0.07); color: #e2e8f0; text-align: left; font: inherit; cursor: pointer; transition: border-color .2s ease, background .2s ease; }
+.landing-usage-choice strong { font-size: .98rem; }
+.landing-usage-choice span { color: #94a3b8; font-size: .84rem; }
+.landing-usage-choice:hover, .landing-usage-choice:focus-visible { border-color: #00C2FF; }
+.landing-usage-choice[aria-pressed="true"] { border-color: #16C784; background: rgba(22, 199, 132, 0.12); }
+.landing-usage-note { margin: 0 0 6px; color: #94a3b8; font-size: .84rem; }
+#landing-usage-title:focus { outline: none; }
+body.light .landing-overlay .landing-usage-choice { background: rgba(0, 194, 255, 0.06); border-color: rgba(0, 194, 255, 0.2); color: #1e293b; }
+body.light .landing-overlay .landing-usage-choice span, body.light .landing-overlay .landing-usage-note { color: #475569; }
+body.light .landing-overlay .landing-usage-choice[aria-pressed="true"] { border-color: #16C784; background: rgba(22, 199, 132, 0.1); }
 .about-desc {
     font-size: 0.92rem;
     color: var(--text-secondary);

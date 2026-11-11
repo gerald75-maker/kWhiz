@@ -406,9 +406,41 @@ function applyInstallOsDetection() {
     if (isAndroid && iosBlock) iosBlock.hidden = true;
 }
 
+// Étape 2 de l'accueil : part de recharge rapide, préremplie avec la valeur actuelle
+// et toujours modifiable ensuite dans Mon profil.
+function showLandingUsage() {
+    const intro = document.getElementById('landing-intro');
+    const usage = document.getElementById('landing-usage');
+    if (!intro || !usage) { hideLanding(); return; }
+    const current = profileControls?.getFastPercentage() ?? fastPct;
+    usage.querySelectorAll('[data-fast-pct]').forEach(button => {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.fastPct) === current));
+    });
+    intro.hidden = true;
+    usage.hidden = false;
+    document.getElementById('landing-overlay')?.scrollTo?.({ top: 0 });
+    document.getElementById('landing-usage-title')?.focus({ preventScroll: true });
+}
+
+function chooseLandingUsage(value) {
+    const percentage = parseInt(value, 10);
+    if (!Number.isNaN(percentage)) {
+        fastPct = profileControls ? profileControls.setFastPercentage(percentage) : percentage;
+    }
+    hideLanding();
+}
+
+function resetLandingSteps() {
+    const intro = document.getElementById('landing-intro');
+    const usage = document.getElementById('landing-usage');
+    if (intro) intro.hidden = false;
+    if (usage) usage.hidden = true;
+}
+
 function hideLanding() {
     const overlay = document.getElementById('landing-overlay');
     if (!overlay) return;
+    resetLandingSteps();
     overlay.classList.remove('visible');
     overlay.classList.add('hidden');
     localStorage.setItem(LANDING_KEY, '1');
@@ -501,7 +533,15 @@ function initApp() {
 
     initNetworkStatus({ onReconnect: loadTarifs });
 
-    document.getElementById('landing-start')?.addEventListener('click', hideLanding);
+    document.getElementById('landing-start')?.addEventListener('click', showLandingUsage);
+    document.getElementById('landing-usage')?.addEventListener('click', event => {
+        const choice = event.target.closest?.('[data-fast-pct]');
+        if (choice) chooseLandingUsage(choice.dataset.fastPct);
+    });
+    document.getElementById('landing-usage-skip')?.addEventListener('click', event => {
+        event.preventDefault();
+        hideLanding();
+    });
     document.getElementById('landing-help-link')?.addEventListener('click', event => {
         event.preventDefault();
         hideLanding();

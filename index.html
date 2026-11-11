@@ -223,6 +223,7 @@
 <!-- ── Landing Page (première visite) ── -->
 <div aria-labelledby="landing-title" aria-modal="true" class="landing-overlay hidden" id="landing-overlay" role="dialog">
 <div class="landing-content">
+<div class="landing-intro" id="landing-intro">
 <div class="landing-logo-wrap">
 <svg viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="lbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#lbg)" height="32" rx="6" width="32"></rect><path d="M18 4L8 18h6l-2 10 10-14h-6l2-10z" fill="white"></path></svg>
 </div>
@@ -237,6 +238,21 @@
 <div class="landing-footer-links">
 <a data-i18n="landing.help" href="#" id="landing-help-link">Comment fonctionne kWhiz ?</a>
 </div>
+</div>
+<section aria-labelledby="landing-usage-title" class="landing-usage" hidden="" id="landing-usage">
+<h2 class="landing-heading" data-i18n="landing.usage.title" id="landing-usage-title" tabindex="-1">Où rechargez-vous le plus souvent ?</h2>
+<p class="landing-positioning" data-i18n="landing.usage.lead">kWhiz compare le coût de vos recharges rapides. Le reste est compté au tarif domicile.</p>
+<div aria-labelledby="landing-usage-title" class="landing-usage-choices" role="group">
+<button aria-pressed="false" class="landing-usage-choice" data-fast-pct="20" type="button"><strong data-i18n="landing.usage.home">Surtout à domicile</strong><span data-i18n="landing.usage.home.detail">Environ 20 % sur bornes rapides</span></button>
+<button aria-pressed="false" class="landing-usage-choice" data-fast-pct="50" type="button"><strong data-i18n="landing.usage.mixed">Autant à domicile que sur bornes rapides</strong><span data-i18n="landing.usage.mixed.detail">Environ 50 % sur bornes rapides</span></button>
+<button aria-pressed="false" class="landing-usage-choice" data-fast-pct="90" type="button"><strong data-i18n="landing.usage.mostlyFast">Surtout sur bornes rapides</strong><span data-i18n="landing.usage.mostlyFast.detail">Environ 90 % sur bornes rapides</span></button>
+<button aria-pressed="false" class="landing-usage-choice" data-fast-pct="100" type="button"><strong data-i18n="landing.usage.onlyFast">Uniquement sur bornes rapides</strong><span data-i18n="landing.usage.onlyFast.detail">100 % sur bornes rapides</span></button>
+</div>
+<p class="landing-usage-note" data-i18n="landing.usage.note">Vous pourrez ajuster cette part à tout moment dans Mon profil.</p>
+<div class="landing-footer-links">
+<a data-i18n="landing.usage.skip" href="#" id="landing-usage-skip">Passer cette étape</a>
+</div>
+</section>
 </div>
 </div>
 <!-- Popup de mise à jour (injecté dynamiquement par app.js) -->

@@ -106,3 +106,21 @@ test('les anciennes correspondances exactes du lot ont disparu', () => {
     'Apparence', 'Mode clair ou sombre', 'Données sourcées'
   ]) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
 });
+
+test('l’accueil demande la part de recharge rapide, toujours modifiable ensuite', () => {
+  const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
+  const values = [...landing.matchAll(/data-fast-pct="(\d+)"/g)].map(match => Number(match[1]));
+  assert.deepEqual(values, [20, 50, 90, 100]);
+  for (const key of ['landing.usage.title', 'landing.usage.lead', 'landing.usage.home', 'landing.usage.mixed', 'landing.usage.mostlyFast', 'landing.usage.onlyFast', 'landing.usage.note', 'landing.usage.skip']) {
+    assert.match(landing, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
+  }
+  assert.match(landing, /hidden="" id="landing-usage"/);
+  assert.match(appSource, /getElementById\('landing-start'\)\?\.addEventListener\('click', showLandingUsage\)/);
+  assert.match(appSource, /profileControls\.setFastPercentage\(percentage\)/);
+  setLanguage('fr', { persist: false, translate: false });
+  assert.match(t('landing.usage.mostlyFast.detail'), /^Environ 90\s%/);
+  assert.match(t('landing.usage.note'), /Mon profil/);
+  setLanguage('en', { persist: false, translate: false });
+  assert.equal(t('landing.usage.title'), 'Where do you charge most often?');
+  setLanguage('fr', { persist: false, translate: false });
+});
