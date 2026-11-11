@@ -30,6 +30,12 @@ test('le contenu essentiel existe en français et en anglais', () => {
   assert.match(t('help.map.privacy'), /reste sur votre appareil/);
   assert.match(t('help.route.limit'), /ne planifie pas les arrêts/);
   assert.match(t('help.route.privacy'), /OpenRouteService/);
+  assert.match(t('help.plan.profile'), /pastille Consommation.*modèle/);
+  assert.match(t('help.plan.vehicle'), /EV Database.*pertes de recharge/);
+  assert.match(t('help.plan.zone'), /Ma zone de recharge.*20 km/);
+  assert.match(t('help.prices.estimate'), /Jamais rentable.*Seuil non calculé/);
+  assert.match(t('help.prices.chargeback'), /payé à la borne.*après remboursement/);
+  assert.match(t('help.map.prices'), /Les moins chères.*Les plus proches.*Inclure les aires d’autoroute/);
 
   setLanguage('en', { persist: false, translate: false });
   assert.equal(t('help.title'), 'Help');
@@ -39,6 +45,8 @@ test('le contenu essentiel existe en français et en anglais', () => {
   assert.match(t('help.map.statuses'), /Green.*Orange.*Red.*Grey/);
   assert.match(t('help.route.limit'), /does not plan stops/);
   assert.match(t('help.route.privacy'), /OpenRouteService/);
+  assert.match(t('help.map.prices'), /Cheapest.*Nearest.*Include motorway service areas/);
+  assert.match(t('help.prices.estimate'), /Never pays for itself/);
 });
 
 test('la bascule de langue conserve plusieurs accordéons ouverts', () => {

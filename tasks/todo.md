@@ -146,3 +146,8 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Version 2.26.0 dans les manifestes et le test de cohérence.
 - [x] 384 tests réussis, build 2.26.0, cache kwhiz-74942e0b.
 - [ ] Revérifier fiche par fiche les capacités utiles des véhicules avant de calculer un coût de session.
+
+## Livraison 2.26.1 (2026-11-11)
+
+- [x] Aide mise à jour (FR/EN) : pastille Consommation et choix du modèle, source EV Database, zone de recharge, « Jamais rentable » et « Seuil non calculé », ChargeBack, prix et tri sur la carte, aires d'autoroute.
+- [x] 384 tests réussis, build 2.26.1, cache kwhiz-2a5d2beb.
