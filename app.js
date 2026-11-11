@@ -33,7 +33,8 @@ import {
     LOGOS,
     VALID_COLORS,
     STORAGE_KEYS,
-    HOME_RATE_KWH
+    HOME_RATE_KWH,
+    MAP_OPERATOR_KEYS
 } from './src/config/app-config.js';
 import { on } from './src/shared/dom.js';
 import { applyTheme, initTheme, toggleTheme } from './src/ui/theme.js';
@@ -374,7 +375,12 @@ function renderProfile() {
         logos: LOGOS,
         favorites,
         onToggleFavorite: handleToggleFavorite,
-        onDetail: openFormulaDetail
+        onDetail: openFormulaDetail,
+        mapOperators: MAP_OPERATOR_KEYS,
+        onShowOperatorMap: opKey => {
+            navigation?.switchView('map');
+            void stationsMap?.showOperator?.(opKey);
+        }
     });
 }
 

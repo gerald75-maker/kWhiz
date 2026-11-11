@@ -563,6 +563,17 @@ export function initStationsMap() {
         if (map && !mapPositionReady) locateUser({ automatic: true });
         if (Date.now() - lastStatusFetch > 120000) void loadStatuses();
       });
+    },
+    // Affiche uniquement les stations d'un réseau (bouton de l'offre n°1).
+    // La sélection reste modifiable avec les filtres « Tous » / « Aucun ».
+    showOperator(key) {
+      return load().then(() => {
+        if (!filters.querySelector(`[data-operator="${CSS.escape(key)}"]`)) return;
+        selected = new Set([key]);
+        renderFiltersState();
+        renderStations();
+        void loadStatuses();
+      });
     }
   };
 }

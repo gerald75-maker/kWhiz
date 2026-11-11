@@ -1,5 +1,5 @@
 import { computeProfileMonthlyCost } from '../../domain/pricing.js';
-import { escapeHtml } from '../../shared/dom.js';
+import { escapeHtml, safeUrl } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
 import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
@@ -58,7 +58,25 @@ function renderOperatorLogo(logos, opKey, imageClass, frameClass) {
     </span>`;
 }
 
-export function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos }) {
+// Actions de l'offre n°1 : page officielle de l'opérateur et bornes sur la carte kWhiz
+// (ou carte de l'opérateur pour les réseaux absents de la base IRVE rapide).
+export function profileActionsHtml(best, { mapOperators = [] } = {}) {
+    const operator = escapeHtml(localizeCommercialLabel(best.operator));
+    const hasSubscription = best.monthlyCost > 0;
+    const offerUrl = safeUrl(best.sourceUrl);
+    const actions = [];
+    if (offerUrl) {
+        actions.push(`<a class="phm-action phm-action--primary" href="${offerUrl}" target="_blank" rel="noopener noreferrer">${t(hasSubscription ? 'profile.action.subscribe' : 'profile.action.viewOffer', { operator })} <span aria-hidden="true">↗</span></a>`);
+    }
+    if (mapOperators.includes(best.opKey)) {
+        actions.push(`<button type="button" class="phm-action" data-map-operator="${escapeHtml(best.opKey)}"><span aria-hidden="true">⌖</span> ${t('profile.action.stations', { operator })}</button>`);
+    } else if (safeUrl(best.mapUrl)) {
+        actions.push(`<a class="phm-action" href="${safeUrl(best.mapUrl)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⌖</span> ${t('profile.action.operatorMap', { operator })} <span aria-hidden="true">↗</span></a>`);
+    }
+    return actions.length ? `<div class="phm-actions">${actions.join('')}</div>` : '';
+}
+
+export function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators = [], onShowOperatorMap }) {
     const card = document.getElementById('profile-best-card');
     if (!card) return;
 
@@ -187,9 +205,14 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
         </div>
         ${secondGapHtml}
         ${favoriteComparison}
+        ${profileActionsHtml(best, { mapOperators })}
         ${details}
         <p id="profile-share-status" class="phm-share-status" role="status" aria-live="polite"></p>
     `;
+
+    card.querySelector('[data-map-operator]')?.addEventListener('click', event => {
+        onShowOperatorMap?.(event.currentTarget.dataset.mapOperator);
+    });
 
     const shareButton = document.getElementById('profile-share-result');
     const shareStatus = document.getElementById('profile-share-status');
@@ -326,8 +349,8 @@ export function renderProfileRanking(profileData, logos, favorites, onToggleFavo
     bindProfileList(list, remaining, onDetail);
 }
 
-export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail }) {
-    renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos });
+export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap }) {
+    renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators, onShowOperatorMap });
     const km = Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
 
     // Construire les données — simulation ChargeBack pour Atlante, calcul standard sinon

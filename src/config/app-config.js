@@ -27,6 +27,13 @@ export const VALID_COLORS = new Set([
     'powerdot', 'engie-vianeo', 'ionity', 'izivia', 'lidl', 'pluginn', 'statione', 'tesla', 'zunder'
 ]);
 
+// Réseaux affichés sur la carte kWhiz (base IRVE rapide). Un test vérifie que
+// chacun possède des stations dans public/irve-fast.json.
+export const MAP_OPERATOR_KEYS = Object.freeze([
+    'atlante', 'electra', 'engie-vianeo', 'fastned', 'iecharge', 'ionity',
+    'iziviafast', 'lidl', 'pluginn', 'tesla', 'zunder'
+]);
+
 export const STORAGE_KEYS = Object.freeze({
     tariffsCache: 'kwhiz_tarifs_cache',
     landingSeen: 'kwhiz-landing-seen',

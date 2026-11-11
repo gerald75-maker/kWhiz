@@ -7,6 +7,7 @@ import {
     profileShareStatusLabel,
     profileThresholdLabel,
     recommendationSubscriptionLabel,
+    profileActionsHtml,
     renderProfileHero,
     renderProfileRanking,
     renderProfileShortlist,
@@ -298,4 +299,33 @@ test('« Pourquoi ce choix ? » distingue seuil incalculable et abonnement jamai
     const reason = t('recommendation.referenceUnavailable', { operator: 'Atlante' });
     assert.match(reason, /^Seuil de rentabilité non calculé\s: Atlante n’a pas de tarif sans abonnement fixe/);
     assert.doesNotMatch(reason, /non encore rentabilisé|non atteignable/);
+});
+
+test('l’offre n°1 propose la page officielle et les bornes du réseau', () => {
+    setLanguage('fr', { persist: false, translate: false });
+    const atlante = { operator: 'Atlante', opKey: 'atlante', monthlyCost: 4.99, sourceUrl: 'https://atlante.energy/fr/myatlante-app/', mapUrl: 'https://atlante.energy/fr/#mapsBlock' };
+    const html = profileActionsHtml(atlante, { mapOperators: ['atlante'] });
+    assert.match(html, /href="https:\/\/atlante\.energy\/fr\/myatlante-app\/" target="_blank" rel="noopener noreferrer">Souscrire chez Atlante/);
+    assert.match(html, /data-map-operator="atlante"[^>]*>.*Bornes Atlante sur la carte/);
+
+    const iecharge = { operator: 'IECharge', opKey: 'iecharge', monthlyCost: 0, sourceUrl: 'https://example.org/tarifs' };
+    assert.match(profileActionsHtml(iecharge, { mapOperators: ['iecharge'] }), /Voir l’offre chez IECharge/);
+
+    const powerdot = { operator: 'Powerdot', opKey: 'powerdot', monthlyCost: 1.99, sourceUrl: 'https://powerdot.fr', mapUrl: 'https://powerdot.fr/carte' };
+    const external = profileActionsHtml(powerdot, { mapOperators: ['atlante'] });
+    assert.match(external, /href="https:\/\/powerdot\.fr\/carte"[^>]*>.*Carte des bornes Powerdot/);
+    assert.doesNotMatch(external, /data-map-operator/);
+
+    assert.equal(profileActionsHtml({ operator: 'X', opKey: 'x', monthlyCost: 0, sourceUrl: 'javascript:alert(1)' }), '');
+    setLanguage('en', { persist: false, translate: false });
+    assert.match(profileActionsHtml(atlante, { mapOperators: ['atlante'] }), /Subscribe with Atlante.*Atlante chargers on the map/s);
+    setLanguage('fr', { persist: false, translate: false });
+});
+
+test('chaque réseau proposé sur la carte possède des stations IRVE', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const { MAP_OPERATOR_KEYS } = await import('../src/config/app-config.js');
+    const irve = JSON.parse(await readFile(new URL('../public/irve-fast.json', import.meta.url), 'utf8'));
+    const present = new Set(irve.stations.map(station => station.operator));
+    for (const key of MAP_OPERATOR_KEYS) assert.ok(present.has(key), `${key} absent de irve-fast.json`);
 });
