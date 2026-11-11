@@ -131,3 +131,34 @@ test('supprime seulement l’alias devenu réflexif après stabilisation du cano
   assert.equal(Object.keys(expected.aliases).length, 1);
   assert.deepEqual(run([...stations].reverse()), expected);
 });
+
+test('fusionne une même borne déclarée deux fois sous des noms sans rapport', () => {
+  const ids = ['FRLDLE00005465', 'FRLDLE00005466'];
+  const named = station('lidl:43.5400:5.5000', {
+    operator: 'lidl', lat: 43.54, lon: 5.5, points: ids.map(id => point(id, 120)),
+    names: ['LE THOLONET RN7'], addresses: ['RN7 13100 Le Tholonet'], cities: []
+  });
+  const coded = station('lidl:43.5405:5.5002', {
+    operator: 'lidl', lat: 43.5405, lon: 5.5002, points: ids.map(id => point(id, 120)),
+    names: ['LFR3705EVCP02'], addresses: ['Route de Cézanne'], cities: []
+  });
+  const result = groupCertainStations([coded, named]);
+  assert.equal(result.grouping.certainGroups, 1);
+  assert.equal(result.stations.length, 1);
+  assert.equal(result.stations[0].pointIds.size, 2);
+  assert.equal(Object.keys(result.stationAliases).length, 1);
+});
+
+test('garde séparées deux bornes voisines aux points différents, et les points communs au-delà de 150 m', () => {
+  const neighbours = [
+    station('lidl:46.0000:2.0000', { operator: 'lidl', lat: 46, lon: 2, points: [point('P1'), point('P2')], names: ['LIDL'] }),
+    station('lidl:46.0001:2.0000', { operator: 'lidl', lat: 46.0001, lon: 2, points: [point('P3'), point('P4')], names: ['LIDL'] })
+  ];
+  const far = [
+    station('lidl:47.0000:2.0000', { operator: 'lidl', lat: 47, lon: 2, points: [point('F1')], names: ['A'], addresses: ['x'] }),
+    station('lidl:47.0016:2.0000', { operator: 'lidl', lat: 47.0016, lon: 2, points: [point('F1')], names: ['B'], addresses: ['y'] })
+  ];
+  const result = groupCertainStations([...neighbours, ...far]);
+  assert.equal(result.grouping.certainGroups, 0);
+  assert.equal(result.stations.length, 4);
+});

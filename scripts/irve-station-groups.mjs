@@ -1,4 +1,8 @@
 export const MAX_CERTAIN_GROUP_DISTANCE_METERS = 100;
+// Une même borne déclarée deux fois (nom ou adresse sans rapport, coordonnées
+// décalées) : tous les points de l'une figurent dans l'autre. L'identifiant de point
+// étant unique dans la base nationale, la fusion est sûre jusqu'à cette distance.
+export const MAX_SAME_POINTS_DISTANCE_METERS = 150;
 export const MAX_VISUAL_CANDIDATE_DISTANCE_METERS = 500;
 
 function normalized(value = '') {
@@ -16,6 +20,10 @@ function normalizedSet(values = []) {
 
 function intersects(left, right) {
   return [...left].some(value => right.has(value));
+}
+
+function includedIn(small, large) {
+  return small.size > 0 && [...small].every(value => large.has(value));
 }
 
 function tokens(value) {
@@ -58,6 +66,7 @@ export function visualDuplicateEvidence(a, b) {
   const sameOperator = a.operator === b.operator;
   const sharedPointId = intersects(a.pointIds, b.pointIds);
   const sharedStationId = intersects(a.sourceStationIds, b.sourceStationIds);
+  const samePoints = includedIn(a.pointIds, b.pointIds) || includedIn(b.pointIds, a.pointIds);
   const compatibleName = textCompatible(a.names, b.names);
   const compatibleAddress = textCompatible(a.addresses, b.addresses);
   const citiesA = normalizedSet(a.cities);
@@ -67,6 +76,8 @@ export function visualDuplicateEvidence(a, b) {
   let category = null;
   if (sameOperator && distanceMeters <= MAX_CERTAIN_GROUP_DISTANCE_METERS
       && sharedPointId && compatibleCity && (compatibleName || compatibleAddress)) {
+    category = 'certain';
+  } else if (sameOperator && distanceMeters <= MAX_SAME_POINTS_DISTANCE_METERS && samePoints) {
     category = 'certain';
   } else if (sameOperator && distanceMeters <= MAX_CERTAIN_GROUP_DISTANCE_METERS && compatibleCity
       && ((sharedStationId && (compatibleName || compatibleAddress))
@@ -78,7 +89,7 @@ export function visualDuplicateEvidence(a, b) {
   }
 
   return {
-    category, distanceMeters, sameOperator, sharedPointId, sharedStationId,
+    category, distanceMeters, sameOperator, sharedPointId, samePoints, sharedStationId,
     compatibleName, compatibleAddress, compatibleCity
   };
 }

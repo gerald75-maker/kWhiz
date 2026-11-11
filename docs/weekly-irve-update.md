@@ -10,6 +10,8 @@ Avant tout téléchargement ou toute génération, le workflow affiche la versio
 
 Le validateur refuse les coordonnées hors du périmètre France, les identifiants de station dupliqués, les associations point–station orphelines, un opérateur actif sans règle IRVE ou l'absence complète d'un opérateur actif. Electroverse est la seule exception documentée : c'est un agrégateur d'itinérance sans stations propres.
 
+Deux stations d'un même réseau sont fusionnées de façon certaine dans deux cas : elles partagent un point de recharge, sont à moins de 100 m et ont un nom ou une adresse compatibles ; ou tous les points de l'une figurent dans l'autre et elles sont à moins de 150 m, quels que soient le nom et l'adresse. Ce second cas couvre une même borne déclarée deux fois (fréquent chez Lidl : « LIDL » et « LFR3705EVCP02 » au même endroit). Au-delà de 150 m, des points communs restent un cas ambigu, conservé séparé.
+
 L'index de statut conserve temporairement `pointToStation` pour les serveurs utilisant encore l'ancien format. Les associations proches et compatibles sont aussi publiées sous `pointToStations`, avec des listes de stations triées. Les identifiants distants ou dont le nom, l'adresse et la commune ne permettent pas d'établir un même site sont exclus de ces deux index et conservés dans `ambiguousPointIds` et `ambiguousPointCandidates`. Aucun conflit n'est résolu selon l'ordre des lignes du CSV.
 
 Par rapport aux fichiers publiés, le workflow échoue si :
