@@ -2,8 +2,10 @@ import {
     getAtlanteGemsRate,
     atlanteSteadyStateRate,
     chargebackBreakeven,
-    calculateBreakeven
+    calculateBreakeven,
+    computeProfileMonthlyCost
 } from './src/domain/pricing.js';
+import { buildStationPrices, formulaPlanId } from './src/domain/station-pricing.js';
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
@@ -342,6 +344,25 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     }
     // UI ChargeBack Atlante — générée depuis tarifs.json (source unique)
     if (recomputeAtlanteChargeback) renderAtlanteChargebackInfo(OPERATORS);
+    refreshStationPrices();
+}
+
+// Prix affichés sur la carte : sans abonnement, plus les abonnements favoris
+// et l'offre recommandée par Mon choix lorsqu'elle comporte un abonnement.
+function refreshStationPrices() {
+    if (!stationsMap?.setPrices) return;
+    const planIds = new Set(favorites);
+    const km = profileControls?.getMonthlyKm() ?? 0;
+    if (km > 0 && allFormulasData.length) {
+        const consumption = consumptionController?.getConsumption() ?? 0.18;
+        const fastPercentage = profileControls?.getFastPercentage() ?? fastPct;
+        const best = allFormulasData
+            .map(formula => ({ formula, cost: computeProfileMonthlyCost(formula, km, consumption, { fastPercentage, homeRate: HOME_RATE_KWH }) }))
+            .filter(item => Number.isFinite(item.cost))
+            .sort((a, b) => a.cost - b.cost)[0];
+        if (best?.formula.monthlyCost > 0) planIds.add(formulaPlanId(best.formula));
+    }
+    stationsMap.setPrices(buildStationPrices(allFormulasData, { planIds }));
 }
 
 
@@ -485,6 +506,7 @@ function initApp() {
     });
 
     stationsMap = initStationsMap();
+    refreshStationPrices();
     navigation = initNavigation({
         initialView: 'profile',
         onViewChange: view => {

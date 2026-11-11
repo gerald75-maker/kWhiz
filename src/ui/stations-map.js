@@ -2,6 +2,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { buildWattwayLink } from '../domain/wattway-link.js';
+import { compareByPrice } from '../domain/station-pricing.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
@@ -58,6 +59,8 @@ export function initStationsMap() {
   let mapPositionReady = false;
   let routeLayer = null;
   let routeStationMetrics = null;
+  let stationPrices = new Map();
+  let sortMode = localStorage.getItem(STORAGE_KEYS.mapSort) === 'price' ? 'price' : 'distance';
   let loaded = false;
   let irveUpdatedAt = null;
   let routeUiState = { key: null, params: {}, state: '' };
@@ -133,8 +136,30 @@ export function initStationsMap() {
     return formatStationStatus(statusFor(station));
   }
 
+  function stationDistance(station) {
+    if (routeStationMetrics) return routeStationMetrics.get(station.id)?.progress ?? Infinity;
+    return map ? map.getCenter().distanceTo([station.lat, station.lon]) : 0;
+  }
+
+  // « Les moins chères » : parmi les 40 stations les plus proches (ou tout le trajet),
+  // classement par prix au kWh puis par distance.
+  function cheapestStations(items) {
+    const pool = routeStationMetrics
+      ? [...items]
+      : [...items].sort((a, b) => stationDistance(a) - stationDistance(b)).slice(0, 40);
+    return pool.sort(compareByPrice(stationPrices, stationDistance)).slice(0, routeStationMetrics ? 60 : 12);
+  }
+
+  function renderSortState() {
+    document.querySelectorAll('#map-sort [data-map-sort]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.mapSort === sortMode));
+    });
+  }
+
   function renderList(items) {
-    let nearby = routeStationMetrics
+    let nearby = sortMode === 'price' && stationPrices.size
+      ? cheapestStations(items)
+      : routeStationMetrics
       ? [...items].sort((a, b) => routeStationMetrics.get(a.id).progress - routeStationMetrics.get(b.id).progress).slice(0, 60)
       : map
       ? [...items].sort((a, b) => map.getCenter().distanceTo([a.lat, a.lon]) - map.getCenter().distanceTo([b.lat, b.lon])).slice(0, 12)
@@ -145,7 +170,7 @@ export function initStationsMap() {
     }
     list.innerHTML = nearby.map(station => renderStationCardHtml(station, {
       operatorLabel: LABELS[station.operator], logo: LOGOS[station.operator] || '',
-      selected: station.id === selectedStationId, status: statusFor(station)
+      selected: station.id === selectedStationId, status: statusFor(station), price: stationPrices.get(station.operator)
     })).join('') || `<p class="map-empty">${t('map.list.empty')}</p>`;
   }
 
@@ -170,7 +195,7 @@ export function initStationsMap() {
           color: STATUS_COLORS[currentStatus], fillColor: COLORS[station.operator], fillOpacity: 0.92,
           bubblingMouseEvents: false
         });
-      marker.bindPopup(renderStationPopupHtml(station, { operatorLabel: LABELS[station.operator], status: statusFor(station) }), { autoPan: false }).addTo(map);
+      marker.bindPopup(renderStationPopupHtml(station, { operatorLabel: LABELS[station.operator], status: statusFor(station), price: stationPrices.get(station.operator) }), { autoPan: false }).addTo(map);
       marker.getElement()?.setAttribute('aria-label', t('map.station.showOnMap', { name: station.name }));
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
@@ -442,6 +467,16 @@ export function initStationsMap() {
     selectStation(stationCard.dataset.stationId);
   });
 
+  renderSortState();
+  document.getElementById('map-sort')?.addEventListener('click', event => {
+    const button = event.target.closest?.('[data-map-sort]');
+    if (!button || button.dataset.mapSort === sortMode) return;
+    sortMode = button.dataset.mapSort === 'price' ? 'price' : 'distance';
+    localStorage.setItem(STORAGE_KEYS.mapSort, sortMode);
+    renderSortState();
+    if (stations.length) renderList(visibleStations());
+  });
+
   async function load() {
     if (loaded) return;
     loaded = true;
@@ -574,6 +609,11 @@ export function initStationsMap() {
         renderStations();
         void loadStatuses();
       });
+    },
+    // Prix par réseau calculés depuis les tarifs et le profil (app.js).
+    setPrices(prices) {
+      stationPrices = prices instanceof Map ? prices : new Map();
+      if (stations.length) renderStations();
     }
   };
 }

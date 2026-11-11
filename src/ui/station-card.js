@@ -1,4 +1,4 @@
-import { formatNumber, t } from '../i18n/i18n.js';
+import { formatCurrency, formatNumber, localizeCommercialLabel, t } from '../i18n/i18n.js';
 import { formatStationSummary } from './station-summary.js';
 
 function escapeHtml(value = '') {
@@ -43,15 +43,46 @@ function atlanteAvailabilityLink(station, className = '') {
   return `<a class="atlante-availability-link${className ? ` ${className}` : ''}" href="${escapeHtml(station.officialUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('map.station.atlanteAvailability'))} <span aria-hidden="true">↗</span></a>`;
 }
 
-export function renderStationCardHtml(station, { operatorLabel = '', logo = '', selected = false, status = {}, now = Date.now() } = {}) {
+function stationRate(rate) {
+  return t('profile.perKwh', { amount: formatCurrency(rate, { minimumFractionDigits: 2, maximumFractionDigits: 3 }) });
+}
+
+// Nom court de l'abonnement dans une fiche étroite : sans la période (« - mensuel »).
+function shortPlanName(name) {
+  return String(name).replace(/\s+[-–—]\s+(mensuel|annuel|monthly|annual)$/i, '');
+}
+
+// Lignes de prix d'une station : sans abonnement, puis avec l'abonnement favori ou recommandé.
+export function formatStationPrice(price) {
+  if (!price) return [];
+  const lines = [];
+  if (price.payg) {
+    const key = price.payg.from ? 'map.price.paygFrom' : price.payg.approx ? 'map.price.paygApprox' : 'map.price.payg';
+    lines.push(t(key, { rate: stationRate(price.payg.rate) }));
+  }
+  if (price.plan) {
+    lines.push(t(price.plan.approx ? 'map.price.planApprox' : 'map.price.plan', {
+      rate: stationRate(price.plan.rate), formula: shortPlanName(localizeCommercialLabel(price.plan.name))
+    }));
+  }
+  return lines;
+}
+
+function stationPriceHtml(price, tag = 'p') {
+  const lines = formatStationPrice(price);
+  if (!lines.length) return '';
+  return `<${tag} class="station-price">${lines.map((line, index) => `<b${index ? ' class="station-price-plan"' : ''}>${escapeHtml(line)}</b>`).join('')}</${tag}>`;
+}
+
+export function renderStationCardHtml(station, { operatorLabel = '', logo = '', selected = false, status = {}, price = null, now = Date.now() } = {}) {
   return `<article class="map-station-card${selected ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="${escapeHtml(t('map.station.showOnMap', { name: station.name }))}" aria-pressed="${selected}">
         <img src="${logo}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(station.name)}</strong><span>${formatStationSummary(station, operatorLabel)}</span><small>${escapeHtml(station.address || station.city)}</small>${stationStatusBadge(status, '', now)}${atlanteAvailabilityLink(station)}</div>
+        <div><strong>${escapeHtml(station.name)}</strong><span>${formatStationSummary(station, operatorLabel)}</span><small>${escapeHtml(station.address || station.city)}</small>${stationPriceHtml(price)}${stationStatusBadge(status, '', now)}${atlanteAvailabilityLink(station)}</div>
         <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name: station.name }))}">${t('map.station.directions')}</button>
       </article>`;
 }
 
-export function renderStationPopupHtml(station, { operatorLabel = '', status = {}, now = Date.now() } = {}) {
+export function renderStationPopupHtml(station, { operatorLabel = '', status = {}, price = null, now = Date.now() } = {}) {
   const availability = atlanteAvailabilityLink(station, 'atlante-availability-link--popup');
-  return `<strong>${escapeHtml(station.name)}</strong><br>${formatStationSummary(station, operatorLabel)}<br>${escapeHtml(station.address)}<br>${stationStatusBadge(status, 'station-status--popup', now)}${availability ? `<br>${availability}` : ''}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name: station.name }))}">${t('map.station.startDirections')}</button>`;
+  return `<strong>${escapeHtml(station.name)}</strong><br>${formatStationSummary(station, operatorLabel)}<br>${escapeHtml(station.address)}<br>${stationPriceHtml(price, 'span')}${stationStatusBadge(status, 'station-status--popup', now)}${availability ? `<br>${availability}` : ''}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(station.name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name: station.name }))}">${t('map.station.startDirections')}</button>`;
 }
