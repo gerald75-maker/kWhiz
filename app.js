@@ -677,7 +677,13 @@ function initApp() {
         onChange: updateCalculations
     });
 
-    stationsMap = initStationsMap({ getHomeZone: () => zoneControls?.getZone() });
+    stationsMap = initStationsMap({
+        getHomeZone: () => zoneControls?.getZone(),
+        // Le tracé est affiché : on referme le panneau pour montrer la carte.
+        onRouteShown: () => closeSheet({ restoreFocus: false })
+    });
+    document.getElementById('map-filters-open')?.addEventListener('click', event => openSheet('map-filters-sheet', event.currentTarget));
+    document.getElementById('map-route-open')?.addEventListener('click', event => openSheet('map-route-sheet', event.currentTarget));
     refreshStationPrices();
     zoneControls = initZoneControls({ storageKey: STORAGE_KEYS.homeZone, loadStations: loadIrveStations, onChange: refreshCoverage });
     if (zoneControls.getZone()) void refreshCoverage();

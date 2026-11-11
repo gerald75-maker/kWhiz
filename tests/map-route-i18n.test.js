@@ -23,14 +23,16 @@ test('le formulaire et le choix GPS utilisent des clés structurées sans tradui
   assert.match(html, /id="route-wattway-via"/);
 });
 
-test('seul le chevron du planificateur pivote à son ouverture', async () => {
-  const [html, css] = await Promise.all([
+test('le trajet s’ouvre dans un panneau et se referme quand le tracé est affiché', async () => {
+  const [html, app, map] = await Promise.all([
     readFile(new URL('../index.html', import.meta.url), 'utf8'),
-    readFile(new URL('../styles.css', import.meta.url), 'utf8')
+    readFile(new URL('../app.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/ui/stations-map.js', import.meta.url), 'utf8')
   ]);
-  assert.match(html, /<summary><span data-i18n="map\.route\.title">[^<]+<\/span> <span aria-hidden="true" class="route-planner-chevron">⌄<\/span><\/summary>/);
-  assert.match(css, /\.route-planner\[open\] \.route-planner-chevron\s*\{[^}]*transform:\s*rotate\(180deg\)/);
-  assert.doesNotMatch(css, /\.route-planner\[open\] summary span/);
+  assert.match(html, /aria-controls="map-route-sheet"[^>]*id="map-route-open"/);
+  assert.match(html, /id="map-route-sheet"[\s\S]*id="route-planner-form"/);
+  assert.match(app, /openSheet\('map-route-sheet', event\.currentTarget\)/);
+  assert.match(map, /if \(matching\) onRouteShown\?\.\(\);/);
 });
 
 test('le bouton de fermeture GPS reste accessible et ancré en haut à droite', async () => {

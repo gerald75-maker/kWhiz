@@ -40,28 +40,23 @@ const messages = {
     'operators.heading.kicker': 'Réseaux de recharge rapide', 'operators.heading.title': 'Opérateurs et formules',
     'operators.heading.intro': 'Consultez les prix publiés, les abonnements et leur seuil de rentabilité.',
     'operators.viewMode.details': 'Afficher le détail des prix',
-    'map.heading.kicker': 'Bornes rapides en France', 'map.heading.title': 'Carte des stations',
-    'map.heading.intro': 'Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.',
+    'map.heading.title': 'Carte des stations',
     'map.filters.title': 'Opérateurs', 'map.filters.all': 'Tous', 'map.filters.none': 'Aucun',
     'map.canvasLabel': 'Carte des stations de recharge rapide',
     'map.source.prefix': 'Données : Base nationale IRVE, mises à jour le',
     'map.source.notice': 'La présence d’une station ne garantit pas sa disponibilité en temps réel.',
-    
     'profile.controls.monthlyMileage': 'Kilométrage mensuel',
     'profile.controls.other': 'Autre…', 'profile.controls.monthlyMileageLabel': 'Kilométrage mensuel en km',
     'profile.controls.monthlyMileageUnit': 'km/mois', 'profile.controls.fastShare': 'Part rechargée sur bornes rapides',
     'profile.controls.decreasePercentage': 'Diminuer le pourcentage', 'profile.controls.increasePercentage': 'Augmenter le pourcentage',
     
-    
     'profile.ranking.viewDetails': 'Voir le détail de {operator} · {formula}',
-    
     'navigation.profile': 'Mon choix', 'navigation.profileLabel': 'Mon choix personnalisé',
     'navigation.compare': 'Comparer', 'navigation.compareLabel': 'Comparer',
     'navigation.operators': 'Opérateurs', 'navigation.operatorsLabel': 'Opérateurs',
     'navigation.map': 'Carte', 'navigation.mapLabel': 'Carte des bornes',
     'navigation.menu': 'Menu', 'navigation.menuLabel': 'Menu',
     'landing.title': 'Votre recharge rapide hors autoroute, au juste prix.',
-    
     
     'landing.continue': 'Trouver mon offre', 'landing.help': 'Comment ça marche ?',
     'landing.back': 'Retour',
@@ -147,6 +142,15 @@ const messages = {
     'comparison.filters.setZone': 'Indiquer ma zone de recharge',
     'comparison.filters.empty': 'Aucune formule ne correspond à ces filtres.',
     'map.place.label': 'Centrer la carte sur une ville ou un code postal',
+    'map.route.short': 'Trajet',
+    'map.panel.toggle': 'Agrandir ou réduire la liste',
+    'map.filters.sheetTitle': 'Réseaux sur la carte',
+    'map.filters.done': 'Voir la carte',
+    'map.filters.allNetworks': 'Tous les réseaux',
+    'map.filters.oneNetwork': '1 réseau',
+    'map.filters.someNetworks': '{count} réseaux',
+    'map.cluster.label': '{count} stations regroupées, toucher pour zoomer',
+        'help.map.clusters': 'Les stations proches se regroupent en pastilles numérotées qui indiquent le prix le plus bas du groupe : touchez-en une pour zoomer. Le bouton Réseaux choisit les opérateurs affichés, le bouton Trajet cherche les stations sur un itinéraire.',
     'map.place.placeholder': 'Autour de… (ville ou code postal)',
     'map.place.submit': 'Centrer',
     'map.place.notFound': 'Commune inconnue ou sans borne rapide : essayez une ville voisine.',
@@ -264,7 +268,6 @@ const messages = {
     'profile.loadingPrices': 'Chargement des tarifs…',
     'profile.enterMileage': 'Indiquez votre kilométrage mensuel pour obtenir une recommandation.',
     'profile.noPlans': 'Aucune formule disponible.',
-    
     'profile.breakEven': 'Seuil de rentabilité',
     'profile.share': 'Partager',
     'profile.monthlyMileage': '{distance} km/mois',
@@ -291,13 +294,8 @@ const messages = {
     
     
     
-    
-    
-    
     'recommendation.favoriteGap': '+{amount}',
-    
     'profile.annualPromoNote': 'Sur 12 mois : ChargeBack à {before} jusqu’au {date}, puis {after}.',
-    
     'favorites.add': 'Ajouter aux favoris',
     'favorites.remove': 'Retirer des favoris',
     'favorites.added': 'Ajouté aux favoris',
@@ -524,28 +522,23 @@ const messages = {
     'operators.heading.kicker': 'Fast-charging networks', 'operators.heading.title': 'Networks and plans',
     'operators.heading.intro': 'View published prices, subscriptions and their break-even point.',
     'operators.viewMode.details': 'Show price details',
-    'map.heading.kicker': 'Fast chargers in France', 'map.heading.title': 'Charger map',
-    'map.heading.intro': 'Select one or more networks. Results include chargers from any selected network.',
+    'map.heading.title': 'Charger map',
     'map.filters.title': 'Networks', 'map.filters.all': 'All', 'map.filters.none': 'None',
     'map.canvasLabel': 'Fast-charger map',
     'map.source.prefix': 'Data: French national IRVE database, updated on',
     'map.source.notice': 'A listed charger may not be available in real time.',
-    
     'profile.controls.monthlyMileage': 'Monthly mileage',
     'profile.controls.other': 'Other…', 'profile.controls.monthlyMileageLabel': 'Monthly mileage in kilometres',
     'profile.controls.monthlyMileageUnit': 'km/month', 'profile.controls.fastShare': 'Share charged at fast chargers',
     'profile.controls.decreasePercentage': 'Decrease percentage', 'profile.controls.increasePercentage': 'Increase percentage',
     
-    
     'profile.ranking.viewDetails': 'View details for {operator} · {formula}',
-    
     'navigation.profile': 'My recommendation', 'navigation.profileLabel': 'My recommendation',
     'navigation.compare': 'Compare', 'navigation.compareLabel': 'Compare',
     'navigation.operators': 'Networks', 'navigation.operatorsLabel': 'Networks',
     'navigation.map': 'Map', 'navigation.mapLabel': 'Charger map',
     'navigation.menu': 'Menu', 'navigation.menuLabel': 'Menu',
     'landing.title': 'Fast charging off the motorway, at the right price.',
-    
     
     'landing.continue': 'Find my plan', 'landing.help': 'How does it work?',
     'landing.back': 'Back',
@@ -631,6 +624,15 @@ const messages = {
     'comparison.filters.setZone': 'Set my charging area',
     'comparison.filters.empty': 'No plan matches these filters.',
     'map.place.label': 'Centre the map on a town or postcode',
+    'map.route.short': 'Route',
+    'map.panel.toggle': 'Expand or collapse the list',
+    'map.filters.sheetTitle': 'Networks on the map',
+    'map.filters.done': 'Show the map',
+    'map.filters.allNetworks': 'All networks',
+    'map.filters.oneNetwork': '1 network',
+    'map.filters.someNetworks': '{count} networks',
+    'map.cluster.label': '{count} grouped stations, tap to zoom in',
+        'help.map.clusters': 'Nearby stations are grouped into numbered bubbles showing the lowest price in the group: tap one to zoom in. The Networks button picks which operators are shown, and the Route button finds stations along a journey.',
     'map.place.placeholder': 'Around… (town or postcode)',
     'map.place.submit': 'Centre',
     'map.place.notFound': 'Unknown town or no fast charger there: try a nearby town.',
@@ -748,7 +750,6 @@ const messages = {
     'profile.loadingPrices': 'Loading prices…',
     'profile.enterMileage': 'Enter your monthly mileage to get a recommendation.',
     'profile.noPlans': 'No plans available.',
-    
     'profile.breakEven': 'Break-even point',
     'profile.share': 'Share',
     'profile.monthlyMileage': '{distance} km/month',
@@ -775,13 +776,8 @@ const messages = {
     
     
     
-    
-    
-    
     'recommendation.favoriteGap': '+{amount}',
-    
     'profile.annualPromoNote': 'Over 12 months: ChargeBack at {before} until {date}, then {after}.',
-    
     'favorites.add': 'Add to favourites',
     'favorites.remove': 'Remove from favourites',
     'favorites.added': 'Added to favourites',

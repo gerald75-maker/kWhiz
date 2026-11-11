@@ -24,6 +24,9 @@ const COLORS = {
 };
 
 const LOGO_DISTANCE_THRESHOLD_METERS = 450000;
+// Regroupement des stations proches à l'écran (cellules de 72 px) jusqu'au zoom 13.
+const CLUSTER_CELL_PX = 72;
+const CLUSTER_MAX_ZOOM = 13;
 const STATUS_COLORS = { available: '#16a34a', busy: '#f59e0b', out_of_service: '#dc2626', unknown: '#94a3b8' };
 
 function escapeHtml(value = '') {
@@ -38,7 +41,7 @@ function readSelection(keys) {
   } catch (_) { return new Set(keys); }
 }
 
-export function initStationsMap({ getHomeZone } = {}) {
+export function initStationsMap({ getHomeZone, onRouteShown } = {}) {
   const root = document.getElementById('stations-map');
   const filters = document.getElementById('map-operator-filters');
   const count = document.getElementById('map-station-count');
@@ -149,9 +152,11 @@ export function initStationsMap({ getHomeZone } = {}) {
       mapUnavailable: 'map.error.unavailableTitle'
     };
     const key = labels[locationButtonState] || labels.locate;
-    button.innerHTML = locationButtonState === 'locate' || locationButtonState === 'recenter'
-      ? `<span aria-hidden="true">⌖</span> <span>${t(key)}</span>`
-      : t(key);
+    // Bouton rond : l'état se lit dans son libellé accessible, l'aide s'affiche sous la recherche.
+    button.innerHTML = `<span aria-hidden="true">${locationButtonState === 'loading' ? '…' : '⌖'}</span>`;
+    button.setAttribute('aria-label', t(key));
+    button.title = t(key);
+    button.dataset.state = locationButtonState;
   }
 
   function renderRouteChoice() {
@@ -211,6 +216,52 @@ export function initStationsMap({ getHomeZone } = {}) {
     })).join('') || `<p class="map-empty">${t('map.list.empty')}</p>`;
   }
 
+  // Prix affiché sur un marqueur : le plus bas connu pour le réseau, jamais sur autoroute.
+  function markerRate(station) {
+    if (station.motorway === true) return null;
+    const rate = stationPrices.get(station.operator)?.sortRate;
+    return Number.isFinite(rate) ? rate : null;
+  }
+
+  function shortPrice(rate) {
+    return formatNumber(rate, { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Stations proches à l'écran regroupées par cellule ; la station sélectionnée reste seule.
+  function groupStations(items) {
+    if (map.getZoom() > CLUSTER_MAX_ZOOM) return items.map(station => [station]);
+    const cells = new Map();
+    items.forEach(station => {
+      if (station.id === selectedStationId) { cells.set(`selected:${station.id}`, [station]); return; }
+      const point = map.latLngToContainerPoint([station.lat, station.lon]);
+      const key = `${Math.floor(point.x / CLUSTER_CELL_PX)}:${Math.floor(point.y / CLUSTER_CELL_PX)}`;
+      if (!cells.has(key)) cells.set(key, []);
+      cells.get(key).push(station);
+    });
+    return [...cells.values()];
+  }
+
+  function clusterMarker(group) {
+    const lat = group.reduce((sum, station) => sum + station.lat, 0) / group.length;
+    const lon = group.reduce((sum, station) => sum + station.lon, 0) / group.length;
+    const size = group.length < 10 ? 30 : group.length < 100 ? 36 : 42;
+    const label = t('map.cluster.label', { count: formatNumber(group.length) });
+    const marker = L.marker([lat, lon], {
+      icon: L.divIcon({
+        className: 'map-cluster',
+        html: `<span class="map-cluster-count">${formatNumber(group.length)}</span>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2]
+      }),
+      bubblingMouseEvents: false,
+      keyboard: true,
+      title: label
+    }).addTo(map);
+    marker.getElement()?.setAttribute('aria-label', label);
+    marker.on('click', () => map.setView([lat, lon], Math.min(map.getZoom() + 2, 16), { animate: true }));
+    return marker;
+  }
+
   function renderStations() {
     if (!map || !mapPositionReady) return;
     markers.forEach(marker => marker.remove());
@@ -221,8 +272,11 @@ export function initStationsMap({ getHomeZone } = {}) {
     const visibleWidth = map.distance([center.lat, map.getBounds().getWest()], [center.lat, map.getBounds().getEast()]);
     const showOperatorLogos = visibleWidth <= LOGO_DISTANCE_THRESHOLD_METERS;
     const inView = filtered.filter(station => bounds.contains([station.lat, station.lon]));
-    renderedStations = inView;
-    markers = inView.map(station => {
+    const groups = groupStations(inView);
+    const clusters = groups.filter(group => group.length > 1).map(clusterMarker);
+    const singles = groups.filter(group => group.length === 1).map(group => group[0]);
+    renderedStations = singles;
+    markers = clusters.concat(singles.map(station => {
       const selected = station.id === selectedStationId;
       const currentStatus = statusDescription(station).state;
       const marker = (showOperatorLogos || selected)
@@ -237,7 +291,7 @@ export function initStationsMap({ getHomeZone } = {}) {
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
-    });
+    }));
     count.textContent = t('map.count.inView', { visible: formatNumber(inView.length), stations: plural('count.station', filtered.length) });
     renderList(filtered);
     if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
@@ -247,7 +301,7 @@ export function initStationsMap({ getHomeZone } = {}) {
     const size = selected ? 42 : 32;
     return L.divIcon({
       className: `map-operator-marker status-${statusDescription(station).state}${selected ? ' is-selected' : ''}`,
-      html: `<img src="${LOGOS[station.operator]}" alt="">`,
+      html: `<img src="${LOGOS[station.operator]}" alt="">${markerRate(station) !== null ? `<span class="map-marker-price">${shortPrice(markerRate(station))}</span>` : ''}`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -(size / 2 + 4)]
@@ -361,6 +415,7 @@ export function initStationsMap({ getHomeZone } = {}) {
       setRouteStatus(matching ? 'map.route.success' : 'map.route.noMatchingStations', matching ? successParams : {}, matching ? 'success' : 'empty');
       map.fitBounds(routeLayer.getBounds(), { padding: [18, 18] });
       renderStations();
+      if (matching) onRouteShown?.();
     } catch (error) {
       const uiKey = error?.uiKey || routeErrorKey({ networkError: error instanceof TypeError || error?.message === 'Failed to fetch' });
       setRouteStatus(uiKey, {}, 'error');
@@ -457,6 +512,7 @@ export function initStationsMap({ getHomeZone } = {}) {
       selected.has(key) ? selected.delete(key) : selected.add(key);
       button.setAttribute('aria-pressed', selected.has(key));
       localStorage.setItem(STORAGE_KEYS.mapOperators, JSON.stringify([...selected]));
+      renderFiltersLabel();
       renderStations();
       void loadStatuses();
     });
@@ -467,7 +523,30 @@ export function initStationsMap({ getHomeZone } = {}) {
   function renderFiltersState() {
     filters.querySelectorAll('[data-operator]').forEach(button => button.setAttribute('aria-pressed', selected.has(button.dataset.operator)));
     localStorage.setItem(STORAGE_KEYS.mapOperators, JSON.stringify([...selected]));
+    renderFiltersLabel();
   }
+
+  // Bouton « Réseaux » de la carte : nombre de réseaux affichés.
+  function renderFiltersLabel() {
+    const label = document.getElementById('map-filters-label');
+    if (!label) return;
+    const total = filters.querySelectorAll('[data-operator]').length;
+    label.textContent = !total || selected.size === total
+      ? t('map.filters.allNetworks')
+      : t(selected.size === 1 ? 'map.filters.oneNetwork' : 'map.filters.someNetworks', { count: formatNumber(selected.size) });
+  }
+
+  // Panneau de liste : replié (aperçu) ou déplié.
+  function setPanelExpanded(expanded) {
+    const panel = document.getElementById('map-panel');
+    const toggle = document.getElementById('map-panel-toggle');
+    if (!panel || !toggle) return;
+    panel.dataset.expanded = String(expanded);
+    toggle.setAttribute('aria-expanded', String(expanded));
+  }
+  document.getElementById('map-panel-toggle')?.addEventListener('click', () => {
+    setPanelExpanded(document.getElementById('map-panel')?.dataset.expanded !== 'true');
+  });
 
   function openRouteChoice(trigger) {
     const lat = Number(trigger.dataset.lat);
@@ -539,14 +618,18 @@ export function initStationsMap({ getHomeZone } = {}) {
         .sort((a, b) => LABELS[a].localeCompare(LABELS[b]));
       selected = readSelection(keys);
       renderFilters(keys);
+      renderFiltersLabel();
       irveUpdatedAt = payload.updatedAt;
       renderIrveUpdatedAt();
-      map = L.map(root, { zoomControl: true, preferCanvas: true }).setView([46.6, 2.4], 5.5);
+      // Boutons de zoom à droite, sous la barre de recherche (le pincement reste possible).
+      map = L.map(root, { zoomControl: false, preferCanvas: true }).setView([46.6, 2.4], 5.5);
+      L.control.zoom({ position: 'topright' }).addTo(map);
       // Un seul canvas partagé pour toutes les stations. Créer un renderer par
       // marqueur épuise rapidement la mémoire de WebKit dans une PWA iOS.
       markerRenderer = L.canvas({ padding: 0.4, tolerance: 12 });
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
       map.on('moveend', renderStations);
+      map.on('dragstart zoomstart', () => { if (placeStatusKey === 'map.place.locationHint') setPlaceStatus(null); });
       map.on('click', event => {
         const touchedPoint = map.latLngToContainerPoint(event.latlng);
         let nearest = null;
@@ -661,6 +744,7 @@ export function initStationsMap({ getHomeZone } = {}) {
       if (currentLocationIsRouteStart) document.getElementById('route-start').value = t('map.route.currentLocation');
       setRouteStatus(routeUiState.key, routeUiState.params, routeUiState.state);
       setPlaceStatus(placeStatusKey, placeStatusParams);
+      renderFiltersLabel();
       renderLocationButton();
       renderIrveUpdatedAt();
       const locationPopupWasOpen = locationMarker?.isPopupOpen?.() || false;

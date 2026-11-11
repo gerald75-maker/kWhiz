@@ -183,5 +183,13 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Panneau « Pourquoi ce choix ? » : coût sur 12 mois, promotion, prix à la borne et après ChargeBack, écart, seuil, source, partage.
 - [x] Premier lancement : présentation, puis voiture, kilomètres, lieu de recharge, ville.
 - [x] Clés i18n devenues inutiles supprimées ; aide mise à jour ; 393 tests ; aucun débordement à 390 px ; cache kwhiz-56007331.
-- [ ] Étape 2 : Carte plein écran (recherche, filtres en panneau, liste glissante, regroupement des marqueurs).
+- [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [ ] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête.
+
+## Livraison 2.29.0 (2026-11-11) : refonte, étape 2
+
+- [x] Carte en plein écran : recherche « Autour de… », boutons Réseaux et Trajet, bouton de localisation rond.
+- [x] Réseaux (filtres, aires d'autoroute, source IRVE) et Stations sur mon trajet dans des panneaux ; le panneau Trajet se ferme quand le tracé s'affiche.
+- [x] Liste des stations dans un panneau repliable en bas de la carte.
+- [x] Audit n° 15 : regroupement des stations proches (cellules de 72 px jusqu'au zoom 13), prix sous chaque logo (jamais sur autoroute).
+- [x] Aide complétée ; 394 tests ; parcours testé en émulation iPhone sans débordement ni défilement de page ; cache kwhiz-f9d16e80.

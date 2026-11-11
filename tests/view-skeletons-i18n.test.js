@@ -15,7 +15,7 @@ const requiredBindings = [
   'comparison.search.label', 'comparison.search.placeholder',
   'comparison.controls.monthlyMileage', 'comparison.controls.monthlyMileageUnit', 'comparison.controls.editProfile',
   'operators.heading.kicker', 'operators.heading.title', 'operators.heading.intro',
-  'map.heading.kicker', 'map.heading.title', 'map.heading.intro',
+  'map.heading.title', 'map.route.short', 'map.filters.sheetTitle', 'map.filters.done', 'map.panel.toggle',
   'map.filters.title', 'map.filters.all', 'map.filters.none', 'map.canvasLabel',
   'map.source.prefix', 'map.source.notice',
   'profile.sheet.title', 'profile.sheet.car', 'profile.sheet.done', 'offer.next', 'offer.why',

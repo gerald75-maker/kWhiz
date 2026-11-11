@@ -12,7 +12,8 @@ test('la carte propose une sélection multi-opérateurs explicite', async () => 
   assert.match(html, /id="tab-map"/);
   assert.match(html, /id="map-operator-filters"/);
   assert.match(html, /id="map-locate"/);
-  assert.match(html, /Les résultats correspondent à l’un des réseaux choisis/);
+  assert.match(html, /id="map-filters-open"/);
+  assert.match(html, /id="map-filters-sheet"[\s\S]*id="map-operator-filters"/);
   assert.match(navigation, /bnav-map/);
 });
 

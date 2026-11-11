@@ -47,7 +47,7 @@ test('la carte se centre sur une commune et sur la zone de recharge sans localis
     const [map, app] = await Promise.all([read('src/ui/stations-map.js'), read('app.js')]);
     assert.match(map, /findPlace\(places\(\), query\)/);
     assert.match(map, /centerOnHomeZone\(\)/);
-    assert.match(app, /initStationsMap\(\{ getHomeZone: \(\) => zoneControls\?\.getZone\(\) \}\)/);
+    assert.match(app, /getHomeZone: \(\) => zoneControls\?\.getZone\(\)/);
 });
 
 test('chaque changement d’onglet remonte en haut de page', async () => {
@@ -71,4 +71,20 @@ test('les champs gardent 16 px sur écran tactile pour éviter le zoom automatiq
     assert.match(css, /@media \(hover: none\) and \(pointer: coarse\) \{\s*input:not\(\[type="range"\]\):not\(\[type="checkbox"\]\):not\(\[type="radio"\]\),\s*select:not\(\[multiple\]\),\s*textarea:not\(\[hidden\]\) \{ font-size: 16px; \}/);
     // Le champ de zone ne doit pas imposer sa largeur naturelle à la colonne de Mon choix.
     assert.match(css, /\.profile-zone-input \{ flex:1 1 0; width:0; min-width:0;/);
+});
+
+test('la carte regroupe les stations proches et affiche un prix sur chaque marqueur', async () => {
+    const [map, html] = await Promise.all([read('src/ui/stations-map.js'), read('index.html')]);
+    assert.match(map, /const CLUSTER_CELL_PX = 72;/);
+    assert.match(map, /if \(map\.getZoom\(\) > CLUSTER_MAX_ZOOM\) return items\.map\(station => \[station\]\);/);
+    assert.match(map, /className: 'map-cluster'/);
+    assert.match(map, /class="map-marker-price"/);
+    assert.match(map, /if \(station\.motorway === true\) return null;/);
+    assert.match(html, /class="map-panel" data-expanded="false" id="map-panel"/);
+    assert.match(html, /aria-controls="map-station-list" aria-expanded="false" class="map-panel-toggle" id="map-panel-toggle"/);
+    setLanguage('fr', { persist: false, translate: false });
+    assert.equal(t('map.filters.someNetworks', { count: '3' }), '3 réseaux');
+    setLanguage('en', { persist: false, translate: false });
+    assert.equal(t('map.filters.allNetworks'), 'All networks');
+    setLanguage('fr', { persist: false, translate: false });
 });
