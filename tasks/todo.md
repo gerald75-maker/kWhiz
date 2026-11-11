@@ -186,6 +186,14 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.30.1 (2026-11-11) : aide
+
+- [x] `help.map.clusters` : les pastilles indiquent le nombre de stations (le prix y avait disparu en 2.29.0 sans que l'aide suive).
+- [x] `help.map.updated` : la date est dans le panneau des stations.
+- [x] `help.plan.profile` : emplacement du menu (en-tête et barre de la carte).
+- [x] Test d'aide renforcé ; paquet `livraisons/2.30.1/` (3 fichiers, le CSS 2.30.0 reste valable).
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.30.0 (2026-11-11) : refonte, étape 3
 
 - [x] Onglet Offres : bascule Par prix / Par réseau, lignes compactes (rang, nom, tarif, coût, écart), détail au toucher.
@@ -194,7 +202,7 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Menu fermé masqué (il transparaissait sous la barre de navigation).
 - [x] Aide FR/EN alignée ; 394 tests verts ; vérifié en émulation iPhone 390 px.
 - [x] Commit « 2.30.0 : onglet Offres… », paquet `livraisons/2.30.0/` (4 fichiers), 2.29.0 archivée.
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-138c6ff0` constaté en ligne).
 
 ## Livraison 2.29.0 (2026-11-11) : refonte, étape 2
 

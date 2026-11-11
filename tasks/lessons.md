@@ -41,3 +41,7 @@
 [2026-10-19] | La date limite de souscription à un prix garanti peut être confondue avec la fin du tarif | Exprimer la condition dans la note et ne pas utiliser validUntil lorsque le prix reste acquis tant que l’abonnement est actif.
 
 [2026-10-19] | Une nouvelle livraison a conservé le numéro précédent et deux ZIP sont restés proposés à la publication | Incrémenter la version avant reconstruction, puis déplacer les anciennes livraisons dans archives pour garder un seul ZIP à publier.
+
+## Aide : relire tout le texte, pas seulement les noms (2026-11-11)
+
+Avant chaque livraison, relire chaque section de l’aide concernée par les changements, y compris ceux des versions précédentes. En 2.29.0, le prix a été retiré des pastilles de la carte mais l’aide l’annonçait encore jusqu’en 2.30.1.

@@ -22,10 +22,14 @@ test('le contenu essentiel existe en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
   assert.equal(t('help.title'), 'Aide');
   assert.match(t('help.plan.profile'), /Mon offre.*Offres.*abonnement compris/);
+  assert.match(t('help.plan.profile'), /menu, en haut à droite et dans la barre de la carte/);
+  // Depuis la 2.29.0, les pastilles de regroupement n’affichent que le nombre de stations.
+  assert.doesNotMatch(t('help.map.clusters'), /prix le plus bas/);
+  assert.match(t('help.map.clusters'), /indiquent leur nombre/);
   assert.match(t('help.prices.estimate'), /seuil de rentabilité/);
   assert.match(t('help.prices.variable'), /station.*heure.*affluence.*moyen de paiement/);
   assert.match(t('help.map.usage'), /Plans, Google Maps ou Waze/);
-  assert.match(t('help.map.updated'), /date affichée sous le compteur/);
+  assert.match(t('help.map.updated'), /panneau des stations indique la date de mise à jour/);
   assert.match(t('help.map.statuses'), /Vert.*Orange.*Rouge.*Gris/);
   assert.match(t('help.map.privacy'), /reste sur votre appareil/);
   assert.match(t('help.route.limit'), /ne planifie pas les arrêts/);
