@@ -151,3 +151,44 @@ export function computeProfileMonthlyCost(formula, monthlyKm, consumption, optio
 
     return homeCost + fastCost + subscriptionCost;
 }
+
+// Date du mois n à partir de start (jour plafonné au 28 pour ne pas sauter de mois).
+function monthDate(start, offset) {
+    return new Date(start.getFullYear(), start.getMonth() + offset, Math.min(start.getDate(), 28), 12);
+}
+
+// Coût sur les 12 prochains mois. Avec ChargeBack, chaque mois est calculé au taux
+// en vigueur à sa date : la fin d'une promotion est donc prise en compte.
+export function computeProfileAnnualCost(formula, monthlyKm, consumption, options = {}) {
+    const start = options.date ?? new Date();
+    if (!formula?.chargebackConfig?.enabled) {
+        return computeProfileMonthlyCost(formula, monthlyKm, consumption, options) * 12;
+    }
+    let total = 0;
+    for (let month = 0; month < 12; month += 1) {
+        total += computeProfileMonthlyCost(formula, monthlyKm, consumption, { ...options, date: monthDate(start, month) });
+    }
+    return total;
+}
+
+// Changement de taux ChargeBack dans les 12 prochains mois : { endDate, rateNow, rateAfter } ou null.
+export function chargebackChangeWithinYear(formula, date = new Date()) {
+    const config = formula?.chargebackConfig;
+    if (!config?.enabled || !config.promoEndDate) return null;
+    const rateNow = getAtlanteGemsRate(config, date);
+    const rateLater = getAtlanteGemsRate(config, monthDate(date, 11));
+    if (rateNow === rateLater) return null;
+    return { endDate: config.promoEndDate, rateNow, rateAfter: rateLater };
+}
+
+// Écart mensuel entre la formule la moins chère et la plus chère, tout en recharge rapide.
+// Sert à chiffrer l'intérêt de comparer, dès l'accueil.
+export function monthlyCostSpread(formulas, monthlyKm, consumption, options = {}) {
+    const costs = formulas
+        .map(formula => computeProfileMonthlyCost(formula, monthlyKm, consumption, { ...options, fastPercentage: 100 }))
+        .filter(Number.isFinite);
+    if (costs.length < 2) return null;
+    const lowest = Math.min(...costs);
+    const highest = Math.max(...costs);
+    return { lowest, highest, spread: highest - lowest };
+}

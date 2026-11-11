@@ -24,7 +24,7 @@ const requiredBindings = [
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
   'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.controls.homeRateHint',
   'profile.ranking.kicker', 'profile.ranking.title', 'profile.ranking.estimatedMonthlyCost',
-  'profile.ranking.next', 'profile.ranking.hideNext',
+  'profile.ranking.next', 'profile.ranking.hideNext', 'profile.allOffers',
   'navigation.profile', 'navigation.profileLabel', 'navigation.compare', 'navigation.compareLabel',
   'navigation.operators', 'navigation.operatorsLabel', 'navigation.map', 'navigation.mapLabel',
   'navigation.menu', 'navigation.menuLabel'

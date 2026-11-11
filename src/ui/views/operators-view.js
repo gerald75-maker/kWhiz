@@ -39,11 +39,23 @@ function favoriteButton(opKey, formula, favorites) {
     return `<button type="button" class="favorite-btn${selected ? ' is-favorite' : ''}" data-favorite-id="${escapeHtml(id)}" aria-label="${t(selected ? 'favorites.remove' : 'favorites.add')}" aria-pressed="${selected}">★</button>`;
 }
 
-function mapLink(operator) {
+// Carte kWhiz quand le réseau y figure, sinon carte de l'opérateur (lien externe ↗).
+function mapLink(opKey, operator, mapOperators = []) {
+    const name = localizeCommercialLabel(operator.name);
+    if (mapOperators.includes(opKey)) {
+        return `<button type="button" class="operator-directory-map" data-map-operator="${escapeHtml(opKey)}" aria-label="${escapeHtml(t('operators.showOnMapFor', { operator: name }))}"><span>${escapeHtml(t('operators.map'))}</span></button>`;
+    }
     const url = safeUrl(operator.mapUrl);
     if (!url) return '';
-    const name = localizeCommercialLabel(operator.name);
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="operator-directory-map" aria-label="${escapeHtml(t('operators.openMapFor', { operator: name }))}"><span>${escapeHtml(t('operators.map'))}</span><span aria-hidden="true">›</span></a>`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="operator-directory-map" aria-label="${escapeHtml(t('operators.openMapFor', { operator: name }))}"><span>${escapeHtml(t('operators.map'))}</span><span aria-hidden="true">↗</span></a>`;
+}
+
+// Prix du kWh le plus bas du réseau, toutes formules confondues (prix payé à la borne).
+export function lowestOperatorRate(operator) {
+    const rates = operator.formulas
+        .map(formula => (Number.isFinite(formula.rateMin) ? formula.rateMin : formula.rate))
+        .filter(rate => Number.isFinite(rate) && rate > 0);
+    return rates.length ? Math.min(...rates) : null;
 }
 
 function operatorFormulaResult(operator, formula, consumption) {
@@ -76,7 +88,7 @@ function detailFormula(opKey, operator, formula, result) {
     };
 }
 
-function renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail }) {
+function renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap }) {
     const container = document.getElementById('operators-compact');
     if (!container) return;
     const open = new Set(Array.from(container.querySelectorAll?.('details[open][data-operator]') || [], node => node.dataset.operator));
@@ -100,8 +112,18 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
         }).join('');
         const logo = logos[opKey] ? `<img src="${logos[opKey]}" class="operator-logo" alt="${escapeHtml(localizeCommercialLabel(operator.name))}" loading="lazy">` : '';
         const description = operator.badge ? `${escapeHtml(localizeNetworkDescription(operator.badge))} · ` : '';
-        card.innerHTML = `<summary class="operator-directory-summary"><span class="operator-directory-name ${escapeHtml(operator.color)}">${logo}<span><strong>${escapeHtml(localizeCommercialLabel(operator.name))}</strong><small>${description}${escapeHtml(t(count === 1 ? 'count.plan' : 'count.plans', { count: formatNumber(count) }))}</small></span></span><span class="operator-directory-actions">${mapLink(operator)}<span class="operator-directory-chevron" aria-hidden="true">›</span></span></summary><div class="operator-plan-list">${plans}</div>`;
+        const lowestRate = lowestOperatorRate(operator);
+        const fromRate = lowestRate !== null
+            ? `<span class="operator-directory-from">${escapeHtml(t('operators.fromRate', { rate: `${formatCurrency(lowestRate, { minimumFractionDigits: 2, maximumFractionDigits: 3 })}/kWh` }))}</span>`
+            : '';
+        card.innerHTML = `<summary class="operator-directory-summary"><span class="operator-directory-name ${escapeHtml(operator.color)}">${logo}<span><strong>${escapeHtml(localizeCommercialLabel(operator.name))}</strong><small>${description}${escapeHtml(t(count === 1 ? 'count.plan' : 'count.plans', { count: formatNumber(count) }))}</small>${fromRate}</span></span><span class="operator-directory-actions">${mapLink(opKey, operator, mapOperators)}<span class="operator-directory-chevron" aria-hidden="true">›</span></span></summary><div class="operator-plan-list">${plans}</div>`;
         card.addEventListener('click', event => {
+            const showMap = event.target.closest('[data-map-operator]');
+            if (showMap) {
+                event.preventDefault();
+                onShowOperatorMap?.(showMap.dataset.mapOperator);
+                return;
+            }
             const favorite = event.target.closest('[data-favorite-id]');
             if (favorite) {
                 event.preventDefault();
@@ -117,7 +139,7 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
     }
 }
 
-export function renderOperatorsViews({ operators, consumption, logos, favorites = new Set(), onToggleFavorite, onDetail }) {
+export function renderOperatorsViews({ operators, consumption, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap }) {
     const count = document.getElementById('operators-page-count');
     if (count) {
         const operatorCount = Object.keys(operators).length;
@@ -126,5 +148,5 @@ export function renderOperatorsViews({ operators, consumption, logos, favorites 
         const plans = t(formulaCount === 1 ? 'count.plan' : 'count.plans', { count: '' }).trim();
         count.innerHTML = `<strong>${formatNumber(operatorCount)}</strong><span>${networks}</span><strong>${formatNumber(formulaCount)}</strong><span>${plans}</span>`;
     }
-    renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail });
+    renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap });
 }

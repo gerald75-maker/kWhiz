@@ -362,9 +362,9 @@ test('les textes FR et EN expliquent le classement mensuel', async () => {
         readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8'),
         readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
     ]);
-    assert.match(html, /Comparez les coûts, les abonnements et leur rentabilité pour comprendre le classement selon votre profil/);
+    assert.match(html, /Toutes les formules classées selon votre profil, avec recherche, filtres, tarifs et seuils de rentabilité\. Mon choix ne garde que les meilleures\./);
     assert.match(html, /data-i18n="comparison\.controls\.editProfile"[^>]*>Modifier mon profil/);
-    assert.match(i18n, /Compare costs, subscriptions and break-even points to understand the ranking for your profile/);
+    assert.match(i18n, /Every plan ranked for your profile, with search, filters, prices and break-even points\. My recommendation keeps only the best ones\./);
     assert.match(i18n, /'comparison\.controls\.editProfile': 'Edit my profile'/);
     assert.doesNotMatch(view, /const COPY|Tarif variable|Plage tarifaire|Remise|Tarif fixe/);
     assert.match(i18n, /comparison\.estimatedCost/);

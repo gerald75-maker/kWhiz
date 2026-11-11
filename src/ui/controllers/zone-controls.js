@@ -77,16 +77,41 @@ export function initZoneControls({ storageKey, loadStations, onChange }) {
         }
     });
 
+    // Le bouton lui-même affiche l'attente : sur mobile, la ligne d'état peut être
+    // masquée par le clavier ou hors de l'écran.
+    function setLocating(active) {
+        if (!locate) return;
+        locate.disabled = active;
+        locate.setAttribute('aria-busy', String(active));
+        locate.querySelector('[data-i18n="profile.zone.locate"]')?.replaceChildren(t(active ? 'profile.zone.locatingShort' : 'profile.zone.locate'));
+    }
+
+    function locationErrorStatus(error) {
+        if (error?.code === 1) return 'profile.zone.locationDenied';
+        if (error?.code === 3) return 'profile.zone.locationTimeout';
+        return 'profile.zone.locationError';
+    }
+
     locate?.addEventListener('click', () => {
+        if (locate.disabled) return;
         if (!navigator.geolocation) {
             renderStatus('profile.zone.locationError');
             return;
         }
+        input?.blur();
+        setLocating(true);
         renderStatus('profile.zone.locating');
         navigator.geolocation.getCurrentPosition(
-            position => save({ source: 'position', label: '', lat: position.coords.latitude, lon: position.coords.longitude }),
-            () => renderStatus('profile.zone.locationError'),
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+            position => {
+                setLocating(false);
+                if (input) input.value = '';
+                save({ source: 'position', label: '', lat: position.coords.latitude, lon: position.coords.longitude });
+            },
+            error => {
+                setLocating(false);
+                renderStatus(locationErrorStatus(error));
+            },
+            { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 }
         );
     });
 

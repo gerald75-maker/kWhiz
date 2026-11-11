@@ -118,8 +118,8 @@
 <header class="compare-heading">
 <div>
 <p class="compare-kicker" data-i18n="comparison.heading.kicker">Recharge rapide DC</p>
-<h2 data-i18n="comparison.heading.title" id="compare-title">Comparer les offres</h2>
-<p data-i18n="comparison.heading.intro">Comparez les coûts, les abonnements et leur rentabilité pour comprendre le classement selon votre profil.</p>
+<h2 data-i18n="comparison.heading.title" id="compare-title">Toutes les offres</h2>
+<p data-i18n="comparison.heading.intro">Toutes les formules classées selon votre profil, avec recherche, filtres, tarifs et seuils de rentabilité. Mon choix ne garde que les meilleures.</p>
 </div>
 <label class="compare-search">
 <span class="sr-only" data-i18n="comparison.search.label">Rechercher une offre ou un opérateur</span>
@@ -244,6 +244,7 @@
 <summary><span class="profile-ranking-summary-closed" data-i18n="profile.ranking.next">Voir la suite du classement</span><span class="profile-ranking-summary-open" data-i18n="profile.ranking.hideNext">Masquer la suite du classement</span></summary>
 <div class="profile-ranking-list" id="profile-ranking-list"></div>
 </details>
+<button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers">Toutes les offres, avec filtres et détails</span> <span aria-hidden="true">›</span></button>
 </div>
 <!-- Bannière mise à jour tarifs -->
 <div class="tarifs-update-banner" id="tarifs-update-banner">
@@ -264,6 +265,7 @@
 </div>
 <h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Comparez les tarifs des bornes de recharge rapide hors autoroute</h1>
 <p class="landing-positioning" data-i18n="landing.positioning">kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.</p>
+<p aria-live="polite" class="landing-benefit" id="landing-benefit" hidden></p>
 <ol class="landing-pitch landing-steps">
 <li data-i18n="landing.step.profile">Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
 <li data-i18n="landing.step.compare">Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
@@ -365,7 +367,7 @@
 </details>
 <details class="help-topic"><summary data-i18n="help.prices.title">Comprendre les prix</summary>
 <p data-i18n="help.prices.estimate">Le coût affiché est une estimation fondée sur votre profil. Le seuil de rentabilité indique le kilométrage mensuel à partir duquel un abonnement devient avantageux. « Jamais rentable » signifie qu’aucun kilométrage ne le rend intéressant face au tarif sans abonnement du même réseau. « Seuil non calculé » signifie que ce réseau n’a pas de tarif sans abonnement fixe auquel le comparer.</p>
-<p data-i18n="help.prices.chargeback">Pour les offres avec remboursement, comme le ChargeBack Atlante, kWhiz affiche le prix payé à la borne puis le prix moyen estimé après remboursement. Le coût mensuel est calculé avec ce second prix.</p>
+<p data-i18n="help.prices.chargeback">Pour les offres avec remboursement, comme le ChargeBack Atlante, kWhiz affiche le prix payé à la borne puis le prix moyen estimé après remboursement. Le coût mensuel est calculé avec ce second prix. Le coût sur 12 mois tient compte de la fin annoncée d’une promotion, mois par mois.</p>
 <p data-i18n="help.prices.variable">Certains prix varient selon la station, l’heure, l’affluence ou le moyen de paiement. Vérifiez toujours le tarif affiché par l’opérateur avant de recharger.</p>
 <p data-i18n="help.prices.scope">kWhiz compare une sélection de réseaux rapides opérant en France. La liste à jour se trouve dans l’onglet Opérateurs.</p>
 </details>

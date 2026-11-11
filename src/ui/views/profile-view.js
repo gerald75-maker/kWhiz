@@ -1,8 +1,8 @@
-import { computeProfileMonthlyCost } from '../../domain/pricing.js';
+import { chargebackChangeWithinYear, computeProfileAnnualCost, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, safeUrl } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
-import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
+import { formatCurrency, formatDate, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 import { offerDetailSubscriptionLabel } from './offer-detail-view.js';
 import { coverageNoteHtml } from '../coverage-note.js';
 
@@ -94,7 +94,8 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
 
     const withCosts = formulasData.map(formula => ({
         ...formula,
-        profileMonthlyCost: computeProfileMonthlyCost(formula, km, consumption, { fastPercentage, homeRate })
+        profileMonthlyCost: computeProfileMonthlyCost(formula, km, consumption, { fastPercentage, homeRate }),
+        profileAnnualCost: computeProfileAnnualCost(formula, km, consumption, { fastPercentage, homeRate })
     })).sort((a, b) => a.profileMonthlyCost - b.profileMonthlyCost);
 
     const best = withCosts[0];
@@ -105,9 +106,8 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
     const monthlySavings = reference
         ? Math.max(0, reference.profileMonthlyCost - best.profileMonthlyCost)
         : 0;
-    const secondAnnualGap = second
-        ? Math.max(0, (second.profileMonthlyCost - best.profileMonthlyCost) * 12)
-        : 0;
+    // Écart sur 12 mois : peut s'inverser quand une promotion de l'offre n°1 prend fin.
+    const secondAnnualGap = second ? second.profileAnnualCost - best.profileAnnualCost : 0;
 	const fastRatio = fastPercentage / 100;
 
 	const adjustedThresholdKm =
@@ -145,7 +145,15 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
         })}</li>`);
     }
 
-    const annualCost = best.profileMonthlyCost * 12;
+    const annualCost = best.profileAnnualCost;
+    const chargebackChange = chargebackChangeWithinYear(best);
+    const annualNote = chargebackChange
+        ? `<div class="phm-annual-note">${t('profile.annualPromoNote', {
+            date: formatDate(chargebackChange.endDate),
+            before: formatPercentage(chargebackChange.rateNow * 100),
+            after: formatPercentage(chargebackChange.rateAfter * 100)
+        })}</div>`
+        : '';
 
     const favoriteChoices = withCosts.filter(formula => favorites.has(formulaFavoriteId(formula.opKey, formula.name)));
     const favoriteReference = favoriteChoices[0] || null;
@@ -180,8 +188,10 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
 
     const logoHtml = renderOperatorLogo(logos, best.opKey, 'phm-logo', 'phm-logo-frame');
     const secondGapHtml = second
-        ? `<div class="phm-gap">
-            <strong>${t('recommendation.annualGap', { amount: currency(secondAnnualGap) })}</strong>
+        ? `<div class="phm-gap${secondAnnualGap < 0.005 ? ' phm-gap--reversed' : ''}">
+            <strong>${secondAnnualGap < 0.005
+                ? t('recommendation.annualGapReversed', { amount: currency(Math.abs(secondAnnualGap)) })
+                : t('recommendation.annualGap', { amount: currency(secondAnnualGap) })}</strong>
             <span>${t('recommendation.comparedWith', { operator: escapeHtml(localizeCommercialLabel(second.operator)), formula: escapeHtml(localizeCommercialLabel(second.name)) })}</span>
         </div>`
         : '';
@@ -203,6 +213,7 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
             <span class="phm-price-label">${t('profile.estimatedMonthlyCost')}</span>
             <div class="phm-price-main">${profileMonthlyAmount(best.profileMonthlyCost)}</div>
             <div class="phm-annual-cost">${profileAnnualAmount(annualCost)}</div>
+            ${annualNote}
         </div>
         <div class="phm-coverage">${coverageNoteHtml(coverage, best.opKey, localizeCommercialLabel(best.operator))}</div>
         ${secondGapHtml}

@@ -6087,7 +6087,7 @@ body.light .page-overlay-sheet {
 @media (max-width: 375px) {
     #tab-operators .operator-directory-summary,
     #tab-operators .operator-plan-row { padding-inline: 0.7rem; }
-    #tab-operators .operator-directory-map span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    #tab-operators .operator-directory-map { padding: 0.3rem 0.55rem; font-size: 0.76rem; }
     #tab-operators .operator-plan-row { gap: 0.45rem; }
     #tab-operators .operator-plan-detail { padding-inline: 0.35rem; }
 }
@@ -6115,3 +6115,19 @@ body.light .page-overlay-sheet {
   select:not([multiple]),
   textarea:not([hidden]) { font-size: 16px; }
 }
+
+/* Coût annuel : note de fin de promotion et écart inversé (2.27.0) */
+.phm-annual-note { margin-top:4px; color:var(--text-secondary); font-size:.76rem; line-height:1.35; }
+.phm-gap--reversed { border-color:rgba(245, 184, 0, 0.45); }
+.phm-gap--reversed strong { color:#b7791f; }
+
+/* Opérateurs : « dès X €/kWh » et bouton Carte (2.27.0) */
+#tab-operators .operator-directory-from { display:block; margin-top:0.2rem; color:var(--accent); font-size:.8rem; font-weight:750; }
+#tab-operators .operator-directory-map { padding:0.35rem 0.7rem; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--accent) 8%, transparent); font:inherit; font-size:.8rem; font-weight:700; color:var(--accent); cursor:pointer; white-space:nowrap; }
+
+/* Mon choix : lien vers Comparer (2.27.0) */
+.profile-all-offers { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:44px; margin-top:10px; padding:10px 14px; border:1px solid color-mix(in srgb, var(--accent) 40%, var(--border-color)); border-radius:12px; background:var(--bg-card); color:var(--accent); font:inherit; font-size:.86rem; font-weight:750; cursor:pointer; }
+.profile-all-offers:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+/* Accueil : écart chiffré entre offres (2.27.0) */
+.landing-benefit { margin:-6px auto 18px; max-width:34rem; padding:10px 14px; border-radius:12px; background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--text-primary); font-size:.88rem; font-weight:650; line-height:1.45; }

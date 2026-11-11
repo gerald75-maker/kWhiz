@@ -165,3 +165,12 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 
 - [x] Débordement à droite sur iPhone après saisie d'une ville : le champ « Ma zone de recharge » imposait sa largeur naturelle à la colonne de Mon choix (+19 px sur mobile), et iOS zoomait sur les champs de moins de 16 px. Champs à 16 px sur écran tactile ; largeurs minimales neutralisées (zone, modèle, « Autour de… »).
 - [x] Contrôle sans débordement à 375 et 390 px sur les quatre onglets ; 391 tests réussis ; cache kwhiz-18d37a7d.
+
+## Livraison 2.27.0 (2026-11-11)
+
+- [x] Audit n° 8 : coût sur 12 mois calculé mois par mois avec le taux ChargeBack en vigueur (Atlante Go à 1 000 km : 487 € au lieu de 373 €), note de fin de promotion, écart annuel inversé signalé.
+- [x] Audit n° 20 : « dès X €/kWh » sous chaque réseau, un seul chevron, bouton Carte vers la carte kWhiz (Lidl compris), lien ↗ pour Powerdot et Electroverse.
+- [x] Audit n° 10 : Comparer devient « Toutes les offres » ; bouton « Toutes les offres, avec filtres et détails » sous le classement de Mon choix.
+- [x] Audit n° 18 : écart chiffré sur l'accueil (79 €/mois au 11/11 pour 1 000 km à 18 kWh/100 km).
+- [x] « Ma position » (Mon choix) : état d'attente sur le bouton, messages distincts pour refus et délai dépassé.
+- [x] Aide complétée ; 398 tests ; contrôle sans débordement à 390 px ; cache kwhiz-711ccc2c.

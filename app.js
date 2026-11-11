@@ -3,7 +3,8 @@ import {
     atlanteSteadyStateRate,
     chargebackBreakeven,
     calculateBreakeven,
-    computeProfileMonthlyCost
+    computeProfileMonthlyCost,
+    monthlyCostSpread
 } from './src/domain/pricing.js';
 import { buildStationPrices, formulaPlanId } from './src/domain/station-pricing.js';
 import { COVERAGE_RADIUS_KM, countStationsByOperator } from './src/domain/coverage.js';
@@ -63,7 +64,7 @@ import { showFavoriteFeedback } from './src/ui/favorite-feedback.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
 import { initMenuLanguage } from './src/ui/menu-language.js';
-import { formatTariffsFreshness, formatTariffsStatusLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
+import { formatCurrency, formatNumber, formatTariffsFreshness, formatTariffsStatusLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -373,7 +374,9 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         onModal: openInfoModal,
         favorites,
         onToggleFavorite: handleToggleFavorite,
-        onDetail: openFormulaDetail
+        onDetail: openFormulaDetail,
+        mapOperators: MAP_OPERATOR_KEYS,
+        onShowOperatorMap: showOperatorOnMap
     });
     // Recalcule le comparateur profil si c'est la vue active ou si déjà rendu
     if (navigation?.getCurrentView() === 'profile' || document.getElementById('profile-body')?.hasChildNodes()) {
@@ -382,6 +385,22 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     // UI ChargeBack Atlante — générée depuis tarifs.json (source unique)
     if (recomputeAtlanteChargeback) renderAtlanteChargebackInfo(OPERATORS);
     refreshStationPrices();
+    renderLandingBenefit();
+}
+
+// Accueil : écart réel entre la formule la moins chère et la plus chère, pour un profil
+// de référence affiché en toutes lettres (1 000 km/mois, 18 kWh/100 km, tout en rapide).
+const LANDING_REFERENCE = Object.freeze({ km: 1000, consumption: 0.18 });
+function renderLandingBenefit() {
+    const node = document.getElementById('landing-benefit');
+    if (!node) return;
+    const result = monthlyCostSpread(allFormulasData, LANDING_REFERENCE.km, LANDING_REFERENCE.consumption, { homeRate: HOME_RATE_KWH });
+    node.hidden = !result || result.spread < 1;
+    node.textContent = node.hidden ? '' : t('landing.benefit', {
+        amount: formatCurrency(Math.round(result.spread), { maximumFractionDigits: 0 }),
+        km: formatNumber(LANDING_REFERENCE.km),
+        consumption: formatNumber(LANDING_REFERENCE.consumption * 100)
+    });
 }
 
 // Prix affichés sur la carte : sans abonnement, plus les abonnements favoris
@@ -436,11 +455,14 @@ function renderProfile() {
         onDetail: openFormulaDetail,
         mapOperators: MAP_OPERATOR_KEYS,
         coverage,
-        onShowOperatorMap: opKey => {
-            navigation?.switchView('map');
-            void stationsMap?.showOperator?.(opKey);
-        }
+        onShowOperatorMap: showOperatorOnMap
     });
+}
+
+// Ouvre la carte kWhiz filtrée sur un réseau (offre n°1, liste des opérateurs).
+function showOperatorOnMap(opKey) {
+    navigation?.switchView('map');
+    void stationsMap?.showOperator?.(opKey);
 }
 
 // ── 4. Landing et dialogues ────────────────────────────────────────────
@@ -603,6 +625,7 @@ function initApp() {
         updateCalculations();
     });
     document.getElementById('compare-profile-link')?.addEventListener('click', () => openComparisonRecommendation(navigation));
+    document.getElementById('profile-all-offers')?.addEventListener('click', () => navigation?.switchView('compare'));
     document.getElementById('compare-filters')?.addEventListener('click', event => {
         const button = event.target.closest?.('[data-compare-filter]');
         if (!button) return;
