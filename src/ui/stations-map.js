@@ -3,6 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { buildWattwayLink } from '../domain/wattway-link.js';
 import { compareByPrice } from '../domain/station-pricing.js';
+import { isMotorwayStation } from '../domain/motorway.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
@@ -62,6 +63,7 @@ export function initStationsMap() {
   let routeStationMetrics = null;
   let stationPrices = new Map();
   let sortMode = localStorage.getItem(STORAGE_KEYS.mapSort) === 'price' ? 'price' : 'distance';
+  let showMotorway = localStorage.getItem(STORAGE_KEYS.mapMotorway) === '1';
   let loaded = false;
   let irveUpdatedAt = null;
   let routeUiState = { key: null, params: {}, state: '' };
@@ -126,7 +128,7 @@ export function initStationsMap() {
   }
 
   function visibleStations() {
-    return stations.filter(station => selected.has(station.operator) && (!routeStationMetrics || routeStationMetrics.has(station.id)));
+    return stations.filter(station => selected.has(station.operator) && (showMotorway || !station.motorway) && (!routeStationMetrics || routeStationMetrics.has(station.id)));
   }
 
   function statusFor(station) {
@@ -468,6 +470,16 @@ export function initStationsMap() {
     selectStation(stationCard.dataset.stationId);
   });
 
+  const motorwayToggle = document.getElementById('map-motorway');
+  if (motorwayToggle) {
+    motorwayToggle.checked = showMotorway;
+    motorwayToggle.addEventListener('change', () => {
+      showMotorway = motorwayToggle.checked;
+      localStorage.setItem(STORAGE_KEYS.mapMotorway, showMotorway ? '1' : '0');
+      if (stations.length) renderStations();
+    });
+  }
+
   renderSortState();
   document.getElementById('map-sort')?.addEventListener('click', event => {
     const button = event.target.closest?.('[data-map-sort]');
@@ -485,7 +497,7 @@ export function initStationsMap() {
       const response = await fetch('./irve-fast.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      stations = payload.stations || [];
+      stations = (payload.stations || []).map(station => ({ ...station, motorway: isMotorwayStation(station) }));
       const keys = [...new Set(stations.map(station => station.operator))]
         .filter(key => Object.hasOwn(LABELS, key))
         .sort((a, b) => LABELS[a].localeCompare(LABELS[b]));

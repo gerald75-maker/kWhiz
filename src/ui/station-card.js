@@ -69,7 +69,10 @@ export function formatStationPrice(price) {
   return lines;
 }
 
-function stationPriceHtml(price, tag = 'p') {
+function stationPriceHtml(price, tag = 'p', motorway = false) {
+  if (motorway) {
+    return `<${tag} class="station-price station-price--motorway"><b class="station-motorway-badge">${escapeHtml(t('map.motorway.badge'))}</b><b>${escapeHtml(t('map.motorway.price'))}</b></${tag}>`;
+  }
   const lines = formatStationPrice(price);
   if (!lines.length) return '';
   return `<${tag} class="station-price">${lines.map((line, index) => `<b${index ? ' class="station-price-plan"' : ''}>${escapeHtml(line)}</b>`).join('')}</${tag}>`;
@@ -79,7 +82,7 @@ export function renderStationCardHtml(station, { operatorLabel = '', logo = '', 
   const name = stationDisplayName(station, operatorLabel);
   return `<article class="map-station-card${selected ? ' is-selected' : ''}" data-station-id="${escapeHtml(station.id)}" role="button" tabindex="0" aria-label="${escapeHtml(t('map.station.showOnMap', { name }))}" aria-pressed="${selected}">
         <img src="${logo}" alt="" class="map-station-logo">
-        <div><strong>${escapeHtml(name)}</strong><span>${formatStationSummary(station, operatorLabel)}</span><small>${escapeHtml(station.address || station.city)}</small>${stationPriceHtml(price)}${stationStatusBadge(status, '', now)}${atlanteAvailabilityLink(station)}</div>
+        <div><strong>${escapeHtml(name)}</strong><span>${formatStationSummary(station, operatorLabel)}</span><small>${escapeHtml(station.address || station.city)}</small>${stationPriceHtml(price, 'p', station.motorway === true)}${stationStatusBadge(status, '', now)}${atlanteAvailabilityLink(station)}</div>
         <button class="map-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name }))}">${t('map.station.directions')}</button>
       </article>`;
 }
@@ -87,5 +90,5 @@ export function renderStationCardHtml(station, { operatorLabel = '', logo = '', 
 export function renderStationPopupHtml(station, { operatorLabel = '', status = {}, price = null, now = Date.now() } = {}) {
   const name = stationDisplayName(station, operatorLabel);
   const availability = atlanteAvailabilityLink(station, 'atlante-availability-link--popup');
-  return `<strong>${escapeHtml(name)}</strong><br>${formatStationSummary(station, operatorLabel)}<br>${escapeHtml(station.address)}<br>${stationPriceHtml(price, 'span')}${stationStatusBadge(status, 'station-status--popup', now)}${availability ? `<br>${availability}` : ''}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name }))}">${t('map.station.startDirections')}</button>`;
+  return `<strong>${escapeHtml(name)}</strong><br>${formatStationSummary(station, operatorLabel)}<br>${escapeHtml(station.address)}<br>${stationPriceHtml(price, 'span', station.motorway === true)}${stationStatusBadge(status, 'station-status--popup', now)}${availability ? `<br>${availability}` : ''}<br><button class="map-route-trigger leaflet-route-trigger" data-lat="${station.lat}" data-lon="${station.lon}" data-station="${escapeHtml(name)}" type="button" aria-label="${escapeHtml(t('map.station.directionsLabel', { name }))}">${t('map.station.startDirections')}</button>`;
 }

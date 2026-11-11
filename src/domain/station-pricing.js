@@ -64,9 +64,10 @@ export function buildStationPrices(formulas = [], { planIds = new Set() } = {}) 
 
 // Ordre « Les moins chères » : prix croissant, puis distance. Les stations sans prix connu passent après.
 export function compareByPrice(prices, distanceOf) {
+    const rateOf = station => (station.motorway === true ? Infinity : prices.get(station.operator)?.sortRate ?? Infinity);
     return (a, b) => {
-        const rateA = prices.get(a.operator)?.sortRate ?? Infinity;
-        const rateB = prices.get(b.operator)?.sortRate ?? Infinity;
+        const rateA = rateOf(a);
+        const rateB = rateOf(b);
         if (rateA !== rateB) return rateA - rateB;
         return distanceOf(a) - distanceOf(b);
     };
