@@ -1,0 +1,139 @@
+name: Contrôle de mise en ligne IRVE
+
+# Compare les fichiers IRVE servis par la production à ceux de la branche par
+# défaut. Une issue étiquetée « mise-en-ligne-ftp » signale le retard et
+# mentionne le mainteneur ; elle se ferme seule quand la production est à jour.
+# Ce workflow ne transfère rien : la publication FTP reste manuelle.
+
+on:
+  schedule:
+    - cron: '41 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: controle-mise-en-ligne
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://kwhiz.aubard.net
+  ALERT_LABEL: mise-en-ligne-ftp
+  MAINTAINER: gerald75-maker
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Extraire le dépôt
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Comparer la production à la branche par défaut
+        id: compare
+        shell: bash
+        run: |
+          set -euo pipefail
+          pending=()
+          reachable=true
+          for file in irve-status-index.json irve-fast.json; do
+            prod="$RUNNER_TEMP/prod-$file"
+            if ! curl --fail --silent --show-error --location --retry 3 --retry-delay 10 \
+                --connect-timeout 20 --max-time 120 \
+                -A 'kWhiz-controle-mise-en-ligne/1.0 (GitHub Actions)' \
+                -H 'Cache-Control: no-cache' \
+                --output "$prod" "$SITE_URL/$file?controle=$(date +%s)"; then
+              reachable=false
+              break
+            fi
+            if [[ "$(sha256sum < "public/$file")" != "$(sha256sum < "$prod")" ]]; then
+              pending+=("$file")
+            fi
+          done
+          main_date=$(jq -r '.updatedAt // "inconnue"' public/irve-fast.json)
+          prod_date="inconnue"
+          if [[ "$reachable" == "true" ]]; then
+            prod_date=$(jq -r '.updatedAt // "inconnue"' "$RUNNER_TEMP/prod-irve-fast.json" 2>/dev/null || echo "illisible")
+          fi
+          echo "reachable=$reachable" >> "$GITHUB_OUTPUT"
+          echo "pending=${pending[*]:-}" >> "$GITHUB_OUTPUT"
+          echo "main_date=$main_date" >> "$GITHUB_OUTPUT"
+          echo "prod_date=$prod_date" >> "$GITHUB_OUTPUT"
+          {
+            echo "- Base IRVE sur la branche par défaut : **$main_date**"
+            echo "- Base IRVE en production : **$prod_date**"
+            if [[ "$reachable" != "true" ]]; then
+              echo "- Production injoignable depuis GitHub Actions."
+            elif [[ ${#pending[@]} -eq 0 ]]; then
+              echo "- Production à jour."
+            else
+              echo "- Fichiers à transférer : ${pending[*]}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ouvrir, actualiser ou fermer l'alerte
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REACHABLE: ${{ steps.compare.outputs.reachable }}
+          PENDING: ${{ steps.compare.outputs.pending }}
+          MAIN_DATE: ${{ steps.compare.outputs.main_date }}
+          PROD_DATE: ${{ steps.compare.outputs.prod_date }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh label create "$ALERT_LABEL" --color D93F0B \
+            --description "La production kwhiz.aubard.net attend un transfert FTP" --force >/dev/null
+          number=$(gh issue list --state open --label "$ALERT_LABEL" --json number --jq '.[0].number // empty')
+          current_title=""
+          if [[ -n "$number" ]]; then
+            current_title=$(gh issue view "$number" --json title --jq '.title')
+          fi
+
+          if [[ "$REACHABLE" == "true" && -z "$PENDING" ]]; then
+            if [[ -n "$number" ]]; then
+              gh issue close "$number" --comment "La production sert la base IRVE du $PROD_DATE, identique à la branche par défaut. Fermeture automatique."
+            fi
+            exit 0
+          fi
+
+          title="Mise en ligne FTP : base IRVE du $MAIN_DATE"
+          body="$RUNNER_TEMP/alerte.md"
+          raw="https://raw.githubusercontent.com/$REPO/$SHA/public"
+          {
+            echo "@$MAINTAINER, la production n'est pas à jour."
+            echo
+            echo "- Branche par défaut : base IRVE du **$MAIN_DATE**"
+            echo "- Production ($SITE_URL) : base IRVE du **$PROD_DATE**"
+            if [[ "$REACHABLE" != "true" ]]; then
+              echo
+              echo "La production n'a pas pu être lue depuis GitHub Actions. Vérifie à la main ; si l'hébergeur bloque ces requêtes, cette alerte ne se fermera pas seule."
+            fi
+            echo
+            echo "## À transférer par FTP, à la racine du site (à côté de index.html)"
+            echo
+            echo "1. \`status.php\`, seulement s'il a changé depuis le dernier transfert ([historique](https://github.com/$REPO/commits/$SHA/public/status.php))."
+            echo "2. [\`irve-status-index.json\`]($raw/irve-status-index.json)"
+            echo "3. [\`irve-fast.json\`]($raw/irve-fast.json)"
+            echo
+            echo "Cet ordre évite qu'un ancien \`status.php\` lise mal le nouvel index. Les fichiers de \`public/\` sont copiés tels quels dans \`dist/\` : aucun build n'est nécessaire pour ce transfert. \`irve-fast.json\` est servi en Network First par le service worker, sans changement de version."
+            echo
+            echo "Cette issue se ferme automatiquement au contrôle quotidien suivant le transfert (ou en relançant le workflow « Contrôle de mise en ligne IRVE »)."
+            echo
+            echo "[Dernier contrôle]($RUN_URL)"
+          } > "$body"
+
+          if [[ -z "$number" ]]; then
+            gh issue create --title "$title" --label "$ALERT_LABEL" --body-file "$body"
+          elif [[ "$current_title" != "$title" ]]; then
+            gh issue edit "$number" --title "$title" --body-file "$body"
+            gh issue comment "$number" --body "@$MAINTAINER, nouvelle base IRVE du **$MAIN_DATE** fusionnée. Production toujours sur la base du **$PROD_DATE**. Instructions mises à jour dans la description."
+          else
+            gh issue edit "$number" --body-file "$body"
+          fi

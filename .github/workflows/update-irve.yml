@@ -19,6 +19,7 @@ on:
         type: boolean
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -218,7 +219,7 @@ jobs:
           title="Actualise la base IRVE au $SOURCE_DATE"
           body="$RUNNER_TEMP/irve-pr-body.md"
           cp "$RUNNER_TEMP/irve-report.md" "$body"
-          printf '\nSource : [%s](%s)\n\nCette PR est créée automatiquement mais ne sera jamais fusionnée ou déployée par ce workflow.\n' \
+          printf '\nSource : [%s](%s)\n\nCette PR est créée automatiquement. Sur la branche par défaut, elle est fusionnée par ce workflow une fois tous les contrôles passés. La mise en ligne reste manuelle.\n' \
             "$SOURCE_DATE" "${{ steps.source.outputs.url }}" >> "$body"
           number=$(gh pr list --state open --head "$UPDATE_BRANCH" --json number --jq '.[0].number // empty')
           if [[ -n "$number" ]]; then
@@ -226,3 +227,36 @@ jobs:
           else
             gh pr create --base "$BASE_BRANCH" --head "$UPDATE_BRANCH" --title "$title" --body-file "$body"
           fi
+
+      # Fusion limitée à la branche par défaut : un lancement manuel sur une
+      # autre branche produit seulement la PR, pour relecture.
+      - name: Fusionner la pull request contrôlée
+        id: merge
+        if: steps.validate.outputs.changed == 'true' && steps.base.outputs.publish == 'true' && steps.base.outputs.branch == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          number=$(gh pr list --state open --head "$UPDATE_BRANCH" --json number --jq '.[0].number // empty')
+          test -n "$number"
+          changed=$(gh pr diff "$number" --name-only | sort | tr '\n' ' ')
+          if [[ "$changed" != "public/irve-fast.json public/irve-status-index.json " ]]; then
+            echo "La PR #$number modifie des fichiers inattendus : $changed" >&2
+            exit 1
+          fi
+          # GitHub calcule la fusionnabilité de façon asynchrone après un push.
+          for _ in 1 2 3 4 5 6; do
+            if gh pr merge "$number" --merge --delete-branch; then
+              echo "PR #$number fusionnée." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "Fusion de la PR #$number impossible." >&2
+          exit 1
+
+      - name: Lancer le contrôle de mise en ligne
+        if: steps.merge.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run controle-mise-en-ligne.yml --ref "${{ github.event.repository.default_branch }}"

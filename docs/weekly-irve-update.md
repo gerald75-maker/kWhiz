@@ -29,8 +29,16 @@ L'ancien `irve-status-index.json` ne contient pas le volume brut des association
 
 Le rapport distingue également les conflits proches résolus, les conflits ambigus exclus, les conflits dépassant 500 mètres et les associations encore écrasées. Cette dernière métrique doit toujours rester à zéro.
 
-Si les fichiers changent et que tous les contrôles passent, la branche `automation/weekly-irve` et sa pull request sont créées ou actualisées. Seuls `public/irve-fast.json` et `public/irve-status-index.json` peuvent être modifiés. Le workflow ne fusionne jamais la PR, ne change ni tarifs, ni version, et ne déploie rien.
+Si les fichiers changent et que tous les contrôles passent, la branche `automation/weekly-irve` et sa pull request sont créées ou actualisées. Seuls `public/irve-fast.json` et `public/irve-status-index.json` peuvent être modifiés.
+
+Quand la base est la branche par défaut (exécution planifiée, ou lancement manuel depuis `main`), le workflow fusionne ensuite la PR, après avoir revérifié qu'elle ne touche que ces deux fichiers, puis supprime la branche. Un lancement manuel depuis une autre branche s'arrête à la PR, pour relecture. Le workflow ne change ni tarifs, ni version, et ne transfère rien vers le serveur.
+
+## Alerte de mise en ligne
+
+Après chaque fusion, et chaque jour à 06 h 41 UTC, le workflow `Contrôle de mise en ligne IRVE` télécharge `irve-status-index.json` et `irve-fast.json` depuis https://kwhiz.aubard.net et compare leur empreinte SHA-256 à celle des fichiers de `public/` sur la branche par défaut. Ces fichiers sont copiés tels quels dans `dist/` par Vite, la comparaison est donc exacte.
+
+Si la production diffère, une issue étiquetée `mise-en-ligne-ftp` est ouverte et mentionne le mainteneur, ce qui déclenche une notification GitHub. Elle donne les liens directs vers les fichiers à transférer et l'ordre de transfert. Une nouvelle fusion avant le transfert met l'issue à jour et ajoute un commentaire. L'issue se ferme seule au premier contrôle qui trouve la production identique ; on peut aussi relancer le contrôle depuis l'onglet Actions. Si la production est injoignable depuis GitHub, l'issue reste ouverte avec un avertissement.
 
 ## Ordre de publication FTP compatible
 
-Pour une publication manuelle, transférer d'abord le nouveau `public/status.php`, capable de lire l'ancien comme le nouveau format. Transférer ensuite `public/irve-status-index.json`. Le frontend n'a pas besoin d'être transféré pour ce correctif tant qu'aucun de ses fichiers n'est modifié. Cet ordre évite qu'une ancienne version de `status.php` ignore les associations multiples du nouvel index.
+Pour la publication manuelle, transférer d'abord le nouveau `public/status.php`, capable de lire l'ancien comme le nouveau format. Transférer ensuite `public/irve-status-index.json`. Le frontend n'a pas besoin d'être transféré pour ce correctif tant qu'aucun de ses fichiers n'est modifié. Cet ordre évite qu'une ancienne version de `status.php` ignore les associations multiples du nouvel index.

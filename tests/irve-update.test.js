@@ -205,7 +205,22 @@ test('le workflow est hebdomadaire, manuel, officiel et limité aux deux JSON', 
   assert.match(workflow, /php tests\/irve-status-associations\.php/);
   assert.match(workflow, /git diff --check/);
   assert.match(workflow, /steps\.base\.outputs\.publish == 'true'/);
-  assert.doesNotMatch(workflow, /git add -A|gh pr merge|npm version|deploy/i);
+  assert.match(workflow, /gh pr merge "\$number" --merge --delete-branch/);
+  assert.match(workflow, /steps\.base\.outputs\.branch == github\.event\.repository\.default_branch/);
+  assert.match(workflow, /gh workflow run controle-mise-en-ligne\.yml/);
+  assert.doesNotMatch(workflow, /git add -A|npm version|deploy|ftp/i);
+});
+
+test('le contrôle de mise en ligne alerte sans rien transférer', async () => {
+  const workflow = await readFile(new URL('.github/workflows/controle-mise-en-ligne.yml', root), 'utf8');
+  assert.match(workflow, /schedule:[\s\S]*cron: '41 6 \* \* \*'/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /SITE_URL: https:\/\/kwhiz\.aubard\.net/);
+  assert.match(workflow, /contents: read/);
+  assert.match(workflow, /for file in irve-status-index\.json irve-fast\.json/);
+  assert.match(workflow, /gh issue create/);
+  assert.match(workflow, /gh issue close/);
+  assert.doesNotMatch(workflow, /contents: write|git push|lftp|curl[^\n]*(-T|--upload-file)|deploy/i);
 });
 
 test('le workflow limite la redirection aux consolidations CSV IRVE officielles', async () => {
