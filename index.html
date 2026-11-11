@@ -13,6 +13,14 @@
 <link href="icons/icon-180.png" rel="apple-touch-icon"/>
 <link href="icons/icon-180.png" rel="apple-touch-icon" sizes="180x180"/>
 <meta content="Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France." name="description"/>
+<meta content="website" property="og:type"/>
+<meta content="kWhiz" property="og:site_name"/>
+<meta content="kWhiz — Comparateur de recharge rapide VE" property="og:title"/>
+<meta content="Trouvez l’abonnement et la station de recharge rapide les moins chers, hors autoroute, près de chez vous ou sur votre trajet." property="og:description"/>
+<meta content="https://kwhiz.aubard.net/" property="og:url"/>
+<meta content="https://kwhiz.aubard.net/icons/icon-512.png" property="og:image"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="summary" name="twitter:card"/>
 <title>kWhiz — Comparateur de recharge rapide VE</title>
 <link href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2E4NTVmNyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3R5bGU9InN0b3AtY29sb3I6I2VjNDg5OSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHBhdGggZD0iTTE4IDRMOCAxOGg2bC0yIDEwIDEwLTE0aC02bDItMTB6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" rel="icon" type="image/svg+xml"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -124,6 +132,9 @@
 </label>
 <button class="compare-profile-link" data-i18n="comparison.controls.editProfile" id="compare-profile-link" type="button">Modifier mon profil</button>
 </div>
+<div aria-label="Filtrer les offres" class="compare-filters" data-i18n-aria-label="comparison.filters.label" id="compare-filters" role="group"><button aria-pressed="false" class="compare-filter" data-compare-filter="noSubscription" data-i18n="comparison.filters.noSubscription" type="button">Sans abonnement</button><button aria-pressed="false" class="compare-filter" data-compare-filter="nearby" data-i18n="comparison.filters.nearby" type="button">Réseaux près de chez moi</button></div>
+<p class="compare-filter-hint" id="compare-filter-hint" hidden></p>
+<button class="compare-zone-link" data-i18n="comparison.filters.setZone" id="compare-zone-link" type="button" hidden>Indiquer ma zone de recharge</button>
 <p aria-live="polite" class="compare-summary" id="compare-summary"></p>
 <p class="compare-threshold-explanation" id="compare-threshold-explanation" hidden></p>
 <p aria-live="polite" class="compare-count" id="compare-count"></p>
@@ -149,6 +160,13 @@
 <div><p class="profile-page-kicker" data-i18n="map.heading.kicker">Bornes rapides en France</p><h2 data-i18n="map.heading.title">Carte des stations</h2><p data-i18n="map.heading.intro">Sélectionnez un ou plusieurs opérateurs. Les résultats correspondent à l’un des réseaux choisis.</p></div>
 <div class="map-heading-actions"><div class="map-station-summary"><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div><p class="map-station-updated" id="map-station-updated" hidden></p></div><button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button></div>
 </header>
+<form class="map-place" id="map-place-form" role="search">
+<label class="sr-only" data-i18n="map.place.label" for="map-place-input">Centrer la carte sur une ville ou un code postal</label>
+<input autocomplete="off" data-i18n-placeholder="map.place.placeholder" id="map-place-input" list="map-place-list" maxlength="80" placeholder="Autour de… (ville ou code postal)" type="search"/>
+<datalist id="map-place-list"></datalist>
+<button data-i18n="map.place.submit" type="submit">Centrer</button>
+<p aria-live="polite" class="map-place-status" id="map-place-status" hidden></p>
+</form>
 <details class="route-planner" id="route-planner">
 <summary><span data-i18n="map.route.title">Stations sur mon trajet</span> <span aria-hidden="true" class="route-planner-chevron">⌄</span></summary>
 <form class="route-planner-form" id="route-planner-form">
@@ -342,6 +360,7 @@
 <p data-i18n="help.plan.profile">Touchez la pastille Consommation en haut de l’écran pour choisir votre modèle de véhicule ou régler le curseur. Indiquez ensuite dans Mon choix votre kilométrage mensuel et la part de recharge rapide. Mon choix recommande les offres adaptées à ce profil et donne, pour l’offre n°1, un lien pour souscrire et l’accès aux bornes du réseau sur la carte. Comparer les classe par coût mensuel estimé, abonnement compris.</p>
 <p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p>
 <p data-i18n="help.plan.zone">Dans Ma zone de recharge, saisissez une ville ou un code postal, ou touchez Ma position. Chaque offre indique alors combien de stations du réseau se trouvent à moins de 20 km, hors autoroute. Ce nombre informe sans modifier le classement.</p>
+<p data-i18n="help.plan.filters">Dans Comparer, le filtre Sans abonnement ne garde que les formules sans frais fixes. Réseaux près de chez moi ne garde que les réseaux présents dans votre zone de recharge.</p>
 <p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>
 </details>
 <details class="help-topic"><summary data-i18n="help.prices.title">Comprendre les prix</summary>
@@ -353,6 +372,7 @@
 <details class="help-topic"><summary data-i18n="help.map.title">Utiliser la carte</summary>
 <p data-i18n="help.map.usage">Autorisez la localisation pour afficher les stations proches, puis sélectionnez les opérateurs à montrer. Appuyez sur un marqueur ou une fiche pour sélectionner une station et sur Itinéraire pour ouvrir Plans, Google Maps ou Waze.</p>
 <p data-i18n="help.map.prices">Chaque station affiche le prix sans abonnement de son réseau et, s’il y a lieu, celui de votre abonnement favori ou recommandé. Le tri Les moins chères range les stations selon le plus bas de ces prix, Les plus proches selon la distance. Les aires d’autoroute sont masquées par défaut : la case Inclure les aires d’autoroute les affiche, sans prix comparé.</p>
+<p data-i18n="help.map.place">Sans localisation, saisissez une ville ou un code postal dans le champ « Autour de… » pour centrer la carte. Si vous avez indiqué une zone de recharge, la carte s’y place quand la localisation est refusée.</p>
 <p data-i18n="help.map.updated">La date affichée sous le compteur indique la mise à jour de la liste des stations.</p>
 <p data-i18n="help.map.statuses">Vert : au moins un point libre. Orange : occupé ou réservé. Rouge : hors service. Gris : information absente, incomplète ou trop ancienne. Les statuts restent indicatifs.</p>
 <p data-i18n="help.map.privacy">Votre position reste sur votre appareil et n’est pas transmise à kWhiz.</p>

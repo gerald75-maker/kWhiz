@@ -89,6 +89,7 @@ let profileControls = null;
 let navigation = null;
 let zoneControls = null;
 let coverage = null;
+const comparisonFilters = { noSubscription: false, nearby: false };
 let irveStationsPromise = null;
 
 // Stations IRVE pour la couverture locale (même fichier que la carte, servi en Network First).
@@ -362,7 +363,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         onModal: openInfoModal,
         onDetail: openFormulaDetail,
         query: currentComparisonQuery,
-        coverage
+        coverage,
+        filters: comparisonFilters
     });
     renderOperatorsViews({
         operators: OPERATORS,
@@ -542,7 +544,7 @@ function initApp() {
         onChange: updateCalculations
     });
 
-    stationsMap = initStationsMap();
+    stationsMap = initStationsMap({ getHomeZone: () => zoneControls?.getZone() });
     refreshStationPrices();
     zoneControls = initZoneControls({ storageKey: STORAGE_KEYS.homeZone, loadStations: loadIrveStations, onChange: refreshCoverage });
     if (zoneControls.getZone()) void refreshCoverage();
@@ -601,6 +603,20 @@ function initApp() {
         updateCalculations();
     });
     document.getElementById('compare-profile-link')?.addEventListener('click', () => openComparisonRecommendation(navigation));
+    document.getElementById('compare-filters')?.addEventListener('click', event => {
+        const button = event.target.closest?.('[data-compare-filter]');
+        if (!button) return;
+        const key = button.dataset.compareFilter;
+        comparisonFilters[key] = !comparisonFilters[key];
+        updateCalculations({ recomputeAtlanteChargeback: false });
+    });
+    // Sans zone de recharge, le filtre « près de chez moi » renvoie vers le champ de Mon choix.
+    document.getElementById('compare-zone-link')?.addEventListener('click', () => {
+        navigation?.switchView('profile');
+        const input = document.getElementById('profile-zone-input');
+        input?.scrollIntoView({ block: 'center' });
+        input?.focus({ preventScroll: true });
+    });
 
     initNetworkStatus({ onReconnect: loadTarifs });
 

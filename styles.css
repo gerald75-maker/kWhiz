@@ -6091,3 +6091,19 @@ body.light .page-overlay-sheet {
     #tab-operators .operator-plan-row { gap: 0.45rem; }
     #tab-operators .operator-plan-detail { padding-inline: 0.35rem; }
 }
+
+/* Comparer : filtres (2.26.2) */
+.compare-filters { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px; }
+.compare-filter { min-height:36px; padding:7px 14px; border:1px solid var(--border-color); border-radius:999px; background:var(--bg-card); color:var(--text-secondary); font:inherit; font-size:.8rem; font-weight:700; cursor:pointer; }
+.compare-filter[aria-pressed="true"] { border-color:var(--accent); background:var(--accent); color:#fff; }
+.compare-filter:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.compare-filter-hint { margin:6px 0 0; color:var(--text-secondary); font-size:.78rem; line-height:1.4; }
+.compare-zone-link { margin-top:6px; padding:0; border:0; background:none; color:var(--accent); font:inherit; font-size:.8rem; font-weight:750; text-decoration:underline; cursor:pointer; }
+
+/* Carte : champ « Autour de… » (2.26.2) */
+.map-place { display:grid; grid-template-columns:1fr auto; gap:8px; margin:0 0 12px; }
+.map-place input { min-width:0; width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:11px; background:var(--bg-element); color:var(--text-primary); font:inherit; font-size:.85rem; }
+.map-place input:focus { outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color:var(--accent); }
+.map-place button { padding:8px 16px; border:1px solid var(--accent); border-radius:11px; background:color-mix(in srgb, var(--accent) 12%, var(--bg-card)); color:var(--accent); font:inherit; font-size:.82rem; font-weight:750; cursor:pointer; }
+.map-place-status { grid-column:1 / -1; margin:0; color:var(--text-secondary); font-size:.78rem; }
+@media (max-width: 600px) { .map-place input { font-size:16px; } }

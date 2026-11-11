@@ -151,3 +151,12 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 
 - [x] Aide mise à jour (FR/EN) : pastille Consommation et choix du modèle, source EV Database, zone de recharge, « Jamais rentable » et « Seuil non calculé », ChargeBack, prix et tri sur la carte, aires d'autoroute.
 - [x] 384 tests réussis, build 2.26.1, cache kwhiz-2a5d2beb.
+
+## Livraison 2.26.2 (2026-11-11)
+
+- [x] Audit n° 12 : filtres « Sans abonnement » et « Réseaux près de chez moi » dans Comparer. Le filtre « Paiement CB » attend des données de paiement structurées (n° 17).
+- [x] Audit n° 16 : champ « Autour de… » sur la carte ; sans localisation, la carte se place sur la zone de recharge.
+- [x] Audit n° 19 : retour en haut de page à chaque changement d'onglet.
+- [x] Audit n° 21 : compteur « X sur N stations dans la zone affichée », balises Open Graph.
+- [x] Aide FR/EN complétée (filtres, champ « Autour de… »).
+- [x] 390 tests réussis, build 2.26.2, cache kwhiz-b548274a.

@@ -71,6 +71,7 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
     }
 
     function switchView(view) {
+        const previousView = currentView;
         const tabId = VIEW_TAB[view] || 'ranking';
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById(`tab-${tabId}`)?.classList.add('active');
@@ -79,6 +80,8 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
         setActiveNav(`bnav-${view}`);
         closeAllPages();
         closeDrawer();
+        // Chaque onglet s'ouvre en haut de page, pas à la position du précédent.
+        if (previousView !== view) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         onViewChange?.(view);
     }
 

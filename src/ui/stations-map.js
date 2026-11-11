@@ -4,6 +4,7 @@ import { LOGOS, STORAGE_KEYS } from '../config/app-config.js';
 import { buildWattwayLink } from '../domain/wattway-link.js';
 import { compareByPrice } from '../domain/station-pricing.js';
 import { isMotorwayStation } from '../domain/motorway.js';
+import { buildPlaceIndex, findPlace, placeOptionLabel } from '../domain/coverage.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
@@ -37,7 +38,7 @@ function readSelection(keys) {
   } catch (_) { return new Set(keys); }
 }
 
-export function initStationsMap() {
+export function initStationsMap({ getHomeZone } = {}) {
   const root = document.getElementById('stations-map');
   const filters = document.getElementById('map-operator-filters');
   const count = document.getElementById('map-station-count');
@@ -71,6 +72,9 @@ export function initStationsMap() {
   let currentLocationIsRouteStart = false;
   let routeChoiceUsesFallback = false;
   let loadFailed = false;
+  let placeIndex = null;
+  let placeStatusKey = null;
+  let placeStatusParams = {};
 
   function renderLoadError() {
     count.textContent = t('map.error.unavailableTitle');
@@ -103,6 +107,36 @@ export function initStationsMap() {
           stations: plural('count.station', params.matching)
         })
       : key ? t(key, params) : '';
+  }
+
+  // Champ « Autour de… » : centre la carte sur une commune de la base IRVE,
+  // sans géolocalisation. Les communes viennent des adresses des stations.
+  function setPlaceStatus(key = null, params = {}) {
+    placeStatusKey = key;
+    placeStatusParams = params;
+    const status = document.getElementById('map-place-status');
+    if (!status) return;
+    status.hidden = !key;
+    status.textContent = key ? t(key, params) : '';
+  }
+
+  function places() {
+    placeIndex ||= buildPlaceIndex(stations);
+    return placeIndex;
+  }
+
+  function centerOn(lat, lon, zoom = 11) {
+    mapPositionReady = true;
+    map.setView([lat, lon], zoom, { animate: true });
+    renderStations();
+  }
+
+  // Sans position, la carte se place sur la zone de recharge choisie dans Mon choix.
+  function centerOnHomeZone() {
+    const home = getHomeZone?.();
+    if (!home || routeStationMetrics) return false;
+    map.setView([home.lat, home.lon], 10, { animate: false });
+    return true;
   }
 
   function renderLocationButton() {
@@ -204,9 +238,7 @@ export function initStationsMap() {
       markersById.set(station.id, marker);
       return marker;
     });
-    count.textContent = getLanguage() === 'en'
-      ? `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} on the map`
-      : `${plural('count.station', filtered.length)} · ${formatNumber(inView.length)} dans la carte`;
+    count.textContent = t('map.count.inView', { visible: formatNumber(inView.length), stations: plural('count.station', filtered.length) });
     renderList(filtered);
     if (selectedStationId) markersById.get(selectedStationId)?.openPopup();
   }
@@ -352,6 +384,8 @@ export function initStationsMap() {
     if (locationPending) return;
     if (!navigator.geolocation) {
       mapPositionReady = true;
+      centerOnHomeZone();
+      setPlaceStatus('map.place.locationHint');
       locationButtonState = 'unavailable';
       renderLocationButton();
       renderStations();
@@ -381,6 +415,8 @@ export function initStationsMap() {
     }, error => {
       locationPending = false;
       mapPositionReady = true;
+      if (!userCoordinates) centerOnHomeZone();
+      setPlaceStatus('map.place.locationHint');
       button.disabled = false;
       locationButtonState = locationErrorKey(error).replace('map.location.', '');
       renderLocationButton();
@@ -545,6 +581,34 @@ export function initStationsMap() {
     locateUser();
   });
 
+  document.getElementById('map-place-input')?.addEventListener('focus', async () => {
+    const datalist = document.getElementById('map-place-list');
+    if (!datalist || datalist.childElementCount) return;
+    await load();
+    if (!stations.length) return;
+    datalist.innerHTML = places().map(place => `<option value="${escapeHtml(placeOptionLabel(place))}"></option>`).join('');
+  });
+  document.getElementById('map-place-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const input = document.getElementById('map-place-input');
+    const query = input?.value.trim() || '';
+    if (!query) return;
+    await load();
+    if (!map) {
+      setPlaceStatus('map.error.unavailableTitle');
+      return;
+    }
+    const place = findPlace(places(), query);
+    if (!place) {
+      setPlaceStatus('map.place.notFound');
+      return;
+    }
+    input.value = place.label;
+    input.blur();
+    setPlaceStatus(null);
+    centerOn(place.lat, place.lon);
+  });
+
   document.getElementById('route-planner-form')?.addEventListener('submit', event => {
     event.preventDefault();
     void load().then(searchRoute);
@@ -596,6 +660,7 @@ export function initStationsMap() {
       document.getElementById('map-list-title').textContent = routeStationMetrics ? t('map.list.route') : t('map.list.nearby');
       if (currentLocationIsRouteStart) document.getElementById('route-start').value = t('map.route.currentLocation');
       setRouteStatus(routeUiState.key, routeUiState.params, routeUiState.state);
+      setPlaceStatus(placeStatusKey, placeStatusParams);
       renderLocationButton();
       renderIrveUpdatedAt();
       const locationPopupWasOpen = locationMarker?.isPopupOpen?.() || false;

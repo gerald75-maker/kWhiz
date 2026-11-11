@@ -47,6 +47,37 @@ export function filterComparisonFormulas(formulas, query) {
     });
 }
 
+// Filtres de Comparer. « Réseaux près de chez moi » ne s'applique qu'avec une zone
+// de recharge : un réseau absent de la base IRVE (carte d'itinérance) reste affiché.
+export function applyComparisonFilters(formulas, { noSubscription = false, nearby = false, coverage = null } = {}) {
+    return formulas.filter(formula => {
+        if (noSubscription && formula.monthlyCost > 0) return false;
+        if (nearby && coverage && coverage.operators?.has(formula.opKey)) {
+            return (coverage.counts?.get(formula.opKey) || 0) > 0;
+        }
+        return true;
+    });
+}
+
+function renderComparisonFilters(filters, coverage) {
+    const group = document.getElementById('compare-filters');
+    const hint = document.getElementById('compare-filter-hint');
+    group?.querySelectorAll?.('[data-compare-filter]')?.forEach(button => {
+        const active = Boolean(filters[button.dataset.compareFilter]);
+        button.setAttribute('aria-pressed', String(active));
+    });
+    if (!hint) return;
+    const message = filters.nearby
+        ? coverage
+            ? t('comparison.filters.nearbyActive', { radius: coverage.radiusKm, place: coverage.label })
+            : t('comparison.filters.nearbyNeedsZone')
+        : '';
+    hint.hidden = !message;
+    hint.textContent = message;
+    const zoneLink = document.getElementById('compare-zone-link');
+    if (zoneLink) zoneLink.hidden = !(filters.nearby && !coverage);
+}
+
 export function openComparisonRecommendation(navigation) {
     navigation?.switchView('profile');
 }
@@ -172,10 +203,13 @@ export function renderComparisonTable(formulasData, {
     onModal,
     onDetail,
     query = '',
-    coverage = null
+    coverage = null,
+    filters = {}
 } = {}) {
     const language = getLanguage();
-    const filteredData = filterComparisonFormulas(formulasData, query);
+    renderComparisonFilters(filters, coverage);
+    const filteredData = applyComparisonFilters(filterComparisonFormulas(formulasData, query), { ...filters, coverage });
+    const filtersActive = Boolean(filters.noSubscription || (filters.nearby && coverage));
     const data = monthlyKm > 0
         ? buildComparisonRanking(filteredData, { monthlyKm, consumption, fastPercentage, homeRate, date })
         : [];
@@ -244,7 +278,7 @@ export function renderComparisonTable(formulasData, {
             ${Number.isFinite(formula.chargebackRate) ? `<p class="compare-chargeback-note">${t('comparison.chargebackEffective', { rate: `${currency(formula.chargebackRate, language, 3)}/kWh` })}</p>` : ''}
             <button type="button" class="compare-detail-btn" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">${t('comparison.detailButton')} <span aria-hidden="true">›</span></button>
         </article>`;
-    }).join('') : `<p class="compare-empty">${t('comparison.empty')}</p>`;
+    }).join('') : `<p class="compare-empty">${t(filtersActive ? 'comparison.filters.empty' : 'comparison.empty')}</p>`;
 
     const openDetail = target => {
         const card = target?.dataset?.detail ? target : target?.closest?.('[data-detail]');
