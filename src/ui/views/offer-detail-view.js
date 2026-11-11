@@ -29,6 +29,12 @@ function detailDate(value) {
 }
 
 export function offerDetailPricingLabel(formula) {
+    // ChargeBack : la borne facture le tarif nominal ; le prix effectif dépend du crédit Green Gems
+    // utilisé lors des sessions suivantes. On affiche les deux pour éviter toute surprise à la borne.
+    if (Number.isFinite(formula.chargebackRate)) {
+        const paidRate = Number.isFinite(formula.rateRaw) ? formula.rateRaw : formula.rate;
+        return `${t('offerDetail.paidAtCharger', { rate: rate(paidRate, 2) })}<small class="detail-stat-sub">${t('offerDetail.afterChargeback', { rate: rate(formula.chargebackRate) })}</small>`;
+    }
     if (formula.pricingType === 'range' || formula.pricingType === 'discount') {
         const range = `${currency(formula.rateMin)}–${rate(formula.rateMax, 2)}`;
         return formula.pricingType === 'discount' && Number.isFinite(formula.discountPerKwh)

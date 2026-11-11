@@ -120,7 +120,10 @@ function rateLabel(formula) {
     }
     if (formula.isMinimum) return t('comparison.fromRate', { rate: `${currency(formula.rate, getLanguage(), 2)}/kWh` });
     if (formula.pricingType === 'station') return `≈ ${currency(formula.rate, getLanguage(), 2)}/kWh`;
-    return `${currency(formula.rate, getLanguage(), formula.chargebackRate !== null ? 3 : 2)}/kWh`;
+    if (Number.isFinite(formula.chargebackRate) && Number.isFinite(formula.rateRaw)) {
+        return `${currency(formula.rateRaw, getLanguage(), 2)}/kWh`;
+    }
+    return `${currency(formula.rate, getLanguage(), 2)}/kWh`;
 }
 
 function formatComparisonNumber(value, language, fractionDigits) {
@@ -234,7 +237,7 @@ export function renderComparisonTable(formulasData, {
                 <span><small>${t('comparison.subscription')}</small>${subscriptionLabel(formula, language)}</span>
                 ${threshold}
             </div>
-            ${formula.chargebackConfig?.enabled ? `<p class="compare-chargeback-note">${t('comparison.chargebackIncluded')}</p>` : ''}
+            ${Number.isFinite(formula.chargebackRate) ? `<p class="compare-chargeback-note">${t('comparison.chargebackEffective', { rate: `${currency(formula.chargebackRate, language, 3)}/kWh` })}</p>` : ''}
             <button type="button" class="compare-detail-btn" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">${t('comparison.detailButton')} <span aria-hidden="true">›</span></button>
         </article>`;
     }).join('') : `<p class="compare-empty">${t('comparison.empty')}</p>`;

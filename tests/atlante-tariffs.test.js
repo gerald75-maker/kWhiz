@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { calculateBreakeven, chargebackBreakeven, getAtlanteGemsRate } from '../src/domain/pricing.js';
-import { renderOfferDetail } from '../src/ui/views/offer-detail-view.js';
+import { offerDetailPricingLabel, renderOfferDetail } from '../src/ui/views/offer-detail-view.js';
 import { setLanguage } from '../src/i18n/i18n.js';
 
 const catalog = JSON.parse(await readFile(new URL('../public/tarifs.json', import.meta.url), 'utf8'));
@@ -80,4 +80,20 @@ test('les tarifs partenaires et ChargeBack restent uniquement dans le détail At
     const config = atlante.loyalty.chargebackConfig;
     assert.equal(getAtlanteGemsRate(config, new Date('2026-10-19T12:00:00+02:00')), 1);
     assert.equal(getAtlanteGemsRate(config, new Date('2027-01-01T12:00:00+01:00')), 0.5);
+});
+
+test('le prix ChargeBack distingue le tarif payé à la borne et le prix effectif estimé', () => {
+    const effective = go.rate / 2;
+    setLanguage('fr', { persist: false, translate: false });
+    const fromComparison = { ...go, rate: effective, rateRaw: go.rate, chargebackRate: effective };
+    const normalize = value => value.replace(/\s/g, ' ');
+    assert.equal(normalize(offerDetailPricingLabel(fromComparison)),
+        normalize('0,29 €/kWh payé à la borne<small class="detail-stat-sub">≈ 0,145 €/kWh après ChargeBack (estimation)</small>'));
+    const fromOperators = { ...go, chargebackRate: effective };
+    assert.match(offerDetailPricingLabel(fromOperators), /^0,29\s€\/kWh payé à la borne/);
+    assert.equal(normalize(offerDetailPricingLabel({ ...go, chargebackRate: null })), '0,290 €/kWh');
+
+    setLanguage('en', { persist: false, translate: false });
+    assert.match(offerDetailPricingLabel(fromComparison), /^€0\.29\/kWh paid at the charger.*≈ €0\.145\/kWh after ChargeBack \(estimate\)/);
+    setLanguage('fr', { persist: false, translate: false });
 });

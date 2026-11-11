@@ -5457,6 +5457,7 @@ body.light .page-overlay-sheet {
 .detail-stat--subscription .detail-stat-icon { color: #9b62ff; }
 .detail-stat--cost .detail-stat-icon { color: #27c982; }
 .detail-stat--threshold .detail-stat-icon { color: #ff8a3d; }
+.detail-stat-sub { display: block; margin-top: 4px; color: var(--text-secondary); font-size: .8em; font-weight: 600; line-height: 1.3; }
 .formula-detail-grid dt { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .045em; }
 .formula-detail-grid dd { margin: 5px 0 0; font-size: 1.02rem; line-height: 1.25; font-weight: 780; color: var(--text-primary); }
 .formula-history { margin-top: 6px; padding-top: 18px; border-top: 1px solid var(--border-color); }

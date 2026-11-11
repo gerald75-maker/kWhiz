@@ -188,12 +188,14 @@ test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () =
 test('le rendu résume ChargeBack et conserve exactement le coût calculé', () => {
     const list = { innerHTML: '', onclick: null, onkeydown: null };
     globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
-    const plan = formula('ChargeBack', { rate: 0.25, ref: 0.50, monthlyCost: 5, opKey: 'atlante', chargebackConfig: { enabled: true } });
+    const plan = formula('ChargeBack', { rate: 0.125, rateRaw: 0.25, chargebackRate: 0.125, ref: 0.50, monthlyCost: 5, opKey: 'atlante', chargebackConfig: { enabled: true, beforeDate: '2026-07-01', rateBefore: 1, rateAfter: 1, promoEndDate: '2026-12-31', rateAfterPromo: 0.5, sessionsPerMonth: 4 } });
     const expected = buildComparisonRanking([plan], profile)[0].estimatedMonthlyCost;
     setLanguage('fr', { persist: false, translate: false });
     renderComparisonTable([plan], profile);
     assert.match(list.innerHTML, new RegExp(expected.toFixed(2).replace('.', ',')));
-    assert.match(list.innerHTML, /ChargeBack inclus/);
+    // Le tarif affiché est celui payé à la borne ; le prix effectif reste signalé comme estimation.
+    assert.match(list.innerHTML, /compare-rate-summary">0,25\s€\/kWh/);
+    assert.match(list.innerHTML, /Coût calculé avec le ChargeBack : ≈ 0,125\s€\/kWh en moyenne \(estimation\)/);
     assert.doesNotMatch(list.innerHTML, /4 sessions|tarif public|compare-benefit/);
 });
 
