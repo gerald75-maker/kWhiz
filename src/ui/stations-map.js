@@ -6,6 +6,7 @@ import { compareByPrice } from '../domain/station-pricing.js';
 import { getLanguage, formatDate, formatDistance, formatNumber, formatStationListUpdatedAt, plural, t } from '../i18n/i18n.js';
 import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
+import { stationDisplayName } from './station-name.js';
 import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
 
 const LABELS = {
@@ -196,7 +197,7 @@ export function initStationsMap() {
           bubblingMouseEvents: false
         });
       marker.bindPopup(renderStationPopupHtml(station, { operatorLabel: LABELS[station.operator], status: statusFor(station), price: stationPrices.get(station.operator) }), { autoPan: false }).addTo(map);
-      marker.getElement()?.setAttribute('aria-label', t('map.station.showOnMap', { name: station.name }));
+      marker.getElement()?.setAttribute('aria-label', t('map.station.showOnMap', { name: stationDisplayName(station, LABELS[station.operator]) }));
       marker.on('click', () => selectStation(station.id, { centerMap: false }));
       markersById.set(station.id, marker);
       return marker;
