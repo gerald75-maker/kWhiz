@@ -1,6 +1,6 @@
 {
   "_comment": "Base tarifaire kWhiz — recharge rapide DC ; les valeurs estimées sont explicitement signalées",
-  "_updated": "2026-10-08",
+  "_updated": "2026-11-07",
   "engie-vianeo": {
     "name": "ENGIE Vianeo",
     "color": "engie-vianeo",
@@ -28,11 +28,11 @@
         "rate": 0.54,
         "ref": 0.54,
         "sourceUrl": "https://www.engie-vianeo.com/tarifs-recharge-voiture-electrique/",
-        "verifiedAt": "2026-09-21",
+        "verifiedAt": "2026-11-07",
         "pricingType": "station",
         "calculationBasis": "estimate",
         "isMinimum": true,
-        "note": "À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement."
+        "note": "À partir de 0,54 €/kWh sur autoroute, avec 10 % de réduction sur le tarif public. Tarif variable selon la station ; valeur minimale indicative utilisée pour le calcul. Des frais à la minute peuvent s’appliquer. Des promotions ponctuelles Happy Hours de 50 % peuvent être annoncées dans l’application ; elles ne constituent pas une formule permanente et sont exclues du classement. Offre Super Heures Creuses jusqu’au 31/12/2026 : 0,29 €/kWh pour une recharge lancée entre 22 h et 8 h depuis l’application, sur une sélection de stations hors autoroutes, réservée aux membres du programme de fidélité gratuit ENGIE Vianeo+ et non cumulable ; liste des stations sur engie-vianeo.com/super-heures-creuses. Offre limitée dans le temps et à certains sites, exclue du classement."
       },
       {
         "id": "engie-vianeo-bank-card",

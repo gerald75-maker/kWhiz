@@ -8,7 +8,7 @@ const tariffs = JSON.parse(await readFile(new URL('../public/tarifs.json', impor
 const formula = (operator, name) => tariffs[operator].formulas.find(item => item.name === name);
 
 test('l’audit du 21 septembre conserve les écarts tarifaires confirmés', () => {
-  assert.equal(tariffs._updated, '2026-10-08');
+  assert.equal(tariffs._updated, '2026-11-07');
   assert.deepEqual(
     [formula('lidl', 'Recharge rapide DC').rate, formula('lidl', 'Recharge rapide DC').calculationBasis],
     [0.29, 'official']

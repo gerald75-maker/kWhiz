@@ -130,3 +130,12 @@ Archive : ../livraisons/2.25.13/kwhiz-2.25.13-atlante-2026-10-19-a-publier.zip ;
 - [x] Vérifier le ZIP 2.25.14 puis ranger les anciennes livraisons dans archives ; conserver un seul ZIP dans livraisons.
 
 Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vérifié dans ../livraisons/2.25.14/ ; une seule archive ZIP présente dans livraisons. Anciennes livraisons déplacées vers ../archives/livraisons/2.25.13/ avec contrôle des empreintes. Aucune publication effectuée.
+
+## Livraison 2.25.15 (2026-11-11)
+
+- [x] Recommiter la 2.25.14 publiée (versions 2.25.12 à 2.25.14 restées hors Git) et fusionner `main` (source IRVE PAN, Vianeo Max).
+- [x] Reporter la note ENGIE Vianeo Super Heures Creuses (7 novembre), saisie par erreur dans l'ancienne copie `Documents/Claude/Projects/kWhiz`.
+- [x] Intégrer la base IRVE du 2026-11-11 (PR #29).
+- [x] Fusion automatique de l'actualisation IRVE hebdomadaire et alerte de mise en ligne FTP par issue GitHub.
+- [ ] Retirer la mention Super Heures Creuses après le 31/12/2026.
+- [ ] Retour au tarif Atlante Go 9,99 € et ChargeBack 50 % après le 31/12/2026.
