@@ -65,3 +65,10 @@ test('compteur de la carte et libellés en français et en anglais', () => {
     assert.equal(t('comparison.filters.nearby'), 'Networks near me');
     setLanguage('fr', { persist: false, translate: false });
 });
+
+test('les champs gardent 16 px sur écran tactile pour éviter le zoom automatique d’iOS', async () => {
+    const css = await read('styles.css');
+    assert.match(css, /@media \(hover: none\) and \(pointer: coarse\) \{\s*input:not\(\[type="range"\]\):not\(\[type="checkbox"\]\):not\(\[type="radio"\]\),\s*select:not\(\[multiple\]\),\s*textarea:not\(\[hidden\]\) \{ font-size: 16px; \}/);
+    // Le champ de zone ne doit pas imposer sa largeur naturelle à la colonne de Mon choix.
+    assert.match(css, /\.profile-zone-input \{ flex:1 1 0; width:0; min-width:0;/);
+});

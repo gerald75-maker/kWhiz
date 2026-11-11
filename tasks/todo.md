@@ -160,3 +160,8 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Audit n° 21 : compteur « X sur N stations dans la zone affichée », balises Open Graph.
 - [x] Aide FR/EN complétée (filtres, champ « Autour de… »).
 - [x] 390 tests réussis, build 2.26.2, cache kwhiz-b548274a.
+
+## Livraison 2.26.3 (2026-11-11)
+
+- [x] Débordement à droite sur iPhone après saisie d'une ville : le champ « Ma zone de recharge » imposait sa largeur naturelle à la colonne de Mon choix (+19 px sur mobile), et iOS zoomait sur les champs de moins de 16 px. Champs à 16 px sur écran tactile ; largeurs minimales neutralisées (zone, modèle, « Autour de… »).
+- [x] Contrôle sans débordement à 375 et 390 px sur les quatre onglets ; 391 tests réussis ; cache kwhiz-18d37a7d.
