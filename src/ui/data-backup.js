@@ -85,6 +85,7 @@ export function initDataBackup({
         storageKeys.language,
         storageKeys.theme,
         storageKeys.profileKm,
+        storageKeys.chargingTime,
         storageKeys.consumption
     ].filter(Boolean);
     const status = document.getElementById('about-data-status');

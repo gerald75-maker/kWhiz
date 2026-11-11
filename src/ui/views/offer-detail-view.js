@@ -28,6 +28,13 @@ function detailDate(value) {
     return formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
+// Prix réellement utilisé pour un tarif en fourchette, selon « Quand rechargez-vous ? ».
+export function offerDetailCalculationNote(formula) {
+    if (!formula?.chargingTime || !Number.isFinite(formula.rate)) return '';
+    const key = ['offpeak', 'peak'].includes(formula.chargingTime) ? formula.chargingTime : 'any';
+    return t(`offerDetail.calcRate.${key}`, { rate: rate(formula.rate, 2) });
+}
+
 export function offerDetailPricingLabel(formula) {
     // ChargeBack : la borne facture le tarif nominal ; le prix effectif dépend du crédit Green Gems
     // utilisé lors des sessions suivantes. On affiche les deux pour éviter toute surprise à la borne.
@@ -129,7 +136,7 @@ export function renderOfferDetail({ body, title, formula, logo = '', historyEntr
         </header>
         ${formula.badge ? `<p class="formula-detail-power" data-i18n-skip>${t('offerDetail.network', { power: localizeNetworkDescription(formula.badge) })}</p>` : ''}
         <dl class="formula-detail-grid">
-            <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>${t('offerDetail.energyPrice')}</dt><dd>${offerDetailPricingLabel(formula)}</dd></span></div>
+            <div class="detail-stat detail-stat--energy"><span class="detail-stat-icon">${detailIcon('energy')}</span><span><dt>${t('offerDetail.energyPrice')}</dt><dd>${offerDetailPricingLabel(formula)}${offerDetailCalculationNote(formula) ? `<small class="detail-stat-sub">${offerDetailCalculationNote(formula)}</small>` : ''}</dd></span></div>
             <div class="detail-stat detail-stat--subscription"><span class="detail-stat-icon">${detailIcon('subscription')}</span><span><dt>${t('offerDetail.subscription')}</dt><dd>${offerDetailSubscriptionLabel(formula)}</dd></span></div>
             <div class="detail-stat detail-stat--cost"><span class="detail-stat-icon">${detailIcon('cost')}</span><span><dt>${t('offerDetail.estimatedCost')}</dt><dd>${t('offerDetail.costPer100km', { amount: currency(formula.costPer100km) })}</dd></span></div>
             <div class="detail-stat detail-stat--threshold"><span class="detail-stat-icon">${detailIcon('threshold')}</span><span><dt>${t('offerDetail.breakEven')}</dt><dd>${offerDetailThresholdLabel(formula.km, formula)}</dd></span></div>

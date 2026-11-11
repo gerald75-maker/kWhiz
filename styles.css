@@ -6334,3 +6334,8 @@ body:not(.light) #tab-ranking .compare-stations--warn { color:#fbbf24; }
 /* 2.30.0 : le menu fermé ne doit plus transparaître sous la barre de navigation */
 .menu-drawer:not(.open) .menu-drawer-sheet { visibility:hidden; transition:transform .28s cubic-bezier(.32,.72,0,1), visibility 0s linear .28s; }
 .menu-drawer.open .menu-drawer-sheet { visibility:visible; transition:transform .28s cubic-bezier(.32,.72,0,1), visibility 0s; }
+/* 2.31.0 : « Quand rechargez-vous ? » dans Mon profil */
+.profile-time { margin-top:18px; }
+.profile-time-chips { justify-content:flex-start; gap:8px; flex-wrap:wrap; overflow:visible; }
+.profile-time-chips .km-chip { flex:0 0 auto; }
+.profile-time-hint { margin:4px 0 0; color:var(--text-secondary); font-size:.78rem; line-height:1.4; }

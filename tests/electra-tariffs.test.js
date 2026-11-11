@@ -51,5 +51,5 @@ test('les notes Electra contrôlées sont entièrement localisées en anglais', 
     assert.doesNotMatch(localized, /Sans engagement|Remise officielle|L’offre annuelle|tarif partenaire/);
   }
   const appNote = localizeTariffText(byId.get('Application Electra - prix variable').note);
-  assert.equal(appNote, 'Three price levels apply in France and Belgium: off-peak, standard and peak hours. The level varies by station, time of day, day of the week and demand. The exact price is shown in the Electra app before charging. The calculation uses the midpoint of the official range.');
+  assert.equal(appNote, 'Three price levels apply in France and Belgium: off-peak, standard and peak hours. The level varies by station, time of day, day of the week and demand. The exact price is shown in the Electra app before charging. By default, the calculation uses the midpoint of the official range; the “When do you charge?” setting in My profile lets you use the low or high end instead.');
 });

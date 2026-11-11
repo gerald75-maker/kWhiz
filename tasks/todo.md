@@ -186,13 +186,21 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.31.0 (2026-11-11) : moment de recharge
+
+- [x] `src/domain/charging-time.js` : heures creuses / n'importe quand / heures de pointe -> bas, milieu ou haut de la fourchette publiée (formules `range`/`discount` en `midpoint`, soit Electra) ; référence sans abonnement décalée d'autant.
+- [x] Puces dans Mon profil (`#charging-time-chips`, clé `kwhiz_charging_time`, incluse dans la sauvegarde), rappel dans la ligne de résumé, prix retenu dans le détail de l'offre, annuaire Par réseau aligné.
+- [x] Aide `help.plan.timing` et note Electra (tarifs.json + traduction EN) mises à jour ; 400 tests verts ; vérifié en émulation iPhone.
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [ ] À surveiller : Electra+ Smart annuel (49,99 €/an, valeur historique non revérifiée) passe 2ᵉ en heures creuses.
+
 ## Livraison 2.30.1 (2026-11-11) : aide
 
 - [x] `help.map.clusters` : les pastilles indiquent le nombre de stations (le prix y avait disparu en 2.29.0 sans que l'aide suive).
 - [x] `help.map.updated` : la date est dans le panneau des stations.
 - [x] `help.plan.profile` : emplacement du menu (en-tête et barre de la carte).
 - [x] Test d'aide renforcé ; paquet `livraisons/2.30.1/` (3 fichiers, le CSS 2.30.0 reste valable).
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-b344d433` constaté en ligne).
 
 ## Livraison 2.30.0 (2026-11-11) : refonte, étape 3
 

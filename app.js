@@ -58,6 +58,7 @@ import { initModalManager, openModal } from './src/ui/modal-manager.js';
 import { initNavigation } from './src/ui/navigation.js';
 import { initConsumptionController } from './src/ui/controllers/consumption-controller.js';
 import { initProfileControls } from './src/ui/controllers/profile-controls.js';
+import { applyChargingTime, dependsOnChargingTime, normalizeChargingTime } from './src/domain/charging-time.js';
 import { renderAtlanteChargebackInfo, renderAtlanteChargebackState } from './src/ui/views/atlante-view.js';
 import { initPullToRefresh } from './src/ui/pull-to-refresh.js';
 import { initNetworkStatus } from './src/ui/network-status.js';
@@ -82,6 +83,11 @@ initPwa();
 let OPERATORS = {};
 let currentComparisonQuery = '';
 let allFormulasData = [];
+// Moment de recharge (Mon profil) : fixe le prix retenu pour les tarifs publiés en fourchette.
+let chargingTime = normalizeChargingTime(readStoredChargingTime());
+function readStoredChargingTime() {
+    try { return localStorage.getItem(STORAGE_KEYS.chargingTime); } catch { return null; }
+}
 let fastPct = (() => {
     const saved = parseInt(localStorage.getItem(FAST_PCT_KEY), 10);
     return (!Number.isNaN(saved) && saved >= 0 && saved <= 100) ? saved : 100;
@@ -303,7 +309,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         const cbConfig = operator.loyalty?.chargebackConfig || null;
         const gemsRate = hasCB && cbConfig ? getAtlanteGemsRate(cbConfig) : 0;
 
-        for (const formula of operator.formulas) {
+        for (const sourceFormula of operator.formulas) {
+            const formula = applyChargingTime(sourceFormula, chargingTime);
             const result = calculateBreakeven(formula, consumption);
 
             // Taux et seuil effectifs (steady-state pour le classement)
@@ -349,7 +356,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
                 sourceUrl:      formula.sourceUrl || operator.sourceUrl || null,
                 verifiedAt:     formula.verifiedAt || operator.verifiedAt || null,
                 validUntil:     formula.validUntil || null,
-                isMinimum:      formula.isMinimum === true
+                isMinimum:      formula.isMinimum === true,
+                chargingTime:   dependsOnChargingTime(sourceFormula) ? chargingTime : null
             });
         }
     }
@@ -376,7 +384,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         onToggleFavorite: handleToggleFavorite,
         onDetail: openFormulaDetail,
         mapOperators: MAP_OPERATOR_KEYS,
-        onShowOperatorMap: showOperatorOnMap
+        onShowOperatorMap: showOperatorOnMap,
+        chargingTime
     });
     // Recalcule le comparateur profil si c'est la vue active ou si déjà rendu
     if (navigation?.getCurrentView() === 'profile' || document.getElementById('profile-body')?.hasChildNodes()) {
@@ -389,6 +398,28 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     renderProfileSummary();
 }
 
+// Puces « Quand rechargez-vous ? » du panneau Mon profil.
+function initChargingTimeControls() {
+    const group = document.getElementById('charging-time-chips');
+    if (!group) return;
+    const render = () => group.querySelectorAll('[data-charging-time]').forEach(chip => {
+        const active = chip.dataset.chargingTime === chargingTime;
+        chip.classList.toggle('active', active);
+        chip.setAttribute('aria-pressed', String(active));
+    });
+    group.addEventListener('click', event => {
+        const chip = event.target.closest('[data-charging-time]');
+        if (!chip) return;
+        const next = normalizeChargingTime(chip.dataset.chargingTime);
+        if (next === chargingTime) return;
+        chargingTime = next;
+        try { localStorage.setItem(STORAGE_KEYS.chargingTime, chargingTime); } catch { /* stockage indisponible : réglage gardé pour la session */ }
+        render();
+        updateCalculations();
+    });
+    render();
+}
+
 // Ligne de résumé en haut de l'écran : voiture · kilométrage · part rapide · ville.
 function renderProfileSummary() {
     const node = document.getElementById('profile-summary-text');
@@ -399,6 +430,7 @@ function renderProfileSummary() {
         t('summary.km', { km: formatNumber(profileControls?.getMonthlyKm() ?? 0) }),
         t('summary.fast', { percentage: formatNumber(profileControls?.getFastPercentage() ?? fastPct) })
     ];
+    if (chargingTime !== 'any') parts.push(t(chargingTime === 'offpeak' ? 'summary.offpeak' : 'summary.peak'));
     const place = zoneControls?.getZone() ? zoneControls.getLabel() : '';
     if (place) parts.push(place);
     node.textContent = parts.join(' · ');
@@ -674,6 +706,7 @@ function initApp() {
         monthlyKmStorageKey: PROFILE_KM_KEY,
         onChange: updateCalculations
     });
+    initChargingTimeControls();
 
     stationsMap = initStationsMap({
         getHomeZone: () => zoneControls?.getZone(),

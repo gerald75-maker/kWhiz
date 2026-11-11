@@ -252,6 +252,15 @@
 <button aria-label="Augmenter le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.increasePercentage" id="fast-pct-plus" type="button">+</button>
 </div>
 </div>
+<div class="profile-time">
+<div class="profile-km-label" data-i18n="profile.chargingTime.label" id="charging-time-label">Quand rechargez-vous ?</div>
+<div aria-labelledby="charging-time-label" class="profile-km-chips profile-time-chips" id="charging-time-chips" role="group">
+<button aria-pressed="false" class="km-chip" data-charging-time="offpeak" data-i18n="profile.chargingTime.offpeak" type="button">Heures creuses</button>
+<button aria-pressed="true" class="km-chip active" data-charging-time="any" data-i18n="profile.chargingTime.any" type="button">N’importe quand</button>
+<button aria-pressed="false" class="km-chip" data-charging-time="peak" data-i18n="profile.chargingTime.peak" type="button">Heures de pointe</button>
+</div>
+<p class="profile-time-hint" data-i18n="profile.chargingTime.hint">Change le prix retenu pour les réseaux dont le tarif varie selon l’heure, comme Electra.</p>
+</div>
 <div class="profile-zone">
 <label class="profile-zone-label" data-i18n="profile.zone.label" for="profile-zone-input">Ma zone de recharge</label>
 <div class="profile-zone-row">
@@ -413,6 +422,7 @@
 <p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon offre affiche l’offre la moins chère, avec un lien pour souscrire et ses bornes sur la carte, puis les deux suivantes. Offres classe toutes les formules par coût mensuel estimé, abonnement compris. Le menu, en haut à droite et dans la barre de la carte, donne accès à l’aide, à la langue, à l’apparence et à l’introduction.</p>
 <p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p>
 <p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi ce choix ? ».</p>
+<p data-i18n="help.plan.timing">Pour les réseaux dont le prix varie selon l’heure, comme Electra, kWhiz retient le milieu de la fourchette publiée. Dans Mon profil, « Quand rechargez-vous ? » permet de retenir le bas (heures creuses) ou le haut (heures de pointe). Le détail de l’offre indique le prix utilisé.</p>
 <p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p>
 <p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>
 </details>

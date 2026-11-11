@@ -92,7 +92,7 @@
         "calculationBasis": "midpoint",
         "rateMin": 0.39,
         "rateMax": 0.61,
-        "note": "Trois niveaux de prix s’appliquent en France et en Belgique : heures creuses, heures standard et heures de pointe. Le niveau varie selon la station, l’heure, le jour de la semaine et la demande. Le prix exact est affiché dans l’application Electra avant la recharge. Le calcul utilise le milieu de la plage officielle."
+        "note": "Trois niveaux de prix s’appliquent en France et en Belgique : heures creuses, heures standard et heures de pointe. Le niveau varie selon la station, l’heure, le jour de la semaine et la demande. Le prix exact est affiché dans l’application Electra avant la recharge. Par défaut, le calcul utilise le milieu de la plage officielle ; le réglage « Quand rechargez-vous ? » de Mon profil permet de retenir le bas ou le haut."
       },
       {
         "name": "Paiement par badge ou carte",

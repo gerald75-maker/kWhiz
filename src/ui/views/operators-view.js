@@ -3,6 +3,7 @@ import { escapeHtml, safeUrl } from '../../shared/dom.js';
 import { formulaFavoriteId } from '../favorites.js';
 import { formatCurrency, formatNumber, formatTariffsVerifiedOn, getLocale, localizeCommercialLabel, localizeNetworkDescription, t } from '../../i18n/i18n.js';
 import { offerDetailPricingLabel, offerDetailSubscriptionLabel } from './offer-detail-view.js';
+import { applyChargingTime, dependsOnChargingTime } from '../../domain/charging-time.js';
 
 function currency(value) {
     return formatCurrency(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -88,7 +89,7 @@ function detailFormula(opKey, operator, formula, result) {
     };
 }
 
-function renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap }) {
+function renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap, chargingTime = 'any' }) {
     const container = document.getElementById('operators-compact');
     if (!container) return;
     const open = new Set(Array.from(container.querySelectorAll?.('details[open][data-operator]') || [], node => node.dataset.operator));
@@ -104,7 +105,8 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
         card.dataset.operator = opKey;
         card.open = open.has(opKey);
         const count = operator.formulas.length;
-        const plans = operator.formulas.map((formula, index) => {
+        const plans = operator.formulas.map((sourceFormula, index) => {
+            const formula = applyChargingTime(sourceFormula, chargingTime);
             const result = operatorFormulaResult(operator, formula, consumption);
             const threshold = Number.isFinite(result.km) && result.km > 0
                 ? `<span class="operator-plan-threshold">${escapeHtml(formatOperatorThreshold(result.km, { referenceUnavailable: formula.referenceUnavailable === true }))}</span>` : '';
@@ -132,14 +134,16 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
             }
             const detail = event.target.closest('[data-formula-index]');
             if (!detail) return;
-            const formula = operator.formulas[Number(detail.dataset.formulaIndex)];
-            onDetail?.(detailFormula(opKey, operator, formula, operatorFormulaResult(operator, formula, consumption)), detail);
+            const sourceFormula = operator.formulas[Number(detail.dataset.formulaIndex)];
+            const formula = applyChargingTime(sourceFormula, chargingTime);
+            const timed = { ...formula, chargingTime: dependsOnChargingTime(sourceFormula) ? chargingTime : null };
+            onDetail?.(detailFormula(opKey, operator, timed, operatorFormulaResult(operator, formula, consumption)), detail);
         });
         container.appendChild(card);
     }
 }
 
-export function renderOperatorsViews({ operators, consumption, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap }) {
+export function renderOperatorsViews({ operators, consumption, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap, chargingTime = 'any' }) {
     const count = document.getElementById('operators-page-count');
     if (count) {
         const operatorCount = Object.keys(operators).length;
@@ -148,5 +152,5 @@ export function renderOperatorsViews({ operators, consumption, logos, favorites 
         const plans = t(formulaCount === 1 ? 'count.plan' : 'count.plans', { count: '' }).trim();
         count.innerHTML = `<strong>${formatNumber(operatorCount)}</strong><span>${networks}</span><strong>${formatNumber(formulaCount)}</strong><span>${plans}</span>`;
     }
-    renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap });
+    renderDirectory({ operators, consumption, logos, favorites, onToggleFavorite, onDetail, mapOperators, onShowOperatorMap, chargingTime });
 }
