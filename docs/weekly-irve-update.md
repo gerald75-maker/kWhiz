@@ -2,7 +2,7 @@
 
 Le workflow `Actualisation hebdomadaire IRVE` s'exécute le mercredi à 04 h 23 UTC et peut être lancé depuis **Actions → Actualisation hebdomadaire IRVE → Run workflow**. Un lancement manuel utilise la branche sélectionnée comme base ; l'exécution planifiée utilise la branche par défaut.
 
-Il télécharge exclusivement la ressource consolidée officielle identifiée sur data.gouv.fr, vérifie que la redirection finale reste sous le chemin officiel `static.data.gouv.fr/resources/base-nationale-des-irve…`, puis exécute le générateur existant. La date est extraite du nom daté de la ressource ; si ce nom n'en contient pas, la date UTC de génération est utilisée. Aucune date IRVE n'est codée en dur.
+Il télécharge exclusivement la ressource consolidée officielle identifiée sur data.gouv.fr. La redirection finale doit utiliser HTTPS, le domaine exact `static.data.gouv.fr`, un chemin commençant par `/resources/base-nationale-des-irve` (ancien et nouveau chemins officiels acceptés) et un fichier CSV de consolidation IRVE. La date est extraite du nom daté de la ressource ; si ce nom n'en contient pas, la date UTC de génération est utilisée. Aucune date IRVE n'est codée en dur.
 
 Avant tout téléchargement ou toute génération, le workflow affiche la version de PHP, vérifie la syntaxe de `public/status.php` avec `php -l`, puis exécute `tests/irve-status-associations.php`. Ce test charge le relais en mode bibliothèque, sans en-têtes HTTP, accès réseau ni cache, et contrôle la compatibilité de l'ancien index ainsi que les associations multiples et ambiguës du nouveau format. L'absence de PHP ou l'échec d'un de ces contrôles interrompt le workflow.
 

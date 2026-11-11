@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { groupCertainStations } from '../scripts/irve-station-groups.mjs';
+import { preservePublishedStationIds, stabilizeStationAliases } from '../scripts/irve-station-identity.mjs';
 
 function station(id, { operator = 'electra', lat, lon, points, stationIds = [], names = ['Site'], addresses = ['1 rue du Test'], cities = ['Ville'], display = {} }) {
   const pointMap = new Map(points.map(point => [point.id, point]));
@@ -96,4 +97,37 @@ test('produit exactement le même résultat après permutation des stations', ()
     station('electra:46.0000:2.0000', { lat: 46, lon: 2, points: shared })
   ];
   assert.deepEqual(groupCertainStations(stations), groupCertainStations([...stations].reverse()));
+});
+
+test('supprime seulement l’alias devenu réflexif après stabilisation du canonique', () => {
+  const currentCanonical = 'electra:47.7883:1.6106';
+  const publishedAlias = 'electra:47.7883:1.6107';
+  const otherAlias = 'electra:47.7883:1.6108';
+  const stations = [
+    station(currentCanonical, { lat: 47.7883, lon: 1.6106, points: [point('PUBLISHED')] }),
+    station(publishedAlias, { lat: 47.78831, lon: 1.61061, points: [point('PUBLISHED')] }),
+    station(otherAlias, { lat: 47.78832, lon: 1.61062, points: [point('PUBLISHED')] })
+  ];
+  const previousStations = { stations: [{
+    id: publishedAlias, operator: 'electra', lat: 47.78831, lon: 1.61061,
+    name: 'Site', address: '1 rue du Test', city: 'Ville'
+  }] };
+  const previousStatus = { pointToStation: { PUBLISHED: publishedAlias } };
+
+  const run = input => {
+    const grouped = groupCertainStations(input);
+    const stabilized = preservePublishedStationIds(grouped.stations, previousStations, previousStatus);
+    return {
+      stationIds: stabilized.stations.map(item => item.stationId),
+      aliases: stabilizeStationAliases(grouped.stationAliases, stabilized.renames)
+    };
+  };
+
+  const expected = {
+    stationIds: [publishedAlias],
+    aliases: { [otherAlias]: publishedAlias }
+  };
+  assert.deepEqual(run(stations), expected);
+  assert.equal(Object.keys(expected.aliases).length, 1);
+  assert.deepEqual(run([...stations].reverse()), expected);
 });
