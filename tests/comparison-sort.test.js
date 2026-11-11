@@ -324,8 +324,8 @@ test('le kilométrage est synchronisé autour de profile-km et les anciens tris 
     ]);
     assert.match(html, /id="compare-km"/);
     assert.doesNotMatch(html, /Trier par|costPer100km|monthlyCost/);
-    // Seul sélecteur autorisé : le choix du modèle de véhicule.
-    assert.deepEqual(html.match(/<select[^>]*>/g), ['<select class="vehicle-model-select" id="vehicle-model">']);
+    // Seuls sélecteurs autorisés : le choix du modèle de véhicule (Mon profil et premier lancement).
+    assert.deepEqual(html.match(/<select[^>]*>/g), ['<select class="vehicle-model-select" id="vehicle-model">', '<select class="landing-select" id="landing-car-select">']);
     assert.match(app, /profileControls\?\.setMonthlyKm\(event\.target\.value\)/);
     assert.match(app, /comparisonKm\.value = String\(monthlyKm\)/);
     assert.match(controller, /getMonthlyKm/);
@@ -405,7 +405,8 @@ test('Mon choix, Comparer et Opérateurs partagent la même zone fixe au-dessus 
     const profileStart = html.indexOf('<div class="tab-content active" id="tab-profile">');
 
     assert.ok(stickyStart >= 0 && stickyEnd > stickyStart);
-    assert.match(html.slice(stickyStart, stickyEnd), /class="params-card"/);
+    assert.match(html.slice(stickyStart, stickyEnd), /id="profile-summary"/);
+    assert.match(html, /id="profile-sheet"[\s\S]*id="params-card"/);
     assert.ok(stickyEnd < compareStart && stickyEnd < operatorsStart && stickyEnd < profileStart);
     assert.equal((html.match(/id="sticky-top"/g) || []).length, 1);
     assert.match(css, /\.sticky-top\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?padding-bottom:\s*2px;/);

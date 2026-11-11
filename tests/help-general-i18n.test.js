@@ -30,9 +30,9 @@ test('le contenu essentiel existe en français et en anglais', () => {
   assert.match(t('help.map.privacy'), /reste sur votre appareil/);
   assert.match(t('help.route.limit'), /ne planifie pas les arrêts/);
   assert.match(t('help.route.privacy'), /OpenRouteService/);
-  assert.match(t('help.plan.profile'), /pastille Consommation.*modèle/);
+  assert.match(t('help.plan.profile'), /ligne de profil.*voiture.*ville/);
   assert.match(t('help.plan.vehicle'), /EV Database.*pertes de recharge/);
-  assert.match(t('help.plan.zone'), /Ma zone de recharge.*20 km/);
+  assert.match(t('help.plan.zone'), /ville.*au moins une station.*20\skm/);
   assert.match(t('help.prices.estimate'), /Jamais rentable.*Seuil non calculé/);
   assert.match(t('help.prices.chargeback'), /payé à la borne.*après remboursement/);
   assert.match(t('help.map.prices'), /Les moins chères.*Les plus proches.*Inclure les aires d’autoroute/);

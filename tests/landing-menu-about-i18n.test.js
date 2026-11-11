@@ -15,19 +15,20 @@ function fragment(start, end) {
   return html.slice(html.indexOf(start), html.indexOf(end, html.indexOf(start)));
 }
 
-test('l’introduction complète repose sur landing.* en FR et EN', () => {
-  const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
-  for (const key of ['landing.title', 'landing.positioning', 'landing.step.profile', 'landing.step.compare', 'landing.step.map', 'landing.continue', 'landing.help']) {
-    assert.match(landing, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
+test('l’introduction tient en une promesse, un chiffre et un bouton, en FR et EN', () => {
+  const intro = fragment('id="landing-intro"', '</section>');
+  for (const key of ['landing.title', 'landing.continue', 'landing.help']) {
+    assert.match(intro, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
   }
-  assert.equal((landing.match(/<li /g) || []).length, 3);
+  assert.match(intro, /id="landing-benefit"/);
+  assert.doesNotMatch(intro, /<li\b|<ol\b/);
   setLanguage('fr', { persist: false, translate: false });
-  assert.equal(t('landing.continue'), 'Commencer');
-  assert.equal(t('landing.positioning'), 'kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.');
+  assert.equal(t('landing.continue'), 'Trouver mon offre');
+  assert.equal(t('landing.title'), 'Votre recharge rapide hors autoroute, au juste prix.');
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(t('landing.title'), 'Compare fast-charging station prices off the motorway');
-  assert.equal(t('landing.help'), 'How does kWhiz work?');
-  assert.equal(t('landing.positioning'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
+  assert.equal(t('landing.title'), 'Fast charging off the motorway, at the right price.');
+  assert.equal(t('landing.continue'), 'Find my plan');
+  setLanguage('fr', { persist: false, translate: false });
 });
 
 test('le menu complet utilise ses clés sans modifier son ordre ni ses fonctions', () => {
@@ -64,8 +65,8 @@ test('À propos est complet en FR et EN et préserve version, e-mail et URL', ()
   assert.match(t('about.privacy'), /stored locally/);
   assert.equal(t('about.tagline'), 'kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price.');
   assert.equal(t('about.selectionScope'), 'kWhiz does not list every French charging network: it selects fast-charging offers that may genuinely reduce your charging costs.');
-  assert.equal((i18nSource.match(/kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger\./g) || []).length, 2);
-  assert.equal((i18nSource.match(/kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price\./g) || []).length, 2);
+  assert.equal((i18nSource.match(/kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger\./g) || []).length, 1);
+  assert.equal((i18nSource.match(/kWhiz, the practical and easy-to-use everyday app for choosing where to charge and at what price\./g) || []).length, 1);
   assert.doesNotMatch(html, /quasi indispensable/i);
 });
 
@@ -107,20 +108,24 @@ test('les anciennes correspondances exactes du lot ont disparu', () => {
   ]) assert.doesNotMatch(legacy, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), phrase);
 });
 
-test('l’accueil demande la part de recharge rapide, toujours modifiable ensuite', () => {
+test('le premier lancement pose quatre questions, une par écran', () => {
   const landing = fragment('id="landing-overlay"', '<!-- Popup de mise à jour');
-  const values = [...landing.matchAll(/data-fast-pct="(\d+)"/g)].map(match => Number(match[1]));
-  assert.deepEqual(values, [20, 50, 90, 100]);
-  for (const key of ['landing.usage.title', 'landing.usage.lead', 'landing.usage.home', 'landing.usage.mixed', 'landing.usage.mostlyFast', 'landing.usage.onlyFast', 'landing.usage.note', 'landing.usage.skip']) {
-    assert.match(landing, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
-  }
-  assert.match(landing, /hidden="" id="landing-usage"/);
-  assert.match(appSource, /getElementById\('landing-start'\)\?\.addEventListener\('click', showLandingUsage\)/);
+  const steps = [...landing.matchAll(/class="landing-step[^"]*"(?: hidden="")? id="(landing-[a-z]+)"/g)].map(match => match[1]);
+  assert.deepEqual(steps, ['landing-intro', 'landing-car', 'landing-km', 'landing-usage', 'landing-city']);
+  for (const n of [1, 2, 3, 4]) assert.match(landing, new RegExp(`data-i18n="landing\\.progress\\.${n}"`));
+  assert.match(landing, /id="landing-car-select"/);
+  assert.deepEqual([...landing.matchAll(/data-km="(\d+)"/g)].map(match => Number(match[1])), [500, 1000, 1500, 2000]);
+  assert.deepEqual([...landing.matchAll(/data-fast-pct="(\d+)"/g)].map(match => Number(match[1])), [20, 50, 90, 100]);
+  assert.match(landing, /id="landing-city-input"/);
+  assert.match(appSource, /const LANDING_STEPS = \['landing-intro', 'landing-car', 'landing-km', 'landing-usage', 'landing-city'\];/);
   assert.match(appSource, /profileControls\.setFastPercentage\(percentage\)/);
+  assert.match(appSource, /consumptionController\?\.chooseVehicle\?\.\(id\)/);
+  assert.match(appSource, /zoneControls\?\.applyQuery\(query\)/);
   setLanguage('fr', { persist: false, translate: false });
   assert.match(t('landing.usage.mostlyFast.detail'), /^Environ 90\s%/);
-  assert.match(t('landing.usage.note'), /Mon profil/);
   setLanguage('en', { persist: false, translate: false });
   assert.equal(t('landing.usage.title'), 'Where do you charge most often?');
+  assert.equal(t('landing.car.title'), 'Which car do you drive?');
   setLanguage('fr', { persist: false, translate: false });
 });
+

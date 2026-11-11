@@ -1,5 +1,5 @@
 import { VEHICLES, VEHICLE_SOURCE, findVehicle, vehicleLabel, vehicleSliderValue } from '../../config/vehicles.js';
-import { formatDate, t } from '../../i18n/i18n.js';
+import { formatDate, formatNumber, t } from '../../i18n/i18n.js';
 
 export function initConsumptionController({ initialValue = 18, onChange, storageKey, vehicleStorageKey }) {
     const vehicleNodes = [...document.querySelectorAll('.vehicle')];
@@ -7,10 +7,6 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
     const fillEl = document.getElementById('conso-slider-fill');
     const thumbEl = document.getElementById('conso-slider-thumb');
     const valueEl = document.getElementById('consumption-value');
-    const stickyEl = document.getElementById('sticky-top');
-    const pillEl = document.getElementById('conso-pill');
-    const pillValueEl = document.getElementById('conso-pill-value');
-    const pillVehicleEl = document.getElementById('conso-pill-vehicle');
     const modelSelect = document.getElementById('vehicle-model');
     const asOfEl = document.getElementById('vehicle-model-asof');
 
@@ -44,13 +40,6 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
         if (!vehicle && minDiff <= 1 && closest) {
             closest.classList.add('active');
             closest.setAttribute('aria-pressed', 'true');
-        }
-        if (pillValueEl) pillValueEl.textContent = String(value);
-        if (pillVehicleEl) {
-            const presetName = !vehicle && minDiff <= 1 ? closest?.querySelector('.vehicle-name')?.textContent?.trim() : '';
-            const vehicleName = vehicle ? vehicleLabel(vehicle) : presetName;
-            pillVehicleEl.textContent = vehicleName ? `· ${vehicleName}` : '';
-            pillEl?.classList.toggle('has-vehicle', Boolean(vehicle));
         }
 
         if (animate) {
@@ -91,7 +80,7 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
             items.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item.id;
-                option.textContent = `${item.model} · ${(item.whKm / 10).toFixed(1)} kWh/100 km`;
+                option.textContent = `${item.model} · ${formatNumber(item.whKm / 10, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kWh/100 km`;
                 group.append(option);
             });
             modelSelect.append(group);
@@ -158,20 +147,20 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
         });
     });
 
-    // Bandeau replié par défaut : la pastille affiche la valeur et déplie le réglage.
-    function setExpanded(expanded) {
-        stickyEl?.classList.toggle('is-collapsed', !expanded);
-        pillEl?.setAttribute('aria-expanded', String(expanded));
-    }
-    pillEl?.addEventListener('click', () => setExpanded(pillEl.getAttribute('aria-expanded') !== 'true'));
-    setExpanded(false);
-
     render();
 
     return {
-        collapse: () => setExpanded(false),
         refresh: () => { renderAsOf(); render(); },
         getVehicle: () => vehicle,
+        getVehicleLabel: () => (vehicle ? vehicleLabel(vehicle) : ''),
+        // Premier lancement : choix du modèle depuis la liste de l'accueil.
+        chooseVehicle(id) {
+            const next = findVehicle(id);
+            if (!next) return null;
+            setVehicle(next);
+            setValue(vehicleSliderValue(next));
+            return next;
+        },
         getConsumption: () => value / 100,
         getValue: () => value,
         setValue

@@ -80,37 +80,8 @@
 </div>
 <!-- Sticky header stack : slider + onglets restent visibles au scroll -->
 <div class="sticky-top" id="sticky-top">
-<!-- Slider consommation sticky : replié en pastille, déplié au toucher -->
-<button aria-controls="params-card" aria-expanded="false" class="conso-pill" id="conso-pill" type="button"><span class="conso-pill-label" data-i18n="consumption.pillLabel">Consommation</span><strong class="conso-pill-value"><span id="conso-pill-value">18</span> kWh/100 km</strong><span class="conso-pill-vehicle" id="conso-pill-vehicle"></span><span aria-hidden="true" class="conso-pill-icon">✎</span></button>
-<div class="params-card" id="params-card">
-<div class="conso-slider-wrap">
-<label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
-<div class="conso-slider-track-wrap">
-<div class="conso-slider-track">
-<div class="conso-slider-fill" id="conso-slider-fill"></div>
-<div class="conso-slider-thumb" id="conso-slider-thumb">
-<span id="consumption-value">18</span>
-</div>
-</div>
-<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" data-i18n-aria-label="consumption.inputLabel" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
-</div>
-<div class="conso-slider-bounds">
-<span data-i18n="consumption.minimum">10 kWh/100 km</span>
-<span data-i18n="consumption.maximum">30 kWh/100 km</span>
-</div>
-</div>
-<div class="vehicles" id="vehicles">
-<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.cityCarLabel" data-val="13" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.cityCar">Citadine</span></div>
-<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-i18n-aria-label="vehicle.saloonLabel" data-val="18" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.saloon">Berline</span></div>
-<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.suvLabel" data-val="20" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.suv">SUV</span></div>
-<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.vanLabel" data-val="24" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.van">Van</span></div>
-</div>
-<div class="vehicle-model">
-<label class="vehicle-model-label" for="vehicle-model" data-i18n="consumption.model.label">Mon modèle</label>
-<select class="vehicle-model-select" id="vehicle-model"><option value="" data-i18n="consumption.model.placeholder">Choisir (facultatif)</option></select>
-<p class="vehicle-model-source"><span data-i18n="consumption.model.source">Consommation réelle estimée, hors pertes de recharge. Source :</span> <a href="https://ev-database.org/" rel="noopener" target="_blank">EV Database</a> <span id="vehicle-model-asof"></span></p>
-</div>
-</div>
+<!-- Ligne de résumé du profil : ouvre le panneau Mon profil -->
+<button aria-controls="profile-sheet" aria-haspopup="dialog" class="profile-summary" id="profile-summary" type="button"><span class="profile-summary-text" id="profile-summary-text">18 kWh/100 km · 1 000 km/mois · 100 % rapide</span><svg aria-hidden="true" class="profile-summary-icon" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></button>
 </div><!-- /sticky-top -->
 <!-- Onglet Comparer -->
 <div class="tab-content" id="tab-ranking">
@@ -187,14 +158,63 @@
 </div>
 <!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">
-<header class="profile-page-heading">
-<p class="profile-page-kicker" data-i18n="profile.heading.kicker">Estimation personnalisée</p>
-<h2 data-i18n="profile.heading.title">Votre recharge rapide hors autoroute, au juste prix</h2>
-<p data-i18n="profile.heading.intro">Ajustez votre usage. kWhiz compare le coût total des offres sans masquer les abonnements.</p>
-</header>
-<!-- Profil de recharge : source unique des calculs -->
-<section aria-labelledby="profile-settings-title" class="profile-hero profile-hero--unified">
-<div class="profile-section-heading"><div><p class="profile-section-kicker" data-i18n="profile.controls.kicker">Mon profil</p><h3 class="profile-section-title" data-i18n="profile.controls.title" id="profile-settings-title">Mon profil de recharge</h3></div><span data-i18n="profile.controls.instant">Calcul instantané</span></div>
+<p class="offer-context" id="offer-context"></p>
+<!-- Offre n°1 : nom, prix, stations proches, actions -->
+<div class="profile-best-card profile-recommendation-card" id="profile-best-card"></div>
+<section aria-labelledby="offer-next-title" class="offer-next">
+<h3 class="offer-next-title" data-i18n="offer.next" id="offer-next-title">Ensuite</h3>
+<div class="profile-shortlist-list" id="profile-shortlist-list"></div>
+</section>
+<button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers" id="profile-all-offers-label">Toutes les offres</span> <span aria-hidden="true">›</span></button>
+</div>
+<!-- Bannière mise à jour tarifs -->
+<div class="tarifs-update-banner" id="tarifs-update-banner">
+<span>🕐</span>
+<span id="tarifs-update-text"></span>
+</div>
+<p class="source-info">
+<span id="version-tap">__VERSION__ — © Gérald Aubard, 2026</span><br/>
+<a class="footer-site-link" href="https://aubard.net/" rel="noopener noreferrer" target="_blank">Aubard.net</a>
+</p>
+</div>
+<!-- ── Panneau : Mon profil (voiture, kilométrage, part rapide, ville) ── -->
+<div aria-hidden="true" class="sheet" hidden="" id="profile-sheet">
+<div aria-hidden="true" class="sheet-backdrop" data-sheet-close=""></div>
+<section aria-labelledby="profile-sheet-title" aria-modal="true" class="sheet-panel" role="dialog">
+<div aria-hidden="true" class="sheet-handle"></div>
+<header class="sheet-header"><h2 data-i18n="profile.sheet.title" id="profile-sheet-title" tabindex="-1" data-sheet-focus="">Mon profil</h2><button aria-label="Fermer" class="sheet-close" data-i18n-aria-label="common.close" data-sheet-close="" type="button"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="18"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></header>
+<div class="sheet-body">
+<section aria-labelledby="profile-car-title" class="sheet-section" id="params-card">
+<h3 class="sheet-section-title" data-i18n="profile.sheet.car" id="profile-car-title">Voiture</h3>
+<div class="vehicle-model">
+<label class="vehicle-model-label" for="vehicle-model" data-i18n="consumption.model.label">Mon modèle</label>
+<select class="vehicle-model-select" id="vehicle-model"><option value="" data-i18n="consumption.model.placeholder">Choisir (facultatif)</option></select>
+<p class="vehicle-model-source"><span data-i18n="consumption.model.source">Consommation réelle estimée, hors pertes de recharge. Source :</span> <a href="https://ev-database.org/" rel="noopener" target="_blank">EV Database</a> <span id="vehicle-model-asof"></span></p>
+</div>
+<div class="conso-slider-wrap">
+<label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
+<div class="conso-slider-track-wrap">
+<div class="conso-slider-track">
+<div class="conso-slider-fill" id="conso-slider-fill"></div>
+<div class="conso-slider-thumb" id="conso-slider-thumb">
+<span id="consumption-value">18</span>
+</div>
+</div>
+<input aria-label="Consommation en kWh par 100 km" class="conso-slider-input" data-i18n-aria-label="consumption.inputLabel" id="conso-slider" max="30" min="10" step="1" type="range" value="18"/>
+</div>
+<div class="conso-slider-bounds">
+<span data-i18n="consumption.minimum">10 kWh/100 km</span>
+<span data-i18n="consumption.maximum">30 kWh/100 km</span>
+</div>
+</div>
+<div class="vehicles" id="vehicles">
+<div aria-label="Citadine — 13 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.cityCarLabel" data-val="13" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.cityCar">Citadine</span></div>
+<div aria-label="Berline — 18 kWh/100 km" aria-pressed="true" class="vehicle active" data-i18n-aria-label="vehicle.saloonLabel" data-val="18" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.saloon">Berline</span></div>
+<div aria-label="SUV — 20 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.suvLabel" data-val="20" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.suv">SUV</span></div>
+<div aria-label="Van — 24 kWh/100 km" class="vehicle" data-i18n-aria-label="vehicle.vanLabel" data-val="24" role="button" tabindex="0"><span class="vehicle-name" data-i18n="vehicle.van">Van</span></div>
+</div>
+</section>
+<section class="sheet-section">
 <div class="profile-km-section">
 <div class="profile-km-label" data-i18n="profile.controls.monthlyMileage">Kilométrage mensuel</div>
 <div class="profile-km-chips" id="profile-km-chips">
@@ -227,67 +247,83 @@
 <p class="profile-zone-status" id="profile-zone-status" role="status" aria-live="polite"></p>
 <button class="profile-zone-clear" data-i18n="profile.zone.clear" hidden="" id="profile-zone-clear" type="button">Effacer la zone</button>
 </div>
-<p class="profile-hint" data-i18n="profile.controls.homeRateHint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
 </section>
-<!-- Recommandation principale -->
-<div class="profile-best-card profile-recommendation-card" id="profile-best-card"></div>
-<!-- Aperçu des trois meilleures formules -->
-<section aria-labelledby="profile-shortlist-title" class="profile-shortlist">
-<div class="profile-shortlist-heading">
-<div><p class="profile-section-kicker" data-i18n="profile.ranking.kicker">Classement</p><h3 data-i18n="profile.ranking.title" id="profile-shortlist-title">Les 3 meilleures offres</h3></div>
-<span data-i18n="profile.ranking.estimatedMonthlyCost">Coût mensuel estimé</span>
 </div>
-<div class="profile-shortlist-list" id="profile-shortlist-list"></div>
+<button class="sheet-primary" data-i18n="profile.sheet.done" data-sheet-close="" type="button">Voir mon offre</button>
 </section>
-<!-- Suite compacte du classement, à partir de la quatrième offre -->
-<details class="profile-comparison-details" id="profile-ranking-details">
-<summary><span class="profile-ranking-summary-closed" data-i18n="profile.ranking.next">Voir la suite du classement</span><span class="profile-ranking-summary-open" data-i18n="profile.ranking.hideNext">Masquer la suite du classement</span></summary>
-<div class="profile-ranking-list" id="profile-ranking-list"></div>
-</details>
-<button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers">Toutes les offres, avec filtres et détails</span> <span aria-hidden="true">›</span></button>
 </div>
-<!-- Bannière mise à jour tarifs -->
-<div class="tarifs-update-banner" id="tarifs-update-banner">
-<span>🕐</span>
-<span id="tarifs-update-text"></span>
-</div>
-<p class="source-info">
-<span id="version-tap">__VERSION__ — © Gérald Aubard, 2026</span><br/>
-<a class="footer-site-link" href="https://aubard.net/" rel="noopener noreferrer" target="_blank">Aubard.net</a>
-</p>
+<!-- ── Panneau : Pourquoi ce choix ? ── -->
+<div aria-hidden="true" class="sheet" hidden="" id="why-sheet">
+<div aria-hidden="true" class="sheet-backdrop" data-sheet-close=""></div>
+<section aria-labelledby="why-sheet-title" aria-modal="true" class="sheet-panel" role="dialog">
+<div aria-hidden="true" class="sheet-handle"></div>
+<header class="sheet-header"><h2 data-i18n="offer.why" id="why-sheet-title" tabindex="-1" data-sheet-focus="">Pourquoi ce choix ?</h2><button aria-label="Fermer" class="sheet-close" data-i18n-aria-label="common.close" data-sheet-close="" type="button"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="18"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></header>
+<div class="sheet-body" id="why-sheet-body"></div>
+</section>
 </div>
 <!-- ── Landing Page (première visite) ── -->
 <div aria-labelledby="landing-title" aria-modal="true" class="landing-overlay hidden" id="landing-overlay" role="dialog">
 <div class="landing-content">
-<div class="landing-intro" id="landing-intro">
+<section aria-labelledby="landing-title" class="landing-step landing-step--intro" id="landing-intro">
 <div class="landing-logo-wrap">
 <svg viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="lbg" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00C2FF"></stop><stop offset="50%" stop-color="#06b6d4"></stop><stop offset="100%" stop-color="#16C784"></stop></lineargradient></defs><rect fill="url(#lbg)" height="32" rx="6" width="32"></rect><path d="M18 4L8 18h6l-2 10 10-14h-6l2-10z" fill="white"></path></svg>
 </div>
-<h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Comparez les tarifs des bornes de recharge rapide hors autoroute</h1>
-<p class="landing-positioning" data-i18n="landing.positioning">kWhiz, l’application pratique et simple à utiliser au quotidien pour choisir où et à quel prix recharger.</p>
-<p aria-live="polite" class="landing-benefit" id="landing-benefit" hidden></p>
-<ol class="landing-pitch landing-steps">
-<li data-i18n="landing.step.profile">Indiquez la consommation de votre véhicule et votre kilométrage mensuel.</li>
-<li data-i18n="landing.step.compare">Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.</li>
-<li data-i18n="landing.step.map">Localisez les stations autour de vous ou sur votre trajet.</li>
-</ol>
-<button class="landing-btn" data-i18n="landing.continue" id="landing-start" type="button">Commencer</button>
-<div class="landing-footer-links">
-<a data-i18n="landing.help" href="#" id="landing-help-link">Comment fonctionne kWhiz ?</a>
+<h1 class="landing-heading" data-i18n="landing.title" id="landing-title">Votre recharge rapide hors autoroute, au juste prix.</h1>
+<p aria-live="polite" class="landing-benefit" hidden="" id="landing-benefit"></p>
+<div class="landing-actions">
+<button class="landing-btn" data-i18n="landing.continue" id="landing-start" type="button">Trouver mon offre</button>
+<a class="landing-link" data-i18n="landing.help" href="#" id="landing-help-link">Comment ça marche ?</a>
 </div>
+</section>
+<section aria-labelledby="landing-car-title" class="landing-step" hidden="" id="landing-car">
+<div class="landing-bar"><button aria-label="Retour" class="landing-back" data-i18n-aria-label="landing.back" data-landing-back="" type="button"><svg aria-hidden="true" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="m15 18-6-6 6-6"></path></svg></button><span class="landing-count" data-i18n="landing.progress.1">1 sur 4</span><a class="landing-skip" data-i18n="landing.skip" data-landing-skip="" href="#">Passer</a></div>
+<div aria-hidden="true" class="landing-progress"><span class="is-done"></span><span></span><span></span><span></span></div>
+<h2 class="landing-heading" data-i18n="landing.car.title" id="landing-car-title" tabindex="-1">Quelle est votre voiture ?</h2>
+<label class="sr-only" data-i18n="landing.car.label" for="landing-car-select">Modèle de voiture</label>
+<select class="landing-select" id="landing-car-select"><option data-i18n="landing.car.placeholder" value="">Choisir mon modèle</option></select>
+<p class="landing-note" data-i18n="landing.car.note">La consommation réelle du modèle sert au calcul. Vous pourrez l’ajuster dans Mon profil.</p>
+<div class="landing-actions">
+<button class="landing-btn" data-i18n="landing.next" data-landing-next="" type="button">Continuer</button>
+<a class="landing-link" data-i18n="landing.car.unknown" data-landing-skip="" href="#">Je ne trouve pas mon modèle</a>
 </div>
-<section aria-labelledby="landing-usage-title" class="landing-usage" hidden="" id="landing-usage">
-<h2 class="landing-heading" data-i18n="landing.usage.title" id="landing-usage-title" tabindex="-1">Où rechargez-vous le plus souvent ?</h2>
-<p class="landing-positioning" data-i18n="landing.usage.lead">kWhiz compare le coût de vos recharges rapides. Le reste est compté au tarif domicile.</p>
+</section>
+<section aria-labelledby="landing-km-title" class="landing-step" hidden="" id="landing-km">
+<div class="landing-bar"><button aria-label="Retour" class="landing-back" data-i18n-aria-label="landing.back" data-landing-back="" type="button"><svg aria-hidden="true" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="m15 18-6-6 6-6"></path></svg></button><span class="landing-count" data-i18n="landing.progress.2">2 sur 4</span><a class="landing-skip" data-i18n="landing.skip" data-landing-skip="" href="#">Passer</a></div>
+<div aria-hidden="true" class="landing-progress"><span class="is-done"></span><span class="is-done"></span><span></span><span></span></div>
+<h2 class="landing-heading" data-i18n="landing.km.title" id="landing-km-title" tabindex="-1">Combien de kilomètres par mois ?</h2>
+<div aria-labelledby="landing-km-title" class="landing-choices landing-choices--grid" role="group">
+<button aria-pressed="false" class="landing-choice" data-km="500" type="button"><strong>500 km</strong></button>
+<button aria-pressed="false" class="landing-choice" data-km="1000" type="button"><strong>1 000 km</strong></button>
+<button aria-pressed="false" class="landing-choice" data-km="1500" type="button"><strong>1 500 km</strong></button>
+<button aria-pressed="false" class="landing-choice" data-km="2000" type="button"><strong>2 000 km</strong></button>
+</div>
+<label class="landing-field-label" data-i18n="landing.km.other" for="landing-km-input">Autre valeur</label>
+<div class="landing-inline"><input class="landing-input" id="landing-km-input" inputmode="numeric" max="9999" min="0" step="50" type="number"/><span data-i18n="profile.controls.monthlyMileageUnit">km/mois</span></div>
+<div class="landing-actions">
+<button class="landing-btn" data-i18n="landing.next" data-landing-next="" type="button">Continuer</button>
+</div>
+</section>
+<section aria-labelledby="landing-usage-title" class="landing-step landing-usage" hidden="" id="landing-usage">
+<div class="landing-bar"><button aria-label="Retour" class="landing-back" data-i18n-aria-label="landing.back" data-landing-back="" type="button"><svg aria-hidden="true" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="m15 18-6-6 6-6"></path></svg></button><span class="landing-count" data-i18n="landing.progress.3">3 sur 4</span><a class="landing-skip" data-i18n="landing.skip" data-landing-skip="" href="#">Passer</a></div>
+<div aria-hidden="true" class="landing-progress"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span><span></span></div>
+<h2 class="landing-heading" data-i18n="landing.usage.title" id="landing-usage-title" tabindex="-1">Où rechargez-vous le plus souvent ?</h2>
 <div aria-labelledby="landing-usage-title" class="landing-usage-choices" role="group">
 <button aria-pressed="false" class="landing-usage-choice" data-fast-pct="20" type="button"><strong data-i18n="landing.usage.home">Surtout à domicile</strong><span data-i18n="landing.usage.home.detail">Environ 20 % sur bornes rapides</span></button>
 <button aria-pressed="false" class="landing-usage-choice" data-fast-pct="50" type="button"><strong data-i18n="landing.usage.mixed">Autant à domicile que sur bornes rapides</strong><span data-i18n="landing.usage.mixed.detail">Environ 50 % sur bornes rapides</span></button>
 <button aria-pressed="false" class="landing-usage-choice" data-fast-pct="90" type="button"><strong data-i18n="landing.usage.mostlyFast">Surtout sur bornes rapides</strong><span data-i18n="landing.usage.mostlyFast.detail">Environ 90 % sur bornes rapides</span></button>
 <button aria-pressed="false" class="landing-usage-choice" data-fast-pct="100" type="button"><strong data-i18n="landing.usage.onlyFast">Uniquement sur bornes rapides</strong><span data-i18n="landing.usage.onlyFast.detail">100 % sur bornes rapides</span></button>
 </div>
-<p class="landing-usage-note" data-i18n="landing.usage.note">Vous pourrez ajuster cette part à tout moment dans Mon profil.</p>
-<div class="landing-footer-links">
-<a data-i18n="landing.usage.skip" href="#" id="landing-usage-skip">Passer cette étape</a>
+</section>
+<section aria-labelledby="landing-city-title" class="landing-step" hidden="" id="landing-city">
+<div class="landing-bar"><button aria-label="Retour" class="landing-back" data-i18n-aria-label="landing.back" data-landing-back="" type="button"><svg aria-hidden="true" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="m15 18-6-6 6-6"></path></svg></button><span class="landing-count" data-i18n="landing.progress.4">4 sur 4</span><a class="landing-skip" data-i18n="landing.skip" data-landing-skip="" href="#">Passer</a></div>
+<div aria-hidden="true" class="landing-progress"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span></div>
+<h2 class="landing-heading" data-i18n="landing.city.title" id="landing-city-title" tabindex="-1">Où habitez-vous ?</h2>
+<p class="landing-note" data-i18n="landing.city.lead">Pour classer les réseaux présents près de chez vous.</p>
+<label class="sr-only" data-i18n="profile.zone.placeholder" for="landing-city-input">Ville ou code postal</label>
+<div class="landing-inline landing-inline--city"><input autocomplete="off" class="landing-input" data-i18n-placeholder="profile.zone.placeholder" id="landing-city-input" list="profile-zone-places" placeholder="Ville ou code postal" type="text"/><button class="landing-locate" id="landing-city-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="profile.zone.locate">Ma position</span></button></div>
+<p aria-live="polite" class="landing-note landing-status" id="landing-city-status" role="status"></p>
+<div class="landing-actions">
+<button class="landing-btn" data-i18n="landing.finish" id="landing-finish" type="button">Voir mon offre</button>
 </div>
 </section>
 </div>
@@ -359,9 +395,9 @@
 </div><div class="page-body">
 <div class="help-topics">
 <details class="help-topic"><summary data-i18n="help.plan.title">Choisir une offre</summary>
-<p data-i18n="help.plan.profile">Touchez la pastille Consommation en haut de l’écran pour choisir votre modèle de véhicule ou régler le curseur. Indiquez ensuite dans Mon choix votre kilométrage mensuel et la part de recharge rapide. Mon choix recommande les offres adaptées à ce profil et donne, pour l’offre n°1, un lien pour souscrire et l’accès aux bornes du réseau sur la carte. Comparer les classe par coût mensuel estimé, abonnement compris.</p>
+<p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon choix affiche l’offre la moins chère, avec un lien pour souscrire et ses bornes sur la carte, puis les deux suivantes. Comparer classe toutes les offres par coût mensuel estimé, abonnement compris.</p>
 <p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p>
-<p data-i18n="help.plan.zone">Dans Ma zone de recharge, saisissez une ville ou un code postal, ou touchez Ma position. Chaque offre indique alors combien de stations du réseau se trouvent à moins de 20 km, hors autoroute. Ce nombre informe sans modifier le classement.</p>
+<p data-i18n="help.plan.zone">Avec une ville, Mon choix ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi ce choix ? ».</p>
 <p data-i18n="help.plan.filters">Dans Comparer, le filtre Sans abonnement ne garde que les formules sans frais fixes. Réseaux près de chez moi ne garde que les réseaux présents dans votre zone de recharge.</p>
 <p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>
 </details>

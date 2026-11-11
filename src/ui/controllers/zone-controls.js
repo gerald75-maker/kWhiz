@@ -61,20 +61,27 @@ export function initZoneControls({ storageKey, loadStations, onChange }) {
         } catch { /* liste indisponible : la saisie reste possible */ }
     }, { once: false });
 
-    input?.addEventListener('change', async () => {
-        const query = input.value.trim();
-        if (!query) return;
+    // Commune saisie (Mon profil ou premier lancement) : renvoie le statut d'erreur, ou null.
+    async function applyQuery(query) {
+        const text = String(query || '').trim();
+        if (!text) return 'profile.zone.notFound';
         try {
-            const place = findPlace(await places(), query);
+            const place = findPlace(await places(), text);
             if (!place) {
                 renderStatus('profile.zone.notFound');
-                return;
+                return 'profile.zone.notFound';
             }
-            input.value = place.label;
+            if (input) input.value = place.label;
             save({ source: 'place', label: place.label, lat: place.lat, lon: place.lon });
+            return null;
         } catch {
             renderStatus('profile.zone.unavailable');
+            return 'profile.zone.unavailable';
         }
+    }
+
+    input?.addEventListener('change', () => {
+        if (input.value.trim()) void applyQuery(input.value);
     });
 
     // Le bouton lui-même affiche l'attente : sur mobile, la ligne d'état peut être
@@ -92,27 +99,37 @@ export function initZoneControls({ storageKey, loadStations, onChange }) {
         return 'profile.zone.locationError';
     }
 
+    // Position du navigateur : renvoie le statut d'erreur, ou null.
+    function locateZone() {
+        return new Promise(resolve => {
+            if (!navigator.geolocation) {
+                renderStatus('profile.zone.locationError');
+                resolve('profile.zone.locationError');
+                return;
+            }
+            input?.blur();
+            setLocating(true);
+            renderStatus('profile.zone.locating');
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    setLocating(false);
+                    if (input) input.value = '';
+                    save({ source: 'position', label: '', lat: position.coords.latitude, lon: position.coords.longitude });
+                    resolve(null);
+                },
+                error => {
+                    setLocating(false);
+                    const key = locationErrorStatus(error);
+                    renderStatus(key);
+                    resolve(key);
+                },
+                { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 }
+            );
+        });
+    }
+
     locate?.addEventListener('click', () => {
-        if (locate.disabled) return;
-        if (!navigator.geolocation) {
-            renderStatus('profile.zone.locationError');
-            return;
-        }
-        input?.blur();
-        setLocating(true);
-        renderStatus('profile.zone.locating');
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                setLocating(false);
-                if (input) input.value = '';
-                save({ source: 'position', label: '', lat: position.coords.latitude, lon: position.coords.longitude });
-            },
-            error => {
-                setLocating(false);
-                renderStatus(locationErrorStatus(error));
-            },
-            { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 }
-        );
+        if (!locate.disabled) void locateZone();
     });
 
     clear?.addEventListener('click', () => {
@@ -125,6 +142,9 @@ export function initZoneControls({ storageKey, loadStations, onChange }) {
     return {
         getZone: () => zone,
         getLabel: () => zoneLabel(),
+        applyQuery,
+        locate: locateZone,
+        loadPlaces: places,
         refreshLanguage: () => renderStatus()
     };
 }

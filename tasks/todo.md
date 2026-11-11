@@ -174,3 +174,14 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Audit n° 18 : écart chiffré sur l'accueil (79 €/mois au 11/11 pour 1 000 km à 18 kWh/100 km).
 - [x] « Ma position » (Mon choix) : état d'attente sur le bouton, messages distincts pour refus et délai dépassé.
 - [x] Aide complétée ; 398 tests ; contrôle sans débordement à 390 px ; cache kwhiz-711ccc2c.
+
+## Livraison 2.28.0 (2026-11-11) : refonte, étape 1
+
+- [x] Maquettes validées par Gérald (canevas « kWhiz — maquettes de la refonte »).
+- [x] Ligne de résumé du profil en haut de l'écran ; panneau Mon profil (voiture, consommation, kilométrage, part rapide, ville).
+- [x] Mon offre : offre n°1 (prix, stations proches, Souscrire, Bornes), deux suivantes, lien vers toutes les offres ; classement parmi les réseaux présents près de la ville.
+- [x] Panneau « Pourquoi ce choix ? » : coût sur 12 mois, promotion, prix à la borne et après ChargeBack, écart, seuil, source, partage.
+- [x] Premier lancement : présentation, puis voiture, kilomètres, lieu de recharge, ville.
+- [x] Clés i18n devenues inutiles supprimées ; aide mise à jour ; 393 tests ; aucun débordement à 390 px ; cache kwhiz-56007331.
+- [ ] Étape 2 : Carte plein écran (recherche, filtres en panneau, liste glissante, regroupement des marqueurs).
+- [ ] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête.

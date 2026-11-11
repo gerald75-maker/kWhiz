@@ -9,6 +9,8 @@ import {
 import { buildStationPrices, formulaPlanId } from './src/domain/station-pricing.js';
 import { COVERAGE_RADIUS_KM, countStationsByOperator } from './src/domain/coverage.js';
 import { initZoneControls } from './src/ui/controllers/zone-controls.js';
+import { initSheets, openSheet, closeSheet } from './src/ui/sheet.js';
+import { VEHICLES } from './src/config/vehicles.js';
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
@@ -386,6 +388,23 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     if (recomputeAtlanteChargeback) renderAtlanteChargebackInfo(OPERATORS);
     refreshStationPrices();
     renderLandingBenefit();
+    renderProfileSummary();
+}
+
+// Ligne de résumé en haut de l'écran : voiture · kilométrage · part rapide · ville.
+function renderProfileSummary() {
+    const node = document.getElementById('profile-summary-text');
+    if (!node) return;
+    const consumption = consumptionController?.getValue?.() ?? 18;
+    const parts = [
+        consumptionController?.getVehicleLabel?.() || t('summary.consumption', { value: formatNumber(consumption) }),
+        t('summary.km', { km: formatNumber(profileControls?.getMonthlyKm() ?? 0) }),
+        t('summary.fast', { percentage: formatNumber(profileControls?.getFastPercentage() ?? fastPct) })
+    ];
+    const place = zoneControls?.getZone() ? zoneControls.getLabel() : '';
+    if (place) parts.push(place);
+    node.textContent = parts.join(' · ');
+    document.getElementById('profile-summary')?.setAttribute('aria-label', t('summary.edit', { summary: node.textContent }));
 }
 
 // Accueil : écart réel entre la formule la moins chère et la plus chère, pour un profil
@@ -493,20 +512,68 @@ function applyInstallOsDetection() {
     if (isAndroid && iosBlock) iosBlock.hidden = true;
 }
 
-// Étape 2 de l'accueil : part de recharge rapide, préremplie avec la valeur actuelle
-// et toujours modifiable ensuite dans Mon profil.
-function showLandingUsage() {
-    const intro = document.getElementById('landing-intro');
-    const usage = document.getElementById('landing-usage');
-    if (!intro || !usage) { hideLanding(); return; }
-    const current = profileControls?.getFastPercentage() ?? fastPct;
-    usage.querySelectorAll('[data-fast-pct]').forEach(button => {
-        button.setAttribute('aria-pressed', String(Number(button.dataset.fastPct) === current));
+// Premier lancement : présentation, puis voiture, kilomètres, lieu de recharge et ville.
+// Chaque réponse est enregistrée aussitôt ; « Passer » garde la valeur actuelle.
+const LANDING_STEPS = ['landing-intro', 'landing-car', 'landing-km', 'landing-usage', 'landing-city'];
+let landingStep = 0;
+
+function showLandingStep(index) {
+    landingStep = Math.max(0, Math.min(LANDING_STEPS.length - 1, index));
+    LANDING_STEPS.forEach((id, position) => {
+        const section = document.getElementById(id);
+        if (section) section.hidden = position !== landingStep;
     });
-    intro.hidden = true;
-    usage.hidden = false;
+    const id = LANDING_STEPS[landingStep];
+    if (id === 'landing-car') fillLandingCars();
+    if (id === 'landing-km') markLandingKm(profileControls?.getMonthlyKm() ?? 1000);
+    if (id === 'landing-usage') {
+        const current = profileControls?.getFastPercentage() ?? fastPct;
+        document.querySelectorAll('#landing-usage [data-fast-pct]').forEach(button => {
+            button.setAttribute('aria-pressed', String(Number(button.dataset.fastPct) === current));
+        });
+    }
+    if (id === 'landing-city') void zoneControls?.loadPlaces?.().catch(() => {});
     document.getElementById('landing-overlay')?.scrollTo?.({ top: 0 });
-    document.getElementById('landing-usage-title')?.focus({ preventScroll: true });
+    document.querySelector(`#${id} .landing-heading`)?.focus({ preventScroll: true });
+}
+
+function nextLandingStep() {
+    if (landingStep >= LANDING_STEPS.length - 1) finishLanding();
+    else showLandingStep(landingStep + 1);
+}
+
+function fillLandingCars() {
+    const select = document.getElementById('landing-car-select');
+    if (!select || select.querySelector('optgroup')) return;
+    const brands = new Map();
+    VEHICLES.forEach(vehicle => {
+        if (!brands.has(vehicle.brand)) brands.set(vehicle.brand, []);
+        brands.get(vehicle.brand).push(vehicle);
+    });
+    brands.forEach((vehicles, brand) => {
+        const group = document.createElement('optgroup');
+        group.label = brand;
+        vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.id;
+            option.textContent = vehicle.model;
+            group.append(option);
+        });
+        select.append(group);
+    });
+    const current = consumptionController?.getVehicle?.();
+    if (current) select.value = current.id;
+}
+
+function markLandingKm(km) {
+    let matched = false;
+    document.querySelectorAll('#landing-km [data-km]').forEach(button => {
+        const active = Number(button.dataset.km) === km;
+        matched ||= active;
+        button.setAttribute('aria-pressed', String(active));
+    });
+    const input = document.getElementById('landing-km-input');
+    if (input) input.value = matched ? '' : String(km);
 }
 
 function chooseLandingUsage(value) {
@@ -514,14 +581,58 @@ function chooseLandingUsage(value) {
     if (!Number.isNaN(percentage)) {
         fastPct = profileControls ? profileControls.setFastPercentage(percentage) : percentage;
     }
+    nextLandingStep();
+}
+
+async function finishLandingCity() {
+    const input = document.getElementById('landing-city-input');
+    const status = document.getElementById('landing-city-status');
+    const query = input?.value.trim();
+    if (!query) { finishLanding(); return; }
+    const error = await zoneControls?.applyQuery(query);
+    if (error) {
+        if (status) status.textContent = t(error);
+        return;
+    }
+    finishLanding();
+}
+
+async function locateLandingCity() {
+    const status = document.getElementById('landing-city-status');
+    if (status) status.textContent = t('profile.zone.locating');
+    const error = await zoneControls?.locate();
+    if (error) {
+        if (status) status.textContent = t(error);
+        return;
+    }
+    finishLanding();
+}
+
+function finishLanding() {
     hideLanding();
+    navigation?.switchView('profile');
 }
 
 function resetLandingSteps() {
-    const intro = document.getElementById('landing-intro');
-    const usage = document.getElementById('landing-usage');
-    if (intro) intro.hidden = false;
-    if (usage) usage.hidden = true;
+    landingStep = 0;
+    LANDING_STEPS.forEach((id, position) => {
+        const section = document.getElementById(id);
+        if (section) section.hidden = position !== 0;
+    });
+    const status = document.getElementById('landing-city-status');
+    if (status) status.textContent = '';
+}
+
+// Ouvre Mon profil ; avec focusZone, place le curseur dans le champ ville.
+function openProfileSheet(trigger, { focusZone = false } = {}) {
+    openSheet('profile-sheet', trigger);
+    if (focusZone) {
+        window.setTimeout(() => {
+            const input = document.getElementById('profile-zone-input');
+            input?.scrollIntoView({ block: 'center' });
+            input?.focus({ preventScroll: true });
+        }, 260);
+    }
 }
 
 function hideLanding() {
@@ -573,7 +684,7 @@ function initApp() {
     navigation = initNavigation({
         initialView: 'profile',
         onViewChange: view => {
-            consumptionController?.collapse?.();
+            closeSheet({ restoreFocus: false });
             if (view === 'profile') renderProfile();
             if (view === 'map') stationsMap?.activate();
         },
@@ -633,25 +744,48 @@ function initApp() {
         comparisonFilters[key] = !comparisonFilters[key];
         updateCalculations({ recomputeAtlanteChargeback: false });
     });
-    // Sans zone de recharge, le filtre « près de chez moi » renvoie vers le champ de Mon choix.
-    document.getElementById('compare-zone-link')?.addEventListener('click', () => {
-        navigation?.switchView('profile');
-        const input = document.getElementById('profile-zone-input');
-        input?.scrollIntoView({ block: 'center' });
-        input?.focus({ preventScroll: true });
+    // Sans zone de recharge, le filtre « près de chez moi » ouvre Mon profil sur le champ ville.
+    document.getElementById('compare-zone-link')?.addEventListener('click', event => openProfileSheet(event.currentTarget, { focusZone: true }));
+    initSheets();
+    document.getElementById('profile-summary')?.addEventListener('click', event => openProfileSheet(event.currentTarget));
+    document.addEventListener('click', event => {
+        const profileTrigger = event.target.closest?.('[data-open-profile]');
+        if (profileTrigger) openProfileSheet(profileTrigger, { focusZone: true });
+        const whyTrigger = event.target.closest?.('[data-open-why]');
+        if (whyTrigger) openSheet('why-sheet', whyTrigger);
     });
 
     initNetworkStatus({ onReconnect: loadTarifs });
 
-    document.getElementById('landing-start')?.addEventListener('click', showLandingUsage);
-    document.getElementById('landing-usage')?.addEventListener('click', event => {
-        const choice = event.target.closest?.('[data-fast-pct]');
-        if (choice) chooseLandingUsage(choice.dataset.fastPct);
+    document.getElementById('landing-start')?.addEventListener('click', () => showLandingStep(1));
+    document.getElementById('landing-overlay')?.addEventListener('click', event => {
+        const target = event.target;
+        if (target.closest?.('[data-landing-back]')) { showLandingStep(landingStep - 1); return; }
+        if (target.closest?.('[data-landing-skip]')) { event.preventDefault(); nextLandingStep(); return; }
+        const usage = target.closest?.('[data-fast-pct]');
+        if (usage) { chooseLandingUsage(usage.dataset.fastPct); return; }
+        const kmChoice = target.closest?.('[data-km]');
+        if (kmChoice) {
+            profileControls?.setMonthlyKm(kmChoice.dataset.km);
+            markLandingKm(Number(kmChoice.dataset.km));
+            nextLandingStep();
+            return;
+        }
+        if (target.closest?.('[data-landing-next]')) {
+            const step = LANDING_STEPS[landingStep];
+            if (step === 'landing-car') {
+                const id = document.getElementById('landing-car-select')?.value;
+                if (id) consumptionController?.chooseVehicle?.(id);
+            }
+            if (step === 'landing-km') {
+                const typed = parseInt(document.getElementById('landing-km-input')?.value, 10);
+                if (typed > 0) profileControls?.setMonthlyKm(typed);
+            }
+            nextLandingStep();
+        }
     });
-    document.getElementById('landing-usage-skip')?.addEventListener('click', event => {
-        event.preventDefault();
-        hideLanding();
-    });
+    document.getElementById('landing-finish')?.addEventListener('click', () => { void finishLandingCity(); });
+    document.getElementById('landing-city-locate')?.addEventListener('click', () => { void locateLandingCity(); });
     document.getElementById('landing-help-link')?.addEventListener('click', event => {
         event.preventDefault();
         hideLanding();

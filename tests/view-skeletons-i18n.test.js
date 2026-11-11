@@ -18,13 +18,10 @@ const requiredBindings = [
   'map.heading.kicker', 'map.heading.title', 'map.heading.intro',
   'map.filters.title', 'map.filters.all', 'map.filters.none', 'map.canvasLabel',
   'map.source.prefix', 'map.source.notice',
-  'profile.heading.kicker', 'profile.heading.title', 'profile.heading.intro',
-  'profile.controls.kicker', 'profile.controls.title', 'profile.controls.instant',
+  'profile.sheet.title', 'profile.sheet.car', 'profile.sheet.done', 'offer.next', 'offer.why',
   'profile.controls.monthlyMileage', 'profile.controls.other', 'profile.controls.monthlyMileageLabel',
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
-  'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.controls.homeRateHint',
-  'profile.ranking.kicker', 'profile.ranking.title', 'profile.ranking.estimatedMonthlyCost',
-  'profile.ranking.next', 'profile.ranking.hideNext', 'profile.allOffers',
+  'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.allOffers',
   'navigation.profile', 'navigation.profileLabel', 'navigation.compare', 'navigation.compareLabel',
   'navigation.operators', 'navigation.operatorsLabel', 'navigation.map', 'navigation.mapLabel',
   'navigation.menu', 'navigation.menuLabel'
@@ -57,7 +54,7 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   for (const id of [
     'conso-slider', 'vehicles', 'compare-search', 'compare-km', 'compare-profile-link',
     'operators-compact', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
-    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-ranking-list',
+    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-best-card', 'why-sheet-body',
     'bnav-profile', 'bnav-compare', 'bnav-operators', 'bnav-map', 'bnav-menu'
   ]) assert.match(html, new RegExp(`id="${id}"`), id);
 
@@ -67,9 +64,14 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   assert.match(html, /class="bnav-item active"[^>]*id="bnav-profile"/);
 });
 
-test('la suite du classement est une liste compacte sans tableau horizontal', () => {
-  assert.match(html, /<details class="profile-comparison-details" id="profile-ranking-details">\s*<summary>.*profile\.ranking\.next.*profile\.ranking\.hideNext.*<\/summary>\s*<div class="profile-ranking-list" id="profile-ranking-list"><\/div>\s*<\/details>/s);
-  assert.doesNotMatch(html, /id="profile-table"|id="profile-body"/);
+test('Mon offre montre l’offre n°1, deux suivantes et renvoie le détail dans un panneau', () => {
+  const tab = html.slice(html.indexOf('id="tab-profile"'), html.indexOf('<!-- Bannière mise à jour tarifs -->'));
+  assert.match(tab, /id="offer-context"/);
+  assert.match(tab, /id="profile-best-card"/);
+  assert.match(tab, /<section aria-labelledby="offer-next-title" class="offer-next">/);
+  assert.match(tab, /id="profile-all-offers"/);
+  assert.doesNotMatch(tab, /profile-ranking-details|profile-page-heading|profile-hero|<table/);
+  assert.match(html, /<div aria-hidden="true" class="sheet" hidden="" id="why-sheet">[\s\S]*role="dialog"[\s\S]*id="why-sheet-body"/);
 });
 
 test('les anciennes correspondances exactes propres à ces squelettes ont disparu', () => {
@@ -86,15 +88,18 @@ test('la traduction statique ne contient ni requête ni recalcul', () => {
   assert.doesNotMatch(translateDocument, /fetch\(|updateCalculations|renderStations|L\.map\(/);
 });
 
-test('le bandeau de consommation se replie en pastille réglable', async () => {
+test('une ligne de résumé ouvre le panneau Mon profil, qui porte tous les réglages', async () => {
   const { readFile } = await import('node:fs/promises');
-  const [page, controller] = await Promise.all([
+  const [page, app] = await Promise.all([
     readFile(new URL('../index.html', import.meta.url), 'utf8'),
-    readFile(new URL('../src/ui/controllers/consumption-controller.js', import.meta.url), 'utf8')
+    readFile(new URL('../app.js', import.meta.url), 'utf8')
   ]);
-  assert.match(page, /id="conso-pill"[^>]*|aria-controls="params-card"[^>]*id="conso-pill"/);
-  assert.match(page, /class="params-card" id="params-card"/);
-  assert.match(page, /data-i18n="consumption\.pillLabel"/);
-  assert.match(controller, /setExpanded\(false\);/);
-  assert.match(controller, /classList\.toggle\('is-collapsed', !expanded\)/);
+  assert.match(page, /aria-controls="profile-sheet" aria-haspopup="dialog" class="profile-summary" id="profile-summary"/);
+  const sheet = page.slice(page.indexOf('id="profile-sheet"'), page.indexOf('id="why-sheet"'));
+  for (const id of ['vehicle-model', 'conso-slider', 'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-zone-input', 'profile-zone-locate']) {
+    assert.match(sheet, new RegExp(`id="${id}"`), id);
+  }
+  assert.doesNotMatch(page, /id="conso-pill"/);
+  assert.match(app, /function renderProfileSummary\(\)/);
+  assert.match(app, /openSheet\('profile-sheet', trigger\)/);
 });

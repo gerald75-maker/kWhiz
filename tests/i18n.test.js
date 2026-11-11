@@ -160,7 +160,7 @@ test('précise le périmètre des réseaux présents en France en FR et EN', asy
   ]);
   const frenchScope = 'Comparez les tarifs et abonnements des principaux réseaux de recharge rapide présents en France.';
   const frenchAbout = 'kWhiz est conçu pour comparer une sélection de réseaux de recharge rapide présents en France. L’application ne prétend pas couvrir tous les opérateurs ni les tarifs proposés dans les autres pays.';
-  assert.equal((html.match(new RegExp(frenchScope.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 2);
+  assert.equal((html.match(new RegExp(frenchScope.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 1);
   assert.match(html, new RegExp(frenchAbout.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.equal(manifest.description, frenchScope);
   assert.doesNotMatch(html, /opérateurs français/i);

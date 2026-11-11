@@ -44,5 +44,5 @@ test('l’accueil chiffre l’écart entre la formule la moins chère et la plus
     assert.equal(result.highest.toFixed(2), '106.20');
     assert.equal(monthlyCostSpread(formulas.slice(0, 1), 1000, 0.18), null);
     const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-    assert.match(html, /id="landing-benefit" hidden/);
+    assert.match(html, /class="landing-benefit" hidden="" id="landing-benefit"/);
 });
