@@ -45,6 +45,7 @@ export const STORAGE_KEYS = Object.freeze({
     mapOperators: 'kwhiz_map_operators',
     mapSort: 'kwhiz_map_sort',
     mapMotorway: 'kwhiz_map_motorway',
+    homeZone: 'kwhiz_home_zone',
     language: 'kwhiz_language',
     theme: 'kwhiz_theme',
     legacyTheme: 'crve_theme'

@@ -1,4 +1,5 @@
 import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
+import { coverageNoteHtml } from '../coverage-note.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
 import { formatDate, formatTariffsFreshness, getLanguage, getLocale, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 
@@ -170,7 +171,8 @@ export function renderComparisonTable(formulasData, {
     logos = {},
     onModal,
     onDetail,
-    query = ''
+    query = '',
+    coverage = null
 } = {}) {
     const language = getLanguage();
     const filteredData = filterComparisonFormulas(formulasData, query);
@@ -225,6 +227,7 @@ export function renderComparisonTable(formulasData, {
                 <div class="compare-copy">
                     <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(operatorLabel)}</p>
                     <h3>${escapeHtml(formulaLabel)}</h3>
+                    ${coverageNoteHtml(coverage, formula.opKey, operatorLabel, { short: true })}
                 </div>
             </div>
             <div class="compare-prices">

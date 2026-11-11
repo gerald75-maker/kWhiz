@@ -6,6 +6,8 @@ import {
     computeProfileMonthlyCost
 } from './src/domain/pricing.js';
 import { buildStationPrices, formulaPlanId } from './src/domain/station-pricing.js';
+import { COVERAGE_RADIUS_KM, countStationsByOperator } from './src/domain/coverage.js';
+import { initZoneControls } from './src/ui/controllers/zone-controls.js';
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
@@ -85,6 +87,38 @@ let consumptionController = null;
 let landingTrigger = null;
 let profileControls = null;
 let navigation = null;
+let zoneControls = null;
+let coverage = null;
+let irveStationsPromise = null;
+
+// Stations IRVE pour la couverture locale (même fichier que la carte, servi en Network First).
+function loadIrveStations() {
+    irveStationsPromise ||= fetch('./irve-fast.json')
+        .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+        .then(payload => payload.stations || [])
+        .catch(error => { irveStationsPromise = null; throw error; });
+    return irveStationsPromise;
+}
+
+async function refreshCoverage() {
+    const zone = zoneControls?.getZone();
+    if (!zone) {
+        coverage = null;
+    } else {
+        try {
+            const stations = await loadIrveStations();
+            coverage = {
+                label: zoneControls.getLabel(),
+                radiusKm: COVERAGE_RADIUS_KM,
+                counts: countStationsByOperator(stations, zone),
+                operators: new Set(stations.map(station => station.operator))
+            };
+        } catch {
+            coverage = null;
+        }
+    }
+    updateCalculations({ recomputeAtlanteChargeback: false });
+}
 let stationsMap = null;
 let tariffsRequest = null;
 let favorites = loadFavorites(FAVORITES_KEY);
@@ -327,7 +361,8 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
         logos: LOGOS,
         onModal: openInfoModal,
         onDetail: openFormulaDetail,
-        query: currentComparisonQuery
+        query: currentComparisonQuery,
+        coverage
     });
     renderOperatorsViews({
         operators: OPERATORS,
@@ -398,6 +433,7 @@ function renderProfile() {
         onToggleFavorite: handleToggleFavorite,
         onDetail: openFormulaDetail,
         mapOperators: MAP_OPERATOR_KEYS,
+        coverage,
         onShowOperatorMap: opKey => {
             navigation?.switchView('map');
             void stationsMap?.showOperator?.(opKey);
@@ -507,6 +543,8 @@ function initApp() {
 
     stationsMap = initStationsMap();
     refreshStationPrices();
+    zoneControls = initZoneControls({ storageKey: STORAGE_KEYS.homeZone, loadStations: loadIrveStations, onChange: refreshCoverage });
+    if (zoneControls.getZone()) void refreshCoverage();
     navigation = initNavigation({
         initialView: 'profile',
         onViewChange: view => {
@@ -530,6 +568,8 @@ function initApp() {
     });
     const languageMenu = initMenuLanguage({ getLanguage, setLanguage, t });
     onLanguageChange(() => {
+        zoneControls?.refreshLanguage();
+        if (coverage) coverage.label = zoneControls?.getLabel() || coverage.label;
         languageMenu.update();
         applyTheme(document.body.classList.contains('light') ? 'light' : 'dark');
         renderApplicationStatus();

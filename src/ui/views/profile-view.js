@@ -4,6 +4,7 @@ import { formulaFavoriteId } from '../favorites.js';
 import { shareResult } from '../share-result.js';
 import { formatCurrency, formatNumber, formatPercentage, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 import { offerDetailSubscriptionLabel } from './offer-detail-view.js';
+import { coverageNoteHtml } from '../coverage-note.js';
 
 function currency(value, fractionDigits = 2) {
     return formatCurrency(value, {
@@ -76,7 +77,7 @@ export function profileActionsHtml(best, { mapOperators = [] } = {}) {
     return actions.length ? `<div class="phm-actions">${actions.join('')}</div>` : '';
 }
 
-export function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators = [], onShowOperatorMap }) {
+export function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators = [], onShowOperatorMap, coverage = null }) {
     const card = document.getElementById('profile-best-card');
     if (!card) return;
 
@@ -203,6 +204,7 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
             <div class="phm-price-main">${profileMonthlyAmount(best.profileMonthlyCost)}</div>
             <div class="phm-annual-cost">${profileAnnualAmount(annualCost)}</div>
         </div>
+        <div class="phm-coverage">${coverageNoteHtml(coverage, best.opKey, localizeCommercialLabel(best.operator))}</div>
         ${secondGapHtml}
         ${favoriteComparison}
         ${profileActionsHtml(best, { mapOperators })}
@@ -263,7 +265,7 @@ function bindProfileList(list, formulas, onDetail) {
     };
 }
 
-export function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail) {
+export function renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail, coverage = null) {
     const list = document.getElementById('profile-shortlist-list');
     if (!list) return;
 
@@ -293,6 +295,7 @@ export function renderProfileShortlist(profileData, logos, favorites, onToggleFa
                 <div class="profile-shortlist-name">
                     <div>${logo}<strong class="${escapeHtml(formula.color)}">${escapeHtml(localizeCommercialLabel(formula.operator))}</strong></div>
                     <span>${escapeHtml(localizeCommercialLabel(formula.name))} · ${meta}</span>
+                    ${coverageNoteHtml(coverage, formula.opKey, localizeCommercialLabel(formula.operator), { short: true, tag: 'span' })}
                 </div>
                 <div class="profile-shortlist-cost">
                     <strong>${currency(formula.profileMonthlyCost)}</strong>
@@ -349,8 +352,8 @@ export function renderProfileRanking(profileData, logos, favorites, onToggleFavo
     bindProfileList(list, remaining, onDetail);
 }
 
-export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap }) {
-    renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators, onShowOperatorMap });
+export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap, coverage = null }) {
+    renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators, onShowOperatorMap, coverage });
     const km = Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
 
     // Construire les données — simulation ChargeBack pour Atlante, calcul standard sinon
@@ -361,6 +364,6 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
 
     // Tri par coût mensuel croissant
     profileData.sort((a, b) => a.profileMonthlyCost - b.profileMonthlyCost);
-    renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail);
+    renderProfileShortlist(profileData, logos, favorites, onToggleFavorite, onDetail, coverage);
     renderProfileRanking(profileData, logos, favorites, onToggleFavorite, onDetail);
 }

@@ -193,6 +193,16 @@
 <button aria-label="Augmenter le pourcentage" class="profile-fast-btn" data-i18n-aria-label="profile.controls.increasePercentage" id="fast-pct-plus" type="button">+</button>
 </div>
 </div>
+<div class="profile-zone">
+<label class="profile-zone-label" data-i18n="profile.zone.label" for="profile-zone-input">Ma zone de recharge</label>
+<div class="profile-zone-row">
+<input autocomplete="off" class="profile-zone-input" data-i18n-placeholder="profile.zone.placeholder" id="profile-zone-input" list="profile-zone-places" placeholder="Ville ou code postal" type="text"/>
+<button class="profile-zone-btn" id="profile-zone-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="profile.zone.locate">Ma position</span></button>
+</div>
+<datalist id="profile-zone-places"></datalist>
+<p class="profile-zone-status" id="profile-zone-status" role="status" aria-live="polite"></p>
+<button class="profile-zone-clear" data-i18n="profile.zone.clear" hidden="" id="profile-zone-clear" type="button">Effacer la zone</button>
+</div>
 <p class="profile-hint" data-i18n="profile.controls.homeRateHint">Le reste est calculé au tarif domicile. La consommation du véhicule se règle en haut de l’écran.</p>
 </section>
 <!-- Recommandation principale -->
