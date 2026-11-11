@@ -139,3 +139,10 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Fusion automatique de l'actualisation IRVE hebdomadaire et alerte de mise en ligne FTP par issue GitHub.
 - [ ] Retirer la mention Super Heures Creuses après le 31/12/2026.
 - [ ] Retour au tarif Atlante Go 9,99 € et ChargeBack 50 % après le 31/12/2026.
+
+## Livraison 2.26.0 (2026-11-11)
+
+- [x] Top 10 de l'audit UX : prix payé à la borne et après ChargeBack, part de recharge rapide dès l'accueil, seuil incalculable distingué, actions sur l'offre n°1, prix et tri par coût sur la carte, noms de stations lisibles, doublons IRVE fusionnés, aires d'autoroute masquées par défaut, couverture locale des réseaux, bandeau de consommation en pastille, choix du modèle de véhicule.
+- [x] Version 2.26.0 dans les manifestes et le test de cohérence.
+- [x] 384 tests réussis, build 2.26.0, cache kwhiz-74942e0b.
+- [ ] Revérifier fiche par fiche les capacités utiles des véhicules avant de calculer un coût de session.
