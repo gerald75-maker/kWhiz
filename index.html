@@ -40,8 +40,10 @@
 </div>
 <p aria-atomic="true" aria-live="polite" class="favorite-feedback" hidden id="favorite-status" role="status"></p>
 <div class="container">
+<header class="app-header">
 <h1 class="app-title" id="app-title"><button aria-label="Actualiser kWhiz" class="app-refresh-button" data-i18n-aria-label="refresh.buttonLabel" data-i18n-title="refresh.buttonLabel" id="app-refresh-button" title="Actualiser kWhiz" type="button"><img alt="" class="app-title__icon" height="44" src="./icon.svg" width="44"/></button>kWhiz</h1>
-<p class="subtitle" data-i18n="app.subtitle">Comparez les tarifs des bornes de recharge rapide hors autoroute</p>
+<button aria-expanded="false" aria-label="Menu" class="header-menu" data-i18n-aria-label="navigation.menuLabel" id="bnav-menu" type="button"><svg aria-hidden="true" fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="22"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+</header>
 <!-- Modale Izivia Fast horaires -->
 <div aria-hidden="true" aria-labelledby="izivia-title" aria-modal="true" class="help-overlay" id="izivia-overlay" role="dialog" tabindex="-1">
 <div class="help-modal cb-modal">
@@ -87,44 +89,27 @@
 <div class="tab-content" id="tab-ranking">
 <section aria-labelledby="compare-title" class="compare-view">
 <header class="compare-heading">
-<div>
-<p class="compare-kicker" data-i18n="comparison.heading.kicker">Recharge rapide DC</p>
-<h2 data-i18n="comparison.heading.title" id="compare-title">Toutes les offres</h2>
-<p data-i18n="comparison.heading.intro">Toutes les formules classées selon votre profil, avec recherche, filtres, tarifs et seuils de rentabilité. Mon choix ne garde que les meilleures.</p>
-</div>
+<h2 data-i18n="comparison.heading.title" id="compare-title">Offres</h2>
 <label class="compare-search">
 <span class="sr-only" data-i18n="comparison.search.label">Rechercher une offre ou un opérateur</span>
 <input autocomplete="off" data-i18n-placeholder="comparison.search.placeholder" id="compare-search" placeholder="Rechercher un opérateur ou une formule" type="search"/>
 </label>
 </header>
-<div class="compare-toolbar">
-<label class="compare-km" for="compare-km"><span data-i18n="comparison.controls.monthlyMileage">Kilométrage mensuel</span>
-<span class="compare-km-input"><input id="compare-km" inputmode="numeric" max="9999" min="0" step="50" type="number" value="1000"/><span data-i18n="comparison.controls.monthlyMileageUnit">km/mois</span></span>
-</label>
-<button class="compare-profile-link" data-i18n="comparison.controls.editProfile" id="compare-profile-link" type="button">Modifier mon profil</button>
-</div>
+<div aria-label="Classement" class="offers-mode" data-i18n-aria-label="offers.mode.label" id="offers-mode" role="group"><button aria-pressed="true" data-offers-mode="price" data-i18n="offers.mode.price" type="button">Par prix</button><button aria-pressed="false" data-offers-mode="network" data-i18n="offers.mode.network" type="button">Par réseau</button></div>
+<div class="offers-by-price" id="offers-by-price">
 <div aria-label="Filtrer les offres" class="compare-filters" data-i18n-aria-label="comparison.filters.label" id="compare-filters" role="group"><button aria-pressed="false" class="compare-filter" data-compare-filter="noSubscription" data-i18n="comparison.filters.noSubscription" type="button">Sans abonnement</button><button aria-pressed="false" class="compare-filter" data-compare-filter="nearby" data-i18n="comparison.filters.nearby" type="button">Réseaux près de chez moi</button></div>
 <p class="compare-filter-hint" id="compare-filter-hint" hidden></p>
 <button class="compare-zone-link" data-i18n="comparison.filters.setZone" id="compare-zone-link" type="button" hidden>Indiquer ma zone de recharge</button>
-<p aria-live="polite" class="compare-summary" id="compare-summary"></p>
-<p class="compare-threshold-explanation" id="compare-threshold-explanation" hidden></p>
 <p aria-live="polite" class="compare-count" id="compare-count"></p>
 <div class="comparison-list" id="ranking-list"></div>
-</section>
 </div>
-<!-- Onglet Opérateurs -->
-<div class="tab-content" id="tab-operators">
-<header class="operators-page-heading">
-<div>
-<p class="operators-page-kicker" data-i18n="operators.heading.kicker">Réseaux de recharge rapide</p>
-<h2 data-i18n="operators.heading.title">Opérateurs et formules</h2>
-<p data-i18n="operators.heading.intro">Consultez les prix publiés, les abonnements et leur seuil de rentabilité.</p>
-</div>
-<div aria-live="polite" class="operators-page-count" id="operators-page-count"></div>
-</header>
+<div class="offers-by-network" hidden="" id="offers-by-network">
 <div class="operators-compact" id="operators-compact">
 </div>
 </div>
+</section>
+</div>
+
 <!-- Mon choix — vue principale -->
 <div class="tab-content" id="tab-map">
 <h2 class="sr-only" data-i18n="map.heading.title">Carte des stations</h2>
@@ -141,6 +126,7 @@
 <button aria-controls="map-filters-sheet" aria-haspopup="dialog" class="map-chip" id="map-filters-open" type="button"><svg aria-hidden="true" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M4 6h16M7 12h10M10 18h4"></path></svg><span id="map-filters-label">Réseaux</span></button>
 <button aria-controls="map-route-sheet" aria-haspopup="dialog" class="map-chip" id="map-route-open" type="button"><svg aria-hidden="true" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16"><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"></path></svg><span data-i18n="map.route.short">Trajet</span></button>
 <button class="map-locate-button" id="map-locate" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="map.location.locate">Me localiser</span></button>
+<button aria-label="Menu" class="map-chip map-menu" data-i18n-aria-label="navigation.menuLabel" id="map-menu" type="button"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="18"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
 </div>
 <p aria-live="polite" class="map-place-status" id="map-place-status" hidden></p>
 </div>
@@ -424,17 +410,17 @@
 </div><div class="page-body">
 <div class="help-topics">
 <details class="help-topic"><summary data-i18n="help.plan.title">Choisir une offre</summary>
-<p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon choix affiche l’offre la moins chère, avec un lien pour souscrire et ses bornes sur la carte, puis les deux suivantes. Comparer classe toutes les offres par coût mensuel estimé, abonnement compris.</p>
+<p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon offre affiche l’offre la moins chère, avec un lien pour souscrire et ses bornes sur la carte, puis les deux suivantes. Offres classe toutes les formules par coût mensuel estimé, abonnement compris.</p>
 <p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p>
-<p data-i18n="help.plan.zone">Avec une ville, Mon choix ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi ce choix ? ».</p>
-<p data-i18n="help.plan.filters">Dans Comparer, le filtre Sans abonnement ne garde que les formules sans frais fixes. Réseaux près de chez moi ne garde que les réseaux présents dans votre zone de recharge.</p>
+<p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi ce choix ? ».</p>
+<p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p>
 <p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>
 </details>
 <details class="help-topic"><summary data-i18n="help.prices.title">Comprendre les prix</summary>
 <p data-i18n="help.prices.estimate">Le coût affiché est une estimation fondée sur votre profil. Le seuil de rentabilité indique le kilométrage mensuel à partir duquel un abonnement devient avantageux. « Jamais rentable » signifie qu’aucun kilométrage ne le rend intéressant face au tarif sans abonnement du même réseau. « Seuil non calculé » signifie que ce réseau n’a pas de tarif sans abonnement fixe auquel le comparer.</p>
 <p data-i18n="help.prices.chargeback">Pour les offres avec remboursement, comme le ChargeBack Atlante, kWhiz affiche le prix payé à la borne puis le prix moyen estimé après remboursement. Le coût mensuel est calculé avec ce second prix. Le coût sur 12 mois tient compte de la fin annoncée d’une promotion, mois par mois.</p>
 <p data-i18n="help.prices.variable">Certains prix varient selon la station, l’heure, l’affluence ou le moyen de paiement. Vérifiez toujours le tarif affiché par l’opérateur avant de recharger.</p>
-<p data-i18n="help.prices.scope">kWhiz compare une sélection de réseaux rapides opérant en France. La liste à jour se trouve dans l’onglet Opérateurs.</p>
+<p data-i18n="help.prices.scope">kWhiz compare une sélection de réseaux rapides opérant en France. La liste à jour se trouve dans Offres, vue Par réseau.</p>
 </details>
 <details class="help-topic"><summary data-i18n="help.map.title">Utiliser la carte</summary>
 <p data-i18n="help.map.usage">Autorisez la localisation pour afficher les stations proches, puis sélectionnez les opérateurs à montrer. Appuyez sur un marqueur ou une fiche pour sélectionner une station et sur Itinéraire pour ouvrir Plans, Google Maps ou Waze.</p>
@@ -506,19 +492,7 @@
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
 </div>
-<span class="bnav-label" data-i18n="navigation.profile">Mon choix</span>
-</button>
-<button aria-label="Comparer" class="bnav-item" data-i18n-aria-label="navigation.compareLabel" id="bnav-compare" type="button">
-<div class="bnav-icon">
-<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
-</div>
-<span class="bnav-label" data-i18n="navigation.compare">Comparer</span>
-</button>
-<button aria-label="Opérateurs" class="bnav-item" data-i18n-aria-label="navigation.operatorsLabel" id="bnav-operators" type="button">
-<div class="bnav-icon">
-<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-</div>
-<span class="bnav-label" data-i18n="navigation.operators">Opérateurs</span>
+<span class="bnav-label" data-i18n="navigation.profile">Mon offre</span>
 </button>
 <button aria-label="Carte des bornes" class="bnav-item" data-i18n-aria-label="navigation.mapLabel" id="bnav-map" type="button">
 <div class="bnav-icon">
@@ -526,11 +500,11 @@
 </div>
 <span class="bnav-label" data-i18n="navigation.map">Carte</span>
 </button>
-<button aria-expanded="false" aria-label="Menu" class="bnav-item" data-i18n-aria-label="navigation.menuLabel" id="bnav-menu" type="button">
+<button aria-label="Toutes les offres" class="bnav-item" data-i18n-aria-label="navigation.compareLabel" id="bnav-compare" type="button">
 <div class="bnav-icon">
-<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="18" y2="18"></line></svg>
+<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
 </div>
-<span class="bnav-label" data-i18n="navigation.menu">Menu</span>
+<span class="bnav-label" data-i18n="navigation.compare">Offres</span>
 </button>
 </nav>
 <!-- Menu Drawer -->

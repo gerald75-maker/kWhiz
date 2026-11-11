@@ -1,5 +1,4 @@
 import { PERIOD, computeProfileMonthlyCost } from '../../domain/pricing.js';
-import { coverageNoteHtml } from '../coverage-note.js';
 import { escapeHtml, formatNumber } from '../../shared/dom.js';
 import { formatDate, formatTariffsFreshness, getLanguage, getLocale, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 
@@ -127,11 +126,20 @@ export function buildComparisonRanking(formulas, { monthlyKm, consumption, fastP
 }
 
 
+// Seuls les prix non fixes sont signalés : un tarif fixe n'a pas besoin d'étiquette.
 function pricingBadge(formula) {
-    if (formula.pricingType === 'station') return `<span class="compare-pricing-badge is-variable">${t('comparison.badge.variable')}</span>`;
-    if (formula.pricingType === 'range') return `<span class="compare-pricing-badge is-variable">${t('comparison.badge.range')}</span>`;
-    if (formula.pricingType === 'discount') return `<span class="compare-pricing-badge is-discount">${t('comparison.badge.discount')}</span>`;
-    return `<span class="compare-pricing-badge is-fixed">${t('comparison.badge.fixed')}</span>`;
+    if (formula.pricingType === 'station') return ` <span class="compare-pricing-badge is-variable">${t('comparison.badge.variable')}</span>`;
+    if (formula.pricingType === 'range') return ` <span class="compare-pricing-badge is-variable">${t('comparison.badge.range')}</span>`;
+    if (formula.pricingType === 'discount') return ` <span class="compare-pricing-badge is-discount">${t('comparison.badge.discount')}</span>`;
+    return '';
+}
+
+// Stations du réseau près de la ville choisie, signalées quand il y en a une ou aucune.
+function stationsLine(coverage, opKey) {
+    if (!coverage || !coverage.operators?.has(opKey)) return '';
+    const count = coverage.counts?.get(opKey) || 0;
+    const key = count === 0 ? 'offer.stations.none' : count === 1 ? 'offer.stations.one' : 'offer.stations.many';
+    return `<span class="compare-stations${count <= 1 ? ' compare-stations--warn' : ''}">${t(key, { count: formatComparisonNumber(count, getLanguage()) })}</span>`;
 }
 
 function currency(value, language = getLanguage(), fractionDigits = 2) {
@@ -216,32 +224,19 @@ export function renderComparisonTable(formulasData, {
 
     const list = document.getElementById('ranking-list');
     const count = document.getElementById('compare-count');
-    const summary = document.getElementById('compare-summary');
-    const thresholdExplanation = document.getElementById('compare-threshold-explanation');
     if (!list) return { query };
 
-    if (summary) summary.textContent = monthlyKm > 0
-        ? t('comparison.summary', { km: formatComparisonNumber(monthlyKm, language), fast: formatComparisonNumber(fastPercentage, language), consumption: formatComparisonNumber(consumption * 100, language) })
-        : t('comparison.enterMileage');
     if (count) count.textContent = monthlyKm > 0 ? t(data.length === 1 ? 'comparison.countOne' : 'comparison.countMany', { count: formatComparisonNumber(data.length, language) }) : '';
-    if (thresholdExplanation) {
-        const hasRelevantThreshold = data.some(formula => formula.monthlyCost > 0 && fastPercentage > 0
-            && Number.isFinite(formula.adjustedThresholdKm) && formula.adjustedThresholdKm > 0);
-        thresholdExplanation.hidden = !hasRelevantThreshold;
-        thresholdExplanation.textContent = hasRelevantThreshold ? t('comparison.thresholdExplanation') : '';
-    }
     if (monthlyKm <= 0) {
         list.innerHTML = `<p class="compare-empty">${t('comparison.enterMileage')}</p>`;
         return { query };
     }
 
+    // Une ligne par formule : nom, prix du kWh et abonnement, stations proches, coût et écart.
+    // Le détail (seuil, ChargeBack, notes, sources) s'ouvre au toucher.
     const bestCost = data.find(formula => Number.isFinite(formula.estimatedMonthlyCost))?.estimatedMonthlyCost ?? Infinity;
     list.innerHTML = data.length ? data.map((formula, index) => {
         const formulaKey = `${formula.opKey}::${formula.name}`;
-        const logo = logos[formula.opKey]
-            ? `<img src="${escapeHtml(logos[formula.opKey])}" class="compare-logo" alt="" loading="lazy">`
-            : '<span class="compare-logo compare-logo--fallback" aria-hidden="true"></span>';
-        const rank = index + 1;
         const operatorLabel = localizeCommercialLabel(formula.operator);
         const formulaLabel = localizeCommercialLabel(formula.name);
         const isLowest = Number.isFinite(formula.estimatedMonthlyCost)
@@ -249,35 +244,19 @@ export function renderComparisonTable(formulasData, {
         const cost = Number.isFinite(formula.estimatedMonthlyCost)
             ? currency(formula.estimatedMonthlyCost, language)
             : t('comparison.unavailable');
-        const threshold = formula.monthlyCost > 0 && fastPercentage > 0
-            && Number.isFinite(formula.adjustedThresholdKm) && formula.adjustedThresholdKm > 0
-            ? `<span class="compare-meta-threshold"><small>${t('comparison.profitability')}</small>${profileThresholdLabel(formula, fastPercentage, language)}</span>`
-            : '';
-
-        return `<article class="compare-item${isLowest ? ' compare-item--best' : ''}">
-            <div class="compare-rank" aria-hidden="true">${rank}</div>
-            <div class="compare-identity">
-                ${logo}
-                <div class="compare-copy">
-                    <p class="compare-operator ${escapeHtml(formula.color)}">${escapeHtml(operatorLabel)}</p>
-                    <h3>${escapeHtml(formulaLabel)}</h3>
-                    ${coverageNoteHtml(coverage, formula.opKey, operatorLabel, { short: true })}
-                </div>
-            </div>
-            <div class="compare-prices">
-                <span>${t('comparison.estimatedFastCost')}</span>
-                <strong>${cost}</strong>
-                ${Number.isFinite(formula.estimatedMonthlyCost) ? `<small>${t('comparison.perMonthSuffix')}</small>` : ''}
-            </div>
-            <p class="compare-gap${isLowest ? ' is-lowest' : ''}">${comparisonGapLabel(formula.estimatedMonthlyCost, bestCost, language)}</p>
-            <div class="compare-meta">
-                <span><small>${t('comparison.tariff')}</small><span class="compare-rate-summary">${rateLabel(formula)} ${pricingBadge(formula)}</span></span>
-                <span><small>${t('comparison.subscription')}</small>${subscriptionLabel(formula, language)}</span>
-                ${threshold}
-            </div>
-            ${Number.isFinite(formula.chargebackRate) ? `<p class="compare-chargeback-note">${t('comparison.chargebackEffective', { rate: `${currency(formula.chargebackRate, language, 3)}/kWh` })}</p>` : ''}
-            <button type="button" class="compare-detail-btn" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">${t('comparison.detailButton')} <span aria-hidden="true">›</span></button>
-        </article>`;
+        const gap = isLowest || !Number.isFinite(formula.estimatedMonthlyCost)
+            ? comparisonGapLabel(formula.estimatedMonthlyCost, bestCost, language)
+            : t('recommendation.favoriteGap', { amount: currency(formula.estimatedMonthlyCost - bestCost, language) });
+        const stations = stationsLine(coverage, formula.opKey);
+        return `<button type="button" class="compare-item compare-detail-btn${isLowest ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">
+            <span class="compare-rank" aria-hidden="true">${index + 1}</span>
+            <span class="compare-identity">
+                <strong class="compare-name">${escapeHtml(operatorLabel)} · ${escapeHtml(formulaLabel)}</strong>
+                <span class="compare-sub"><span class="compare-rate-summary">${rateLabel(formula)}</span> · ${subscriptionLabel(formula, language)}${pricingBadge(formula)}</span>
+                ${stations}
+            </span>
+            <span class="compare-cost"><strong>${cost}</strong><span class="compare-gap${isLowest ? ' is-lowest' : ''}">${gap}</span></span>
+        </button>`;
     }).join('') : `<p class="compare-empty">${t(filtersActive ? 'comparison.filters.empty' : 'comparison.empty')}</p>`;
 
     const openDetail = target => {

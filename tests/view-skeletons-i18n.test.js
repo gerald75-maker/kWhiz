@@ -7,14 +7,11 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const i18nSource = await readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8');
 
 const requiredBindings = [
-  'app.subtitle',
   'consumption.title', 'consumption.inputLabel', 'consumption.minimum', 'consumption.maximum',
   'vehicle.cityCar', 'vehicle.cityCarLabel', 'vehicle.saloon', 'vehicle.saloonLabel',
   'vehicle.suv', 'vehicle.suvLabel', 'vehicle.van', 'vehicle.vanLabel',
-  'comparison.heading.kicker', 'comparison.heading.title', 'comparison.heading.intro',
-  'comparison.search.label', 'comparison.search.placeholder',
-  'comparison.controls.monthlyMileage', 'comparison.controls.monthlyMileageUnit', 'comparison.controls.editProfile',
-  'operators.heading.kicker', 'operators.heading.title', 'operators.heading.intro',
+  'comparison.heading.title', 'comparison.search.label', 'comparison.search.placeholder',
+  'offers.mode.label', 'offers.mode.price', 'offers.mode.network',
   'map.heading.title', 'map.route.short', 'map.filters.sheetTitle', 'map.filters.done', 'map.panel.toggle',
   'map.filters.title', 'map.filters.all', 'map.filters.none', 'map.canvasLabel',
   'map.source.prefix', 'map.source.notice',
@@ -23,8 +20,7 @@ const requiredBindings = [
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
   'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.allOffers',
   'navigation.profile', 'navigation.profileLabel', 'navigation.compare', 'navigation.compareLabel',
-  'navigation.operators', 'navigation.operatorsLabel', 'navigation.map', 'navigation.mapLabel',
-  'navigation.menu', 'navigation.menuLabel'
+  'navigation.map', 'navigation.mapLabel', 'navigation.menuLabel'
 ];
 
 test('les squelettes principaux utilisent uniquement des clés structurées', () => {
@@ -35,31 +31,30 @@ test('les squelettes principaux utilisent uniquement des clés structurées', ()
 
 test('rend les textes et attributs structurés en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
-  assert.equal(t('app.subtitle'), 'Comparez les tarifs des bornes de recharge rapide hors autoroute');
+  assert.equal(t('navigation.profile'), 'Mon offre');
   assert.equal(t('vehicle.cityCarLabel'), 'Citadine — 13 kWh/100 km');
   assert.equal(t('comparison.search.placeholder'), 'Rechercher un opérateur ou une formule');
   assert.equal(t('map.canvasLabel'), 'Carte des stations de recharge rapide');
-  assert.equal(t('navigation.profileLabel'), 'Mon choix personnalisé');
+  assert.equal(t('navigation.profileLabel'), 'Mon offre');
 
   setLanguage('en', { persist: false, translate: false });
-  assert.equal(t('app.subtitle'), 'Compare fast-charging station prices off the motorway');
+  assert.equal(t('navigation.compare'), 'Plans');
   assert.equal(t('vehicle.cityCarLabel'), 'City car — 13 kWh/100 km');
   assert.equal(t('comparison.search.placeholder'), 'Search for a network or plan');
   assert.equal(t('map.canvasLabel'), 'Fast-charger map');
-  assert.equal(t('navigation.profileLabel'), 'My recommendation');
+  assert.equal(t('navigation.profileLabel'), 'My plan');
   assert.equal(t('profile.controls.monthlyMileageUnit'), 'km/month');
 });
 
 test('conserve les identifiants, les valeurs et la structure interactive', () => {
   for (const id of [
-    'conso-slider', 'vehicles', 'compare-search', 'compare-km', 'compare-profile-link',
+    'conso-slider', 'vehicles', 'compare-search', 'offers-mode', 'offers-by-price', 'offers-by-network',
     'operators-compact', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
     'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-best-card', 'why-sheet-body',
-    'bnav-profile', 'bnav-compare', 'bnav-operators', 'bnav-map', 'bnav-menu'
+    'bnav-profile', 'bnav-compare', 'bnav-map', 'bnav-menu'
   ]) assert.match(html, new RegExp(`id="${id}"`), id);
 
   assert.match(html, /id="conso-slider"[^>]*max="30"[^>]*min="10"[^>]*step="1"[^>]*value="18"/);
-  assert.match(html, /id="compare-km"[^>]*max="9999"[^>]*min="0"[^>]*step="50"[^>]*value="1000"/);
   assert.match(html, /id="profile-km"[^>]*max="9999"[^>]*min="0"[^>]*step="50"[^>]*value="1000"/);
   assert.match(html, /class="bnav-item active"[^>]*id="bnav-profile"/);
 });

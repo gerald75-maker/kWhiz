@@ -14,7 +14,7 @@ import { VEHICLES } from './src/config/vehicles.js';
 import { loadTariffs } from './src/data/tariffs-repository.js';
 import { assessTariffsFreshness } from './src/domain/tariffs-freshness.js';
 import { buildTariffSnapshot, appendTariffSnapshot, getFormulaHistory, describeTariffChange } from './src/domain/tariff-history.js';
-import { openComparisonRecommendation, renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
+import { renderTarifsDateBanner, renderComparisonTable } from './src/ui/views/comparison-view.js';
 import { renderProfileView } from './src/ui/views/profile-view.js';
 import { renderOperatorsViews } from './src/ui/views/operators-view.js';
 import { renderOfferDetail } from './src/ui/views/offer-detail-view.js';
@@ -355,8 +355,6 @@ function updateCalculations({ recomputeAtlanteChargeback = true } = {}) {
     }
     const monthlyKm = profileControls?.getMonthlyKm() ?? Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
     const fastPercentage = profileControls?.getFastPercentage() ?? fastPct;
-    const comparisonKm = document.getElementById('compare-km');
-    if (comparisonKm && comparisonKm !== document.activeElement) comparisonKm.value = String(monthlyKm);
     renderComparisonTable(allFormulasData, {
         monthlyKm,
         consumption,
@@ -733,15 +731,21 @@ function initApp() {
         setApplicationStatus('offline', 'appStatus.offline');
     }
 
-    document.getElementById('compare-km')?.addEventListener('input', event => {
-        profileControls?.setMonthlyKm(event.target.value);
-    });
-
     document.getElementById('compare-search')?.addEventListener('input', event => {
         currentComparisonQuery = event.target.value;
         updateCalculations();
     });
-    document.getElementById('compare-profile-link')?.addEventListener('click', () => openComparisonRecommendation(navigation));
+    // Offres : classement par prix ou annuaire par réseau.
+    document.getElementById('offers-mode')?.addEventListener('click', event => {
+        const button = event.target.closest?.('[data-offers-mode]');
+        if (!button) return;
+        const byNetwork = button.dataset.offersMode === 'network';
+        document.querySelectorAll('#offers-mode [data-offers-mode]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        document.getElementById('offers-by-price').hidden = byNetwork;
+        document.getElementById('offers-by-network').hidden = !byNetwork;
+    });
+    // Sur la carte, l'en-tête est masqué : le bouton Menu de la carte ouvre le même menu.
+    document.getElementById('map-menu')?.addEventListener('click', () => document.getElementById('bnav-menu')?.click());
     document.getElementById('profile-all-offers')?.addEventListener('click', () => navigation?.switchView('compare'));
     document.getElementById('compare-filters')?.addEventListener('click', event => {
         const button = event.target.closest?.('[data-compare-filter]');

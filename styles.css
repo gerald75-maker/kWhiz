@@ -5999,13 +5999,13 @@ body.light .page-overlay-sheet {
 }
 
 /* Annuaire compact des opérateurs */
-#tab-operators .operators-compact {
+#offers-by-network .operators-compact {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0.75rem;
 }
 
-#tab-operators .operator-directory-card {
+#offers-by-network .operator-directory-card {
     min-width: 0;
     overflow: clip;
     border: 1px solid var(--border-color);
@@ -6013,7 +6013,7 @@ body.light .page-overlay-sheet {
     background: var(--bg-card);
 }
 
-#tab-operators .operator-directory-summary {
+#offers-by-network .operator-directory-summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -6025,34 +6025,34 @@ body.light .page-overlay-sheet {
     list-style: none;
 }
 
-#tab-operators .operator-directory-summary::-webkit-details-marker { display: none; }
-#tab-operators .operator-directory-summary:focus-visible,
-#tab-operators .operator-plan-detail:focus-visible,
-#tab-operators .operator-directory-map:focus-visible {
+#offers-by-network .operator-directory-summary::-webkit-details-marker { display: none; }
+#offers-by-network .operator-directory-summary:focus-visible,
+#offers-by-network .operator-plan-detail:focus-visible,
+#offers-by-network .operator-directory-map:focus-visible {
     outline: 3px solid var(--accent);
     outline-offset: 2px;
 }
 
-#tab-operators .operator-directory-name,
-#tab-operators .operator-directory-actions,
-#tab-operators .operator-directory-map {
+#offers-by-network .operator-directory-name,
+#offers-by-network .operator-directory-actions,
+#offers-by-network .operator-directory-map {
     display: flex;
     align-items: center;
 }
 
-#tab-operators .operator-directory-name { min-width: 0; gap: 0.75rem; }
-#tab-operators .operator-directory-name > span { min-width: 0; }
-#tab-operators .operator-directory-name strong,
-#tab-operators .operator-directory-name small { display: block; }
-#tab-operators .operator-directory-name strong { color: var(--text-primary); }
-#tab-operators .operator-directory-name small { margin-top: 0.2rem; color: var(--text-secondary); }
-#tab-operators .operator-directory-actions { gap: 0.7rem; flex: 0 0 auto; }
-#tab-operators .operator-directory-map { gap: 0.25rem; color: var(--accent); font-weight: 700; text-decoration: none; }
-#tab-operators .operator-directory-chevron { color: var(--accent); font-size: 1.4rem; transition: transform 160ms ease; }
-#tab-operators .operator-directory-card[open] .operator-directory-chevron { transform: rotate(90deg); }
+#offers-by-network .operator-directory-name { min-width: 0; gap: 0.75rem; }
+#offers-by-network .operator-directory-name > span { min-width: 0; }
+#offers-by-network .operator-directory-name strong,
+#offers-by-network .operator-directory-name small { display: block; }
+#offers-by-network .operator-directory-name strong { color: var(--text-primary); }
+#offers-by-network .operator-directory-name small { margin-top: 0.2rem; color: var(--text-secondary); }
+#offers-by-network .operator-directory-actions { gap: 0.7rem; flex: 0 0 auto; }
+#offers-by-network .operator-directory-map { gap: 0.25rem; color: var(--accent); font-weight: 700; text-decoration: none; }
+#offers-by-network .operator-directory-chevron { color: var(--accent); font-size: 1.4rem; transition: transform 160ms ease; }
+#offers-by-network .operator-directory-card[open] .operator-directory-chevron { transform: rotate(90deg); }
 
-#tab-operators .operator-plan-list { border-top: 1px solid var(--border-color); }
-#tab-operators .operator-plan-row {
+#offers-by-network .operator-plan-list { border-top: 1px solid var(--border-color); }
+#offers-by-network .operator-plan-row {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
@@ -6060,9 +6060,9 @@ body.light .page-overlay-sheet {
     padding: 0.8rem 1rem;
     color: var(--text-primary);
 }
-#tab-operators .operator-plan-row + .operator-plan-row { border-top: 1px solid var(--border-color); }
-#tab-operators .operator-plan-copy { min-width: 0; }
-#tab-operators .operator-plan-copy strong {
+#offers-by-network .operator-plan-row + .operator-plan-row { border-top: 1px solid var(--border-color); }
+#offers-by-network .operator-plan-copy { min-width: 0; }
+#offers-by-network .operator-plan-copy strong {
     display: -webkit-box;
     overflow: hidden;
     color: var(--text-primary);
@@ -6071,9 +6071,9 @@ body.light .page-overlay-sheet {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
 }
-#tab-operators .operator-plan-copy > span { display: block; margin-top: 0.2rem; color: var(--text-primary); }
-#tab-operators .operator-plan-copy .operator-plan-threshold { color: var(--text-secondary); }
-#tab-operators .operator-plan-detail {
+#offers-by-network .operator-plan-copy > span { display: block; margin-top: 0.2rem; color: var(--text-primary); }
+#offers-by-network .operator-plan-copy .operator-plan-threshold { color: var(--text-secondary); }
+#offers-by-network .operator-plan-detail {
     min-height: 2.75rem;
     padding: 0.5rem 0.65rem;
     border: 0;
@@ -6085,11 +6085,11 @@ body.light .page-overlay-sheet {
 }
 
 @media (max-width: 375px) {
-    #tab-operators .operator-directory-summary,
-    #tab-operators .operator-plan-row { padding-inline: 0.7rem; }
-    #tab-operators .operator-directory-map { padding: 0.3rem 0.55rem; font-size: 0.76rem; }
-    #tab-operators .operator-plan-row { gap: 0.45rem; }
-    #tab-operators .operator-plan-detail { padding-inline: 0.35rem; }
+    #offers-by-network .operator-directory-summary,
+    #offers-by-network .operator-plan-row { padding-inline: 0.7rem; }
+    #offers-by-network .operator-directory-map { padding: 0.3rem 0.55rem; font-size: 0.76rem; }
+    #offers-by-network .operator-plan-row { gap: 0.45rem; }
+    #offers-by-network .operator-plan-detail { padding-inline: 0.35rem; }
 }
 
 /* Comparer : filtres (2.26.2) */
@@ -6122,8 +6122,8 @@ body.light .page-overlay-sheet {
 .phm-gap--reversed strong { color:#b7791f; }
 
 /* Opérateurs : « dès X €/kWh » et bouton Carte (2.27.0) */
-#tab-operators .operator-directory-from { display:block; margin-top:0.2rem; color:var(--accent); font-size:.8rem; font-weight:750; }
-#tab-operators .operator-directory-map { padding:0.35rem 0.7rem; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--accent) 8%, transparent); font:inherit; font-size:.8rem; font-weight:700; color:var(--accent); cursor:pointer; white-space:nowrap; }
+#offers-by-network .operator-directory-from { display:block; margin-top:0.2rem; color:var(--accent); font-size:.8rem; font-weight:750; }
+#offers-by-network .operator-directory-map { padding:0.35rem 0.7rem; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--accent) 8%, transparent); font:inherit; font-size:.8rem; font-weight:700; color:var(--accent); cursor:pointer; white-space:nowrap; }
 
 /* Mon choix : lien vers Comparer (2.27.0) */
 .profile-all-offers { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:44px; margin-top:10px; padding:10px 14px; border:1px solid color-mix(in srgb, var(--accent) 40%, var(--border-color)); border-radius:12px; background:var(--bg-card); color:var(--accent); font:inherit; font-size:.86rem; font-weight:750; cursor:pointer; }
@@ -6287,3 +6287,50 @@ body[data-view="map"] { padding-bottom:0; }
 .map-cluster { border-width:2px; }
 .map-cluster-count { font-size:12px; }
 .map-cluster .map-cluster-count { display:flex; width:100%; height:100%; align-items:center; justify-content:center; }
+
+/* ═══ Refonte 2.30.0 : en-tête, trois onglets, Offres ═══ */
+.app-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.app-header .app-title { margin:0; justify-content:flex-start; }
+.header-menu { width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-card); color:var(--text-primary); cursor:pointer; }
+.header-menu:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+body[data-view="map"] .app-header { display:none; }
+.map-menu { width:40px; padding:0; justify-content:center; }
+
+/* Offres */
+#tab-ranking .compare-heading { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
+#tab-ranking .compare-heading h2 { margin:0; font-size:1.6rem; font-weight:800; letter-spacing:-.02em; }
+.offers-mode { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:4px; padding:4px; border-radius:12px; background:var(--bg-element-hover); }
+.offers-mode button { min-height:40px; border:0; border-radius:9px; background:transparent; color:var(--text-secondary); font:inherit; font-size:.9rem; font-weight:600; cursor:pointer; }
+.offers-mode button[aria-pressed="true"] { background:var(--bg-card); color:var(--text-primary); font-weight:700; box-shadow:var(--shadow-card); }
+.offers-mode button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.offers-by-price[hidden], .offers-by-network[hidden] { display:none; }
+#tab-ranking .compare-count { margin:12px 2px 6px; }
+#tab-ranking .comparison-list { display:flex; flex-direction:column; gap:0; border:1px solid var(--border-color); border-radius:16px; background:var(--bg-card); overflow:hidden; }
+#tab-ranking .compare-item { display:grid; grid-template-columns:24px minmax(0, 1fr) auto; align-items:center; gap:12px; width:100%; min-height:68px; margin:0; padding:12px 14px; border:0; border-bottom:1px solid var(--border-color); border-radius:0; background:transparent; box-shadow:none; color:var(--text-primary); font:inherit; text-align:left; cursor:pointer; }
+#tab-ranking .compare-item:last-child { border-bottom:0; }
+#tab-ranking .compare-item:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+#tab-ranking .compare-item--best { background:color-mix(in srgb, var(--accent) 6%, transparent); }
+#tab-ranking .compare-rank { width:24px; height:auto; border:0; background:none; color:var(--text-secondary); font-size:.9rem; font-weight:700; }
+#tab-ranking .compare-identity { display:flex; flex-direction:column; gap:3px; min-width:0; }
+#tab-ranking .compare-name { font-size:.95rem; font-weight:700; line-height:1.3; }
+#tab-ranking .compare-sub, #tab-ranking .compare-stations { color:var(--text-secondary); font-size:.8rem; line-height:1.35; }
+#tab-ranking .compare-stations--warn { color:#d97706; }
+body:not(.light) #tab-ranking .compare-stations--warn { color:#fbbf24; }
+#tab-ranking .compare-pricing-badge { margin-left:4px; padding:1px 6px; border-radius:6px; font-size:.72rem; }
+#tab-ranking .compare-cost { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+#tab-ranking .compare-cost strong { font-size:1rem; font-weight:800; white-space:nowrap; }
+#tab-ranking .compare-item--best .compare-cost strong { color:var(--accent); }
+#tab-ranking .compare-gap { margin:0; color:var(--text-secondary); font-size:.76rem; white-space:nowrap; }
+#tab-ranking .compare-gap.is-lowest { color:var(--accent); font-weight:700; }
+#tab-ranking .operators-compact { margin-top:12px; }
+
+/* 2.30.0 : neutralise les anciennes règles du comparateur sur les lignes compactes d’Offres */
+#tab-ranking .compare-item { grid-template-areas:none; grid-template-rows:auto; height:auto; }
+#tab-ranking .compare-item > * { grid-area:auto; position:static; align-self:center; margin:0; padding:0; }
+#tab-ranking .compare-item::before, #tab-ranking .compare-item::after { content:none; }
+#tab-ranking .compare-rank { display:block; text-align:left; }
+#tab-ranking .compare-sub > span { display:inline; }
+#offers-by-network .operators-compact { margin-top:4px; }
+/* 2.30.0 : le menu fermé ne doit plus transparaître sous la barre de navigation */
+.menu-drawer:not(.open) .menu-drawer-sheet { visibility:hidden; transition:transform .28s cubic-bezier(.32,.72,0,1), visibility 0s linear .28s; }
+.menu-drawer.open .menu-drawer-sheet { visibility:visible; transition:transform .28s cubic-bezier(.32,.72,0,1), visibility 0s; }

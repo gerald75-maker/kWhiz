@@ -184,7 +184,17 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Premier lancement : présentation, puis voiture, kilomètres, lieu de recharge, ville.
 - [x] Clés i18n devenues inutiles supprimées ; aide mise à jour ; 393 tests ; aucun débordement à 390 px ; cache kwhiz-56007331.
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
-- [ ] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête.
+- [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
+
+## Livraison 2.30.0 (2026-11-11) : refonte, étape 3
+
+- [x] Onglet Offres : bascule Par prix / Par réseau, lignes compactes (rang, nom, tarif, coût, écart), détail au toucher.
+- [x] Navigation à trois onglets (Mon offre, Carte, Offres) ; menu dans l'en-tête et dans la barre de la carte.
+- [x] Styles de l'annuaire rattachés à `#offers-by-network` ; anciennes zones de grille de `.compare-item` neutralisées.
+- [x] Menu fermé masqué (il transparaissait sous la barre de navigation).
+- [x] Aide FR/EN alignée ; 394 tests verts ; vérifié en émulation iPhone 390 px.
+- [x] Commit « 2.30.0 : onglet Offres… », paquet `livraisons/2.30.0/` (4 fichiers), 2.29.0 archivée.
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
 
 ## Livraison 2.29.0 (2026-11-11) : refonte, étape 2
 

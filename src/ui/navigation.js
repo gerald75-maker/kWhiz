@@ -1,6 +1,6 @@
 import { on } from '../shared/dom.js';
 
-const VIEW_TAB = { compare: 'ranking', operators: 'operators', map: 'map', profile: 'profile' };
+const VIEW_TAB = { compare: 'ranking', map: 'map', profile: 'profile' };
 
 export function initNavigation({ initialView = 'profile', onViewChange, onToggleTheme, onShowLanding }) {
     let currentView = initialView;
@@ -99,13 +99,12 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
     }
 
     on('bnav-compare', 'click', () => switchView('compare'));
-    on('bnav-operators', 'click', () => switchView('operators'));
     on('bnav-profile', 'click', () => switchView('profile'));
     on('bnav-map', 'click', () => switchView('map'));
     on('bnav-menu', 'click', event => {
-        // La barre inférieure reste au-dessus du backdrop. Empêcher toute propagation
-        // évite qu'un même geste ferme le panneau puis déclenche une autre navigation
-        // sur iOS/PWA. Un second appui sur Menu ferme uniquement le menu.
+        // Le bouton Menu est dans l'en-tête (et relayé par celui de la carte). Empêcher toute
+        // propagation évite qu'un même geste ferme le panneau puis déclenche une autre
+        // navigation sur iOS/PWA. Un second appui sur Menu ferme uniquement le menu.
         event.preventDefault();
         event.stopPropagation();
         const drawer = document.getElementById('menu-drawer');

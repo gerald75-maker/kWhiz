@@ -21,7 +21,7 @@ test('l’aide contient exactement quatre accordéons natifs indépendants', () 
 test('le contenu essentiel existe en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
   assert.equal(t('help.title'), 'Aide');
-  assert.match(t('help.plan.profile'), /Mon choix.*Comparer.*abonnement compris/);
+  assert.match(t('help.plan.profile'), /Mon offre.*Offres.*abonnement compris/);
   assert.match(t('help.prices.estimate'), /seuil de rentabilité/);
   assert.match(t('help.prices.variable'), /station.*heure.*affluence.*moyen de paiement/);
   assert.match(t('help.map.usage'), /Plans, Google Maps ou Waze/);

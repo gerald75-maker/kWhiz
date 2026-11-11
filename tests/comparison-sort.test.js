@@ -55,7 +55,7 @@ test('le rendu marque uniquement la première formule comme meilleure et affiche
     setLanguage('fr', { persist: false, translate: false });
     assert.doesNotThrow(() => renderComparisonTable(formulas, profile));
     assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 1);
-    assert.match(list.innerHTML, /compare-item compare-item--best[\s\S]*Formule avec abonnement/);
+    assert.match(list.innerHTML, /compare-item compare-detail-btn compare-item--best[\s\S]*Formule avec abonnement/);
     assert.match(list.innerHTML, /9,99 €\/mois/);
 });
 
@@ -185,7 +185,7 @@ test('Atlante Go utilise exactement la simulation ChargeBack de Mon choix', () =
     assert.equal(subscriptionBenefitLabel(ranking[0], 'fr'), 'Vous économisez 49,69 €/mois');
 });
 
-test('le rendu résume ChargeBack et conserve exactement le coût calculé', () => {
+test('le rendu montre le prix payé à la borne et le coût calculé avec ChargeBack', () => {
     const list = { innerHTML: '', onclick: null, onkeydown: null };
     globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
     const plan = formula('ChargeBack', { rate: 0.125, rateRaw: 0.25, chargebackRate: 0.125, ref: 0.50, monthlyCost: 5, opKey: 'atlante', chargebackConfig: { enabled: true, beforeDate: '2026-07-01', rateBefore: 1, rateAfter: 1, promoEndDate: '2026-12-31', rateAfterPromo: 0.5, sessionsPerMonth: 4 } });
@@ -193,10 +193,9 @@ test('le rendu résume ChargeBack et conserve exactement le coût calculé', () 
     setLanguage('fr', { persist: false, translate: false });
     renderComparisonTable([plan], profile);
     assert.match(list.innerHTML, new RegExp(expected.toFixed(2).replace('.', ',')));
-    // Le tarif affiché est celui payé à la borne ; le prix effectif reste signalé comme estimation.
+    // Le tarif affiché est celui payé à la borne ; le détail du ChargeBack est dans la fiche.
     assert.match(list.innerHTML, /compare-rate-summary">0,25\s€\/kWh/);
-    assert.match(list.innerHTML, /Coût calculé avec le ChargeBack : ≈ 0,125\s€\/kWh en moyenne \(estimation\)/);
-    assert.doesNotMatch(list.innerHTML, /4 sessions|tarif public|compare-benefit/);
+    assert.doesNotMatch(list.innerHTML, /4 sessions|tarif public|compare-benefit|compare-chargeback-note/);
 });
 
 test('le bouton Détails ouvre la fenêtre existante au clic et au clavier', () => {
@@ -214,7 +213,7 @@ test('le bouton Détails ouvre la fenêtre existante au clic et au clavier', () 
     assert.equal(calls[0][0], plan);
     assert.equal(calls[0][1], card);
     assert.equal(prevented, true);
-    assert.match(list.innerHTML, /class="compare-detail-btn"[^>]*data-detail="accessible::Accessible"/);
+    assert.match(list.innerHTML, /class="compare-item compare-detail-btn[^"]*"[^>]*data-detail="accessible::Accessible"/);
     assert.match(list.innerHTML, /aria-label="Voir le détail/);
 });
 
@@ -245,36 +244,16 @@ test('ajuste le seuil à la part rapide et traite une part rapide nulle', () => 
     assert.equal(profileThresholdLabel({ ...subscribed, adjustedThresholdKm: Infinity }, 0, 'fr'), 'Abonnement non pertinent sans recharge rapide');
 });
 
-test('affiche une seule explication du seuil pertinent et la masque lorsqu’il disparaît', () => {
+test('le seuil de rentabilité quitte la liste et reste dans le détail', async () => {
     const list = { innerHTML: '', onclick: null, onkeydown: null };
-    const explanation = { hidden: true, textContent: '' };
-    globalThis.document = {
-        getElementById: id => ({
-            'ranking-list': list,
-            'compare-threshold-explanation': explanation
-        })[id] || { textContent: '' },
-        dispatchEvent: () => true
-    };
+    globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
     const subscribed = formula('Abonnement', { rate: 0.30, ref: 0.50, monthlyCost: 5, km: 600 });
-    const withoutSubscription = formula('Sans abonnement', { rate: 0.50 });
-
     setLanguage('fr', { persist: false, translate: false });
-    renderComparisonTable([subscribed, withoutSubscription], profile);
-    assert.equal(explanation.hidden, false);
-    assert.equal(explanation.textContent, 'Le seuil indique à partir de quel kilométrage l’abonnement devient avantageux par rapport à l’offre sans abonnement du même réseau, selon votre profil. Il ne signifie pas nécessairement que cette formule est la moins chère de kWhiz.');
-    assert.match(list.innerHTML, /Abonnement rentabilisé dès 600 km\/mois/);
-    assert.match(list.innerHTML, /class="compare-meta-threshold"/);
-    assert.equal((list.innerHTML.match(/Le seuil indique/g) || []).length, 0);
-
-    setLanguage('en', { persist: false, translate: false });
-    renderComparisonTable([subscribed, withoutSubscription], profile);
-    assert.equal(explanation.hidden, false);
-    assert.equal(explanation.textContent, 'The threshold shows the monthly mileage from which the subscription becomes cheaper than the same network’s no-subscription plan, based on your profile. It does not necessarily mean that this plan is the cheapest in kWhiz.');
-    assert.match(list.innerHTML, /Subscription pays for itself from 600 km\/month/);
-
-    renderComparisonTable([withoutSubscription], profile);
-    assert.equal(explanation.hidden, true);
-    assert.equal(explanation.textContent, '');
+    renderComparisonTable([subscribed, formula('Sans abonnement', { rate: 0.50 })], profile);
+    assert.doesNotMatch(list.innerHTML, /rentabilisé|compare-meta-threshold|Le seuil indique/);
+    assert.equal(profileThresholdLabel({ ...subscribed, adjustedThresholdKm: 600 }, 100, 'fr'), 'Abonnement rentabilisé dès 600 km/mois');
+    const detail = await readFile(new URL('../src/ui/views/offer-detail-view.js', import.meta.url), 'utf8');
+    assert.match(detail, /offerDetailThresholdLabel|breakEven|threshold/i);
 });
 
 test('un kilométrage nul ne produit aucun classement', () => {
@@ -315,22 +294,18 @@ test('Modifier mon profil utilise navigation.switchView', () => {
     assert.deepEqual(calls, ['profile']);
 });
 
-test('le kilométrage est synchronisé autour de profile-km et les anciens tris ont disparu', async () => {
-    const [html, app, controller, view] = await Promise.all([
+test('Offres reprend le kilométrage du profil et les anciens tris ont disparu', async () => {
+    const [html, controller, view] = await Promise.all([
         readFile(new URL('../index.html', import.meta.url), 'utf8'),
-        readFile(new URL('../app.js', import.meta.url), 'utf8'),
         readFile(new URL('../src/ui/controllers/profile-controls.js', import.meta.url), 'utf8'),
         readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
     ]);
-    assert.match(html, /id="compare-km"/);
-    assert.doesNotMatch(html, /Trier par|costPer100km|monthlyCost/);
+    assert.doesNotMatch(html, /id="compare-km"|id="compare-profile-link"|Trier par|costPer100km|monthlyCost/);
     // Seuls sélecteurs autorisés : le choix du modèle de véhicule (Mon profil et premier lancement).
     assert.deepEqual(html.match(/<select[^>]*>/g), ['<select class="vehicle-model-select" id="vehicle-model">', '<select class="landing-select" id="landing-car-select">']);
-    assert.match(app, /profileControls\?\.setMonthlyKm\(event\.target\.value\)/);
-    assert.match(app, /comparisonKm\.value = String\(monthlyKm\)/);
     assert.match(controller, /getMonthlyKm/);
     assert.match(controller, /setMonthlyKm/);
-    assert.doesNotMatch(app + view, /currentSort|nextSortDirection|compare-sort-select/);
+    assert.doesNotMatch(view, /currentSort|nextSortDirection|compare-sort-select/);
 });
 
 test('le contrôleur conserve une seule valeur de kilométrage pour Mon choix et Comparer', () => {
@@ -356,17 +331,17 @@ test('le contrôleur conserve une seule valeur de kilométrage pour Mon choix et
     assert.equal(changes, 1);
 });
 
-test('les textes FR et EN expliquent le classement mensuel', async () => {
-    const [html, i18n, view] = await Promise.all([
+test('Offres propose deux vues, par prix et par réseau, en FR et EN', async () => {
+    const [html, i18n, app] = await Promise.all([
         readFile(new URL('../index.html', import.meta.url), 'utf8'),
         readFile(new URL('../src/i18n/i18n.js', import.meta.url), 'utf8'),
-        readFile(new URL('../src/ui/views/comparison-view.js', import.meta.url), 'utf8')
+        readFile(new URL('../app.js', import.meta.url), 'utf8')
     ]);
-    assert.match(html, /Toutes les formules classées selon votre profil, avec recherche, filtres, tarifs et seuils de rentabilité\. Mon choix ne garde que les meilleures\./);
-    assert.match(html, /data-i18n="comparison\.controls\.editProfile"[^>]*>Modifier mon profil/);
-    assert.match(i18n, /Every plan ranked for your profile, with search, filters, prices and break-even points\. My recommendation keeps only the best ones\./);
-    assert.match(i18n, /'comparison\.controls\.editProfile': 'Edit my profile'/);
-    assert.doesNotMatch(view, /const COPY|Tarif variable|Plage tarifaire|Remise|Tarif fixe/);
+    assert.match(html, /<h2 data-i18n="comparison\.heading\.title" id="compare-title">Offres<\/h2>/);
+    assert.match(html, /data-offers-mode="price"[\s\S]*data-offers-mode="network"/);
+    assert.match(html, /id="offers-by-network"[\s\S]*id="operators-compact"/);
+    assert.match(i18n, /'offers\.mode\.network': 'By network'/);
+    assert.match(app, /document\.getElementById\('offers-by-network'\)\.hidden = !byNetwork;/);
     assert.match(i18n, /comparison\.estimatedCost/);
     assert.match(i18n, /comparison\.notProfitable/);
 });
@@ -376,24 +351,14 @@ test('app transmet la référence tarifaire aux données comparées', async () =
     assert.match(app, /ref:\s+formula\.ref,/);
 });
 
-test('les dernières règles mobiles empêchent le débordement et empilent le coût sous l’identité', async () => {
+test('les lignes d’Offres tiennent en largeur : nom compressible, coût insécable', async () => {
     const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
-    const mobileStart = css.lastIndexOf('@media (max-width: 700px)');
-    const mobileEnd = css.indexOf('@media (max-width: 390px)', mobileStart);
-    const mobile = css.slice(mobileStart, mobileEnd);
-    assert.match(mobile, /grid-template-columns:\s*minmax\(0, 1fr\) auto/);
-    assert.match(mobile, /"identity identity"\s*"price price"\s*"gap detail"\s*"meta meta"/);
-    assert.match(mobile, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
-    assert.match(mobile, /\.compare-item > \*[\s\S]*min-width:\s*0/);
-    assert.match(mobile, /max-width:\s*100%/);
-    assert.match(css, /@media \(max-width: 390px\)[\s\S]*compare-meta[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\)/);
-    assert.match(mobile, /compare-meta > \.compare-meta-threshold[\s\S]*grid-column:\s*1 \/ -1/);
-    assert.match(mobile, /compare-meta-threshold[\s\S]*white-space:\s*nowrap/);
-    assert.match(css, /compare-meta span::before\s*\{\s*content:\s*none/);
-    assert.match(css, /@media \(max-width: 340px\)[\s\S]*compare-meta-threshold[\s\S]*white-space:\s*normal/);
+    assert.match(css, /#tab-ranking \.compare-item \{ display:grid; grid-template-columns:24px minmax\(0, 1fr\) auto;/);
+    assert.match(css, /#tab-ranking \.compare-identity \{ display:flex; flex-direction:column; gap:3px; min-width:0; \}/);
+    assert.match(css, /#tab-ranking \.compare-cost strong \{[^}]*white-space:nowrap/);
 });
 
-test('Mon choix, Comparer et Opérateurs partagent la même zone fixe au-dessus de leur contenu défilant', async () => {
+test('Mon offre et Offres partagent la même ligne de profil au-dessus de leur contenu', async () => {
     const [css, html] = await Promise.all([
         readFile(new URL('../styles.css', import.meta.url), 'utf8'),
         readFile(new URL('../index.html', import.meta.url), 'utf8')
@@ -401,16 +366,11 @@ test('Mon choix, Comparer et Opérateurs partagent la même zone fixe au-dessus 
     const stickyStart = html.indexOf('<div class="sticky-top" id="sticky-top">');
     const stickyEnd = html.indexOf('</div><!-- /sticky-top -->', stickyStart);
     const compareStart = html.indexOf('<div class="tab-content" id="tab-ranking">');
-    const operatorsStart = html.indexOf('<div class="tab-content" id="tab-operators">');
     const profileStart = html.indexOf('<div class="tab-content active" id="tab-profile">');
-
     assert.ok(stickyStart >= 0 && stickyEnd > stickyStart);
     assert.match(html.slice(stickyStart, stickyEnd), /id="profile-summary"/);
-    assert.match(html, /id="profile-sheet"[\s\S]*id="params-card"/);
-    assert.ok(stickyEnd < compareStart && stickyEnd < operatorsStart && stickyEnd < profileStart);
+    assert.ok(stickyEnd < compareStart && stickyEnd < profileStart);
     assert.equal((html.match(/id="sticky-top"/g) || []).length, 1);
-    assert.match(css, /\.sticky-top\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?padding-bottom:\s*2px;/);
-    assert.doesNotMatch(css, /body\[data-view="(?:profile|compare|operators)"\] \.sticky-top\s*\{[\s\S]*?position:\s*(?:static|fixed)/);
-    assert.match(css, /\.container\s*\{[\s\S]*?padding:[^;]*calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+    assert.match(css, /\.sticky-top\s*\{[\s\S]*?position:\s*sticky;/);
     assert.match(css, /\.bottom-nav\s*\{[\s\S]*?position:\s*fixed/);
 });

@@ -104,12 +104,12 @@ test('retire les 34 entrées couvertes par les clés structurées et conserve le
   assert.match(source, /export function localizeTariffText/);
 
   for (const key of [
-    'navigation.profile', 'navigation.compare', 'navigation.operators', 'navigation.map',
+    'navigation.profile', 'navigation.compare', 'navigation.map',
     'map.route.start', 'map.route.destination', 'map.route.addressPlaceholder',
     'map.route.startInputLabel', 'map.route.destinationInputLabel', 'map.route.myLocation',
     'map.route.showChargers', 'map.route.clear', 'map.filters.all', 'map.filters.none',
     'map.list.nearby', 'map.location.locate', 'map.location.recenter', 'map.gps.openDirections',
-    'map.gps.appOrBrowser', 'map.gps.note', 'comparison.controls.monthlyMileageUnit',
+    'map.gps.appOrBrowser', 'map.gps.note', 'profile.controls.monthlyMileageUnit',
     'appStatus.badge.checking', 'appStatus.initial', 'tariffs.status.loading', 'install.nativeButton',
     'offerDetail.noBreakEven', 'offerDetail.notProfitable', 'map.station.directions',
     'favorites.add', 'favorites.remove', 'favorites.added', 'favorites.removed'
@@ -118,7 +118,7 @@ test('retire les 34 entrées couvertes par les clés structurées et conserve le
 
 test('le rendu dynamique repose sur les attributs structurés et non sur un observateur', () => {
   const previousDocument = globalThis.document;
-  const textNode = { dataset: { i18n: 'app.subtitle' }, textContent: '' };
+  const textNode = { dataset: { i18n: 'navigation.compareLabel' }, textContent: '' };
   const label = { dataset: { i18nAriaLabel: 'navigation.mapLabel' }, setAttribute(name, value) { this[name] = value; } };
   const title = { dataset: { i18nTitle: 'menu.title' }, setAttribute(name, value) { this[name] = value; } };
   const alt = { dataset: { i18nAlt: 'navigation.menuLabel' }, setAttribute(name, value) { this[name] = value; } };
@@ -136,7 +136,7 @@ test('le rendu dynamique repose sur les attributs structurés et non sur un obse
   try {
     setLanguage('en', { persist: false, translate: false });
     translateDocument();
-    assert.equal(textNode.textContent, 'Compare fast-charging station prices off the motorway');
+    assert.equal(textNode.textContent, 'All plans');
     assert.equal(label['aria-label'], 'Charger map');
     assert.equal(title.title, 'kWhiz menu');
     assert.equal(alt.alt, 'Menu');

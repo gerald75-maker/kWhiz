@@ -88,11 +88,13 @@ test('les quatre rubriques d’aide utilisent des accordéons indépendants', as
   assert.doesNotMatch(navigation, /#help-faq details\[open\]/);
 });
 
-test('la navigation suit le parcours Mon choix, Comparer, Opérateurs, Carte, Menu', async () => {
+test('la navigation tient en trois onglets, Mon offre, Carte, Offres, et le Menu passe dans l’en-tête', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   const navigation = html.slice(html.indexOf('<nav class="bottom-nav"'), html.indexOf('</nav>', html.indexOf('<nav class="bottom-nav"')));
-  const ids = ['bnav-profile', 'bnav-compare', 'bnav-operators', 'bnav-map', 'bnav-menu'];
-  assert.deepEqual([...navigation.matchAll(/id="(bnav-[^"]+)"/g)].map(match => match[1]), ids);
+  assert.deepEqual([...navigation.matchAll(/id="(bnav-[^"]+)"/g)].map(match => match[1]), ['bnav-profile', 'bnav-map', 'bnav-compare']);
+  assert.match(html, /<header class="app-header">[\s\S]*class="header-menu"[^>]*id="bnav-menu"[\s\S]*<\/header>/);
+  assert.match(html, /id="map-menu"/);
+  assert.doesNotMatch(html, /id="tab-operators"|id="bnav-operators"/);
 });
 
 test('l’aide concise ne réintroduit ni étapes artificielles ni numérotation', async () => {
