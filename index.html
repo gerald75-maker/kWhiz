@@ -72,8 +72,9 @@
 </div>
 <!-- Sticky header stack : slider + onglets restent visibles au scroll -->
 <div class="sticky-top" id="sticky-top">
-<!-- Slider consommation sticky -->
-<div class="params-card">
+<!-- Slider consommation sticky : replié en pastille, déplié au toucher -->
+<button aria-controls="params-card" aria-expanded="false" class="conso-pill" id="conso-pill" type="button"><span class="conso-pill-label" data-i18n="consumption.pillLabel">Consommation</span><strong class="conso-pill-value"><span id="conso-pill-value">18</span> kWh/100 km</strong><span class="conso-pill-vehicle" id="conso-pill-vehicle"></span><span aria-hidden="true" class="conso-pill-icon">✎</span></button>
+<div class="params-card" id="params-card">
 <div class="conso-slider-wrap">
 <label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
 <div class="conso-slider-track-wrap">

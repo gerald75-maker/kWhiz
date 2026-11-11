@@ -85,3 +85,16 @@ test('la traduction statique ne contient ni requête ni recalcul', () => {
   const translateDocument = i18nSource.slice(i18nSource.indexOf('export function translateDocument'), i18nSource.indexOf('export function setLanguage'));
   assert.doesNotMatch(translateDocument, /fetch\(|updateCalculations|renderStations|L\.map\(/);
 });
+
+test('le bandeau de consommation se replie en pastille réglable', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const [page, controller] = await Promise.all([
+    readFile(new URL('../index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../src/ui/controllers/consumption-controller.js', import.meta.url), 'utf8')
+  ]);
+  assert.match(page, /id="conso-pill"[^>]*|aria-controls="params-card"[^>]*id="conso-pill"/);
+  assert.match(page, /class="params-card" id="params-card"/);
+  assert.match(page, /data-i18n="consumption\.pillLabel"/);
+  assert.match(controller, /setExpanded\(false\);/);
+  assert.match(controller, /classList\.toggle\('is-collapsed', !expanded\)/);
+});

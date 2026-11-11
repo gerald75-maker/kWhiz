@@ -4,6 +4,10 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
     const fillEl = document.getElementById('conso-slider-fill');
     const thumbEl = document.getElementById('conso-slider-thumb');
     const valueEl = document.getElementById('consumption-value');
+    const stickyEl = document.getElementById('sticky-top');
+    const pillEl = document.getElementById('conso-pill');
+    const pillValueEl = document.getElementById('conso-pill-value');
+    const pillVehicleEl = document.getElementById('conso-pill-vehicle');
 
     let value = Math.min(30, Math.max(10, Number.parseInt(initialValue, 10) || 18));
     let rafPending = false;
@@ -29,6 +33,11 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
         if (minDiff <= 1 && closest) {
             closest.classList.add('active');
             closest.setAttribute('aria-pressed', 'true');
+        }
+        if (pillValueEl) pillValueEl.textContent = String(value);
+        if (pillVehicleEl) {
+            const vehicleName = minDiff <= 1 ? closest?.querySelector('.vehicle-name')?.textContent?.trim() : '';
+            pillVehicleEl.textContent = vehicleName ? `· ${vehicleName}` : '';
         }
 
         if (animate) {
@@ -87,9 +96,19 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
         });
     });
 
+    // Bandeau replié par défaut : la pastille affiche la valeur et déplie le réglage.
+    function setExpanded(expanded) {
+        stickyEl?.classList.toggle('is-collapsed', !expanded);
+        pillEl?.setAttribute('aria-expanded', String(expanded));
+    }
+    pillEl?.addEventListener('click', () => setExpanded(pillEl.getAttribute('aria-expanded') !== 'true'));
+    setExpanded(false);
+
     render();
 
     return {
+        collapse: () => setExpanded(false),
+        refresh: () => render(),
         getConsumption: () => value / 100,
         getValue: () => value,
         setValue

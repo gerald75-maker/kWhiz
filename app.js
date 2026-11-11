@@ -548,6 +548,7 @@ function initApp() {
     navigation = initNavigation({
         initialView: 'profile',
         onViewChange: view => {
+            consumptionController?.collapse?.();
             if (view === 'profile') renderProfile();
             if (view === 'map') stationsMap?.activate();
         },
@@ -568,6 +569,7 @@ function initApp() {
     });
     const languageMenu = initMenuLanguage({ getLanguage, setLanguage, t });
     onLanguageChange(() => {
+        consumptionController?.refresh?.();
         zoneControls?.refreshLanguage();
         if (coverage) coverage.label = zoneControls?.getLabel() || coverage.label;
         languageMenu.update();
