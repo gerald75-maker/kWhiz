@@ -84,13 +84,13 @@ test('localise les abonnements mensuel et annuel avec leur équivalent mensuel',
 test('traite les seuils fini, nul et infini dans les deux langues', () => {
     setLanguage('fr', { persist: false, translate: false });
     assert.equal(offerDetailThresholdLabel(0), 'Sans seuil');
-    assert.equal(offerDetailThresholdLabel(Infinity), 'Non rentable');
+    assert.equal(offerDetailThresholdLabel(Infinity), 'Jamais rentable');
     assert.equal(offerDetailThresholdLabel(1050), '1 050 km/mois');
     setLanguage('en', { persist: false, translate: false });
     assert.equal(offerDetailThresholdLabel(0), 'No break-even point');
-    assert.equal(offerDetailThresholdLabel(Infinity), 'Not cost-effective');
+    assert.equal(offerDetailThresholdLabel(Infinity), 'Never pays for itself');
     assert.equal(offerDetailThresholdLabel(1050), '1,050 km/month');
-    assert.equal(offerDetailThresholdLabel(Infinity, { referenceUnavailable: true }), 'Variable reference · break-even not calculated');
+    assert.equal(offerDetailThresholdLabel(Infinity, { referenceUnavailable: true }), 'Not calculated: no fixed no-subscription price');
 });
 
 test('localise les tarifs fixe, variable, plage et remise avec Intl', () => {

@@ -50,7 +50,7 @@ test('les tarifs partenaires et ChargeBack restent uniquement dans le détail At
     assert.match(body.innerHTML, /Powerdot — 0,42 €\/kWh, ChargeBack à 10 % et décagnottage des Green Gems/);
     assert.match(body.innerHTML, /ChargeLeague — 0,49 €\/kWh sur les réseaux partenaires Electra, Fastned et IONITY, avec ChargeBack à 10 %/);
     assert.match(body.innerHTML, /avantages sont réservés aux abonnés Atlante Go/);
-    assert.match(body.innerHTML, /Référence variable · seuil non calculé/);
+    assert.match(body.innerHTML, /Non calculé : pas de tarif sans abonnement fixe/);
 
     setLanguage('en', { persist: false, translate: false });
     renderOfferDetail({

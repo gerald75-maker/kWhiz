@@ -298,9 +298,9 @@ test('décrit une économie réelle, une économie faible et un surcoût abonnem
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 8.2 }, 'fr'), 'Vous économisez 8,20 €/mois');
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: 0.2 }, 'fr'), 'Économie inférieure à 0,50 €/mois');
     assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: -4.1 }, 'fr'), 'L’abonnement vous coûte encore 4,10 €/mois de plus');
-    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'fr'), 'Comparaison au tarif de référence indisponible');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'fr'), 'Non calculé : pas de tarif sans abonnement fixe');
     setLanguage('en', { persist: false, translate: false });
-    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'en'), 'Reference-price comparison unavailable');
+    assert.equal(subscriptionBenefitLabel({ monthlyCost: 5, fastKwh: 100, subscriptionBenefit: null }, 'en'), 'Not calculated: no fixed no-subscription price');
 });
 
 test('la recherche reste active et les égalités conservent l’ordre du catalogue', () => {

@@ -136,6 +136,7 @@ function formatComparisonNumber(value, language, fractionDigits) {
 export function profileThresholdLabel(formula, fastPercentage, language = getLanguage()) {
     if (!(formula.monthlyCost > 0)) return t('comparison.noSubscription');
     if (fastPercentage <= 0) return t('comparison.noFastCharging');
+    if (formula.referenceUnavailable === true) return t('comparison.thresholdReferenceUnavailable');
     if (!Number.isFinite(formula.adjustedThresholdKm)) return t('comparison.notProfitable');
     const total = formatComparisonNumber(formula.adjustedThresholdKm, language);
     const fast = formatComparisonNumber(Math.ceil(formula.km), language);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setLanguage } from '../src/i18n/i18n.js';
+import { setLanguage, t } from '../src/i18n/i18n.js';
 import {
     profileAnnualAmount,
     profileMonthlyAmount,
@@ -88,12 +88,14 @@ test('localise les seuils nul, fini et infini sans modifier leur calcul', () => 
     setLanguage('fr', { persist: false, translate: false });
     assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: 0 }), 'Rentable immédiatement');
     assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: 1050 }), '1 050 km/mois');
-    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity }), 'Seuil non atteignable');
+    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity }), 'Jamais rentable');
+    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity, referenceUnavailable: true }), 'Non calculé');
     assert.equal(profileThresholdLabel({ hasSubscription: false, thresholdKm: 0 }), 'Sans abonnement');
     setLanguage('en', { persist: false, translate: false });
     assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: 0 }), 'Breaks even immediately');
     assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: 1050 }), '1,050 km/month');
-    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity }), 'Break-even cannot be reached');
+    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity }), 'Never pays for itself');
+    assert.equal(profileThresholdLabel({ hasSubscription: true, thresholdKm: Infinity, referenceUnavailable: true }), 'Not calculated');
 });
 
 test('rend une recommandation avec abonnement, économie, domicile et favori en FR et EN', () => {
@@ -285,4 +287,15 @@ test('la bascule FR ↔ EN rerend toutes les zones et localise les messages de p
     assert.equal(profileShareStatusLabel('copied'), 'Result copied to the clipboard.');
     assert.equal(profileShareStatusLabel('shared'), 'Result shared.');
     assert.equal(profileShareStatusLabel('unavailable'), 'Sharing is unavailable on this device.');
+});
+
+test('« Pourquoi ce choix ? » distingue seuil incalculable et abonnement jamais rentable', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const source = await readFile(new URL('../src/ui/views/profile-view.js', import.meta.url), 'utf8');
+    assert.match(source, /best\.referenceUnavailable === true\s*\?\s*`<li>\$\{t\('recommendation\.referenceUnavailable'/);
+    assert.match(source, /recommendation\.subscriptionNeverProfitable/);
+    setLanguage('fr', { persist: false, translate: false });
+    const reason = t('recommendation.referenceUnavailable', { operator: 'Atlante' });
+    assert.match(reason, /^Seuil de rentabilité non calculé\s: Atlante n’a pas de tarif sans abonnement fixe/);
+    assert.doesNotMatch(reason, /non encore rentabilisé|non atteignable/);
 });

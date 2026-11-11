@@ -33,7 +33,8 @@ test('les helpers historiques restent localisés sans modifier les calculs', () 
     assert.match(buildFormulaMeta(formula), /Tarif fixe.*Vérifié le 27 juillet 2026.*Source officielle/);
     setLanguage('en', { persist: false, translate: false });
     assert.equal(formatOperatorSubscription(formula), '€9.99/month · No commitment');
-    assert.equal(formatOperatorThreshold(Infinity), 'Not cost-effective');
+    assert.equal(formatOperatorThreshold(Infinity), 'Never pays for itself');
+    assert.equal(formatOperatorThreshold(Infinity, { referenceUnavailable: true }), 'Not calculated: no fixed no-subscription price');
 });
 
 test('rend un en-tête fermé compact avec singulier/pluriel, carte et sans tarif', () => {

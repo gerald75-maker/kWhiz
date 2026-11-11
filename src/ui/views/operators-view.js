@@ -13,8 +13,9 @@ export function formatOperatorSubscription(formula) {
     return t(formula.period === PERIOD.ANNUAL ? 'operators.subscriptionAnnual' : 'operators.subscriptionMonthly', { amount: currency(formula.cost) });
 }
 
-export function formatOperatorThreshold(km) {
+export function formatOperatorThreshold(km, { referenceUnavailable = false } = {}) {
     if (km === 0) return t('offerDetail.noSubscription');
+    if (referenceUnavailable) return t('offerDetail.referenceUnavailable');
     if (!Number.isFinite(km)) return t('offerDetail.notProfitable');
     return t('operators.breakEvenFrom', { distance: t('offerDetail.breakEvenValue', { distance: formatNumber(km) }) });
 }
@@ -94,7 +95,7 @@ function renderDirectory({ operators, consumption, logos, favorites, onToggleFav
         const plans = operator.formulas.map((formula, index) => {
             const result = operatorFormulaResult(operator, formula, consumption);
             const threshold = Number.isFinite(result.km) && result.km > 0
-                ? `<span class="operator-plan-threshold">${escapeHtml(formatOperatorThreshold(result.km))}</span>` : '';
+                ? `<span class="operator-plan-threshold">${escapeHtml(formatOperatorThreshold(result.km, { referenceUnavailable: formula.referenceUnavailable === true }))}</span>` : '';
             return `<article class="operator-plan-row">${favoriteButton(opKey, formula, favorites)}<div class="operator-plan-copy"><strong>${escapeHtml(localizeCommercialLabel(formula.name))}</strong><span>${escapeHtml(offerDetailPricingLabel(formula))} · ${escapeHtml(offerDetailSubscriptionLabel({ ...formula, monthlyCost: result.monthlyCost }))}</span>${threshold}</div><button type="button" class="operator-plan-detail" data-formula-index="${index}" aria-label="${escapeHtml(t('operators.detailsFor', { formula: localizeCommercialLabel(formula.name) }))}">${escapeHtml(t('operators.details'))}<span aria-hidden="true">›</span></button></article>`;
         }).join('');
         const logo = logos[opKey] ? `<img src="${logos[opKey]}" class="operator-logo" alt="${escapeHtml(localizeCommercialLabel(operator.name))}" loading="lazy">` : '';

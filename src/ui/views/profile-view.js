@@ -39,8 +39,10 @@ export function profileShareStatusLabel(result) {
     return '';
 }
 
-export function profileThresholdLabel({ hasSubscription, thresholdKm }) {
+export function profileThresholdLabel({ hasSubscription, thresholdKm, referenceUnavailable = false }) {
     if (!hasSubscription) return t('recommendation.noSubscription');
+    // Sans tarif sans abonnement fixe du même réseau, le seuil n'est pas « infini » : il est incalculable.
+    if (referenceUnavailable) return t('recommendation.breakEvenReferenceUnavailable');
     if (!Number.isFinite(thresholdKm)) return t('recommendation.breakEvenUnreachable');
     if (thresholdKm <= 0) return t('recommendation.breakEvenImmediate');
     return t('profile.monthlyMileage', { distance: number(thresholdKm) });
@@ -99,7 +101,8 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
 	const isProfitable =
     !bestHasSubscription || km >= adjustedThresholdKm;
 
-    const threshold = profileThresholdLabel({ hasSubscription: bestHasSubscription, thresholdKm: adjustedThresholdKm });
+    const threshold = profileThresholdLabel({ hasSubscription: bestHasSubscription, thresholdKm: adjustedThresholdKm, referenceUnavailable: best.referenceUnavailable === true });
+    const bestOperatorLabel = escapeHtml(localizeCommercialLabel(best.operator));
     const countKey = withCosts.length === 1 ? 'recommendation.lowestCostOne' : 'recommendation.lowestCostMany';
 
     const reasons = [
@@ -107,9 +110,13 @@ export function renderProfileHero({ formulasData, consumption, fastPercentage, h
         monthlySavings > 0.01 && reference
             ? `<li><strong>${t('recommendation.savingsComparedWith', { amount: currency(monthlySavings), operator: escapeHtml(localizeCommercialLabel(reference.operator)), formula: escapeHtml(localizeCommercialLabel(reference.name)) })}</strong></li>`
             : `<li><strong>${t('recommendation.smallGap')}</strong></li>`,
-        bestHasSubscription
-            ? `<li>${t(isProfitable ? 'recommendation.subscriptionProfitable' : 'recommendation.subscriptionNotYetProfitable', { threshold: `<strong>${threshold}</strong>` })}</li>`
-            : `<li><strong>${t('recommendation.noSubscriptionReason')}</strong></li>`
+        !bestHasSubscription
+            ? `<li><strong>${t('recommendation.noSubscriptionReason')}</strong></li>`
+            : best.referenceUnavailable === true
+                ? `<li>${t('recommendation.referenceUnavailable', { operator: bestOperatorLabel })}</li>`
+                : !Number.isFinite(adjustedThresholdKm)
+                    ? `<li>${t('recommendation.subscriptionNeverProfitable', { operator: bestOperatorLabel })}</li>`
+                    : `<li>${t(isProfitable ? 'recommendation.subscriptionProfitable' : 'recommendation.subscriptionNotYetProfitable', { threshold: `<strong>${threshold}</strong>` })}</li>`
     ];
 
     if (fastPercentage < 100) {
