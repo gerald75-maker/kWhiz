@@ -250,6 +250,7 @@ export function renderComparisonTable(formulasData, {
         const stations = stationsLine(coverage, formula.opKey);
         return `<button type="button" class="compare-item compare-detail-btn${isLowest ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">
             <span class="compare-rank" aria-hidden="true">${index + 1}</span>
+            <span class="compare-logo" aria-hidden="true">${logos[formula.opKey] ? `<img src="${escapeHtml(logos[formula.opKey])}" alt="" loading="lazy">` : `<span class="compare-logo-fallback">${escapeHtml(operatorLabel.slice(0, 1))}</span>`}</span>
             <span class="compare-identity">
                 <strong class="compare-name">${escapeHtml(operatorLabel)} · ${escapeHtml(formulaLabel)}</strong>
                 <span class="compare-sub"><span class="compare-rate-summary">${rateLabel(formula)}</span> · ${subscriptionLabel(formula, language)}${pricingBadge(formula)}</span>

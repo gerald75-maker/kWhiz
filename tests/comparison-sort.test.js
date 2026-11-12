@@ -353,7 +353,7 @@ test('app transmet la référence tarifaire aux données comparées', async () =
 
 test('les lignes d’Offres tiennent en largeur : nom compressible, coût insécable', async () => {
     const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
-    assert.match(css, /#tab-ranking \.compare-item \{ display:grid; grid-template-columns:24px minmax\(0, 1fr\) auto;/);
+    assert.match(css, /#tab-ranking \.compare-item \{ display:grid; grid-template-columns:20px 32px minmax\(0, 1fr\) auto;/);
     assert.match(css, /#tab-ranking \.compare-identity \{ display:flex; flex-direction:column; gap:3px; min-width:0; \}/);
     assert.match(css, /#tab-ranking \.compare-cost strong \{[^}]*white-space:nowrap/);
 });

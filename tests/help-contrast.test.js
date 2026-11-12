@@ -31,10 +31,10 @@ test('le texte de l’aide dépasse WCAG AA dans les deux thèmes', () => {
 });
 
 test('le bleu reste interactif et le texte courant utilise text-primary', () => {
-  assert.match(css, /\.help-topic > p\s*\{[^}]*color:var\(--text-primary\)/s);
+  assert.match(css, /\.help-tip p\s*\{[^}]*color:var\(--text-primary\)/s);
   assert.match(css, /\.help-topic\[open\] > summary\s*\{[^}]*color:var\(--text-primary\)/s);
-  assert.match(css, /\.help-topic > summary::after\s*\{[^}]*color:var\(--accent\)/s);
-  assert.doesNotMatch(css, /\.help-topic > p\s*\{[^}]*color:var\(--accent\)/s);
+  assert.match(css, /\.help-topic > summary::after\s*\{[^}]*border-right:2px solid var\(--accent\)/s);
+  assert.doesNotMatch(css, /\.help-tip p\s*\{[^}]*color:var\(--accent\)/s);
 });
 
 test('le focus clavier de l’aide reste nettement visible', () => {

@@ -84,7 +84,7 @@ test('les quatre rubriques d’aide utilisent des accordéons indépendants', as
     readFile(new URL('src/ui/navigation.js', root), 'utf8')
   ]);
   const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
-  assert.equal((help.match(/<details class="help-topic">/g) || []).length, 4);
+  assert.equal((help.match(/<details class="help-topic" data-topic="[a-z]+">/g) || []).length, 4);
   assert.doesNotMatch(navigation, /#help-faq details\[open\]/);
 });
 
@@ -277,7 +277,7 @@ test('l’aide concise couvre localisation, statuts, sélection et itinéraire',
   const html = await readFile(new URL('index.html', root), 'utf8');
   const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
   for (const title of ['Choisir une offre', 'Comprendre les prix', 'Utiliser la carte', 'Stations sur mon trajet']) {
-    assert.match(help, new RegExp(`<summary[^>]*>${title}`));
+    assert.match(help, new RegExp(`<summary>[\\s\\S]*?class="help-topic-title"[^>]*>${title}`));
   }
   const mapStart = help.indexOf('data-i18n="help.map.title"');
   const mapHelp = help.slice(mapStart, help.indexOf('</details>', mapStart));

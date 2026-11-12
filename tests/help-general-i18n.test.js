@@ -12,17 +12,18 @@ const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-i
 
 test('l’aide contient exactement quatre accordéons natifs indépendants', () => {
   const keys = ['help.plan.title', 'help.prices.title', 'help.map.title', 'help.route.title'];
-  assert.equal((help.match(/<details class="help-topic">/g) || []).length, 4);
-  assert.equal((help.match(/<summary data-i18n=/g) || []).length, 4);
-  for (const key of keys) assert.match(help, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`));
+  assert.equal((help.match(/<details class="help-topic" data-topic="(plan|prices|map|route)">/g) || []).length, 4);
+  assert.equal((help.match(/<summary>/g) || []).length, 4);
+  for (const key of keys) assert.match(help, new RegExp(`<span class="help-topic-title" data-i18n="${key.replace('.', '\\.')}"`));
   assert.doesNotMatch(help, /<details[^>]+name=|data-accordion|onclick=|innerHTML/);
 });
 
 test('le contenu essentiel existe en français et en anglais', () => {
   setLanguage('fr', { persist: false, translate: false });
   assert.equal(t('help.title'), 'Aide');
-  assert.match(t('help.plan.profile'), /Mon offre.*Offres.*abonnement compris/);
-  assert.match(t('help.plan.profile'), /menu, en haut à droite et dans la barre de la carte/);
+  assert.match(t('help.plan.trio'), /Mon offre.*trois réseaux/);
+  assert.match(t('help.plan.offers'), /Offres.*abonnement compris/);
+  assert.match(t('help.plan.menu'), /menu, en haut à droite et dans la barre de la carte/);
   // Depuis la 2.29.0, les pastilles de regroupement n’affichent que le nombre de stations.
   assert.doesNotMatch(t('help.map.clusters'), /prix le plus bas/);
   assert.match(t('help.map.clusters'), /indiquent leur nombre/);
@@ -85,6 +86,18 @@ test('la bascule de langue conserve plusieurs accordéons ouverts', () => {
     globalThis.NodeFilter = previousNodeFilter;
     globalThis.Node = previousNode;
   }
+});
+
+test('chaque conseil a un titre, la légende reprend les statuts de la carte, la vie privée est encadrée', () => {
+  const tips = help.match(/<li class="help-tip[^"]*"><div class="help-tip-title">/g) || [];
+  assert.equal(tips.length, 23);
+  for (const status of ['available', 'busy', 'out_of_service', 'unknown']) assert.match(help, new RegExp(`class="station-status" data-status="${status}"`));
+  assert.equal((help.match(/class="help-tip help-tip--privacy"/g) || []).length, 2);
+  for (const language of ['fr', 'en']) {
+    setLanguage(language, { persist: false, translate: false });
+    for (const key of [...help.matchAll(/data-i18n="(help\.[^"]+)"/g)].map(match => match[1])) assert.notEqual(t(key), key, `${language} ${key}`);
+  }
+  setLanguage('fr', { persist: false, translate: false });
 });
 
 test('la FAQ, les planificateurs et les répétitions retirées sont absents de la fenêtre', () => {

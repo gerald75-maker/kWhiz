@@ -186,6 +186,14 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.33.0 (2026-11-12) : aide illustrée, logos dans Offres
+
+- [x] Aide : `details.help-topic[data-topic]` (plan, prices, map, route) avec icône, couleur et accroche (`help.*.lead`), 23 conseils `li.help-tip` titrés (`help.*.*Title`), légende `.station-status` reprise de la carte, encadrés `help-tip--privacy`. Pas de numérotation (règle de l'aide concise conservée).
+- [x] `help.plan.profile` découpé en `help.plan.profile`, `trio`, `month`, `offers`, `menu`.
+- [x] Offres : logo 32 px par ligne (`.compare-logo`), retiré par erreur en 2.30.0.
+- [x] 403 tests verts ; vérifié en émulation iPhone, thèmes sombre et clair.
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.32.0 (2026-11-12) : Mon offre en trio
 
 - [x] Piste B des maquettes « kWhiz — Mon offre, trois pistes » + les trois cases de la piste A (choix de Gérald).
@@ -193,7 +201,7 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] HTML : `#offer-trio`, `#offer-month`, `#offer-intro` ; `#profile-best-card` et « Ensuite » supprimés ; ligne de résumé sur deux lignes.
 - [x] Correction des maquettes : Atlante Go reste à 4,99 €/mois pour les abonnés d'avant le 31/12 ; seul le ChargeBack passe à 50 % (≈ 0,193 €/kWh).
 - [x] Aide FR/EN réécrite ; 402 tests verts ; vérifié en émulation iPhone 375 et 390 px, avec et sans ville.
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-4889cc2b` constaté en ligne).
 
 ## Livraison 2.31.0 (2026-11-11) : moment de recharge
 

@@ -2172,17 +2172,36 @@ body.light .menu-drawer-sep { background: rgba(0,0,0,0.06); }
 .notes-item { padding: 3px 0 3px 14px; position: relative; }
 .notes-bullet { position: absolute; left: 0; color: #fbbf24; }
 .notes-bullet--faint { position: absolute; left: 0; color: var(--text-faint); }
-.help-topics { display:grid; gap:10px; }
-.help-topic { overflow:hidden; border:1px solid color-mix(in srgb, var(--text-secondary) 42%, transparent); border-radius:14px; background:var(--bg-element); }
-.help-topic > summary { position:relative; padding:15px 44px 15px 16px; color:var(--text-primary); font-size:.9rem; font-weight:750; cursor:pointer; list-style:none; }
+.help-topics { display:grid; gap:12px; }
+.help-intro { margin:0 2px 4px; color:var(--text-secondary); font-size:.88rem; line-height:1.5; }
+.help-topic { --topic:var(--accent); overflow:hidden; border:1px solid color-mix(in srgb, var(--text-secondary) 30%, transparent); border-radius:18px; background:var(--bg-element); transition:border-color .2s ease, box-shadow .2s ease; }
+.help-topic[data-topic="prices"] { --topic:#22c55e; }
+.help-topic[data-topic="map"] { --topic:#a78bfa; }
+.help-topic[data-topic="route"] { --topic:#f59e0b; }
+body.light .help-topic[data-topic="prices"] { --topic:#15803d; }
+body.light .help-topic[data-topic="map"] { --topic:#7c3aed; }
+body.light .help-topic[data-topic="route"] { --topic:#b45309; }
+.help-topic[open] { border-color:color-mix(in srgb, var(--topic) 55%, transparent); box-shadow:0 10px 28px color-mix(in srgb, var(--topic) 12%, transparent); }
+.help-topic > summary { position:relative; display:flex; align-items:center; gap:14px; min-height:64px; padding:12px 48px 12px 14px; color:var(--text-primary); cursor:pointer; list-style:none; }
 .help-topic > summary::-webkit-details-marker { display:none; }
-.help-topic > summary::after { content:'+'; position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:1.3rem; transition:transform .2s; }
-.help-topic[open] > summary { color:var(--text-primary); border-bottom:1px solid color-mix(in srgb, var(--text-secondary) 42%, transparent); }
-.help-topic[open] > summary::after { transform:translateY(-50%) rotate(45deg); }
-.help-topic > :not(summary) { margin-left:14px; margin-right:14px; }
-.help-topic > p { color:var(--text-primary); font-size:.84rem; line-height:1.58; }
-.help-topic > p:last-child { margin-bottom:16px; }
+.help-topic > summary::after { content:''; position:absolute; right:20px; top:50%; width:9px; height:9px; border-right:2px solid var(--accent); border-bottom:2px solid var(--accent); color:var(--accent); transform:translateY(-70%) rotate(45deg); transition:transform .2s ease; }
+.help-topic[open] > summary { color:var(--text-primary); border-bottom:1px solid color-mix(in srgb, var(--text-secondary) 25%, transparent); }
+.help-topic[open] > summary::after { transform:translateY(-30%) rotate(-135deg); }
 .help-topic > summary:focus-visible { outline:2px solid var(--accent); outline-offset:-4px; box-shadow:inset 0 0 0 1px var(--bg-card); }
+.help-topic-icon { flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:14px; background:color-mix(in srgb, var(--topic) 16%, transparent); color:var(--topic); }
+.help-topic-head { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.help-topic-title { font-size:1rem; font-weight:800; letter-spacing:-.01em; }
+.help-topic-lead { color:var(--text-secondary); font-size:.8rem; line-height:1.35; }
+.help-tips { display:flex; flex-direction:column; gap:0; margin:0; padding:4px 14px 12px; list-style:none; }
+.help-tip { padding:12px 0 12px 14px; border-left:2px solid color-mix(in srgb, var(--topic) 45%, transparent); margin-top:10px; }
+.help-tip-title { display:flex; align-items:center; gap:6px; margin-bottom:4px; color:var(--topic); font-size:.78rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+.help-tip p { margin:0; color:var(--text-primary); font-size:.86rem; line-height:1.55; }
+.help-tip p + p { margin-top:6px; }
+.help-tip--privacy { border-left:0; padding:12px 14px; border-radius:12px; background:color-mix(in srgb, var(--topic) 9%, transparent); }
+.help-tip-icon { flex:0 0 auto; }
+.help-legend { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 8px; }
+.help-legend .station-status { margin-top:0 !important; font-size:.74rem !important; }
+@media (prefers-reduced-motion: reduce) { .help-topic, .help-topic > summary::after { transition:none; } }
 
 /* Formules de calcul */
 .formula-code {
@@ -6306,7 +6325,7 @@ body[data-view="map"] .app-header { display:none; }
 .offers-by-price[hidden], .offers-by-network[hidden] { display:none; }
 #tab-ranking .compare-count { margin:12px 2px 6px; }
 #tab-ranking .comparison-list { display:flex; flex-direction:column; gap:0; border:1px solid var(--border-color); border-radius:16px; background:var(--bg-card); overflow:hidden; }
-#tab-ranking .compare-item { display:grid; grid-template-columns:24px minmax(0, 1fr) auto; align-items:center; gap:12px; width:100%; min-height:68px; margin:0; padding:12px 14px; border:0; border-bottom:1px solid var(--border-color); border-radius:0; background:transparent; box-shadow:none; color:var(--text-primary); font:inherit; text-align:left; cursor:pointer; }
+#tab-ranking .compare-item { display:grid; grid-template-columns:20px 32px minmax(0, 1fr) auto; align-items:center; gap:12px; width:100%; min-height:68px; margin:0; padding:12px 14px; border:0; border-bottom:1px solid var(--border-color); border-radius:0; background:transparent; box-shadow:none; color:var(--text-primary); font:inherit; text-align:left; cursor:pointer; }
 #tab-ranking .compare-item:last-child { border-bottom:0; }
 #tab-ranking .compare-item:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
 #tab-ranking .compare-item--best { background:color-mix(in srgb, var(--accent) 6%, transparent); }
@@ -6381,3 +6400,9 @@ body:not(.light) .offer-net-stations--warn { color:#fbbf24; }
 .offer-month-ends span span { color:var(--text-secondary); font-size:.78rem; }
 .offer-month-text { margin:0; color:var(--text-secondary); font-size:.82rem; line-height:1.45; }
 .offer-month .offer-why { align-self:flex-start; margin-top:2px; }
+
+/* 2.33.0 : logos des réseaux dans Offres */
+#tab-ranking .compare-logo { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:9px; background:#fff; border:1px solid color-mix(in srgb, var(--text-secondary) 25%, transparent); overflow:hidden; }
+#tab-ranking .compare-logo img { width:26px; height:26px; object-fit:contain; }
+#tab-ranking .compare-logo-fallback { color:#0f172a; font-size:.85rem; font-weight:800; }
+#tab-ranking .compare-rank { width:20px; }
