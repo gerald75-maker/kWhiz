@@ -1,4 +1,4 @@
-// Panneaux bas (bottom sheets) : Mon profil, Pourquoi ce choix.
+// Panneaux bas (bottom sheets) : Mon profil, Pourquoi cet ordre.
 // Un seul panneau ouvert à la fois ; Échap, le fond ou un bouton
 // [data-sheet-close] le ferment, et le focus revient au déclencheur.
 

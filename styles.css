@@ -6339,3 +6339,45 @@ body:not(.light) #tab-ranking .compare-stations--warn { color:#fbbf24; }
 .profile-time-chips { justify-content:flex-start; gap:8px; flex-wrap:wrap; overflow:visible; }
 .profile-time-chips .km-chip { flex:0 0 auto; }
 .profile-time-hint { margin:4px 0 0; color:var(--text-secondary); font-size:.78rem; line-height:1.4; }
+/* 2.32.0 : Mon offre en trio de réseaux (prix au kWh, recharge, 100 km, abonnement) */
+.profile-summary-text { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.35; }
+#tab-profile .offer-context { margin:4px 2px 4px; font-size:1.35rem; font-weight:800; letter-spacing:-.02em; color:var(--text-primary); line-height:1.25; }
+#tab-profile .offer-intro { margin:0 2px 14px; color:var(--text-secondary); font-size:.88rem; line-height:1.45; }
+#tab-profile .offer-intro-zone { display:inline; margin:0; padding:0; border:0; background:none; color:var(--accent); font:inherit; font-weight:700; text-align:left; cursor:pointer; }
+.offer-trio { display:flex; flex-direction:column; gap:12px; }
+.offer-net { display:flex; flex-direction:column; gap:12px; padding:16px; border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); box-shadow:var(--shadow-card); min-width:0; }
+.offer-net--first { border-color:color-mix(in srgb, var(--accent) 45%, var(--border-color)); }
+.offer-net-head { display:grid; grid-template-columns:auto minmax(0, 1fr) auto; align-items:center; gap:12px; }
+.offer-net-head .phm-logo-frame { width:44px; height:44px; }
+.offer-net-name { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.offer-net-name strong { font-size:1.05rem; font-weight:800; line-height:1.2; }
+.offer-net-name span { color:var(--text-secondary); font-size:.82rem; line-height:1.3; overflow-wrap:anywhere; }
+.offer-net-rate { display:flex; flex-direction:column; align-items:flex-end; }
+.offer-net-rate strong { font-size:1.35rem; font-weight:800; letter-spacing:-.02em; white-space:nowrap; color:var(--text-primary); }
+.offer-net-rate span { color:var(--text-secondary); font-size:.78rem; }
+.offer-net-stats { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:0; }
+.offer-stat { min-width:0; padding:10px; border-radius:12px; background:color-mix(in srgb, var(--text-primary) 5%, transparent); }
+.offer-stat dt { color:var(--text-secondary); font-size:.72rem; line-height:1.25; }
+.offer-stat dd { margin:0; }
+.offer-stat-value { margin-top:4px !important; font-size:1rem; font-weight:800; white-space:nowrap; color:var(--text-primary); }
+.offer-stat-sub { color:var(--text-secondary); font-size:.72rem; line-height:1.3; }
+.offer-net-note { margin:0; color:var(--text-secondary); font-size:.8rem; line-height:1.45; }
+.offer-net-foot { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 12px; }
+.offer-net-stations { color:var(--text-secondary); font-size:.8rem; font-weight:600; }
+.offer-net-stations--warn { color:#b45309; }
+body:not(.light) .offer-net-stations--warn { color:#fbbf24; }
+.offer-net-actions { display:flex; gap:8px; margin-left:auto; }
+.offer-net-action { display:inline-flex; align-items:center; gap:4px; min-height:40px; padding:0 14px; border:1px solid color-mix(in srgb, var(--accent) 40%, var(--border-color)); border-radius:999px; background:color-mix(in srgb, var(--accent) 8%, transparent); color:var(--accent); font:inherit; font-size:.84rem; font-weight:700; text-decoration:none; cursor:pointer; }
+.offer-net-action:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.offer-month { display:flex; flex-direction:column; gap:10px; margin-top:14px; padding:16px; border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); }
+.offer-month-head { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 12px; }
+.offer-month-head h3 { margin:0; font-size:1rem; font-weight:800; color:var(--text-primary); }
+.offer-month-head span { color:var(--text-secondary); font-size:.8rem; }
+.offer-month-range { height:8px; border-radius:999px; background:linear-gradient(90deg, color-mix(in srgb, var(--accent) 45%, transparent), var(--accent)); }
+.offer-month-ends { display:flex; justify-content:space-between; gap:12px; }
+.offer-month-ends > span { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.offer-month-ends > span:last-child { text-align:right; }
+.offer-month-ends strong { font-size:1.05rem; font-weight:800; color:var(--text-primary); }
+.offer-month-ends span span { color:var(--text-secondary); font-size:.78rem; }
+.offer-month-text { margin:0; color:var(--text-secondary); font-size:.82rem; line-height:1.45; }
+.offer-month .offer-why { align-self:flex-start; margin-top:2px; }

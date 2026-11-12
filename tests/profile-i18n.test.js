@@ -7,9 +7,10 @@ import {
     profileMonthlyAmount,
     profileShareStatusLabel,
     profileThresholdLabel,
-    profileActionsHtml,
-    renderProfileHero,
-    renderProfileShortlist,
+    chargeSize,
+    offerNetworkNote,
+    subscriptionPayback,
+    topNetworks,
     renderProfileView,
     whyChoiceHtml
 } from '../src/ui/views/profile-view.js';
@@ -28,10 +29,11 @@ class FakeElement {
 
 function installDocument(km = 1000) {
     const elements = new Map([
-        ['profile-best-card', new FakeElement()],
+        ['offer-trio', new FakeElement()],
+        ['offer-month', new FakeElement()],
+        ['offer-intro', new FakeElement()],
         ['offer-context', new FakeElement()],
         ['why-sheet-body', new FakeElement()],
-        ['profile-shortlist-list', new FakeElement()],
         ['profile-all-offers-label', new FakeElement()],
         ['profile-km', new FakeElement({ value: String(km) })]
     ]);
@@ -75,12 +77,13 @@ const paris = {
 test('localise les états catalogue vide et kilométrage nul', () => {
     let elements = installDocument(1000);
     setLanguage('en', { persist: false, translate: false });
-    renderProfileHero({ formulasData: [], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {} });
-    assert.match(elements.get('profile-best-card').innerHTML, /Loading prices/);
+    renderProfileView({ formulasData: [], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {} });
+    assert.match(elements.get('offer-trio').innerHTML, /Loading prices/);
+    assert.equal(elements.get('offer-month').hidden, true);
 
     elements = installDocument(0);
-    renderProfileHero({ formulasData: [formula('Tarif unique')], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {} });
-    assert.match(elements.get('profile-best-card').innerHTML, /Enter your monthly mileage/);
+    renderProfileView({ formulasData: [formula('Tarif unique')], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {} });
+    assert.match(elements.get('offer-trio').innerHTML, /Enter your monthly mileage/);
     setLanguage('fr', { persist: false, translate: false });
 });
 
@@ -107,19 +110,25 @@ test('formate exactement les coûts mensuels et annuels avec Intl', () => {
     assert.equal(profileAnnualAmount(119.88), '€119.88 per year');
 });
 
-test('Mon offre affiche un nom, un prix, les stations proches et deux actions', () => {
+test('Mon offre montre trois réseaux à égalité : prix au kWh, recharge, 100 km et abonnement', () => {
     const elements = installDocument(1000);
     setLanguage('fr', { persist: false, translate: false });
-    renderProfileView({ formulasData: catalogue, consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, mapOperators: ['atlante'], coverage: paris });
-    const card = elements.get('profile-best-card').innerHTML;
-    assert.equal(elements.get('offer-context').textContent, 'Meilleure offre près de Paris');
-    assert.match(card, /Atlante/);
-    assert.match(card, /40,99(?: |\s)€/);
-    assert.match(card, /offer-coverage--warn[^>]*>.*1 seule station à moins de 20\skm/s);
-    assert.match(card, /Souscrire chez Atlante/);
-    assert.match(card, /data-map-operator="atlante"/);
-    assert.match(card, /data-open-why/);
-    assert.doesNotMatch(card, /par an|Pourquoi ce choix \?<\/summary>|<details/);
+    renderProfileView({ formulasData: catalogue, consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, mapOperators: ['atlante', 'lidl'], coverage: paris, vehicle: { usableKwh: 70 } });
+    const trio = elements.get('offer-trio').innerHTML;
+    assert.equal(elements.get('offer-context').textContent, 'Vos 3 réseaux les moins chers près de Paris');
+    assert.equal((trio.match(/<article class="offer-net/g) || []).length, 3);
+    assert.ok(trio.indexOf('Atlante') < trio.indexOf('Lidl') && trio.indexOf('Lidl') < trio.indexOf('Izivia'));
+    assert.doesNotMatch(trio, /IECharge/);
+    // Atlante : 0,20 €/kWh, recharge 10 → 80 % de 70 kWh = 49 kWh = 9,80 €, 18 kWh aux 100 km = 3,60 €.
+    assert.match(trio, /0,20(?: |\s)€/);
+    assert.match(trio, /Recharge 10→80\s%[\s\S]*9,80(?: |\s)€[\s\S]*49\skWh/);
+    assert.match(trio, /Aux 100\skm[\s\S]*3,60(?: |\s)€/);
+    assert.match(trio, /Abonnement[\s\S]*4,99(?: |\s)€[\s\S]*par mois/);
+    assert.match(trio, /offer-net-stations--warn">1 seule station à 20\skm/);
+    assert.match(trio, /36 stations à 20\skm/);
+    assert.match(trio, /data-map-operator="atlante"/);
+    assert.match(trio, /data-detail="atlante::Atlante Go - mensuel"/);
+    assert.doesNotMatch(trio, /\/mois<\/span>|Souscrire/);
     assert.equal(elements.get('profile-all-offers-label').textContent, 'Voir les 4 offres');
 });
 
@@ -130,25 +139,50 @@ test('avec une ville, seuls les réseaux présents à proximité sont classés',
     assert.equal(nearbyFormulas([roaming], paris).length, 1);
 });
 
-test('« Ensuite » montre les deux offres suivantes avec écart et stations', () => {
+test('« Votre mois » donne les kWh, la fourchette de budget et le remboursement de l’abonnement', () => {
     const elements = installDocument(1000);
     setLanguage('fr', { persist: false, translate: false });
-    renderProfileView({ formulasData: catalogue, consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, coverage: paris });
-    const next = elements.get('profile-shortlist-list').innerHTML;
-    assert.equal((next.match(/class="offer-next-row"/g) || []).length, 2);
-    assert.ok(next.indexOf('Lidl') < next.indexOf('Izivia'));
-    assert.doesNotMatch(next, /IECharge/);
-    assert.match(next, /36 stations proches/);
-    assert.match(next, /\+11,21(?: |\s)€/);
+    renderProfileView({ formulasData: catalogue, consumption: 0.18, fastPercentage: 90, homeRate: 0.20, logos: {}, coverage: paris, vehicle: { usableKwh: 70 } });
+    const month = elements.get('offer-month').innerHTML;
+    assert.equal(elements.get('offer-month').hidden, false);
+    assert.match(month, /Votre mois\s:\s180\skWh/);
+    assert.match(month, /dont 18\skWh à la maison \(3,60(?: |\s)€\)/);
+    assert.match(month, /tout chez Atlante/);
+    assert.match(month, /tout chez Izivia/);
+    // Atlante Go (4,99 €) face à Lidl : 4,99 / (0,29 − 0,20) = 55,4 → 56 kWh, soit 2 recharges de 49 kWh.
+    assert.match(month, /Atlante Go - mensuel se rembourse dès 56\skWh par mois chargés chez Atlante plutôt que chez Lidl, soit 2 recharges\./);
+    assert.match(month, /data-open-why/);
     setLanguage('en', { persist: false, translate: false });
     renderProfileView({ formulasData: catalogue, consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, coverage: null });
-    const english = elements.get('profile-shortlist-list').innerHTML;
-    assert.match(english, /IECharge/);
-    assert.match(elements.get('profile-best-card').innerHTML, /Enter your town to see nearby chargers/);
+    assert.match(elements.get('offer-trio').innerHTML, /IECharge/);
+    assert.match(elements.get('offer-intro').innerHTML, /Enter your town to see nearby chargers/);
+    assert.match(elements.get('offer-trio').innerHTML, /50 kWh charge/);
+    assert.match(elements.get('offer-month').innerHTML, /all at fast chargers/);
     setLanguage('fr', { persist: false, translate: false });
 });
 
-test('« Pourquoi ce choix ? » réunit le coût annuel, les prix, l’écart, le seuil et la source', () => {
+test('une seule formule par réseau, recharge type et remboursement', () => {
+    const twice = [catalogue[0], { ...catalogue[0], name: 'Atlante Go - annuel' }, catalogue[2], catalogue[3], catalogue[1]];
+    assert.deepEqual(topNetworks(twice).map(item => item.opKey), ['atlante', 'lidl', 'iziviafast']);
+    assert.deepEqual(chargeSize({ usableKwh: 70 }), { kwh: 49, fromVehicle: true });
+    assert.deepEqual(chargeSize(null), { kwh: 50, fromVehicle: false });
+    assert.equal(subscriptionPayback(catalogue[0], [catalogue[0], catalogue[2]]).kwh, 56);
+    assert.equal(subscriptionPayback(catalogue[2], [catalogue[0], catalogue[2]]), null);
+    assert.equal(subscriptionPayback(catalogue[0], [catalogue[0]]), null);
+});
+
+test('la note du réseau explique ChargeBack, fourchette ou estimation', () => {
+    setLanguage('fr', { persist: false, translate: false });
+    const cb = { rate: 0.145, rateRaw: 0.29, chargebackRate: 0.145, chargebackConfig: { enabled: true, beforeDate: '2026-07-01', rateBefore: 1, rateAfter: 1, promoEndDate: '2026-12-31', rateAfterPromo: 0.5 } };
+    const note = offerNetworkNote(cb, new Date('2026-11-12T12:00:00'));
+    assert.match(note, /Payé 0,29(?: |\s)€\/kWh à la borne/);
+    assert.match(note, /Après le 31 décembre 2026, ChargeBack à 50\s%\s: ≈ 0,193(?: |\s)€\/kWh/);
+    assert.match(offerNetworkNote({ pricingType: 'discount', rate: 0.3, rateMin: 0.19, rateMax: 0.41, chargingTime: 'any' }), /entre 0,19(?: |\s)€\/kWh et 0,41(?: |\s)€\/kWh selon l’heure\. Calcul\s:/);
+    assert.equal(offerNetworkNote({ pricingType: 'station', rate: 0.3 }), 'Prix estimé, variable selon la station.');
+    assert.equal(offerNetworkNote({ pricingType: 'fixed', rate: 0.29 }), '');
+});
+
+test('« Pourquoi cet ordre ? » réunit le coût annuel, les prix, l’écart, le seuil et la source', () => {
     setLanguage('fr', { persist: false, translate: false });
     const best = { ...catalogue[0], profileMonthlyCost: 40.99, profileAnnualCost: 491.88, referenceUnavailable: true };
     const second = { ...catalogue[2], profileMonthlyCost: 52.2, profileAnnualCost: 626.4 };
@@ -176,25 +210,18 @@ test('les messages de partage sont localisés', () => {
     assert.equal(profileShareStatusLabel('unavailable'), 'Sharing is unavailable on this device.');
 });
 
-test('l’offre n°1 propose la page officielle et les bornes du réseau', () => {
+test('un réseau hors carte kWhiz renvoie vers la carte de l’opérateur', () => {
+    const elements = installDocument(1000);
     setLanguage('fr', { persist: false, translate: false });
-    const atlante = { operator: 'Atlante', opKey: 'atlante', monthlyCost: 4.99, sourceUrl: 'https://atlante.energy/fr/myatlante-app/', mapUrl: 'https://atlante.energy/fr/#mapsBlock' };
-    const html = profileActionsHtml(atlante, { mapOperators: ['atlante'] });
-    assert.match(html, /href="https:\/\/atlante\.energy\/fr\/myatlante-app\/" target="_blank" rel="noopener noreferrer">Souscrire chez Atlante/);
-    assert.match(html, /data-map-operator="atlante"[^>]*>.*Bornes Atlante sur la carte/);
-
-    const iecharge = { operator: 'IECharge', opKey: 'iecharge', monthlyCost: 0, sourceUrl: 'https://example.org/tarifs' };
-    assert.match(profileActionsHtml(iecharge, { mapOperators: ['iecharge'] }), /Voir l’offre chez IECharge/);
-
-    const powerdot = { operator: 'Powerdot', opKey: 'powerdot', monthlyCost: 1.99, sourceUrl: 'https://powerdot.fr', mapUrl: 'https://powerdot.fr/carte' };
-    const external = profileActionsHtml(powerdot, { mapOperators: ['atlante'] });
-    assert.match(external, /href="https:\/\/powerdot\.fr\/carte"[^>]*>.*Carte des bornes Powerdot/);
-    assert.doesNotMatch(external, /data-map-operator/);
-
-    assert.equal(profileActionsHtml({ operator: 'X', opKey: 'x', monthlyCost: 0, sourceUrl: 'javascript:alert(1)' }), '');
-    setLanguage('en', { persist: false, translate: false });
-    assert.match(profileActionsHtml(atlante, { mapOperators: ['atlante'] }), /Subscribe with Atlante.*Atlante chargers on the map/s);
-    setLanguage('fr', { persist: false, translate: false });
+    const powerdot = formula('Powerdot', { operator: 'Powerdot', opKey: 'powerdot', rate: 0.10, rateRaw: 0.10, mapUrl: 'https://powerdot.fr/carte' });
+    renderProfileView({ formulasData: [powerdot], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, mapOperators: ['atlante'] });
+    const trio = elements.get('offer-trio').innerHTML;
+    assert.match(trio, /href="https:\/\/powerdot\.fr\/carte"[^>]*aria-label="Carte des bornes Powerdot"/);
+    assert.doesNotMatch(trio, /data-map-operator/);
+    assert.equal(elements.get('offer-context').textContent, 'Le réseau le moins cher');
+    const unsafe = formula('X', { opKey: 'x', mapUrl: 'javascript:alert(1)' });
+    renderProfileView({ formulasData: [unsafe], consumption: 0.18, fastPercentage: 100, homeRate: 0.20, logos: {}, mapOperators: [] });
+    assert.doesNotMatch(elements.get('offer-trio').innerHTML, /javascript:/);
 });
 
 test('chaque réseau proposé sur la carte possède des stations IRVE', async () => {

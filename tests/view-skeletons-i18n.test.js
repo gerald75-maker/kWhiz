@@ -15,7 +15,7 @@ const requiredBindings = [
   'map.heading.title', 'map.route.short', 'map.filters.sheetTitle', 'map.filters.done', 'map.panel.toggle',
   'map.filters.title', 'map.filters.all', 'map.filters.none', 'map.canvasLabel',
   'map.source.prefix', 'map.source.notice',
-  'profile.sheet.title', 'profile.sheet.car', 'profile.sheet.done', 'offer.next', 'offer.why',
+  'profile.sheet.title', 'profile.sheet.car', 'profile.sheet.done', 'offer.why',
   'profile.controls.monthlyMileage', 'profile.controls.other', 'profile.controls.monthlyMileageLabel',
   'profile.controls.monthlyMileageUnit', 'profile.controls.fastShare',
   'profile.controls.decreasePercentage', 'profile.controls.increasePercentage', 'profile.allOffers',
@@ -50,7 +50,7 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
   for (const id of [
     'conso-slider', 'vehicles', 'compare-search', 'offers-mode', 'offers-by-price', 'offers-by-network',
     'operators-compact', 'map-select-all', 'map-select-none', 'stations-map', 'map-data-date',
-    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'profile-shortlist-list', 'profile-best-card', 'why-sheet-body',
+    'profile-km', 'fast-pct-minus', 'fast-pct-plus', 'offer-trio', 'offer-month', 'offer-intro', 'why-sheet-body',
     'bnav-profile', 'bnav-compare', 'bnav-map', 'bnav-menu'
   ]) assert.match(html, new RegExp(`id="${id}"`), id);
 
@@ -62,8 +62,9 @@ test('conserve les identifiants, les valeurs et la structure interactive', () =>
 test('Mon offre montre l’offre n°1, deux suivantes et renvoie le détail dans un panneau', () => {
   const tab = html.slice(html.indexOf('id="tab-profile"'), html.indexOf('<!-- Bannière mise à jour tarifs -->'));
   assert.match(tab, /id="offer-context"/);
-  assert.match(tab, /id="profile-best-card"/);
-  assert.match(tab, /<section aria-labelledby="offer-next-title" class="offer-next">/);
+  assert.match(tab, /id="offer-trio"/);
+  assert.match(tab, /<section aria-labelledby="offer-month-title" class="offer-month" hidden="" id="offer-month">/);
+  assert.doesNotMatch(tab, /profile-best-card|offer-next/);
   assert.match(tab, /id="profile-all-offers"/);
   assert.doesNotMatch(tab, /profile-ranking-details|profile-page-heading|profile-hero|<table/);
   assert.match(html, /<div aria-hidden="true" class="sheet" hidden="" id="why-sheet">[\s\S]*role="dialog"[\s\S]*id="why-sheet-body"/);

@@ -504,6 +504,7 @@ function renderProfile() {
         onDetail: openFormulaDetail,
         mapOperators: MAP_OPERATOR_KEYS,
         coverage,
+        vehicle: consumptionController?.getVehicle?.() ?? null,
         onShowOperatorMap: showOperatorOnMap
     });
 }

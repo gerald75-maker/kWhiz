@@ -139,13 +139,11 @@
 </div>
 <!-- Mon choix — vue principale -->
 <div class="tab-content active" id="tab-profile">
-<p class="offer-context" id="offer-context"></p>
-<!-- Offre n°1 : nom, prix, stations proches, actions -->
-<div class="profile-best-card profile-recommendation-card" id="profile-best-card"></div>
-<section aria-labelledby="offer-next-title" class="offer-next">
-<h3 class="offer-next-title" data-i18n="offer.next" id="offer-next-title">Ensuite</h3>
-<div class="profile-shortlist-list" id="profile-shortlist-list"></div>
-</section>
+<h2 class="offer-context" id="offer-context">Vos 3 réseaux les moins chers</h2>
+<p class="offer-intro" id="offer-intro"></p>
+<!-- Les trois réseaux les moins chers, à égalité : prix au kWh, recharge, 100 km, abonnement -->
+<div class="offer-trio" id="offer-trio"></div>
+<section aria-labelledby="offer-month-title" class="offer-month" hidden="" id="offer-month"></section>
 <button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers" id="profile-all-offers-label">Toutes les offres</span> <span aria-hidden="true">›</span></button>
 </div>
 <!-- Bannière mise à jour tarifs -->
@@ -276,12 +274,12 @@
 <button class="sheet-primary" data-i18n="profile.sheet.done" data-sheet-close="" type="button">Voir mon offre</button>
 </section>
 </div>
-<!-- ── Panneau : Pourquoi ce choix ? ── -->
+<!-- ── Panneau : Pourquoi cet ordre ? ── -->
 <div aria-hidden="true" class="sheet" hidden="" id="why-sheet">
 <div aria-hidden="true" class="sheet-backdrop" data-sheet-close=""></div>
 <section aria-labelledby="why-sheet-title" aria-modal="true" class="sheet-panel" role="dialog">
 <div aria-hidden="true" class="sheet-handle"></div>
-<header class="sheet-header"><h2 data-i18n="offer.why" id="why-sheet-title" tabindex="-1" data-sheet-focus="">Pourquoi ce choix ?</h2><button aria-label="Fermer" class="sheet-close" data-i18n-aria-label="common.close" data-sheet-close="" type="button"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="18"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></header>
+<header class="sheet-header"><h2 data-i18n="offer.why" id="why-sheet-title" tabindex="-1" data-sheet-focus="">Pourquoi cet ordre ?</h2><button aria-label="Fermer" class="sheet-close" data-i18n-aria-label="common.close" data-sheet-close="" type="button"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="18"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></header>
 <div class="sheet-body" id="why-sheet-body"></div>
 </section>
 </div>
@@ -419,9 +417,9 @@
 </div><div class="page-body">
 <div class="help-topics">
 <details class="help-topic"><summary data-i18n="help.plan.title">Choisir une offre</summary>
-<p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon offre affiche l’offre la moins chère, avec un lien pour souscrire et ses bornes sur la carte, puis les deux suivantes. Offres classe toutes les formules par coût mensuel estimé, abonnement compris. Le menu, en haut à droite et dans la barre de la carte, donne accès à l’aide, à la langue, à l’apparence et à l’introduction.</p>
+<p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville. Mon offre présente vos trois réseaux les moins chers, à égalité, car vous rechargez chez celui qui se trouve sur votre route. Chaque carte donne le prix au kWh, le coût d’une recharge 10 → 80 % de votre modèle (50 kWh sans modèle choisi), le coût aux 100 km et l’abonnement. « Votre mois » indique vos kWh et le budget selon le réseau utilisé, recharge à la maison comprise, et à partir de combien de kWh un abonnement se rembourse. Offres classe toutes les formules par coût mensuel estimé, abonnement compris. Le menu, en haut à droite et dans la barre de la carte, donne accès à l’aide, à la langue, à l’apparence et à l’introduction.</p>
 <p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p>
-<p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi ce choix ? ».</p>
+<p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi cet ordre ? ».</p>
 <p data-i18n="help.plan.timing">Pour les réseaux dont le prix varie selon l’heure, comme Electra, kWhiz retient le milieu de la fourchette publiée. Dans Mon profil, « Quand rechargez-vous ? » permet de retenir le bas (heures creuses) ou le haut (heures de pointe). Le détail de l’offre indique le prix utilisé.</p>
 <p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p>
 <p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p>

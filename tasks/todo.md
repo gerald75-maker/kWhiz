@@ -186,12 +186,21 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.32.0 (2026-11-12) : Mon offre en trio
+
+- [x] Piste B des maquettes « kWhiz — Mon offre, trois pistes » + les trois cases de la piste A (choix de Gérald).
+- [x] `profile-view.js` réécrit : `topNetworks` (une formule par réseau), `chargeSize` (10→80 % de la batterie utile, 50 kWh sans modèle), `offerNetworkNote`, `subscriptionPayback` (kWh pour rembourser l'abonnement face au réseau sans abonnement le moins cher du trio), `offerMonthHtml`.
+- [x] HTML : `#offer-trio`, `#offer-month`, `#offer-intro` ; `#profile-best-card` et « Ensuite » supprimés ; ligne de résumé sur deux lignes.
+- [x] Correction des maquettes : Atlante Go reste à 4,99 €/mois pour les abonnés d'avant le 31/12 ; seul le ChargeBack passe à 50 % (≈ 0,193 €/kWh).
+- [x] Aide FR/EN réécrite ; 402 tests verts ; vérifié en émulation iPhone 375 et 390 px, avec et sans ville.
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.31.0 (2026-11-11) : moment de recharge
 
 - [x] `src/domain/charging-time.js` : heures creuses / n'importe quand / heures de pointe -> bas, milieu ou haut de la fourchette publiée (formules `range`/`discount` en `midpoint`, soit Electra) ; référence sans abonnement décalée d'autant.
 - [x] Puces dans Mon profil (`#charging-time-chips`, clé `kwhiz_charging_time`, incluse dans la sauvegarde), rappel dans la ligne de résumé, prix retenu dans le détail de l'offre, annuaire Par réseau aligné.
 - [x] Aide `help.plan.timing` et note Electra (tarifs.json + traduction EN) mises à jour ; 400 tests verts ; vérifié en émulation iPhone.
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-c96118c2` constaté en ligne).
 - [ ] À surveiller : Electra+ Smart annuel (49,99 €/an, valeur historique non revérifiée) passe 2ᵉ en heures creuses.
 
 ## Livraison 2.30.1 (2026-11-11) : aide

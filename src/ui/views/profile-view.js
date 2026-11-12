@@ -1,11 +1,13 @@
-import { chargebackChangeWithinYear, computeProfileAnnualCost, computeProfileMonthlyCost } from '../../domain/pricing.js';
+import { atlanteSteadyStateRate, chargebackChangeWithinYear, computeProfileAnnualCost, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, safeUrl } from '../../shared/dom.js';
 import { shareResult } from '../share-result.js';
 import { formatCurrency, formatDate, formatNumber, formatPercentage, formatTariffsVerifiedOn, localizeCommercialLabel, t } from '../../i18n/i18n.js';
-import { offerDetailSubscriptionLabel } from './offer-detail-view.js';
+import { offerDetailCalculationNote, offerDetailSubscriptionLabel } from './offer-detail-view.js';
 
-// Écran Mon offre : l'offre n°1 (nom, prix, stations proches, actions), deux offres
-// suivantes, et le détail du calcul dans le panneau « Pourquoi ce choix ? ».
+// Écran Mon offre : les trois réseaux les moins chers, à égalité, car on recharge chez
+// celui qui se trouve sur sa route. Chaque carte donne le prix au kWh, le coût d'une
+// recharge, le coût aux 100 km et l'abonnement ; le bloc « Votre mois » donne le budget
+// selon le réseau utilisé, recharge à domicile comprise.
 
 function currency(value, fractionDigits = 2) {
     return formatCurrency(value, {
@@ -63,24 +65,6 @@ function renderOperatorLogo(logos, opKey, imageClass, frameClass) {
     </span>`;
 }
 
-// Actions de l'offre n°1 : page officielle de l'opérateur et bornes sur la carte kWhiz
-// (ou carte de l'opérateur pour les réseaux absents de la base IRVE rapide).
-export function profileActionsHtml(best, { mapOperators = [] } = {}) {
-    const operator = escapeHtml(localizeCommercialLabel(best.operator));
-    const hasSubscription = best.monthlyCost > 0;
-    const offerUrl = safeUrl(best.sourceUrl);
-    const actions = [];
-    if (offerUrl) {
-        actions.push(`<a class="phm-action phm-action--primary" href="${offerUrl}" target="_blank" rel="noopener noreferrer">${t(hasSubscription ? 'profile.action.subscribe' : 'profile.action.viewOffer', { operator })} <span aria-hidden="true">↗</span></a>`);
-    }
-    if (mapOperators.includes(best.opKey)) {
-        actions.push(`<button type="button" class="phm-action" data-map-operator="${escapeHtml(best.opKey)}"><span aria-hidden="true">⌖</span> ${t('profile.action.stations', { operator })}</button>`);
-    } else if (safeUrl(best.mapUrl)) {
-        actions.push(`<a class="phm-action" href="${safeUrl(best.mapUrl)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⌖</span> ${t('profile.action.operatorMap', { operator })} <span aria-hidden="true">↗</span></a>`);
-    }
-    return actions.length ? `<div class="phm-actions">${actions.join('')}</div>` : '';
-}
-
 // Avec une zone de recharge, seuls les réseaux présents à proximité sont classés.
 // Un réseau absent de la base IRVE (carte d'itinérance) reste dans le classement.
 export function nearbyFormulas(formulas, coverage) {
@@ -93,22 +77,6 @@ export function nearbyFormulas(formulas, coverage) {
 function stationCount(coverage, opKey) {
     if (!coverage || !coverage.operators?.has(opKey)) return null;
     return coverage.counts?.get(opKey) || 0;
-}
-
-function coverageLine(coverage, opKey) {
-    if (!coverage) {
-        return `<button type="button" class="offer-coverage offer-coverage--empty" data-open-profile>${t('offer.coverage.setZone')}</button>`;
-    }
-    const count = stationCount(coverage, opKey);
-    if (count === null) return '';
-    const key = count === 0 ? 'offer.coverage.none' : count === 1 ? 'offer.coverage.one' : 'offer.coverage.many';
-    return `<p class="offer-coverage${count <= 1 ? ' offer-coverage--warn' : ''}"><span aria-hidden="true">⌖</span> ${t(key, { count: number(count), radius: coverage.radiusKm })}</p>`;
-}
-
-function shortCoverage(coverage, opKey) {
-    const count = stationCount(coverage, opKey);
-    if (count === null) return '';
-    return t(count === 0 ? 'offer.stations.none' : count === 1 ? 'offer.stations.one' : 'offer.stations.many', { count: number(count) });
 }
 
 function withProfileCosts(formulasData, { km, consumption, fastPercentage, homeRate }) {
@@ -125,7 +93,7 @@ function whyRow(label, value, className = '') {
     return `<div class="why-row"><dt>${label}</dt><dd${className ? ` class="${className}"` : ''}>${value}</dd></div>`;
 }
 
-// Contenu du panneau « Pourquoi ce choix ? » : tout le calcul, rien d'imposé sur l'écran.
+// Contenu du panneau « Pourquoi cet ordre ? » : tout le calcul, rien d'imposé sur l'écran.
 export function whyChoiceHtml({ best, second = null, fastPercentage, favorites = new Set(), ranked = [] }) {
     const change = chargebackChangeWithinYear(best);
     const promo = change
@@ -171,113 +139,235 @@ export function whyChoiceHtml({ best, second = null, fastPercentage, favorites =
         <p id="profile-share-status" class="phm-share-status" role="status" aria-live="polite"></p>`;
 }
 
-export function renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites = new Set(), logos, mapOperators = [], onShowOperatorMap, coverage = null, km: kmOverride }) {
-    const card = document.getElementById('profile-best-card');
-    const context = document.getElementById('offer-context');
-    const why = document.getElementById('why-sheet-body');
-    if (!card) return [];
-    const km = kmOverride ?? Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
-
-    if (formulasData.length === 0) {
-        card.innerHTML = `<p class="profile-hero-hint">${t('profile.loadingPrices')}</p>`;
-        if (context) context.textContent = '';
-        return [];
+// Une seule formule par réseau : la moins chère pour le profil.
+export function topNetworks(ranked, count = 3) {
+    const seen = new Set();
+    const result = [];
+    for (const formula of ranked) {
+        if (seen.has(formula.opKey)) continue;
+        seen.add(formula.opKey);
+        result.push(formula);
+        if (result.length === count) break;
     }
-    if (km === 0) {
-        card.innerHTML = `<p class="profile-hero-hint">${t('profile.enterMileage')}</p>`;
-        if (context) context.textContent = '';
-        return [];
-    }
+    return result;
+}
 
-    const ranked = withProfileCosts(nearbyFormulas(formulasData, coverage), { km, consumption, fastPercentage, homeRate });
-    if (!ranked.length) {
-        card.innerHTML = `<p class="profile-hero-hint">${t('profile.noPlans')}</p>`;
-        return ranked;
-    }
-    const [best, second] = ranked;
-    if (context) context.textContent = coverage ? t('offer.bestNear', { place: coverage.label }) : t('offer.best');
+// Énergie d'une recharge type : 10 → 80 % de la batterie utile du modèle choisi,
+// sinon une recharge de référence de 50 kWh.
+export const REFERENCE_CHARGE_KWH = 50;
+export function chargeSize(vehicle) {
+    const usable = Number(vehicle?.usableKwh);
+    if (Number.isFinite(usable) && usable > 0) return { kwh: Math.round(usable * 0.7 * 10) / 10, fromVehicle: true };
+    return { kwh: REFERENCE_CHARGE_KWH, fromVehicle: false };
+}
 
-    const logo = renderOperatorLogo(logos, best.opKey, 'phm-logo', 'phm-logo-frame');
-    card.innerHTML = `
-        <div class="offer-brand">
+function isEstimate(formula) {
+    return Number.isFinite(formula.chargebackRate)
+        || (formula.pricingType && formula.pricingType !== 'fixed')
+        || formula.isMinimum === true;
+}
+
+function approx(formula, text) {
+    return isEstimate(formula) ? `≈ ${text}` : text;
+}
+
+// Ce qu'il faut savoir du prix, en une phrase : ChargeBack, fourchette horaire ou estimation.
+export function offerNetworkNote(formula, date = new Date()) {
+    if (Number.isFinite(formula.chargebackRate)) {
+        const paid = Number.isFinite(formula.rateRaw) ? formula.rateRaw : formula.rate;
+        const parts = [t('offer.net.chargeback', { paid: kwhRate(paid) })];
+        const change = chargebackChangeWithinYear(formula, date);
+        if (change) {
+            parts.push(t('offer.net.chargebackChange', {
+                date: formatDate(change.endDate),
+                after: formatPercentage(change.rateAfter * 100),
+                rate: kwhRate(atlanteSteadyStateRate(paid, change.rateAfter))
+            }));
+        }
+        return parts.join(' ');
+    }
+    if ((formula.pricingType === 'range' || formula.pricingType === 'discount') && Number.isFinite(formula.rateMin) && Number.isFinite(formula.rateMax)) {
+        const range = t('offer.net.range', { min: kwhRate(formula.rateMin), max: kwhRate(formula.rateMax) });
+        const calculation = offerDetailCalculationNote(formula);
+        return calculation ? `${range} ${calculation}.` : range;
+    }
+    if (formula.pricingType === 'station' || formula.isMinimum === true) return t('offer.net.estimate');
+    return '';
+}
+
+function subscriptionStat(formula) {
+    if (!(formula.monthlyCost > 0)) return { value: t('offer.stat.none'), sub: '' };
+    if (formula.period === 'annual') {
+        return { value: currency(formula.monthlyCost), sub: t('offer.stat.perMonthAnnual', { amount: currency(formula.cost) }) };
+    }
+    return { value: currency(formula.monthlyCost), sub: t('offer.stat.perMonth') };
+}
+
+function stat(label, value, sub) {
+    return `<div class="offer-stat"><dt>${label}</dt><dd class="offer-stat-value">${value}</dd>${sub ? `<dd class="offer-stat-sub">${sub}</dd>` : ''}</div>`;
+}
+
+export function offerNetworkCardHtml(formula, { index = 0, consumption, charge, coverage = null, logos = {}, mapOperators = [] }) {
+    const operator = localizeCommercialLabel(formula.operator);
+    const name = localizeCommercialLabel(formula.name);
+    const rate = formula.rate;
+    const logo = renderOperatorLogo(logos, formula.opKey, 'phm-logo', 'phm-logo-frame');
+    const subscription = subscriptionStat(formula);
+    const chargeLabel = charge.fromVehicle ? t('offer.stat.charge') : t('offer.stat.chargeReference', { kwh: number(charge.kwh) });
+    const note = offerNetworkNote(formula);
+    const count = stationCount(coverage, formula.opKey);
+    const stations = count === null ? '' : `<span class="offer-net-stations${count <= 1 ? ' offer-net-stations--warn' : ''}">${escapeHtml(t(count === 0 ? 'offer.stations.noneNear' : count === 1 ? 'offer.stations.oneNear' : 'offer.stations.manyNear', { count: number(count), radius: coverage.radiusKm }))}</span>`;
+    const mapAction = mapOperators.includes(formula.opKey)
+        ? `<button type="button" class="offer-net-action" data-map-operator="${escapeHtml(formula.opKey)}" aria-label="${escapeHtml(t('profile.action.stations', { operator }))}">${t('offer.net.stations')}</button>`
+        : safeUrl(formula.mapUrl)
+            ? `<a class="offer-net-action" href="${safeUrl(formula.mapUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(t('profile.action.operatorMap', { operator }))}">${t('offer.net.stations')} <span aria-hidden="true">↗</span></a>`
+            : '';
+    return `<article class="offer-net${index === 0 ? ' offer-net--first' : ''}" aria-labelledby="offer-net-${index}">
+        <header class="offer-net-head">
             ${logo}
-            <div>
-                <div class="phm-operator ${escapeHtml(best.color)}">${escapeHtml(localizeCommercialLabel(best.operator))}</div>
-                <div class="phm-formula">${escapeHtml(localizeCommercialLabel(best.name))}</div>
-            </div>
-        </div>
-        <div class="offer-price"><span class="offer-price-value">${currency(best.profileMonthlyCost)}</span><span class="offer-price-unit">${t('offer.perMonth')}</span></div>
-        ${coverageLine(coverage, best.opKey)}
-        ${profileActionsHtml(best, { mapOperators })}
+            <div class="offer-net-name"><strong id="offer-net-${index}" class="phm-operator ${escapeHtml(formula.color || '')}">${escapeHtml(operator)}</strong><span>${escapeHtml(name)}</span></div>
+            <div class="offer-net-rate"><strong>${approx(formula, formatCurrency(rate, { minimumFractionDigits: 2, maximumFractionDigits: 3 }))}</strong><span>${t('offer.net.perKwh')}</span></div>
+        </header>
+        <dl class="offer-net-stats">
+            ${stat(chargeLabel, approx(formula, currency(rate * charge.kwh)), t('offer.stat.kwh', { kwh: number(charge.kwh) }))}
+            ${stat(t('offer.stat.per100'), approx(formula, currency(rate * consumption * 100)), t('offer.stat.kwh', { kwh: formatNumber(consumption * 100, { maximumFractionDigits: 1 }) }))}
+            ${stat(t('offer.stat.subscription'), subscription.value, subscription.sub)}
+        </dl>
+        ${note ? `<p class="offer-net-note">${escapeHtml(note)}</p>` : ''}
+        <footer class="offer-net-foot">
+            ${stations}
+            <span class="offer-net-actions">${mapAction}<button type="button" class="offer-net-action" data-detail="${escapeHtml(detailKey(formula))}" aria-label="${escapeHtml(t('profile.ranking.viewDetails', { operator, formula: name }))}">${t('offer.net.detail')}</button></span>
+        </footer>
+    </article>`;
+}
+
+// Quantité d'énergie à charger chez le réseau abonné pour que l'abonnement soit
+// remboursé, comparé au réseau sans abonnement le moins cher du trio.
+export function subscriptionPayback(subscribed, trio) {
+    if (!(subscribed?.monthlyCost > 0)) return null;
+    const alternative = trio
+        .filter(formula => formula.opKey !== subscribed.opKey && !(formula.monthlyCost > 0) && formula.rate > subscribed.rate)
+        .sort((a, b) => a.rate - b.rate)[0];
+    if (!alternative) return null;
+    const kwh = Math.ceil(subscribed.monthlyCost / (alternative.rate - subscribed.rate));
+    return { kwh, alternative };
+}
+
+export function offerMonthHtml(trio, { km, consumption, fastPercentage, homeRate, charge }) {
+    const totalKwh = km * consumption;
+    const homeKwh = totalKwh * (1 - fastPercentage / 100);
+    const sorted = [...trio].sort((a, b) => a.profileMonthlyCost - b.profileMonthlyCost);
+    const low = sorted[0];
+    const high = sorted[sorted.length - 1];
+    const home = homeKwh >= 0.5
+        ? t('offer.month.home', { kwh: number(homeKwh), amount: currency(homeKwh * homeRate) })
+        : t('offer.month.allFast');
+    const range = sorted.length > 1 && high.profileMonthlyCost - low.profileMonthlyCost >= 0.005
+        ? `<div class="offer-month-range" aria-hidden="true"></div>
+           <div class="offer-month-ends"><span><strong>${currency(low.profileMonthlyCost)}</strong><span>${escapeHtml(t('offer.month.allAt', { operator: localizeCommercialLabel(low.operator) }))}</span></span><span><strong>${currency(high.profileMonthlyCost)}</strong><span>${escapeHtml(t('offer.month.allAt', { operator: localizeCommercialLabel(high.operator) }))}</span></span></div>
+           <p class="offer-month-text">${t('offer.month.explain')}</p>`
+        : `<div class="offer-month-ends"><span><strong>${currency(low.profileMonthlyCost)}</strong><span>${escapeHtml(t('offer.month.allAt', { operator: localizeCommercialLabel(low.operator) }))}</span></span></div>`;
+    const subscriptions = trio.filter(formula => formula.monthlyCost > 0).map(formula => {
+        const payback = subscriptionPayback(formula, trio);
+        if (!payback) return '';
+        const charges = Math.max(1, Math.ceil(payback.kwh / charge.kwh));
+        return `<p class="offer-month-text">${escapeHtml(t(charges === 1 ? 'offer.month.paybackOne' : 'offer.month.paybackMany', {
+            formula: localizeCommercialLabel(formula.name),
+            kwh: number(payback.kwh),
+            operator: localizeCommercialLabel(formula.operator),
+            count: number(charges),
+            alternative: localizeCommercialLabel(payback.alternative.operator)
+        }))}</p>`;
+    }).filter(Boolean);
+    const noSubscription = trio.every(formula => !(formula.monthlyCost > 0))
+        ? `<p class="offer-month-text">${t('offer.month.noSubscription')}</p>` : '';
+    return `<div class="offer-month-head"><h3 id="offer-month-title">${t('offer.month.title', { kwh: number(totalKwh) })}</h3><span>${escapeHtml(home)}</span></div>
+        ${range}
+        ${subscriptions.join('')}${noSubscription}
         <button type="button" class="offer-why" data-open-why aria-haspopup="dialog" aria-controls="why-sheet">${t('offer.why')}</button>`;
-
-    card.querySelector('[data-map-operator]')?.addEventListener('click', event => {
-        onShowOperatorMap?.(event.currentTarget.dataset.mapOperator);
-    });
-
-    if (why) {
-        why.innerHTML = whyChoiceHtml({ best, second, fastPercentage, favorites, ranked });
-        const shareButton = why.querySelector('#profile-share-result');
-        const shareStatus = why.querySelector('#profile-share-status');
-        shareButton?.addEventListener('click', async () => {
-            shareButton.disabled = true;
-            if (shareStatus) shareStatus.textContent = '';
-            try {
-                const result = await shareResult({
-                    operator: best.operator,
-                    formula: best.name,
-                    monthlyCost: best.profileMonthlyCost,
-                    annualCost: best.profileAnnualCost,
-                    km,
-                    fastPercentage
-                });
-                if (shareStatus) shareStatus.textContent = profileShareStatusLabel(result);
-            } catch {
-                if (shareStatus) shareStatus.textContent = profileShareStatusLabel('unavailable');
-            } finally {
-                shareButton.disabled = false;
-            }
-        });
-    }
-    return ranked;
 }
 
 function detailKey(formula) {
     return `${formula.opKey}::${formula.name}`;
 }
 
-// Les deux offres suivantes, en lignes compactes : nom, prix, écart, stations proches.
-export function renderProfileShortlist(ranked, logos, favorites, onToggleFavorite, onDetail, coverage = null) {
-    const list = document.getElementById('profile-shortlist-list');
-    if (!list) return;
-    const section = list.closest?.('.offer-next');
-    const next = ranked.slice(1, 3);
-    if (section) section.hidden = next.length === 0;
-    if (!next.length) {
-        list.innerHTML = '';
-        return;
-    }
-    const best = ranked[0].profileMonthlyCost;
-    list.innerHTML = next.map(formula => {
-        const operator = localizeCommercialLabel(formula.operator);
-        const name = localizeCommercialLabel(formula.name);
-        const stations = shortCoverage(coverage, formula.opKey);
-        return `<button type="button" class="offer-next-row" data-detail="${escapeHtml(detailKey(formula))}" aria-label="${escapeHtml(t('profile.ranking.viewDetails', { operator, formula: name }))}">
-            <span class="offer-next-name"><strong>${escapeHtml(operator)}</strong><span>${escapeHtml(name)}${stations ? ` · ${escapeHtml(stations)}` : ''}</span></span>
-            <span class="offer-next-cost"><strong>${currency(formula.profileMonthlyCost)}</strong><span>${t('recommendation.favoriteGap', { amount: currency(formula.profileMonthlyCost - best) })}</span></span>
-        </button>`;
-    }).join('');
-    list.onclick = event => {
-        const trigger = event.target.closest?.('[data-detail]');
-        if (!trigger) return;
-        const formula = next.find(item => detailKey(item) === trigger.dataset.detail);
-        if (formula) onDetail?.(formula, trigger);
-    };
+function bindWhy(why, { best, second, fastPercentage, favorites, ranked, km }) {
+    if (!why) return;
+    why.innerHTML = whyChoiceHtml({ best, second, fastPercentage, favorites, ranked });
+    const shareButton = why.querySelector('#profile-share-result');
+    const shareStatus = why.querySelector('#profile-share-status');
+    shareButton?.addEventListener('click', async () => {
+        shareButton.disabled = true;
+        if (shareStatus) shareStatus.textContent = '';
+        try {
+            const result = await shareResult({
+                operator: best.operator,
+                formula: best.name,
+                monthlyCost: best.profileMonthlyCost,
+                annualCost: best.profileAnnualCost,
+                km,
+                fastPercentage
+            });
+            if (shareStatus) shareStatus.textContent = profileShareStatusLabel(result);
+        } catch {
+            if (shareStatus) shareStatus.textContent = profileShareStatusLabel('unavailable');
+        } finally {
+            shareButton.disabled = false;
+        }
+    });
 }
 
-export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onToggleFavorite, onDetail, mapOperators = [], onShowOperatorMap, coverage = null }) {
-    const ranked = renderProfileHero({ formulasData, consumption, fastPercentage, homeRate, favorites, logos, mapOperators, onShowOperatorMap, coverage });
-    renderProfileShortlist(ranked, logos, favorites, onToggleFavorite, onDetail, coverage);
+export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onDetail, mapOperators = [], onShowOperatorMap, coverage = null, vehicle = null, km: kmOverride }) {
+    const title = document.getElementById('offer-context');
+    const intro = document.getElementById('offer-intro');
+    const list = document.getElementById('offer-trio');
+    const month = document.getElementById('offer-month');
     const allOffers = document.getElementById('profile-all-offers-label');
     if (allOffers) allOffers.textContent = t('offer.allCount', { count: number(formulasData.length) });
+    if (!list) return [];
+    const km = kmOverride ?? Math.max(0, parseInt(document.getElementById('profile-km')?.value, 10) || 0);
+    const setEmpty = message => {
+        list.innerHTML = `<p class="profile-hero-hint">${message}</p>`;
+        if (month) { month.innerHTML = ''; month.hidden = true; }
+        if (title) title.textContent = '';
+        if (intro) intro.innerHTML = '';
+        return [];
+    };
+    if (formulasData.length === 0) return setEmpty(t('profile.loadingPrices'));
+    if (km === 0) return setEmpty(t('profile.enterMileage'));
+
+    const ranked = withProfileCosts(nearbyFormulas(formulasData, coverage), { km, consumption, fastPercentage, homeRate });
+    if (!ranked.length) return setEmpty(t('profile.noPlans'));
+    const trio = topNetworks(ranked, 3);
+    const charge = chargeSize(vehicle);
+
+    if (title) {
+        const key = trio.length === 1 ? 'offer.trio.titleOne' : 'offer.trio.title';
+        title.textContent = coverage
+            ? t(`${key}Near`, { count: number(trio.length), place: coverage.label })
+            : t(key, { count: number(trio.length) });
+    }
+    if (intro) {
+        intro.innerHTML = coverage
+            ? escapeHtml(t('offer.trio.intro'))
+            : `${escapeHtml(t('offer.trio.intro'))} <button type="button" class="offer-intro-zone" data-open-profile>${t('offer.coverage.setZone')}</button>`;
+    }
+    list.innerHTML = trio.map((formula, index) => offerNetworkCardHtml(formula, { index, consumption, charge, coverage, logos, mapOperators })).join('');
+    list.onclick = event => {
+        const map = event.target.closest?.('[data-map-operator]');
+        if (map) {
+            onShowOperatorMap?.(map.dataset.mapOperator);
+            return;
+        }
+        const trigger = event.target.closest?.('[data-detail]');
+        if (!trigger) return;
+        const formula = trio.find(item => detailKey(item) === trigger.dataset.detail);
+        if (formula) onDetail?.(formula, trigger);
+    };
+    if (month) {
+        month.hidden = false;
+        month.innerHTML = offerMonthHtml(trio, { km, consumption, fastPercentage, homeRate, charge });
+    }
+    bindWhy(document.getElementById('why-sheet-body'), { best: trio[0], second: trio[1] || null, fastPercentage, favorites, ranked, km });
+    return ranked;
 }
