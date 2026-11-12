@@ -97,10 +97,15 @@ test('la navigation tient en trois onglets, Mon offre, Carte, Offres, et le Menu
   assert.doesNotMatch(html, /id="tab-operators"|id="bnav-operators"/);
 });
 
-test('l’aide concise ne réintroduit ni étapes artificielles ni numérotation', async () => {
+test('l’aide ouvre sur un seul démarrage en trois étapes, sans autre numérotation', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   const help = html.slice(html.indexOf('id="page-aide"'), html.indexOf('id="page-infos"'));
-  assert.doesNotMatch(help, /<ol|class="help-num"/);
+  // Demandé par Gérald (2.33.1) : un démarrage numéroté en tête, les chapitres restent des conseils libres.
+  assert.equal((help.match(/<ol/g) || []).length, 1);
+  assert.match(help, /<ol class="help-quick-list">/);
+  assert.equal((help.match(/class="help-quick-step"/g) || []).length, 3);
+  assert.ok(help.indexOf('class="help-quick"') < help.indexOf('<details'));
+  assert.doesNotMatch(help, /class="help-num"/);
 });
 
 test('une borne peut être envoyée vers Wattway ou ouverte dans une app GPS', async () => {

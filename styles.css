@@ -6406,3 +6406,13 @@ body:not(.light) .offer-net-stations--warn { color:#fbbf24; }
 #tab-ranking .compare-logo img { width:26px; height:26px; object-fit:contain; }
 #tab-ranking .compare-logo-fallback { color:#0f172a; font-size:.85rem; font-weight:800; }
 #tab-ranking .compare-rank { width:20px; }
+
+/* 2.33.1 : démarrage en 3 étapes en tête de l’aide */
+.help-quick { padding:14px; border-radius:18px; background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 14%, transparent), color-mix(in srgb, #22c55e 10%, transparent)); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.help-quick-title { margin:0 0 10px; color:var(--text-primary); font-size:.95rem; font-weight:800; }
+.help-quick-list { display:flex; flex-direction:column; gap:10px; margin:0; padding:0; list-style:none; }
+.help-quick-step { display:flex; align-items:flex-start; gap:12px; }
+.help-quick-num { flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#06243a; font-size:.85rem; font-weight:800; }
+.help-quick-copy { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.help-quick-copy strong { color:var(--text-primary); font-size:.9rem; font-weight:750; }
+.help-quick-copy span { color:var(--text-primary); font-size:.82rem; line-height:1.45; }
