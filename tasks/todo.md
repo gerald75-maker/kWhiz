@@ -186,12 +186,19 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.33.4 (2026-11-12) : tirer pour actualiser ne bloque plus les pages
+
+- [x] Signalé par Gérald après 2.33.3 : en bas d'une page du Menu, glisser vers le bas ne remontait pas (il fallait d'abord tirer vers le haut). Cause : `pull-to-refresh.js` traitait tout glissement vers le bas comme une actualisation dès que `window.scrollY` valait 0, toujours vrai quand une page est ouverte (fond verrouillé), et appelait `preventDefault`.
+- [x] `canStartPull` : pas d'actualisation dans `.page-overlay`, `.menu-drawer`, `.sheet`, `.help-overlay`, carte, premier lancement, quand `menu-open` est posé, ni dans une liste qui n'est pas en haut.
+- [x] 410 tests verts ; geste rejoué en émulation (bloqué avant, libre maintenant ; actualisation intacte sur l'écran principal).
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.33.3 (2026-11-12) : remonter dans les pages du menu
 
 - [x] Signalé par Gérald : impossible de remonter en haut de Tarifs et sources. Cause : le geste « glisser vers le bas pour fermer » testait `scrollTop <= 0` à la fin du geste ; remonter jusqu'en haut fermait la page. Corrigé (état mémorisé au `touchstart`) pour les pages et le Menu.
 - [x] Bouton `.page-top` (« Revenir en haut ») dans les 4 pages, visible au-delà de 320 px de défilement ; iOS n'affiche pas d'ascenseur permanent.
 - [x] 406 tests verts ; geste simulé en émulation (remonter ne ferme plus, glisser depuis le haut ferme toujours).
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-e2c56fcf` constaté en ligne).
 
 ## Livraison 2.33.2 (2026-11-12) : Tarifs et sources illustré
 

@@ -8,6 +8,25 @@ const DEFAULTS = {
 
 export function refreshStatusLabel(state) { return t(`refresh.${state}`); }
 
+// Zones où un glissement vers le bas sert à faire défiler ou à manipuler, jamais à actualiser :
+// pages et panneaux ouverts par-dessus l'écran, Menu, fenêtres, carte, premier lancement.
+const OWN_GESTURE_AREAS = '.page-overlay, .menu-drawer, .sheet, .help-overlay, .leaflet-container, #tab-map, #landing-overlay';
+
+/**
+ * Le geste « tirer pour actualiser » ne doit démarrer que sur l'écran principal, déjà en haut,
+ * et pas dans une zone qui défile elle-même et n'est pas en haut (sinon il bloque la remontée).
+ */
+export function canStartPull(target, { scrollY = 0, root = typeof document !== 'undefined' ? document.documentElement : null } = {}) {
+    if (scrollY > 0 || !target?.closest) return false;
+    if (root?.classList?.contains('menu-open')) return false;
+    if (target.closest('input, select, textarea, [contenteditable="true"]')) return false;
+    if (target.closest(OWN_GESTURE_AREAS)) return false;
+    for (let node = target; node && node !== root; node = node.parentElement) {
+        if (node.scrollTop > 0) return false;
+    }
+    return true;
+}
+
 /**
  * Active le geste « tirer pour rafraîchir » sur les écrans tactiles.
  * Le rafraîchissement ne démarre que lorsque la page est déjà tout en haut.
@@ -93,8 +112,8 @@ export function initPullToRefresh({ onRefresh, trigger = document.getElementById
     };
 
     const handleStart = event => {
-        if (refreshing || window.scrollY > 0 || event.touches.length !== 1) return;
-        if (event.target.closest('input, select, textarea, [contenteditable="true"]')) return;
+        if (refreshing || event.touches.length !== 1) return;
+        if (!canStartPull(event.target, { scrollY: window.scrollY })) return;
         startY = event.touches[0].clientY;
         startX = event.touches[0].clientX;
         tracking = true;

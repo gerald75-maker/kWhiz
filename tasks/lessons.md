@@ -49,3 +49,7 @@ Avant chaque livraison, relire chaque section de l’aide concernée par les cha
 ## Gestes de fermeture : décider au début du geste (2026-11-12)
 
 Un « glisser pour fermer » doit vérifier que le contenu était en haut AU DÉBUT du geste (`touchstart`), pas à la fin : sinon remonter une liste jusqu'en haut ferme le panneau.
+
+## Gestes globaux : vérifier toutes les zones qui défilent (2026-11-12)
+
+Un écouteur `touchmove` non passif posé sur `document` (tirer pour actualiser) bloque le défilement de tout conteneur interne. En 2.33.3 j'ai corrigé le geste de fermeture sans voir ce second intercepteur : chercher tous les `touchmove` avant de conclure sur un problème de défilement.
