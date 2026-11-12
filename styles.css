@@ -6438,3 +6438,9 @@ body.light #page-infos .tariffs-info-block[data-topic="sources"] { --topic:#7c3a
 #page-infos .tariffs-source-copy strong { color:var(--text-primary); font-size:.88rem; font-weight:750; }
 #page-infos .tariffs-source-copy small { color:var(--text-secondary); font-size:.76rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #page-infos .tariffs-source-arrow { flex:0 0 auto; color:var(--accent); font-weight:700; }
+
+/* 2.33.3 : bouton « Revenir en haut » des pages du menu (iOS masque l’ascenseur) */
+.page-overlay-sheet .page-top { position:sticky; bottom:14px; z-index:2; display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin:-58px 14px 14px auto; padding:0; border:1px solid color-mix(in srgb, var(--accent) 45%, var(--border-color)); border-radius:50%; background:var(--bg-card); color:var(--accent); box-shadow:0 8px 22px rgba(0,0,0,.28); cursor:pointer; }
+.page-overlay-sheet .page-top[hidden] { display:none; }
+.page-overlay-sheet .page-top:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.page-overlay-sheet .page-body { padding-bottom:calc(72px + env(safe-area-inset-bottom)); }

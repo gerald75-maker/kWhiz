@@ -159,15 +159,19 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
     });
 
     const drawerSheet = document.querySelector('.menu-drawer-sheet');
+    // Glisser vers le bas ferme le panneau seulement si le geste COMMENCE en haut du contenu :
+    // un geste qui sert à remonter la liste ne doit pas fermer le panneau en atteignant le haut.
+    let drawerStartedAtTop = false;
     drawerSheet?.addEventListener('touchstart', event => {
         touchStartY = event.touches[0]?.clientY ?? null;
+        drawerStartedAtTop = drawerSheet.scrollTop <= 0;
     }, { passive: true });
     drawerSheet?.addEventListener('touchend', event => {
         if (touchStartY === null) return;
         const endY = event.changedTouches[0]?.clientY ?? touchStartY;
         const distance = endY - touchStartY;
         touchStartY = null;
-        if (distance > 70 && drawerSheet.scrollTop <= 0) closeDrawer();
+        if (distance > 70 && drawerStartedAtTop && drawerSheet.scrollTop <= 0) closeDrawer();
     }, { passive: true });
 
     ['close-about', 'close-infos', 'close-aide', 'close-settings'].forEach(id => {
@@ -180,16 +184,28 @@ export function initNavigation({ initialView = 'profile', onViewChange, onToggle
 
     document.querySelectorAll('.page-overlay-sheet').forEach(sheet => {
         let pageTouchStartY = null;
+        let startedAtTop = false;
         sheet.addEventListener('touchstart', event => {
             pageTouchStartY = event.touches[0]?.clientY ?? null;
+            startedAtTop = sheet.scrollTop <= 0;
         }, { passive: true });
         sheet.addEventListener('touchend', event => {
             if (pageTouchStartY === null) return;
             const endY = event.changedTouches[0]?.clientY ?? pageTouchStartY;
             const distance = endY - pageTouchStartY;
             pageTouchStartY = null;
-            if (distance > 70 && sheet.scrollTop <= 0) closeAllPages({ restoreFocus: true });
+            if (distance > 70 && startedAtTop && sheet.scrollTop <= 0) closeAllPages({ restoreFocus: true });
         }, { passive: true });
+        // iOS n'affiche pas d'ascenseur permanent : un bouton ramène en haut dès qu'on a défilé.
+        const top = sheet.querySelector('.page-top');
+        if (top) {
+            sheet.addEventListener('scroll', () => { top.hidden = sheet.scrollTop < 320; }, { passive: true });
+            top.addEventListener('click', () => {
+                const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                sheet.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+                sheet.querySelector('.page-close')?.focus({ preventScroll: true });
+            });
+        }
     });
 
     document.querySelectorAll('.tab').forEach(tab => {

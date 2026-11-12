@@ -186,12 +186,19 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.33.3 (2026-11-12) : remonter dans les pages du menu
+
+- [x] Signalé par Gérald : impossible de remonter en haut de Tarifs et sources. Cause : le geste « glisser vers le bas pour fermer » testait `scrollTop <= 0` à la fin du geste ; remonter jusqu'en haut fermait la page. Corrigé (état mémorisé au `touchstart`) pour les pages et le Menu.
+- [x] Bouton `.page-top` (« Revenir en haut ») dans les 4 pages, visible au-delà de 320 px de défilement ; iOS n'affiche pas d'ascenseur permanent.
+- [x] 406 tests verts ; geste simulé en émulation (remonter ne ferme plus, glisser depuis le haut ferme toujours).
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.33.2 (2026-11-12) : Tarifs et sources illustré
 
 - [x] `#page-infos` : blocs `.tariffs-info-block[data-topic]` avec icône et couleur, intro `tariffsInfo.intro`, formules `.tariffs-formula`, date `#tariffs-info-updated` (`formatTariffsVerifiedLine`, mise à jour par `setTariffsStatus`, donc retraduite au changement de langue).
 - [x] Sources en fiches (`renderTariffSources(operators, { logos })`, `sourceDomain`) : logo, nom, domaine, ↗.
 - [x] 404 tests verts ; vérifié en émulation iPhone, thèmes sombre et clair.
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-cb04f43e` constaté en ligne).
 
 ## Livraison 2.33.1 (2026-11-12) : démarrage en 3 étapes
 

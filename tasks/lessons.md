@@ -45,3 +45,7 @@
 ## Aide : relire tout le texte, pas seulement les noms (2026-11-11)
 
 Avant chaque livraison, relire chaque section de l’aide concernée par les changements, y compris ceux des versions précédentes. En 2.29.0, le prix a été retiré des pastilles de la carte mais l’aide l’annonçait encore jusqu’en 2.30.1.
+
+## Gestes de fermeture : décider au début du geste (2026-11-12)
+
+Un « glisser pour fermer » doit vérifier que le contenu était en haut AU DÉBUT du geste (`touchstart`), pas à la fin : sinon remonter une liste jusqu'en haut ferme le panneau.
