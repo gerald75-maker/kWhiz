@@ -186,12 +186,18 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.33.5 (2026-11-12) : « Tarifs mis à jour le »
+
+- [x] Libellé global de la date du fichier de tarifs : « Tarifs mis à jour le … » (bandeau, Tarifs et sources, fraîcheur « aujourd'hui »), FR et EN. Les formules gardent « Vérifié le … ».
+- [x] Tâches planifiées créées le 12/11 : « kWhiz : vérification des tarifs » (1er et 15 du mois, 10 h 23, rapport dans tasks/verifications/) et « kWhiz : échéance Atlante et ENGIE du 31/12 » (2 janvier 2027, 9 h 41, livraison corrective préparée sans publication).
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.33.4 (2026-11-12) : tirer pour actualiser ne bloque plus les pages
 
 - [x] Signalé par Gérald après 2.33.3 : en bas d'une page du Menu, glisser vers le bas ne remontait pas (il fallait d'abord tirer vers le haut). Cause : `pull-to-refresh.js` traitait tout glissement vers le bas comme une actualisation dès que `window.scrollY` valait 0, toujours vrai quand une page est ouverte (fond verrouillé), et appelait `preventDefault`.
 - [x] `canStartPull` : pas d'actualisation dans `.page-overlay`, `.menu-drawer`, `.sheet`, `.help-overlay`, carte, premier lancement, quand `menu-open` est posé, ni dans une liste qui n'est pas en haut.
 - [x] 410 tests verts ; geste rejoué en émulation (bloqué avant, libre maintenant ; actualisation intacte sur l'écran principal).
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-920c762c` constaté en ligne).
 
 ## Livraison 2.33.3 (2026-11-12) : remonter dans les pages du menu
 

@@ -17,11 +17,11 @@ test('localise la fraîcheur du jour, d’un jour et de plusieurs jours', () => 
     const oneDay = assessTariffsFreshness('2026-07-26', { now });
     const severalDays = assessTariffsFreshness('2026-07-20', { now });
     setLanguage('fr', { persist: false, translate: false });
-    assert.equal(formatTariffsFreshness(today), 'Tarifs vérifiés aujourd’hui');
+    assert.equal(formatTariffsFreshness(today), 'Tarifs mis à jour aujourd’hui');
     assert.equal(formatTariffsFreshness(oneDay), 'Tarifs récents (1 jour)');
     assert.equal(formatTariffsFreshness(severalDays), 'Tarifs récents (7 jours)');
     setLanguage('en', { persist: false, translate: false });
-    assert.equal(formatTariffsFreshness(today), 'Prices checked today');
+    assert.equal(formatTariffsFreshness(today), 'Prices updated today');
     assert.equal(formatTariffsFreshness(oneDay), 'Recent prices (1 day)');
     assert.equal(formatTariffsFreshness(severalDays), 'Recent prices (7 days)');
 });

@@ -32,10 +32,10 @@ test('chaque bloc a son icône, les formules sont mises en avant et la date de v
   assert.equal(sourceDomain('https://www.go-electra.com/fr/price'), 'go-electra.com');
   assert.equal(sourceDomain('pas une url'), '');
   setLanguage('fr', { persist: false, translate: false });
-  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Vérifié le 7 novembre 2026 · /);
+  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Tarifs mis à jour le 7 novembre 2026 · /);
   setLanguage('en', { persist: false, translate: false });
   assert.notEqual(t('tariffsInfo.intro'), 'tariffsInfo.intro');
-  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Verified on /);
+  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Prices updated on /);
   setLanguage('fr', { persist: false, translate: false });
 });
 

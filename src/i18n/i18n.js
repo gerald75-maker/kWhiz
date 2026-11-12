@@ -329,7 +329,7 @@ const messages = {
     'map.gps.openWith': 'Ouvrir l’itinéraire avec {app}',
     'map.gps.appOrBrowser': 'Application ou navigateur',
     'map.gps.note': 'L’application GPS s’ouvre si elle est installée. Sinon, le service s’affiche dans le navigateur.',
-    'date.verified': 'Tarifs vérifiés le {date}',
+    'date.verified': 'Tarifs mis à jour le {date}',
     'date.updated': 'mises à jour le {date}',
     'recommendation.savings': 'Vous économisez {amount} par mois',
     'recommendation.monthlyCost': '{amount} par mois',
@@ -492,7 +492,7 @@ const messages = {
     'offerDetail.referenceUnavailable': 'Non calculé : pas de tarif sans abonnement fixe',
     'offerDetail.officialSource': 'Consulter la source officielle',
     'offerDetail.operatorStations': 'Voir les bornes de l’opérateur',
-    'tariffs.freshness.today': 'Tarifs vérifiés aujourd’hui',
+    'tariffs.freshness.today': 'Tarifs mis à jour aujourd’hui',
     'tariffs.freshness.recentOne': 'Tarifs récents (1 jour)',
     'tariffs.freshness.recentMany': 'Tarifs récents ({count} jours)',
     'tariffs.freshness.stale': 'Tarifs à vérifier ({count} jours)',
@@ -507,7 +507,7 @@ const messages = {
     'tariffs.status.offlineEmbedded': 'Tarifs embarqués (hors ligne)',
     'tariffs.status.verifyBeforeChoosing': 'vérifiez avant de choisir',
     'tariffs.status.dateAndSource': '{date} · {source}',
-    'tariffs.status.verifiedOn': 'Tarifs vérifiés le {date}',
+    'tariffs.status.verifiedOn': 'Tarifs mis à jour le {date}',
     'tariffs.verifiedOn': 'Vérifié le {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} payé génère {credit} de crédit en Green Gems (taux de {rate}){promotion} • prix effectif estimé à {effectiveRate}/kWh en usage régulier',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion jusqu’au {date})',
@@ -879,7 +879,7 @@ const messages = {
     'map.gps.openWith': 'Open directions with {app}',
     'map.gps.appOrBrowser': 'App or browser',
     'map.gps.note': 'The navigation app opens if installed. Otherwise, the service opens in your browser.',
-    'date.verified': 'Prices checked on {date}',
+    'date.verified': 'Prices updated on {date}',
     'date.updated': 'updated on {date}',
     'recommendation.savings': 'You save {amount} per month',
     'recommendation.monthlyCost': '{amount} per month',
@@ -1042,7 +1042,7 @@ const messages = {
     'offerDetail.referenceUnavailable': 'Not calculated: no fixed no-subscription price',
     'offerDetail.officialSource': 'View official source',
     'offerDetail.operatorStations': 'View this network’s chargers',
-    'tariffs.freshness.today': 'Prices checked today',
+    'tariffs.freshness.today': 'Prices updated today',
     'tariffs.freshness.recentOne': 'Recent prices (1 day)',
     'tariffs.freshness.recentMany': 'Recent prices ({count} days)',
     'tariffs.freshness.stale': 'Prices need checking ({count} days)',
@@ -1057,7 +1057,7 @@ const messages = {
     'tariffs.status.offlineEmbedded': 'Bundled prices (offline)',
     'tariffs.status.verifyBeforeChoosing': 'check before choosing',
     'tariffs.status.dateAndSource': '{date} · {source}',
-    'tariffs.status.verifiedOn': 'Prices checked on {date}',
+    'tariffs.status.verifiedOn': 'Prices updated on {date}',
     'tariffs.verifiedOn': 'Verified on {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} paid earns {credit} in Green Gems credit ({rate} rate){promotion} • estimated effective price of {effectiveRate}/kWh with regular use',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion until {date})',
@@ -1137,10 +1137,11 @@ export function formatTariffsStatusLine(updatedAt, source = 'online') {
   });
 }
 
-// « Vérifié le 7 novembre 2026 · source en ligne » : date du fichier de tarifs et origine.
+// « Tarifs mis à jour le 7 novembre 2026 · source en ligne » : date du fichier de tarifs et origine.
+// (Chaque formule garde sa propre date « Vérifié le … » dans son détail.)
 export function formatTariffsVerifiedLine(updatedAt, source = 'online') {
   return t('tariffs.status.dateAndSource', {
-    date: t('tariffs.verifiedOn', { date: formatDate(updatedAt) }),
+    date: t('tariffs.status.verifiedOn', { date: formatDate(updatedAt) }),
     source: t(`tariffs.source.${source}`)
   });
 }

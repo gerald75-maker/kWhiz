@@ -36,8 +36,8 @@ test('la bannière et la page Tarifs et sources deviennent entièrement anglaise
     const elements = installStatusDocument();
     setLanguage('en', { persist: false, translate: false });
     renderTarifsDateBanner('2026-08-06', false, { state: 'fresh', ageDays: 3 }, 'online');
-    assert.equal(elements.get('tarifs-update-text').textContent, 'Prices checked on 6 August 2026 · online source');
-    assert.equal(elements.get('infos-tarifs-date').textContent, 'Prices checked on 6 August 2026 · online source');
+    assert.equal(elements.get('tarifs-update-text').textContent, 'Prices updated on 6 August 2026 · online source');
+    assert.equal(elements.get('infos-tarifs-date').textContent, 'Prices updated on 6 August 2026 · online source');
     assert.doesNotMatch(elements.get('tarifs-update-text').textContent, /Tarifs|août|source en ligne/);
 
     renderTarifsDateBanner('2026-01-01', false, { state: 'critical', ageDays: 217 }, 'localCache');
