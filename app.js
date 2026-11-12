@@ -67,7 +67,7 @@ import { showFavoriteFeedback } from './src/ui/favorite-feedback.js';
 import { initDataBackup } from './src/ui/data-backup.js';
 import { initStationsMap } from './src/ui/stations-map.js';
 import { initMenuLanguage } from './src/ui/menu-language.js';
-import { formatCurrency, formatNumber, formatTariffsFreshness, formatTariffsStatusLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
+import { formatCurrency, formatNumber, formatTariffsFreshness, formatTariffsStatusLine, formatTariffsVerifiedLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
 
 const TARIFS_CACHE_KEY = STORAGE_KEYS.tariffsCache;
 const LANDING_KEY = STORAGE_KEYS.landingSeen;
@@ -180,6 +180,12 @@ function renderTariffsStatus() {
 function setTariffsStatus(status) {
     currentTariffsStatus = status;
     renderTariffsStatus();
+    // Tarifs et sources : date de vérification du fichier de tarifs, rappelée dans le bloc Vérification.
+    const infoUpdated = document.getElementById('tariffs-info-updated');
+    if (infoUpdated) {
+        infoUpdated.textContent = status.updatedAt && !status.error ? formatTariffsVerifiedLine(status.updatedAt, status.source) : '';
+        infoUpdated.hidden = !infoUpdated.textContent;
+    }
     renderTarifsDateBanner(status.updatedAt, status.error, status.freshness, status.source);
 }
 
@@ -252,7 +258,7 @@ async function loadTarifs() {
             OPERATORS = Object.fromEntries(
                 Object.entries(result.data).filter(([key]) => key !== 'statione')
             );
-            renderTariffSources(OPERATORS);
+            renderTariffSources(OPERATORS, { logos: LOGOS });
             const snapshot = buildTariffSnapshot(OPERATORS, result.updatedAt);
             tariffHistory = appendTariffSnapshot(tariffHistory, snapshot);
             try { localStorage.setItem(STORAGE_KEYS.tariffHistory, JSON.stringify(tariffHistory)); } catch (_) {}

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { setLanguage, t, translateDocument } from '../src/i18n/i18n.js';
-import { tariffSources } from '../src/ui/tariffs-info.js';
+import { formatTariffsVerifiedLine, setLanguage, t, translateDocument } from '../src/i18n/i18n.js';
+import { sourceDomain, tariffSources } from '../src/ui/tariffs-info.js';
 
 const root = new URL('../', import.meta.url);
 const [html, i18nSource, tariffs] = await Promise.all([
@@ -22,6 +22,21 @@ test('Tarifs et sources contient exactement quatre blocs courts et structurés',
   for (const key of keys) assert.match(infos, new RegExp(`data-i18n="${key.replaceAll('.', '\\.')}"`));
   assert.doesNotMatch(infos, /Notes importantes|Astuce multi-réseaux|notes-list|formula-code|infos-atlante|infos-tarifs-date/);
   assert.doesNotMatch(infos, /\d+[,.]\d+\s*€|Happy Hours|McDonald’s|Octopus Electroverse/);
+});
+
+test('chaque bloc a son icône, les formules sont mises en avant et la date de vérification a sa place', () => {
+  assert.deepEqual([...infos.matchAll(/class="tariffs-info-block" data-topic="([a-z]+)"/g)].map(match => match[1]), ['calculation', 'variable', 'verification', 'sources']);
+  assert.equal((infos.match(/class="tariffs-info-icon"/g) || []).length, 4);
+  assert.equal((infos.match(/class="tariffs-formula"/g) || []).length, 2);
+  assert.match(infos, /id="tariffs-info-updated"/);
+  assert.equal(sourceDomain('https://www.go-electra.com/fr/price'), 'go-electra.com');
+  assert.equal(sourceDomain('pas une url'), '');
+  setLanguage('fr', { persist: false, translate: false });
+  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Vérifié le 7 novembre 2026 · /);
+  setLanguage('en', { persist: false, translate: false });
+  assert.notEqual(t('tariffsInfo.intro'), 'tariffsInfo.intro');
+  assert.match(formatTariffsVerifiedLine(new Date('2026-11-07T12:00:00'), 'online'), /^Verified on /);
+  setLanguage('fr', { persist: false, translate: false });
 });
 
 test('la méthode est naturelle et équivalente en français et en anglais', () => {

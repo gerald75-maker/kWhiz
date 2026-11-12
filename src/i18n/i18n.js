@@ -510,7 +510,8 @@ const messages = {
     'tariffs.verifiedOn': 'Vérifié le {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} payé génère {credit} de crédit en Green Gems (taux de {rate}){promotion} • prix effectif estimé à {effectiveRate}/kWh en usage régulier',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion jusqu’au {date})',
-    'tariffsInfo.title': 'Tarifs et sources', 'tariffsInfo.closeLabel': 'Fermer les tarifs et sources',
+    'tariffsInfo.title': 'Tarifs et sources',
+    'tariffsInfo.intro': 'D’où viennent les prix de kWhiz, et comment ils deviennent votre budget.', 'tariffsInfo.closeLabel': 'Fermer les tarifs et sources',
     'tariffsInfo.calculationTitle': 'Comment sont calculés les coûts ?',
     'tariffsInfo.calculationText': 'kWhiz estime les coûts à partir de votre consommation, de votre kilométrage, de votre part de recharge rapide et des tarifs connus. Les abonnements sont intégrés au calcul.',
     'tariffsInfo.energyFormula': 'Énergie consommée = distance × consommation',
@@ -1058,7 +1059,8 @@ const messages = {
     'tariffs.verifiedOn': 'Verified on {date}',
     'tariffsInfo.atlanteChargeback.summary': '{paid} paid earns {credit} in Green Gems credit ({rate} rate){promotion} • estimated effective price of {effectiveRate}/kWh with regular use',
     'tariffsInfo.atlanteChargeback.promotion': ' (promotion until {date})',
-    'tariffsInfo.title': 'Prices and sources', 'tariffsInfo.closeLabel': 'Close prices and sources',
+    'tariffsInfo.title': 'Prices and sources',
+    'tariffsInfo.intro': 'Where kWhiz prices come from, and how they become your budget.', 'tariffsInfo.closeLabel': 'Close prices and sources',
     'tariffsInfo.calculationTitle': 'How are costs calculated?',
     'tariffsInfo.calculationText': 'kWhiz estimates costs from your energy consumption, mileage, fast-charging share and known prices. Subscriptions are included in the calculation.',
     'tariffsInfo.energyFormula': 'Energy used = distance × consumption',
@@ -1129,6 +1131,14 @@ export function formatTariffsFreshness({ state = 'unknown', ageDays = null } = {
 export function formatTariffsStatusLine(updatedAt, source = 'online') {
   return t('tariffs.status.dateAndSource', {
     date: formatDate(updatedAt),
+    source: t(`tariffs.source.${source}`)
+  });
+}
+
+// « Vérifié le 7 novembre 2026 · source en ligne » : date du fichier de tarifs et origine.
+export function formatTariffsVerifiedLine(updatedAt, source = 'online') {
+  return t('tariffs.status.dateAndSource', {
+    date: t('tariffs.verifiedOn', { date: formatDate(updatedAt) }),
     source: t(`tariffs.source.${source}`)
   });
 }

@@ -461,21 +461,23 @@
 <span class="page-title" data-i18n="tariffsInfo.title" id="page-infos-title">Tarifs et sources</span>
 <button aria-label="Fermer les tarifs et sources" class="page-close" data-i18n-aria-label="tariffsInfo.closeLabel" id="close-infos" type="button">✕</button>
 </div><div class="page-body">
-<div class="tariffs-info-block">
-<h2 data-i18n="tariffsInfo.calculationTitle">Comment sont calculés les coûts ?</h2>
+<p class="tariffs-info-intro" data-i18n="tariffsInfo.intro">D’où viennent les prix de kWhiz, et comment ils deviennent votre budget.</p>
+<div class="tariffs-info-block" data-topic="calculation">
+<div class="tariffs-info-head"><span aria-hidden="true" class="tariffs-info-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h4"></path></svg></span><h2 data-i18n="tariffsInfo.calculationTitle">Comment sont calculés les coûts ?</h2></div>
 <p data-i18n="tariffsInfo.calculationText">kWhiz estime les coûts à partir de votre consommation, de votre kilométrage, de votre part de recharge rapide et des tarifs connus. Les abonnements sont intégrés au calcul.</p>
-<p class="tariffs-info-principles"><span data-i18n="tariffsInfo.energyFormula">Énergie consommée = distance × consommation</span><span aria-hidden="true"> • </span><span data-i18n="tariffsInfo.costFormula">Coût de recharge = énergie × prix du kWh</span></p>
+<div class="tariffs-formulas"><p class="tariffs-formula" data-i18n="tariffsInfo.energyFormula">Énergie consommée = distance × consommation</p><p class="tariffs-formula" data-i18n="tariffsInfo.costFormula">Coût de recharge = énergie × prix du kWh</p></div>
 </div>
-<div class="tariffs-info-block">
-<h2 data-i18n="tariffsInfo.variableTitle">Tarifs variables et promotions</h2>
+<div class="tariffs-info-block" data-topic="variable">
+<div class="tariffs-info-head"><span aria-hidden="true" class="tariffs-info-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><h2 data-i18n="tariffsInfo.variableTitle">Tarifs variables et promotions</h2></div>
 <p data-i18n="tariffsInfo.variableText">Certains prix varient selon la station, l’heure, l’affluence ou le moyen de paiement. kWhiz utilise alors une valeur représentative clairement signalée. Les promotions ponctuelles ne sont pas considérées comme des tarifs permanents.</p>
 </div>
-<div class="tariffs-info-block">
-<h2 data-i18n="tariffsInfo.verificationTitle">Vérification des tarifs</h2>
+<div class="tariffs-info-block" data-topic="verification">
+<div class="tariffs-info-head"><span aria-hidden="true" class="tariffs-info-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3z"></path><path d="m9 12 2 2 4-4"></path></svg></span><h2 data-i18n="tariffsInfo.verificationTitle">Vérification des tarifs</h2></div>
 <p data-i18n="tariffsInfo.verificationText">Les tarifs proviennent des pages officielles des opérateurs. La date de vérification figure sur chaque formule. Vérifiez toujours le prix affiché par l’opérateur avant de lancer la recharge.</p>
+<p class="tariffs-info-updated" hidden="" id="tariffs-info-updated"></p>
 </div>
-<div class="tariffs-info-block">
-<h2 data-i18n="tariffsInfo.sourcesTitle">Sources officielles</h2>
+<div class="tariffs-info-block" data-topic="sources">
+<div class="tariffs-info-head"><span aria-hidden="true" class="tariffs-info-icon"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"></path><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"></path></svg></span><h2 data-i18n="tariffsInfo.sourcesTitle">Sources officielles</h2></div>
 <ul class="tariffs-source-list" id="tariffs-source-list"></ul>
 </div>
 </div></div></div>

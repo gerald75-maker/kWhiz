@@ -49,6 +49,7 @@ test('Tarifs et sources partage le contraste AA de l’aide', () => {
   assert.ok(contrast(light['text-primary'], light['bg-card']) >= 4.5);
   assert.match(css, /#page-infos \.tariffs-info-block p\s*\{[^}]*color:var\(--text-primary\)/s);
   assert.match(css, /#page-infos \.tariffs-source-list a\s*\{[^}]*color:var\(--accent\)/s);
+  assert.match(css, /#page-infos \.tariffs-source-copy strong\s*\{[^}]*color:var\(--text-primary\)/s);
   assert.match(css, /#page-infos \.tariffs-source-list a:focus-visible\s*\{[^}]*outline:2px solid var\(--accent\)/s);
 });
 

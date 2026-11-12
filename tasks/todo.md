@@ -186,11 +186,18 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Étape 2 : Carte plein écran (livrée en 2.29.0).
 - [x] Étape 3 : onglet Offres (fusion Comparer et Opérateurs), navigation à trois onglets, menu dans l'en-tête (livrée en 2.30.0).
 
+## Livraison 2.33.2 (2026-11-12) : Tarifs et sources illustré
+
+- [x] `#page-infos` : blocs `.tariffs-info-block[data-topic]` avec icône et couleur, intro `tariffsInfo.intro`, formules `.tariffs-formula`, date `#tariffs-info-updated` (`formatTariffsVerifiedLine`, mise à jour par `setTariffsStatus`, donc retraduite au changement de langue).
+- [x] Sources en fiches (`renderTariffSources(operators, { logos })`, `sourceDomain`) : logo, nom, domaine, ↗.
+- [x] 404 tests verts ; vérifié en émulation iPhone, thèmes sombre et clair.
+- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+
 ## Livraison 2.33.1 (2026-11-12) : démarrage en 3 étapes
 
 - [x] Encadré `.help-quick` en tête de l'aide (profil, comparer, trouver une station), FR/EN, à la demande de Gérald.
 - [x] La règle « aucune numérotation dans l'aide » devient « une seule liste numérotée, en tête » (test mis à jour).
-- [ ] Mise en ligne FTP par Gérald, puis push GitHub Desktop.
+- [x] Mise en ligne FTP par Gérald (cache `kwhiz-6c9b46ba` constaté en ligne).
 
 ## Livraison 2.33.0 (2026-11-12) : aide illustrée, logos dans Offres
 

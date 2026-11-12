@@ -97,7 +97,7 @@ test('IZIVIA utilise sa page officielle pour la source, la carte et chaque déta
     assert.equal(izivia.sourceUrl, official);
     assert.equal(izivia.mapUrl, official);
     assert.ok(izivia.formulas.every(formula => formula.sourceUrl === official));
-    assert.deepEqual(tariffSources(catalog).find(source => source.name === izivia.name), { name: izivia.name, url: official });
+    assert.deepEqual(tariffSources(catalog).find(source => source.name === izivia.name), { key: 'iziviafast', name: izivia.name, url: official });
 
     const body = { innerHTML: '' };
     const title = { textContent: '' };
