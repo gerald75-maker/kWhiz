@@ -65,7 +65,8 @@ import { initNetworkStatus } from './src/ui/network-status.js';
 import { loadFavorites, saveFavorites, toggleFavorite } from './src/ui/favorites.js';
 import { showFavoriteFeedback } from './src/ui/favorite-feedback.js';
 import { initDataBackup } from './src/ui/data-backup.js';
-import { initStationsMap } from './src/ui/stations-map.js';
+import { initLazyStationsMap } from './src/ui/stations-map-loader.js';
+import { loadIrve } from './src/data/irve-repository.js';
 import { initMenuLanguage } from './src/ui/menu-language.js';
 import { formatCurrency, formatNumber, formatTariffsFreshness, formatTariffsStatusLine, formatTariffsVerifiedLine, initI18n, getLanguage, setLanguage, t, onLanguageChange } from './src/i18n/i18n.js';
 
@@ -99,15 +100,10 @@ let navigation = null;
 let zoneControls = null;
 let coverage = null;
 const comparisonFilters = { noSubscription: false, nearby: false };
-let irveStationsPromise = null;
 
-// Stations IRVE pour la couverture locale (même fichier que la carte, servi en Network First).
+// Stations IRVE pour la couverture locale : même téléchargement que la carte.
 function loadIrveStations() {
-    irveStationsPromise ||= fetch('./irve-fast.json')
-        .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
-        .then(payload => payload.stations || [])
-        .catch(error => { irveStationsPromise = null; throw error; });
-    return irveStationsPromise;
+    return loadIrve().then(payload => payload.stations);
 }
 
 async function refreshCoverage() {
@@ -715,10 +711,15 @@ function initApp() {
     });
     initChargingTimeControls();
 
-    stationsMap = initStationsMap({
+    // Carte et Leaflet chargés à la première ouverture de l'onglet Carte.
+    stationsMap = initLazyStationsMap({
         getHomeZone: () => zoneControls?.getZone(),
         // Le tracé est affiché : on referme le panneau pour montrer la carte.
-        onRouteShown: () => closeSheet({ restoreFocus: false })
+        onRouteShown: () => closeSheet({ restoreFocus: false }),
+        onLoadError: () => {
+            const count = document.getElementById('map-station-count');
+            if (count) count.textContent = t('map.error.unavailableTitle');
+        }
     });
     document.getElementById('map-filters-open')?.addEventListener('click', event => openSheet('map-filters-sheet', event.currentTarget));
     document.getElementById('map-route-open')?.addEventListener('click', event => openSheet('map-route-sheet', event.currentTarget));
@@ -852,7 +853,8 @@ function initApp() {
     // Charger les données seulement après l'installation de tous les
     // contrôleurs. En PWA, la réponse peut venir instantanément du cache.
     loadTarifs();
-    fetch(CONFIG.pingUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+    // Compteur de visites anonyme (ping.php, même origine).
+    fetch(CONFIG.pingUrl, { method: 'GET', cache: 'no-store' }).catch(() => {});
 }
 
 if (document.readyState === 'loading') {

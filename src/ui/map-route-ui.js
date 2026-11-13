@@ -5,7 +5,8 @@ const ROUTE_ERROR_KEYS = {
   ROUTE_SERVICE_UNAVAILABLE: 'map.route.unavailable',
   NETWORK_ERROR: 'map.route.networkError',
   INVALID_RESPONSE: 'map.route.invalidResponse',
-  INVALID_REQUEST: 'map.route.unavailable'
+  INVALID_REQUEST: 'map.route.unavailable',
+  RATE_LIMITED: 'map.route.rateLimited'
 };
 
 /**

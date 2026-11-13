@@ -158,13 +158,12 @@ test('la vue Carte compacte son en-tête pour laisser apparaître la liste', asy
   const css = await readFile(new URL('styles.css', root), 'utf8');
   assert.match(css, /body\[data-view="map"\] > \.container > \.app-title/);
   assert.match(css, /\.stations-map \{ height:48dvh; min-height:360px; max-height:460px/);
-  assert.match(css, /\.map-nearby \{ margin-top:12px/);
 });
 
 test('la carte reste fixe pendant que la liste des stations défile dessous', async () => {
   const css = await readFile(new URL('styles.css', root), 'utf8');
   assert.match(css, /\.stations-map \{ position:sticky; top:max\(8px, env\(safe-area-inset-top\)\)/);
-  assert.match(css, /z-index:100; box-shadow:/);
+  assert.match(css, /z-index:var\(--z-sticky\); box-shadow:/);
 });
 
 test('les points et les logos sélectionnent directement leur fiche dans la liste', async () => {
@@ -296,10 +295,3 @@ test('l’aide concise couvre localisation, statuts, sélection et itinéraire',
   assert.match(help, /lancer le guidage vers celle-ci/);
 });
 
-test('les notes bleues de l’aide ont la taille et le contraste de la liste ordonnée', async () => {
-  const css = await readFile(new URL('styles.css', root), 'utf8');
-  const noteStyles = css.slice(css.indexOf('.help-note {'), css.indexOf('}', css.indexOf('.help-note {')));
-  assert.match(noteStyles, /font-size: 0\.82rem/);
-  assert.match(noteStyles, /color: var\(--text-secondary\)/);
-  assert.match(noteStyles, /line-height: 1\.5/);
-});

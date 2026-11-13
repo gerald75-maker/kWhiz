@@ -48,7 +48,10 @@ test('Tarifs et sources partage le contraste AA de l’aide', () => {
   assert.ok(contrast(dark['text-primary'], dark['bg-card']) >= 4.5);
   assert.ok(contrast(light['text-primary'], light['bg-card']) >= 4.5);
   assert.match(css, /#page-infos \.tariffs-info-block p\s*\{[^}]*color:var\(--text-primary\)/s);
-  assert.match(css, /#page-infos \.tariffs-source-list a\s*\{[^}]*color:var\(--accent\)/s);
+  // Liens : variante de l'accent lisible sur fond clair comme sur fond sombre.
+  assert.match(css, /#page-infos \.tariffs-source-list a\s*\{[^}]*color:var\(--accent-text\)/s);
+  assert.ok(contrast(light['accent-text'], light['bg-card']) >= 4.5, 'accent-text trop pâle sur fond clair');
+  assert.ok(contrast(dark['accent'], dark['bg-card']) >= 4.5, 'accent trop sombre sur fond sombre');
   assert.match(css, /#page-infos \.tariffs-source-copy strong\s*\{[^}]*color:var\(--text-primary\)/s);
   assert.match(css, /#page-infos \.tariffs-source-list a:focus-visible\s*\{[^}]*outline:2px solid var\(--accent\)/s);
 });
@@ -59,7 +62,7 @@ test('le classement compact respecte le contraste AA en clair et sombre', () => 
   const light = variables(css.slice(lightStart, css.indexOf('}', lightStart)));
   assert.ok(contrast(dark['text-secondary'], dark['bg-card']) >= 4.5);
   assert.ok(contrast(light['text-secondary'], light['bg-card']) >= 4.5);
-  assert.match(css, /\.profile-ranking-identity strong[^}]*color: var\(--text-primary\)/s);
-  assert.match(css, /\.profile-ranking-cost span[^}]*color: var\(--text-secondary\)/s);
+  assert.ok(contrast(light['text-muted'], light['bg-card']) >= 4.5, 'text-muted trop pâle sur fond clair');
+  assert.ok(contrast(light['text-faint'], light['bg-card']) >= 4.5, 'text-faint trop pâle sur fond clair');
   assert.match(css, /\.favorite-btn:focus-visible[^}]*outline: 2px solid/s);
 });

@@ -22,6 +22,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: false,
+    // Liste des fichiers du build (dist/.vite/manifest.json) : lue par inject-build-vars.mjs
+    // pour précacher aussi la carte chargée à la demande et la police.
+    manifest: true,
     // Hashes activés (comportement Vite par défaut) :
     // chaque déploiement produit des URLs uniques (ex: assets/index-a3f9c2.js)
     // → le SW Cache First ne peut jamais servir un ancien fichier pour une nouvelle version

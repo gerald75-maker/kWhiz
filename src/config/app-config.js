@@ -1,8 +1,7 @@
 export const CONFIG = Object.freeze({
     apiBase: 'https://kwhiz.aubard.net',
     wattwayUrl: 'https://wattway.aubard.net/',
-    pingUrl: 'https://kwhiz.aubard.net/ping.php',
-    statsUrl: 'https://aubard.net/stats.php'
+    pingUrl: './ping.php'
 });
 
 export const LOGOS = Object.freeze({

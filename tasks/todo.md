@@ -269,3 +269,18 @@ Validation : 351 tests réussis, build 2.25.14 et cache kwhiz-2163a04c. ZIP vér
 - [x] Liste des stations dans un panneau repliable en bas de la carte.
 - [x] Audit n° 15 : regroupement des stations proches (cellules de 72 px jusqu'au zoom 13), prix sous chaque logo (jamais sur autoroute).
 - [x] Aide complétée ; 394 tests ; parcours testé en émulation iPhone sans débordement ni défilement de page ; cache kwhiz-f9d16e80.
+
+## Livraison 2.34.0 (2026-11-13) : nettoyage après la refonte
+
+Demande de Gérald : appliquer toutes les suggestions de la revue du 13/11, en gardant stats.php.
+
+- [x] Serveur : `visits.log` n'est plus servi (`.htaccess`) ; `ping.php` n'écrit plus que la date et le type d'appareil ; `stats.php` derrière un mot de passe (empreinte dans `kwhiz-private.php`, clé `stats_password_hash`) ; `route.php` limité à 20 itinéraires par heure et par adresse, 400 par jour, origine contrôlée, cache purgé ; `rate-limit.php` partagé.
+- [x] `.htaccess` : JSON compressé, en-têtes de sécurité, CSP sur `index.html`. Contrôlé sur un Apache 2.4 local (403 sur le journal, `irve-fast.json` 1,25 Mo → 221 Ko en gzip, empreinte inchangée sans compression pour le contrôle GitHub).
+- [x] Performance : carte et Leaflet chargés à l'ouverture de l'onglet Carte (`src/ui/stations-map-loader.js`), un seul téléchargement IRVE (`src/data/irve-repository.js`), Inter hébergée (`src/fonts/`), fichiers à la demande précachés via le manifeste Vite.
+- [x] CSS : 773 règles mortes et 53 anciennes règles `.compare-*` retirées (6 446 → 3 541 lignes), captures identiques au pixel avant/après la purge ; échelle `--fs-*` (9 tailles, 12 px minimum), rayons `--radius-*`, plans `--z-*` ; `update-popup.css` fusionné.
+- [x] Design : `--accent-text` et couleurs sémantiques (0 texte sous le seuil AA sur les écrans contrôlés, contre 226) ; cartes du trio sans sous-lignes redondantes ; Offres affiche le prix du kWh puis le coût mensuel ; Carte sans lieu : invitation au lieu des stations du centre de la France ; bandeau de mise à jour non bloquant.
+- [x] Texte statique : `tests/static-text-sync.test.js` compare `index.html` au dictionnaire français (deux écarts corrigés). L'injection au build n'a pas été faite : la page garde son texte avant le démarrage du JavaScript.
+- [x] `irve-status-index.json` reste dans `public/` : le contrôle quotidien de mise en ligne le lit par HTTP.
+- [x] Ménage : `extract-logos.mjs` supprimé (migration faite), `RAPPORT-2.19.0.md` déplacé dans `docs/`, `statsUrl` retiré.
+- [x] 431 tests verts ; 375, 390 et 1 280 px sans débordement ni erreur console ; service worker, hors ligne et CSP rejoués dans Chrome.
+- [ ] Gérald : ajouter `stats_password_hash` dans `kwhiz-private.php` sur le serveur, mise en ligne FTP (`.htaccess` compris), push GitHub Desktop.

@@ -148,22 +148,32 @@ function currency(value, language = getLanguage(), fractionDigits = 2) {
     }).format(value).replace(/\u00a0/g, ' ');
 }
 
-export function comparisonGapLabel(cost, bestCost, language = getLanguage()) {
-    if (!Number.isFinite(cost) || !Number.isFinite(bestCost)) return t('comparison.unavailable');
-    if (Math.round(cost * 100) === Math.round(bestCost * 100)) return t('comparison.lowestCost');
-    return t('comparison.moreThanLowest', { amount: currency(Math.max(0, cost - bestCost), language) });
+// Prix du kWh retenu pour le profil : le même chiffre que sur Mon offre (ChargeBack déduit,
+// milieu ou borne de la fourchette selon « Quand rechargez-vous ? »).
+function isEstimate(formula) {
+    return Number.isFinite(formula.chargebackRate)
+        || (formula.pricingType && formula.pricingType !== 'fixed')
+        || formula.isMinimum === true;
 }
 
-function rateLabel(formula) {
+function effectiveRateLabel(formula, language) {
+    const rate = new Intl.NumberFormat(language === 'en' ? 'en-GB' : 'fr-FR', {
+        style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 3
+    }).format(formula.rate).replace(/\u00a0/g, ' ');
+    return isEstimate(formula) ? `≈ ${rate}` : rate;
+}
+
+// Ce que le prix retenu ne dit pas : la fourchette publiée, le prix payé à la borne
+// avant ChargeBack, ou un prix plancher. Vide pour un tarif fixe.
+function publishedRateLabel(formula) {
     if ((formula.pricingType === 'range' || formula.pricingType === 'discount') && Number.isFinite(formula.rateMin) && Number.isFinite(formula.rateMax)) {
         return `${currency(formula.rateMin, getLanguage(), 2)}–${currency(formula.rateMax, getLanguage(), 2)}/kWh`;
     }
     if (formula.isMinimum) return t('comparison.fromRate', { rate: `${currency(formula.rate, getLanguage(), 2)}/kWh` });
-    if (formula.pricingType === 'station') return `≈ ${currency(formula.rate, getLanguage(), 2)}/kWh`;
     if (Number.isFinite(formula.chargebackRate) && Number.isFinite(formula.rateRaw)) {
-        return `${currency(formula.rateRaw, getLanguage(), 2)}/kWh`;
+        return t('comparison.paidAtCharger', { rate: `${currency(formula.rateRaw, getLanguage(), 2)}/kWh` });
     }
-    return `${currency(formula.rate, getLanguage(), 2)}/kWh`;
+    return '';
 }
 
 function formatComparisonNumber(value, language, fractionDigits) {
@@ -232,7 +242,8 @@ export function renderComparisonTable(formulasData, {
         return { query };
     }
 
-    // Une ligne par formule : nom, prix du kWh et abonnement, stations proches, coût et écart.
+    // Une ligne par formule : nom, abonnement, stations proches ; à droite le prix du kWh
+    // retenu pour le profil, puis le coût mensuel qui fixe l'ordre du classement.
     // Le détail (seuil, ChargeBack, notes, sources) s'ouvre au toucher.
     const bestCost = data.find(formula => Number.isFinite(formula.estimatedMonthlyCost))?.estimatedMonthlyCost ?? Infinity;
     list.innerHTML = data.length ? data.map((formula, index) => {
@@ -241,22 +252,20 @@ export function renderComparisonTable(formulasData, {
         const formulaLabel = localizeCommercialLabel(formula.name);
         const isLowest = Number.isFinite(formula.estimatedMonthlyCost)
             && Math.round(formula.estimatedMonthlyCost * 100) === Math.round(bestCost * 100);
-        const cost = Number.isFinite(formula.estimatedMonthlyCost)
-            ? currency(formula.estimatedMonthlyCost, language)
+        const monthly = Number.isFinite(formula.estimatedMonthlyCost)
+            ? t('profile.monthlyAmount', { amount: currency(formula.estimatedMonthlyCost, language) })
             : t('comparison.unavailable');
-        const gap = isLowest || !Number.isFinite(formula.estimatedMonthlyCost)
-            ? comparisonGapLabel(formula.estimatedMonthlyCost, bestCost, language)
-            : t('recommendation.favoriteGap', { amount: currency(formula.estimatedMonthlyCost - bestCost, language) });
+        const published = publishedRateLabel(formula);
         const stations = stationsLine(coverage, formula.opKey);
         return `<button type="button" class="compare-item compare-detail-btn${isLowest ? ' compare-item--best' : ''}" data-detail="${escapeHtml(formulaKey)}" aria-label="${escapeHtml(t('comparison.viewDetails', { operator: operatorLabel, formula: formulaLabel }))}">
             <span class="compare-rank" aria-hidden="true">${index + 1}</span>
             <span class="compare-logo" aria-hidden="true">${logos[formula.opKey] ? `<img src="${escapeHtml(logos[formula.opKey])}" alt="" loading="lazy">` : `<span class="compare-logo-fallback">${escapeHtml(operatorLabel.slice(0, 1))}</span>`}</span>
             <span class="compare-identity">
                 <strong class="compare-name">${escapeHtml(operatorLabel)} · ${escapeHtml(formulaLabel)}</strong>
-                <span class="compare-sub"><span class="compare-rate-summary">${rateLabel(formula)}</span> · ${subscriptionLabel(formula, language)}${pricingBadge(formula)}</span>
+                <span class="compare-sub">${published ? `<span class="compare-rate-summary">${published}</span> · ` : ''}${subscriptionLabel(formula, language)}${pricingBadge(formula)}</span>
                 ${stations}
             </span>
-            <span class="compare-cost"><strong>${cost}</strong><span class="compare-gap${isLowest ? ' is-lowest' : ''}">${gap}</span></span>
+            <span class="compare-cost"><strong>${effectiveRateLabel(formula, language)}<span class="compare-unit">${t('offer.net.perKwh')}</span></strong><span class="compare-gap${isLowest ? ' is-lowest' : ''}">${monthly}</span></span>
         </button>`;
     }).join('') : `<p class="compare-empty">${t(filtersActive ? 'comparison.filters.empty' : 'comparison.empty')}</p>`;
 

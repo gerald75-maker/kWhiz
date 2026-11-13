@@ -23,11 +23,7 @@
 <meta content="summary" name="twitter:card"/>
 <title>kWhiz — Comparateur de recharge rapide VE</title>
 <link href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2E4NTVmNyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3R5bGU9InN0b3AtY29sb3I6I2VjNDg5OSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHBhdGggZD0iTTE4IDRMOCAxOGg2bC0yIDEwIDEwLTE0aC02bDItMTB6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" rel="icon" type="image/svg+xml"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="./styles.css" rel="stylesheet"/>
-<link href="./update-popup.css" rel="stylesheet"/>
 </head>
 <body>
 <div aria-live="polite" class="pull-to-refresh" data-state="idle" id="pull-to-refresh" role="status">
@@ -130,9 +126,9 @@
 </div>
 <p aria-live="polite" class="map-place-status" id="map-place-status" hidden></p>
 </div>
-<section aria-labelledby="map-list-title" class="map-panel" data-expanded="false" id="map-panel">
+<section aria-labelledby="map-list-title" class="map-panel" data-expanded="false" data-place="none" id="map-panel">
 <button aria-controls="map-station-list" aria-expanded="false" class="map-panel-toggle" id="map-panel-toggle" type="button"><span aria-hidden="true" class="map-panel-grip"></span><span class="sr-only" data-i18n="map.panel.toggle">Agrandir ou réduire la liste</span></button>
-<div class="map-panel-head"><div class="map-panel-titles"><h3 id="map-list-title" data-i18n="map.list.nearby">Stations proches du centre de la carte</h3><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div></div><div aria-label="Trier les stations" class="map-sort" data-i18n-aria-label="map.sort.label" id="map-sort" role="group"><button aria-pressed="true" data-i18n="map.sort.distance" data-map-sort="distance" type="button">Les plus proches</button><button aria-pressed="false" data-i18n="map.sort.price" data-map-sort="price" type="button">Les moins chères</button></div></div>
+<div class="map-panel-head"><div class="map-panel-titles"><h3 id="map-list-title" data-i18n="map.list.all">Stations</h3><div aria-live="polite" class="map-station-count" data-i18n="map.status.loading" id="map-station-count">Chargement des stations…</div></div><div aria-label="Trier les stations" class="map-sort" data-i18n-aria-label="map.sort.label" id="map-sort" role="group"><button aria-pressed="true" data-i18n="map.sort.distance" data-map-sort="distance" type="button">Les plus proches</button><button aria-pressed="false" data-i18n="map.sort.price" data-map-sort="price" type="button">Les moins chères</button></div></div>
 <div class="map-station-list" id="map-station-list"></div>
 </section>
 </div>
@@ -144,7 +140,7 @@
 <!-- Les trois réseaux les moins chers, à égalité : prix au kWh, recharge, 100 km, abonnement -->
 <div class="offer-trio" id="offer-trio"></div>
 <section aria-labelledby="offer-month-title" class="offer-month" hidden="" id="offer-month"></section>
-<button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers" id="profile-all-offers-label">Toutes les offres</span> <span aria-hidden="true">›</span></button>
+<button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers" id="profile-all-offers-label">Toutes les offres, avec filtres et détails</span> <span aria-hidden="true">›</span></button>
 </div>
 <!-- Bannière mise à jour tarifs -->
 <div class="tarifs-update-banner" id="tarifs-update-banner">
@@ -426,7 +422,7 @@
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.vehicleTitle">La consommation</strong></div><p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.zoneTitle">Votre ville</strong></div><p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi cet ordre ? ».</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.timingTitle">L’heure de recharge</strong></div><p data-i18n="help.plan.timing">Pour les réseaux dont le prix varie selon l’heure, comme Electra, kWhiz retient le milieu de la fourchette publiée. Dans Mon profil, « Quand rechargez-vous ? » permet de retenir le bas (heures creuses) ou le haut (heures de pointe). Le détail de l’offre indique le prix utilisé.</p></li>
-<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.offersTitle">Toutes les offres</strong></div><p data-i18n="help.plan.offers">Offres classe toutes les formules par coût mensuel estimé, abonnement compris.</p><p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p></li>
+<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.offersTitle">Toutes les offres</strong></div><p data-i18n="help.plan.offers">Offres classe toutes les formules par coût mensuel estimé, abonnement compris. Chaque ligne affiche d’abord le prix du kWh retenu pour votre profil, puis ce coût mensuel.</p><p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.favoritesTitle">Favoris</strong></div><p data-i18n="help.plan.favorites">Les favoris permettent de retrouver plus facilement certaines formules.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.menuTitle">Le menu</strong></div><p data-i18n="help.plan.menu">Le menu, en haut à droite et dans la barre de la carte, donne accès à l’aide, à la langue, à l’apparence et à l’introduction.</p></li>
 </ul></details>
@@ -439,7 +435,7 @@
 </ul></details>
 <details class="help-topic" data-topic="map"><summary><span aria-hidden="true" class="help-topic-icon"><svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="22"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"></path><path d="M9 4v14M15 6v14"></path></svg></span><span class="help-topic-head"><span class="help-topic-title" data-i18n="help.map.title">Utiliser la carte</span><span class="help-topic-lead" data-i18n="help.map.lead">Stations, prix, couleurs et filtres</span></span></summary>
 <ul class="help-tips">
-<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.map.usageTitle">Autour de vous</strong></div><p data-i18n="help.map.usage">Autorisez la localisation pour afficher les stations proches, puis sélectionnez les opérateurs à montrer. Appuyez sur un marqueur ou une fiche pour sélectionner une station et sur Itinéraire pour ouvrir Plans, Google Maps ou Waze.</p></li>
+<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.map.usageTitle">Autour de vous</strong></div><p data-i18n="help.map.usage">Autorisez la localisation, ou saisissez une ville, pour afficher les stations proches : sans lieu, la liste reste vide. Sélectionnez ensuite les opérateurs à montrer. Appuyez sur un marqueur ou une fiche pour sélectionner une station et sur Itinéraire pour ouvrir Plans, Google Maps ou Waze.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.map.pricesTitle">Prix affichés</strong></div><p data-i18n="help.map.prices">Chaque station affiche le prix sans abonnement de son réseau et, s’il y a lieu, celui de votre abonnement favori ou recommandé. Le tri Les moins chères range les stations selon le plus bas de ces prix, Les plus proches selon la distance. Les aires d’autoroute sont masquées par défaut : la case Inclure les aires d’autoroute les affiche, sans prix comparé.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.map.placeTitle">Sans localisation</strong></div><p data-i18n="help.map.place">Sans localisation, saisissez une ville ou un code postal dans le champ « Autour de… » pour centrer la carte. Si vous avez indiqué une zone de recharge, la carte s’y place quand la localisation est refusée.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.map.clustersTitle">Pastilles et boutons</strong></div><p data-i18n="help.map.clusters">Les stations proches se regroupent en pastilles qui indiquent leur nombre : touchez-en une pour zoomer. Une station seule affiche son prix sous son logo. Le bouton Réseaux choisit les opérateurs affichés, le bouton Trajet cherche les stations sur un itinéraire.</p></li>
@@ -507,7 +503,7 @@
 </div>
 <!-- Bottom Navigation -->
 <nav class="bottom-nav" id="bottom-nav">
-<button aria-label="Mon choix personnalisé" class="bnav-item active" data-i18n-aria-label="navigation.profileLabel" id="bnav-profile" type="button">
+<button aria-label="Mon offre" class="bnav-item active" data-i18n-aria-label="navigation.profileLabel" id="bnav-profile" type="button">
 <div class="bnav-icon">
 <svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
 </div>

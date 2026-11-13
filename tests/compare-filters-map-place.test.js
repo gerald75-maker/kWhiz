@@ -80,7 +80,7 @@ test('la carte regroupe les stations proches et affiche un prix sur chaque marqu
     assert.match(map, /className: 'map-cluster'/);
     assert.match(map, /class="map-marker-price"/);
     assert.match(map, /if \(station\.motorway === true\) return null;/);
-    assert.match(html, /class="map-panel" data-expanded="false" id="map-panel"/);
+    assert.match(html, /class="map-panel" data-expanded="false" data-place="none" id="map-panel"/);
     assert.match(html, /aria-controls="map-station-list" aria-expanded="false" class="map-panel-toggle" id="map-panel-toggle"/);
     setLanguage('fr', { persist: false, translate: false });
     assert.equal(t('map.filters.someNetworks', { count: '3' }), '3 réseaux');

@@ -50,7 +50,7 @@ if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
 }
 
 $index = json_decode((string) file_get_contents(__DIR__ . '/irve-status-index.json'), true);
-$context = stream_context_create(['http' => ['timeout' => 20, 'user_agent' => 'kWhiz/2.23']]);
+$context = stream_context_create(['http' => ['timeout' => 20, 'user_agent' => 'kWhiz (kwhiz.aubard.net)']]);
 $stream = @fopen(DYNAMIC_URL, 'r', false, $context);
 
 if ($stream === false || !is_array($index)) {

@@ -229,8 +229,8 @@ export function offerNetworkCardHtml(formula, { index = 0, consumption, charge, 
             <div class="offer-net-rate"><strong>${approx(formula, formatCurrency(rate, { minimumFractionDigits: 2, maximumFractionDigits: 3 }))}</strong><span>${t('offer.net.perKwh')}</span></div>
         </header>
         <dl class="offer-net-stats">
-            ${stat(chargeLabel, approx(formula, currency(rate * charge.kwh)), t('offer.stat.kwh', { kwh: number(charge.kwh) }))}
-            ${stat(t('offer.stat.per100'), approx(formula, currency(rate * consumption * 100)), t('offer.stat.kwh', { kwh: formatNumber(consumption * 100, { maximumFractionDigits: 1 }) }))}
+            ${stat(chargeLabel, approx(formula, currency(rate * charge.kwh)), charge.fromVehicle ? t('offer.stat.kwh', { kwh: number(charge.kwh) }) : '')}
+            ${stat(t('offer.stat.per100'), approx(formula, currency(rate * consumption * 100)), '')}
             ${stat(t('offer.stat.subscription'), subscription.value, subscription.sub)}
         </dl>
         ${note ? `<p class="offer-net-note">${escapeHtml(note)}</p>` : ''}

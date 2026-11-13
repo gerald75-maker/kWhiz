@@ -1,4 +1,3 @@
-import { closeModal, openModal } from '../ui/modal-manager.js';
 import { onLanguageChange, t } from '../i18n/i18n.js';
 
 let installPrompt = null;
@@ -114,45 +113,54 @@ export async function triggerNativeInstall() {
     return choice.outcome === 'accepted';
 }
 
+// Bandeau « Mise à jour disponible » : posé au-dessus de la barre de navigation, il ne
+// bloque pas l'écran. « Actualiser » applique la nouvelle version, « Plus tard » le referme
+// (il reviendra au prochain lancement tant que la mise à jour attend).
 export function showUpdateBanner({ onUpdate = updateApplication } = {}) {
     if (document.getElementById('kwhiz-update-popup')) return;
 
-    const overlay = document.createElement('div');
-    overlay.id = 'kwhiz-update-popup';
-    overlay.className = 'update-popup-overlay update-popup-overlay--glass';
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.tabIndex = -1;
-    overlay.innerHTML = `
-        <div class="update-popup update-popup--glass" role="dialog" aria-modal="true" aria-labelledby="kwhiz-update-title" aria-describedby="kwhiz-update-description">
-            <p class="update-popup__title" id="kwhiz-update-title">${t('pwa.update.title')}</p>
-            <p class="update-popup__body" id="kwhiz-update-description">${t('pwa.update.description')}</p>
-            <div class="update-popup__actions">
-                <button class="update-popup__btn" type="button">${t('pwa.update.refresh')}</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-    const updateTranslations = () => {
-        const title = overlay.querySelector('.update-popup__title');
-        const description = overlay.querySelector('.update-popup__body');
-        const refreshButton = overlay.querySelector('.update-popup__btn');
-        if (title) title.textContent = t('pwa.update.title');
-        if (description) description.textContent = t('pwa.update.description');
-        if (refreshButton) refreshButton.textContent = t('pwa.update.refresh');
+    const element = (tagName, className, attributes = {}) => {
+        const node = document.createElement(tagName);
+        node.className = className;
+        Object.entries(attributes).forEach(([name, value]) => node.setAttribute(name, value));
+        return node;
     };
-    const stopUpdatingTranslations = onLanguageChange(updateTranslations);
-    overlay.addEventListener('kwhiz:modalclose', () => {
-        stopUpdatingTranslations();
-        overlay.classList.remove('is-visible');
-        overlay.remove();
-    }, { once: true });
-    openModal(overlay.id);
-    requestAnimationFrame(() => overlay.classList.add('is-visible'));
+    const bar = element('div', 'update-bar', { role: 'region', 'aria-labelledby': 'kwhiz-update-title' });
+    bar.id = 'kwhiz-update-popup';
+    const text = element('div', 'update-bar__text', { role: 'status', 'aria-live': 'polite' });
+    const title = element('p', 'update-popup__title');
+    title.id = 'kwhiz-update-title';
+    const description = element('p', 'update-popup__body');
+    description.id = 'kwhiz-update-description';
+    const refreshButton = element('button', 'update-popup__btn', { type: 'button' });
+    const laterButton = element('button', 'update-bar__later', { type: 'button' });
+    text.appendChild(title);
+    text.appendChild(description);
+    bar.appendChild(text);
+    bar.appendChild(refreshButton);
+    bar.appendChild(laterButton);
 
-    overlay.querySelector('.update-popup__btn')?.addEventListener('click', () => {
-        closeModal(overlay.id);
+    const updateTranslations = () => {
+        title.textContent = t('pwa.update.title');
+        description.textContent = t('pwa.update.description');
+        refreshButton.textContent = t('pwa.update.refresh');
+        laterButton.textContent = t('pwa.update.later');
+    };
+    updateTranslations();
+    const stopUpdatingTranslations = onLanguageChange(updateTranslations);
+    const dismiss = () => {
+        stopUpdatingTranslations();
+        bar.classList.remove('is-visible');
+        bar.remove();
+    };
+    refreshButton.addEventListener('click', () => {
+        dismiss();
         onUpdate();
     });
+    laterButton.addEventListener('click', dismiss);
+
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => bar.classList.add('is-visible'));
 }
 
 function waitForWorkerState(worker, expectedState, timeout = 8000) {

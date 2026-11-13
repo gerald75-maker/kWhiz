@@ -54,7 +54,7 @@ test('le bouton de fermeture GPS reste accessible et ancré en haut à droite', 
   assert.match(closeRule, /height:\s*48px/);
   assert.match(closeRule, /min-width:\s*44px/);
   assert.match(closeRule, /min-height:\s*44px/);
-  assert.match(closeRule, /font-size:\s*26px/);
+  assert.match(closeRule, /font-size:\s*var\(--fs-3xl\)/);
   assert.match(css, /\.route-choice-modal > \.profile-page-kicker,[\s\S]*?\.route-choice-modal > h2 \{[\s\S]*?padding-right:\s*64px/);
   assert.match(css, /\.route-choice-modal \.modal-close:focus-visible \{[\s\S]*?outline:/);
 

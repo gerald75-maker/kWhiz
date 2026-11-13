@@ -10,7 +10,8 @@
  * sans jamais supprimer les précédents → dist/assets/ grossit indéfiniment.
  *
  * Ce script garde :
- *   1. Les fichiers référencés par le dist/index.html actuel (build courant).
+ *   1. Les fichiers du build courant : ceux de dist/index.html et ceux du manifeste Vite
+ *      (modules chargés à la demande, polices).
  *   2. Le groupe de fichiers non référencés le plus récent (build précédent),
  *      identifié par proximité de date de modification — c'est le filet de
  *      sécurité pour les clients qui auraient encore l'ancien index.html en cache
@@ -21,7 +22,7 @@
  * Appelé automatiquement via "npm run build", après inject-build-vars.mjs.
  */
 
-import { readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,6 +30,7 @@ const __dirname  = dirname(fileURLToPath(import.meta.url));
 const root       = resolve(__dirname, '..');
 const indexPath  = resolve(root, 'dist', 'index.html');
 const assetsDir  = resolve(root, 'dist', 'assets');
+const manifestPath = resolve(root, 'dist', '.vite', 'manifest.json');
 
 // Fenêtre de regroupement : les fichiers d'un même build vite sont écrits en
 // quelques secondes. 30 s couvre largement un build Vite sans fusionner
@@ -48,6 +50,21 @@ try {
 const referenced = new Set(
   [...indexContent.matchAll(/assets\/[A-Za-z0-9_.-]+/g)].map(m => m[0].replace(/^assets\//, ''))
 );
+
+// Le build courant comprend aussi les fichiers chargés à la demande (carte, police), absents
+// de index.html : le manifeste Vite les liste.
+if (existsSync(manifestPath)) {
+  try {
+    Object.values(JSON.parse(readFileSync(manifestPath, 'utf8'))).forEach(entry => {
+      [entry.file, ...(entry.css || []), ...(entry.assets || [])]
+        .filter(file => typeof file === 'string' && file.startsWith('assets/'))
+        .forEach(file => referenced.add(file.replace(/^assets\//, '')));
+    });
+  } catch (err) {
+    console.warn(`[prune-old-assets] ⚠ Manifeste Vite illisible — abandon par précaution : ${err.message}`);
+    process.exit(0);
+  }
+}
 
 if (referenced.size === 0) {
   console.warn('[prune-old-assets] ⚠ Aucune référence "assets/…" trouvée dans dist/index.html — abandon par précaution.');

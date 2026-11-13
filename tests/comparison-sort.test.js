@@ -7,7 +7,6 @@ import { formatTariffsVerifiedOn, setLanguage } from '../src/i18n/i18n.js';
 import {
     adjustedThreshold,
     buildComparisonRanking,
-    comparisonGapLabel,
     filterComparisonFormulas,
     openComparisonRecommendation,
     profileThresholdLabel,
@@ -59,7 +58,7 @@ test('le rendu marque uniquement la première formule comme meilleure et affiche
     assert.match(list.innerHTML, /9,99 €\/mois/);
 });
 
-test('les offres ex æquo au centime portent aussi le libellé Meilleur coût', () => {
+test('les offres ex æquo au centime sont toutes deux mises en avant', () => {
     const list = { innerHTML: '', onclick: null, onkeydown: null };
     globalThis.document = { getElementById: id => id === 'ranking-list' ? list : { textContent: '' }, dispatchEvent: () => true };
     const formulas = [
@@ -70,7 +69,7 @@ test('les offres ex æquo au centime portent aussi le libellé Meilleur coût', 
     setLanguage('fr', { persist: false, translate: false });
     renderComparisonTable(formulas, profile);
     assert.equal((list.innerHTML.match(/compare-item--best/g) || []).length, 2);
-    assert.equal((list.innerHTML.match(/Meilleur coût/g) || []).length, 2);
+    assert.equal((list.innerHTML.match(/compare-gap is-lowest/g) || []).length, 2);
 });
 
 test('les dates et notes quittent les cartes et restent disponibles dans le détail', async () => {
@@ -91,18 +90,6 @@ test('les dates et notes quittent les cartes et restent disponibles dans le dét
     const detail = await readFile(new URL('../src/ui/views/offer-detail-view.js', import.meta.url), 'utf8');
     assert.match(detail, /formatTariffsVerifiedOn\(formula\.verifiedAt\)/);
     assert.match(detail, /formula-detail-note/);
-});
-
-test('calcule l’écart depuis le coût classé et localise égalités et valeurs indisponibles', () => {
-    setLanguage('fr', { persist: false, translate: false });
-    assert.equal(comparisonGapLabel(45, 45, 'fr'), 'Meilleur coût');
-    assert.equal(comparisonGapLabel(45.004, 45, 'fr'), 'Meilleur coût');
-    assert.equal(comparisonGapLabel(47.51, 45, 'fr'), '+2,51 € par rapport à la meilleure');
-    assert.equal(comparisonGapLabel(Infinity, 45, 'fr'), 'Coût non calculable');
-    setLanguage('en', { persist: false, translate: false });
-    assert.equal(comparisonGapLabel(45, 45, 'en'), 'Lowest cost');
-    assert.equal(comparisonGapLabel(47.51, 45, 'en'), '€2.51 more than the lowest');
-    assert.equal(comparisonGapLabel(Infinity, 45, 'en'), 'Cost unavailable');
 });
 
 test('les badges et libellés de Comparer sont structurés et suivent la langue sans MutationObserver', () => {

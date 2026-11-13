@@ -1,8 +1,99 @@
 <?php
-// ── No-cache : page d'admin, jamais mise en cache ─────────────────────────────
+declare(strict_types=1);
+
+// Statistiques de visites de kWhiz : page privée.
+// Le mot de passe n'est écrit nulle part : kwhiz-private.php (dossier parent de la racine
+// web) contient seulement son empreinte, sous la clé stats_password_hash.
+
+require_once __DIR__ . '/rate-limit.php';
+
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
+header('X-Robots-Tag: noindex, nofollow');
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: DENY');
+
+const STATS_LOGIN_ATTEMPTS = 5;
+const STATS_LOGIN_WINDOW_SECONDS = 900;
+
+function statsPasswordHash(): string {
+    $privateConfig = dirname(__DIR__) . '/kwhiz-private.php';
+    if (!is_file($privateConfig)) return '';
+    $config = require $privateConfig;
+    return is_array($config) ? trim((string) ($config['stats_password_hash'] ?? '')) : '';
+}
+
+function statsPage(string $title, string $body, int $status = 200): never {
+    http_response_code($status);
+    echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+        . '<meta name="robots" content="noindex, nofollow"><title>' . htmlspecialchars($title) . '</title><style>'
+        . 'body{margin:0;min-height:100vh;display:grid;place-items:center;padding:16px;box-sizing:border-box;'
+        . 'background:#0f172a;color:#f8fafc;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}'
+        . 'main{width:100%;max-width:420px;padding:22px;border:1px solid #334155;border-radius:14px;background:#1e293b;box-sizing:border-box}'
+        . 'h1{margin:0 0 12px;font-size:1.2rem}p{margin:0 0 12px;color:#cbd5e1}label{display:block;margin-bottom:6px;font-weight:600}'
+        . 'input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #475569;border-radius:10px;background:#0f172a;color:inherit;font:inherit}'
+        . 'button{margin-top:14px;width:100%;padding:11px;border:0;border-radius:10px;background:#00c2ff;color:#04263a;font:inherit;font-weight:700;cursor:pointer}'
+        . 'code{display:block;margin:10px 0;padding:10px;border-radius:8px;background:#0f172a;color:#e2e8f0;font-size:.8rem;word-break:break-all}'
+        . '.error{color:#fca5a5}</style></head><body><main>' . $body . '</main></body></html>';
+    exit;
+}
+
+$secureRequest = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+session_name('kwhiz_stats');
+session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $secureRequest, 'httponly' => true, 'samesite' => 'Strict']);
+session_start();
+if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
+$csrfField = '<input type="hidden" name="csrf" value="' . htmlspecialchars($_SESSION['csrf']) . '">';
+$isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+$csrfValid = $isPost && hash_equals($_SESSION['csrf'], (string) ($_POST['csrf'] ?? ''));
+$passwordHash = statsPasswordHash();
+
+// Première installation : aucun mot de passe n'est configuré. La page ne montre aucune
+// statistique ; elle calcule seulement l'empreinte à recopier dans kwhiz-private.php.
+if ($passwordHash === '') {
+    $result = '';
+    if ($csrfValid) {
+        $candidate = (string) ($_POST['password'] ?? '');
+        $result = strlen($candidate) >= 12
+            ? '<p>Ajoutez cette ligne dans <strong>kwhiz-private.php</strong>, puis rechargez la page :</p><code>'
+                . htmlspecialchars("'stats_password_hash' => '" . password_hash($candidate, PASSWORD_DEFAULT) . "',") . '</code>'
+            : '<p class="error">Choisissez un mot de passe d’au moins 12 caractères.</p>';
+    }
+    statsPage('kWhiz — Statistiques', '<h1>Statistiques non configurées</h1>'
+        . '<p>Choisissez un mot de passe : la page affiche son empreinte, à recopier dans kwhiz-private.php. Rien n’est enregistré ici.</p>'
+        . $result . '<form method="post" autocomplete="off">' . $csrfField
+        . '<label for="password">Mot de passe</label><input id="password" name="password" type="password" minlength="12" required>'
+        . '<button type="submit">Calculer l’empreinte</button></form>', 503);
+}
+
+if ($csrfValid && isset($_POST['logout'])) {
+    $_SESSION = [];
+    session_destroy();
+    header('Location: stats.php', true, 303);
+    exit;
+}
+
+if (empty($_SESSION['stats_authenticated'])) {
+    $error = '';
+    if ($isPost) {
+        if (!kwhizRateLimit('stats-login', STATS_LOGIN_ATTEMPTS, STATS_LOGIN_WINDOW_SECONDS, kwhizClientAddress())) {
+            statsPage('kWhiz — Statistiques', '<h1>Trop de tentatives</h1><p>Réessayez dans un quart d’heure.</p>', 429);
+        }
+        if ($csrfValid && password_verify((string) ($_POST['password'] ?? ''), $passwordHash)) {
+            session_regenerate_id(true);
+            $_SESSION['stats_authenticated'] = true;
+            header('Location: stats.php', true, 303);
+            exit;
+        }
+        $error = '<p class="error">Mot de passe incorrect.</p>';
+    }
+    statsPage('kWhiz — Statistiques', '<h1>Statistiques kWhiz</h1>' . $error
+        . '<form method="post">' . $csrfField
+        . '<label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus>'
+        . '<button type="submit">Ouvrir</button></form>', $isPost ? 401 : 200);
+}
 
 // ── Lecture du log ────────────────────────────────────────────────────────────
 $logFile = __DIR__ . '/visits.log';
@@ -234,6 +325,7 @@ function dayLabel(string $date): string {
 <?php endforeach; ?>
 
 <div class="footer">Données issues de <code>visits.log</code> — <?= $total ?> entrée(s)</div>
+<form method="post" style="margin-top:14px;text-align:center"><input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>"><button type="submit" name="logout" value="1" style="padding:8px 16px;border:1px solid var(--border);border-radius:10px;background:none;color:var(--muted);font:inherit;cursor:pointer">Se déconnecter</button></form>
 
 <script>
 function toggleMonth(ym) {

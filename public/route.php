@@ -4,9 +4,16 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0');
 
+require_once __DIR__ . '/rate-limit.php';
+
 const ORS_BASE = 'https://api.openrouteservice.org';
 const MAX_ADDRESS_LENGTH = 160;
 const CACHE_SECONDS = 3600;
+// Chaque itinéraire non mis en cache consomme le quota openrouteservice de la clé
+// (jusqu'à deux géocodages et un calcul). Ces limites le protègent d'un appelant
+// insistant et d'un usage anormal ; à ajuster selon le quota de la clé.
+const ROUTES_PER_ADDRESS_PER_HOUR = 20;
+const ROUTES_PER_DAY = 400;
 
 function respond(int $status, array $payload): never {
     http_response_code($status);
@@ -75,6 +82,11 @@ function geocode(string $address, string $key, string $errorCode): array {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') respondError(405, 'INVALID_REQUEST', 'Méthode non autorisée');
+// Un navigateur annonce l'origine de la page appelante : seule l'application peut appeler.
+$origin = (string) ($_SERVER['HTTP_ORIGIN'] ?? '');
+if ($origin !== '' && parse_url($origin, PHP_URL_HOST) !== preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? ''))) {
+    respondError(403, 'INVALID_REQUEST', 'Origine non autorisée');
+}
 $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
 if ($contentLength > 2048) respondError(413, 'INVALID_REQUEST', 'Requête trop volumineuse');
 $input = json_decode((string) file_get_contents('php://input'), true);
@@ -100,6 +112,14 @@ $cacheFile = sys_get_temp_dir() . '/kwhiz-route-' . hash('sha256', $normalizedRo
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < CACHE_SECONDS) {
     $cached = file_get_contents($cacheFile);
     if ($cached !== false) { echo $cached; exit; }
+}
+
+kwhizPurgeTemporaryFiles('kwhiz-route-*.json', 86400);
+kwhizPurgeTemporaryFiles('kwhiz-rl-*.json', 2 * 86400);
+if (!kwhizRateLimit('route', ROUTES_PER_ADDRESS_PER_HOUR, 3600, kwhizClientAddress())
+    || !kwhizRateLimit('route-day', ROUTES_PER_DAY, 86400)) {
+    header('Retry-After: 3600');
+    respondError(429, 'RATE_LIMITED', 'Trop de calculs d’itinéraire. Réessayez plus tard.');
 }
 
 try {

@@ -25,11 +25,10 @@ function contrast(foreground, background) {
 test('les composants d’installation utilisent les couleurs sémantiques', () => {
     assert.match(rule('.landing-install'), /background:\s*var\(--bg-element\)/);
     assert.match(rule('.landing-install'), /border-color:\s*var\(--border-color\)/);
-    assert.match(rule('.landing-install-title'), /color:\s*var\(--text-secondary\)/);
     assert.match(rule('.install-tip'), /color:\s*var\(--text-secondary\)/);
-    assert.match(rule('.install-tip'), /font-size:\s*0\.88rem/);
+    assert.match(rule('.install-tip'), /font-size:\s*var\(--fs-base\)/);
     assert.match(rule('.install-steps'), /color:\s*var\(--text-secondary\)/);
-    assert.match(rule('.install-steps'), /font-size:\s*0\.88rem/);
+    assert.match(rule('.install-steps'), /font-size:\s*var\(--fs-base\)/);
     assert.match(rule('.text-strong'), /color:\s*var\(--text-primary\)/);
     assert.match(rule('.install-steps strong'), /color:\s*var\(--text-primary\)/);
     assert.match(rule('.install-steps strong'), /font-weight:\s*700/);

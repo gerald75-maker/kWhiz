@@ -16,7 +16,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,6 +26,7 @@ const root      = resolve(__dirname, '..');
 const pkgPath   = resolve(root, 'package.json');
 const indexPath = resolve(root, 'dist', 'index.html');
 const swPath    = resolve(root, 'dist', 'sw.js');
+const manifestPath = resolve(root, 'dist', '.vite', 'manifest.json');
 
 const VERSION_PLACEHOLDER = '__VERSION__';
 const HASH_PLACEHOLDER    = '__CACHE_HASH__';
@@ -53,6 +54,22 @@ const OPTIONAL_PUBLIC_ASSETS = [
   './icons/icon-384.png',
   './icons/icon-512.png'
 ];
+
+// Fichiers du build absents de index.html : modules chargés à la demande (carte), leurs
+// feuilles de style et les polices. Lus dans le manifeste Vite, ils sont précachés à titre
+// facultatif pour que la carte et la police restent disponibles hors ligne.
+export function lazyBuildAssets(manifest, alreadyListed = []) {
+  const listed = new Set(alreadyListed);
+  const files = new Set();
+  Object.values(manifest || {}).forEach(entry => {
+    [entry.file, ...(entry.css || []), ...(entry.assets || [])]
+      .filter(Boolean)
+      .map(file => `./${file}`)
+      .filter(file => file.startsWith('./assets/') && !listed.has(file))
+      .forEach(file => files.add(file));
+  });
+  return [...files].sort();
+}
 
 export function computeCacheHash(entries) {
   const hash = createHash('sha256');
@@ -143,7 +160,21 @@ for (const placeholder of [CRITICAL_PLACEHOLDER, OPTIONAL_PLACEHOLDER]) {
 
 const uniqueBuildAssets = [...new Set(buildAssets)].sort();
 const criticalAssets = [...CRITICAL_PUBLIC_ASSETS, ...uniqueBuildAssets];
-const optionalAssets = [...OPTIONAL_PUBLIC_ASSETS];
+let manifest = {};
+if (existsSync(manifestPath)) {
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  } catch (err) {
+    console.error(`[inject-build-vars] ✗ Manifeste Vite illisible : ${manifestPath}`);
+    process.exit(1);
+  }
+} else {
+  console.error(`[inject-build-vars] ✗ Manifeste Vite introuvable : ${manifestPath}`);
+  console.error('  → Vérifiez que vite.config.js contient build.manifest: true');
+  process.exit(1);
+}
+const lazyAssets = lazyBuildAssets(manifest, uniqueBuildAssets);
+const optionalAssets = [...OPTIONAL_PUBLIC_ASSETS, ...lazyAssets];
 const precachedAssets = [...criticalAssets, ...optionalAssets];
 const hashEntries = precachedAssets.map(assetPath => {
   const filePath = resolve(root, 'dist', assetPath.replace(/^\.\//, ''));
@@ -171,6 +202,7 @@ try {
 console.log(`[inject-build-vars] ✓ CACHE_NAME = 'kwhiz-${hash}'`);
 console.log(`[inject-build-vars] ✓ Assets critiques : ${criticalAssets.length}`);
 console.log(`[inject-build-vars] ✓ Assets facultatifs : ${optionalAssets.length}`);
+console.log(`[inject-build-vars] ✓ Dont chargés à la demande : ${lazyAssets.length}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) run();

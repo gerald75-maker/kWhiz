@@ -6,3 +6,36 @@ Redirect 301 /calculateur https://ve.aubard.net
     Header set Pragma "no-cache"
     Header set Expires "0"
 </FilesMatch>
+
+# Journal de visites et fichiers internes : jamais servis. stats.php affiche le journal
+# après authentification ; rate-limit.php n'est qu'inclus par les autres scripts.
+<FilesMatch "\.(log|lock|tmp)$">
+    Require all denied
+</FilesMatch>
+<Files "rate-limit.php">
+    Require all denied
+</Files>
+
+# Les JS et CSS sont déjà compressés par le serveur ; les données ne l'étaient pas
+# (irve-fast.json pèse plus d'un mégaoctet).
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS application/json application/manifest+json image/svg+xml
+</IfModule>
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json application/manifest+json image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=()"
+    # HTTPS imposé pendant 180 jours pour ce sous-domaine seulement.
+    Header always set Strict-Transport-Security "max-age=15552000"
+
+    # Politique de contenu de l'application : ses propres fichiers, Umami pour la mesure
+    # d'audience, les tuiles OpenStreetMap pour la carte. Les styles en ligne sont permis
+    # (Leaflet et les gabarits de l'application en posent). stats.php n'est pas concerné.
+    <FilesMatch "^index\.html$">
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://umami.aubard.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tile.openstreetmap.org; connect-src 'self' https://umami.aubard.net; font-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.aubard.net"
+    </FilesMatch>
+</IfModule>
