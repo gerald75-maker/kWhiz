@@ -37,7 +37,7 @@
 <p aria-atomic="true" aria-live="polite" class="favorite-feedback" hidden id="favorite-status" role="status"></p>
 <div class="container">
 <header class="app-header">
-<h1 class="app-title" id="app-title"><button aria-label="Actualiser kWhiz" class="app-refresh-button" data-i18n-aria-label="refresh.buttonLabel" data-i18n-title="refresh.buttonLabel" id="app-refresh-button" title="Actualiser kWhiz" type="button"><img alt="" class="app-title__icon" height="44" src="./icon.svg" width="44"/></button>kWhiz</h1>
+<h1 class="app-title" id="app-title"><button aria-label="Actualiser" class="app-refresh-button" data-i18n-aria-label="refresh.buttonLabel" data-i18n-title="refresh.buttonLabel" id="app-refresh-button" title="Actualiser" type="button"><img alt="" class="app-title__icon" height="44" src="./icon.svg" width="44"/></button>kWhiz</h1>
 <button aria-expanded="false" aria-label="Menu" class="header-menu" data-i18n-aria-label="navigation.menuLabel" id="bnav-menu" type="button"><svg aria-hidden="true" fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24" width="22"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
 </header>
 <!-- Modale Izivia Fast horaires -->
@@ -76,6 +76,7 @@
 <div class="cb-warn"><span data-i18n="ionityRewards.warningBefore">⚠️ Les deux bonus nécessitent une session d’au moins</span> <strong>40 kWh</strong><span data-i18n="ionityRewards.warningAfter">. Le crédit est visible dans l’application IONITY (rubrique « Credits &amp; Rewards ») et déduit automatiquement lors de la recharge suivante. Les conditions peuvent varier selon le marché et la période.</span></div>
 </div>
 </div>
+<main id="main-content">
 <!-- Sticky header stack : slider + onglets restent visibles au scroll -->
 <div class="sticky-top" id="sticky-top">
 <!-- Ligne de résumé du profil : ouvre le panneau Mon profil -->
@@ -110,7 +111,7 @@
 <div class="tab-content" id="tab-map">
 <h2 class="sr-only" data-i18n="map.heading.title">Carte des stations</h2>
 <div class="map-stage">
-<div aria-label="Carte des stations de recharge rapide" class="stations-map" data-i18n-aria-label="map.canvasLabel" id="stations-map"></div>
+<div aria-label="Carte des stations de recharge rapide" class="stations-map" data-i18n-aria-label="map.canvasLabel" role="region" id="stations-map"></div>
 <div class="map-top">
 <form class="map-place" id="map-place-form" role="search">
 <label class="sr-only" data-i18n="map.place.label" for="map-place-input">Centrer la carte sur une ville ou un code postal</label>
@@ -151,6 +152,7 @@
 <span id="version-tap">__VERSION__ — © Gérald Aubard, 2026</span><br/>
 <a class="footer-site-link" href="https://aubard.net/" rel="noopener noreferrer" target="_blank">Aubard.net</a>
 </p>
+</main>
 </div>
 <!-- ── Panneau : réseaux affichés sur la carte ── -->
 <div aria-hidden="true" class="sheet" hidden="" id="map-filters-sheet">
