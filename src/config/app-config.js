@@ -16,7 +16,7 @@ export const LOGOS = Object.freeze({
     fastned: './logos/fastned.webp',
     electroverse: './logos/electroverse.webp',
     powerdot: './logos/powerdot.webp',
-    zunder: './logos/zunder.png',
+    zunder: './logos/zunder.webp',
     pluginn: './logos/pluginn.webp',
     'engie-vianeo': './logos/engie-vianeo.webp'
 });

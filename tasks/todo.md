@@ -296,3 +296,15 @@ Demande de Gérald : corriger tous les points de l'audit d'accessibilité du 15/
 - [x] Carte : seconde passe de regroupement (`src/ui/map-clusters.js`), aucun groupe à moins de 44 px d'un autre.
 - [x] `tests/accessibility.test.js` ; 440 tests verts ; axe-core : 0 violation sur les 14 états (contre 1 à 3 par état).
 - [ ] Gérald : vérification VoiceOver sur iPhone, mise en ligne FTP, push GitHub Desktop.
+
+## Livraison 2.35.1 (2026-11-15) : images et précache
+
+Demande de Gérald : corriger les quatre points relevés par Lighthouse (mobile : performance 88, accessibilité 100, bonnes pratiques 93, SEO 92).
+
+- [x] Icône Partager (aide à l'installation iOS) : 18 × 23 au lieu de 18 × 18 (fichier 50 × 63), nom porté par `alt` traduit (`data-i18n-alt`).
+- [x] Logo Zunder : PNG 450 px de 77 Ko remplacé par un WebP 200 px de 5 Ko, comme les autres opérateurs.
+- [x] Précache : les 14 logos d'opérateurs, lus dans `LOGOS` (`operatorLogoAssets()` dans `inject-build-vars.mjs`), au lieu de 2.
+- [x] 39 images inutilisées retirées de `public/logos/` (384 Ko) ; `tests/logos-assets.test.js` empêche d'en ajouter de nouvelles sans référence.
+- [x] Trouvé en vérifiant : titres « iOS / iPhone » et « Android » presque invisibles en thème clair (`.text-strong` codé en dur à `#e2e8f0`).
+- [x] 445 tests verts ; build OK, cache kwhiz-23123fec.
+- [ ] Gérald : `dist/` garde les anciens fichiers (`emptyOutDir: false`, voulu) ; les images supprimées peuvent être effacées à la main sur le serveur après la mise en ligne.

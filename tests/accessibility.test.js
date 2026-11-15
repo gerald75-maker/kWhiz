@@ -87,3 +87,9 @@ test('la station sélectionnée et les stations isolées ne sont jamais absorbé
   });
   assert.equal(merged.length, 3);
 });
+
+test('.text-strong suit le thème (titres iOS / Android lisibles en clair)', () => {
+  const rules = [...css.matchAll(/(?:^|\n)\.text-strong\s*\{([^}]*)\}/g)].map(match => match[1]);
+  assert.equal(rules.length, 1, 'une seule règle .text-strong');
+  assert.match(rules[0], /color:\s*var\(--text-primary\)/);
+});

@@ -1423,7 +1423,6 @@ body.light .help-topic[data-topic="route"] { --topic:#b45309; }
 .help-num--offpeak { background:#94a3b8; }
 .help-num--primary { background:#00c2ff; }
 .help-num--secondary { background:#6366f1; }
-.text-strong { color:#e2e8f0; }
 .modal-open { overflow:hidden; }
 [hidden] { display:none !important; }
 :focus-visible { outline:3px solid var(--accent, #00c2ff); outline-offset:3px; }
