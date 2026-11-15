@@ -60,7 +60,7 @@ test('les textes statiques des réglages, du réseau et du chargement de la cart
     for (const key of ['settings.title', 'settings.closeLabel', 'settings.refreshButton', 'settings.localPreferences', 'appStatus.title', 'appStatus.application', 'appStatus.tariffs', 'appStatus.freshness']) {
         assert.match(html, new RegExp(`(?:data-i18n|data-i18n-aria-label)="${key.replaceAll('.', '\\.')}`));
     }
-    assert.match(html, /alt=""[^>]*data-i18n-aria-label="install\.share"/);
+    assert.match(html, /alt="Partager"[^>]*data-i18n-alt="install\.share"/);
     setLanguage('en', { persist: false, translate: false });
     assert.equal(t('network.online'), 'Online');
     assert.equal(t('map.status.loading'), 'Loading chargers…');

@@ -13,13 +13,19 @@ function getFocusable(modal) {
     return [...modal.querySelectorAll(FOCUSABLE)].filter(element => !element.hidden);
 }
 
+// Rend inerte tout ce qui n'est pas la modale, à chaque niveau entre elle et <body>.
+// Rendre inerte un ancêtre de la modale la bloquerait elle aussi (clic et focus).
 function disableBackground(modal) {
     backgroundState = new Map();
-    [...document.body.children].forEach(element => {
-        if (element === modal) return;
-        backgroundState.set(element, element.inert);
-        element.inert = true;
-    });
+    for (let node = modal; node && node !== document.body; node = node.parentElement) {
+        const parent = node.parentElement;
+        if (!parent) break;
+        [...parent.children].forEach(element => {
+            if (element === node || backgroundState.has(element)) return;
+            backgroundState.set(element, element.inert);
+            element.inert = true;
+        });
+    }
 }
 
 function restoreBackground() {

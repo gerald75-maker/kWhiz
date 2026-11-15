@@ -58,8 +58,8 @@ test('l’en-tête utilise le logo officiel existant dans un bouton accessible F
     assert.doesNotMatch(header, /<svg|lineargradient|M288 64L128/);
     assert.match(icon, /Monogramme kW/);
     assert.match(buildScript, /'\.\/icon\.svg'/);
-    assert.match(i18n, /'refresh\.buttonLabel': 'Actualiser kWhiz'/);
-    assert.match(i18n, /'refresh\.buttonLabel': 'Refresh kWhiz'/);
+    assert.match(i18n, /'refresh\.buttonLabel': 'Actualiser'/);
+    assert.match(i18n, /'refresh\.buttonLabel': 'Refresh'/);
     assert.match(css, /\.app-refresh-button\s*\{[\s\S]*?width:\s*44px;[\s\S]*?height:\s*44px/);
     assert.match(css, /\.app-refresh-button:focus-visible[\s\S]*?outline:/);
     assert.match(css, /\.app-refresh-button \.app-title__icon[\s\S]*?width:\s*36px/);

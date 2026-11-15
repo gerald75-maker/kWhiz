@@ -7,8 +7,8 @@ const configSource = await readFile(new URL('../src/config/app-config.js', impor
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('référence Zunder et son icône', async () => {
-    await access(new URL('../public/logos/zunder.png', import.meta.url));
-    assert.match(configSource, /zunder: '\.\/logos\/zunder\.png'/);
+    await access(new URL('../public/logos/zunder.webp', import.meta.url));
+    assert.match(configSource, /zunder: '\.\/logos\/zunder\.webp'/);
     assert.match(configSource, /'zunder'/);
 });
 

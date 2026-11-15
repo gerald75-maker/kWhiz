@@ -84,8 +84,8 @@ test('le logo officiel est local et les stations Vianeo alimentent carte et traj
 });
 
 test('le logo optimisé est ajouté au précache hors ligne', async () => {
-  const injector = await readFile(new URL('scripts/inject-build-vars.mjs', root), 'utf8');
-  assert.match(injector, /\.\/logos\/engie-vianeo\.webp/);
+  const { operatorLogoAssets } = await import('../scripts/inject-build-vars.mjs');
+  assert.ok(operatorLogoAssets().includes('./logos/engie-vianeo.webp'));
 });
 
 test('la règle IRVE exige Vianeo et protège ENGIE, ESSO et CERTAS', async () => {

@@ -710,7 +710,9 @@ body.light .operator-directory-name { color: var(--text-primary); }
     opacity: 0;
     pointer-events: none;
     transform: scale(0.97);
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    /* Fermé : hors tabulation et hors arbre d'accessibilité, après le fondu. */
+    visibility: hidden;
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s linear 0.35s;
 }
 /* Adaptation light mode */
 body.light .landing-overlay {
@@ -1197,11 +1199,15 @@ body.light .menu-drawer-handle { background: rgba(0,0,0,0.12); }
     -webkit-overflow-scrolling: touch;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.22s ease;
+    /* Fermée : invisible aussi au clavier et aux lecteurs d'écran, après le fondu. */
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
 }
 .help-overlay.open {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+    transition: opacity 0.22s ease, visibility 0s;
 }
 .help-modal {
     background: var(--bg-card);
@@ -1417,7 +1423,6 @@ body.light .help-topic[data-topic="route"] { --topic:#b45309; }
 .help-num--offpeak { background:#94a3b8; }
 .help-num--primary { background:#00c2ff; }
 .help-num--secondary { background:#6366f1; }
-.text-strong { color:#e2e8f0; }
 .modal-open { overflow:hidden; }
 [hidden] { display:none !important; }
 :focus-visible { outline:3px solid var(--accent, #00c2ff); outline-offset:3px; }
@@ -2514,16 +2519,19 @@ a:focus-visible,
     z-index: var(--z-nav);
     overflow: visible;
     background: transparent;
-    visibility: visible;
+    /* Fermée : hors tabulation et hors arbre d'accessibilité, après le fondu. */
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
     transform: none;
-    transition: opacity .22s ease;
+    transition: opacity .22s ease, visibility 0s linear .22s;
 }
 .page-overlay.aux-drawer.open {
     opacity: 1;
     pointer-events: auto;
     transform: none;
+    visibility: visible;
+    transition: opacity .22s ease, visibility 0s;
 }
 .page-overlay-backdrop {
     position: absolute;

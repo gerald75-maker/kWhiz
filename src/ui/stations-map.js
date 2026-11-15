@@ -11,6 +11,7 @@ import { openModal } from './modal-manager.js';
 import { formatStationStatus, renderStationCardHtml, renderStationPopupHtml } from './station-card.js';
 import { stationDisplayName } from './station-name.js';
 import { locationErrorKey, routeErrorKey } from './map-route-ui.js';
+import { mergeOverlappingGroups } from './map-clusters.js';
 
 const LABELS = {
   powerdot: 'Powerdot', ionity: 'IONITY', tesla: 'Tesla', electra: 'Electra', iecharge: 'IECharge',
@@ -256,7 +257,10 @@ export function initStationsMap({ getHomeZone, onRouteShown } = {}) {
       if (!cells.has(key)) cells.set(key, []);
       cells.get(key).push(station);
     });
-    return [...cells.values()];
+    // Seconde passe : deux groupes voisins ne doivent pas se superposer (cibles tactiles).
+    return mergeOverlappingGroups([...cells.values()], station => map.latLngToContainerPoint([station.lat, station.lon]), {
+      isPinned: group => group.length === 1 && group[0].id === selectedStationId
+    });
   }
 
   function clusterMarker(group) {

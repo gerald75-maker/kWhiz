@@ -19,6 +19,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LOGOS } from '../src/config/app-config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root      = resolve(__dirname, '..');
@@ -42,8 +43,8 @@ const OPTIONAL_PUBLIC_ASSETS = [
   './irve-fast.json',
   './manifest.json',
   './icon.svg',
-  './logos/engie-vianeo.webp',
-  './logos/powerdot.webp',
+  // Logos des opérateurs : lus dans la config pour qu'aucun ne manque hors ligne.
+  ...operatorLogoAssets(),
   './icons/icon-72.png',
   './icons/icon-96.png',
   './icons/icon-128.png',
@@ -54,6 +55,10 @@ const OPTIONAL_PUBLIC_ASSETS = [
   './icons/icon-384.png',
   './icons/icon-512.png'
 ];
+
+export function operatorLogoAssets(logos = LOGOS) {
+  return [...new Set(Object.values(logos))].sort();
+}
 
 // Fichiers du build absents de index.html : modules chargés à la demande (carte), leurs
 // feuilles de style et les polices. Lus dans le manifeste Vite, ils sont précachés à titre
