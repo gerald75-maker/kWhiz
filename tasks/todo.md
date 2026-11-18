@@ -321,3 +321,5 @@ Accord d'EV Database du 18/11/2026 : conditions 2 (source citée avec lien), 3 (
 - [x] Tests : chemins, adresses, textes, garde-fous (aucune collecte automatique, aucune image EV Database).
 - [x] `docs/ev-database.md` : conditions de l'accord et tableau des 34 modèles.
 - [ ] Gérald : ouvrir à la main les liens de `docs/ev-database.md` et valider chaque fiche (en priorité Renault 4 et Tesla Model 3 Propulsion) ; noter l'adresse de la fiche de la Volvo EX30 pour la remettre dans la liste.
+- [x] `.htaccess` : `/calculateur` redirigé vers l'accueil de kWhiz (ve.aubard.net ne se résout plus). Constaté le 18/11 : aucun `.htaccess` n'était en ligne avant ce jour, fichier caché sur Mac jamais envoyé.
+- [ ] Gérald : remplacer la première ligne du `.htaccess` sur le serveur (ou envoyer `htaccess-A-RENOMMER.txt` du paquet).

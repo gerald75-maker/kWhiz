@@ -1,4 +1,5 @@
-Redirect 301 /calculateur https://ve.aubard.net
+# L'ancien calculateur n'existe plus : ses liens mènent à l'accueil de kWhiz.
+Redirect 301 /calculateur https://kwhiz.aubard.net/
 
 # Ne jamais cacher sw.js ni index.html — force la détection des mises à jour
 <FilesMatch "^(sw.*\.js|index\.html)$">

@@ -18,6 +18,12 @@ test('le journal de visites et les fichiers internes ne sont pas servis', async 
     assert.match(htaccess, /<Files "rate-limit\.php">\s*Require all denied/);
 });
 
+test('l’ancienne adresse du calculateur mène à un site qui existe', async () => {
+    const htaccess = await read('.htaccess');
+    assert.match(htaccess, /^Redirect 301 \/calculateur https:\/\/kwhiz\.aubard\.net\/$/m);
+    assert.doesNotMatch(htaccess, /ve\.aubard\.net/);
+});
+
 test('stats.php exige un mot de passe dont seule l’empreinte est stockée hors de la racine web', async () => {
     const stats = await read('stats.php');
     assert.match(stats, /dirname\(__DIR__\) \. '\/kwhiz-private\.php'/);
