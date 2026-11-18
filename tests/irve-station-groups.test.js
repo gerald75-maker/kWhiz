@@ -162,3 +162,54 @@ test('garde séparées deux bornes voisines aux points différents, et les point
   assert.equal(result.grouping.certainGroups, 0);
   assert.equal(result.stations.length, 4);
 });
+
+// Cas Lidl de novembre 2026 : même station déclarée deux fois, coordonnées divergentes.
+const lidlPair = (overrides = {}) => {
+  const base = { operator: 'lidl', stationIds: ['FRLDLPLFR4120EVCP'], cities: [] };
+  const first = station('lidl:43.0297:2.2505', {
+    ...base, lat: 43.0297, lon: 2.2505, points: [point('A', 120), point('B', 120)],
+    names: ['LFR4120EVCP03'], addresses: ["Route d'Alet, 11300, Limoux"], ...overrides.first
+  });
+  const second = station('lidl:43.0441:2.2320', {
+    ...base, lat: 43.0441, lon: 2.232, points: [point('A', 120), point('B', 120)],
+    names: ['LIDL'], addresses: ['ALET'], ...overrides.second
+  });
+  return [first, second];
+};
+
+test('fusionne une même station déclarée deux fois à 2 km, même identifiant source et mêmes points', () => {
+  const result = groupCertainStations(lidlPair());
+  assert.equal(result.grouping.certainGroups, 1);
+  assert.equal(result.stations.length, 1);
+  assert.equal(Object.keys(result.stationAliases).length, 1);
+  assert.equal(result.stations[0].stationId, 'lidl:43.0297:2.2505');
+  assert.equal(result.stationAliases['lidl:43.0441:2.2320'], 'lidl:43.0297:2.2505');
+});
+
+test('garde l’identifiant et la position du canonique, et liste toutes les positions déclarées', () => {
+  const [canonical, other] = lidlPair();
+  const result = groupCertainStations([canonical, other]);
+  const merged = result.stations[0];
+  assert.equal(merged.stationId, canonical.stationId);
+  assert.equal(merged.lat, canonical.lat);
+  assert.equal(merged.lon, canonical.lon);
+  assert.deepEqual(merged.coordinateCandidates, [
+    { lat: canonical.lat, lon: canonical.lon },
+    { lat: other.lat, lon: other.lon }
+  ]);
+  assert.deepEqual(result, groupCertainStations([other, canonical]));
+});
+
+test('ne fusionne pas au-delà de 5 km, ni sans identifiant source commun, ni quand les points ne se recouvrent que partiellement', () => {
+  const cases = [
+    lidlPair({ second: { lat: 48.6175, lon: 7.5017 } }),
+    lidlPair({ second: { stationIds: ['AUTRE'] } }),
+    lidlPair({ second: { points: [point('B', 120), point('C', 120)] } })
+  ];
+  for (const input of cases) {
+    const result = groupCertainStations(input);
+    assert.equal(result.grouping.certainGroups, 0);
+    assert.equal(result.stations.length, 2);
+    assert.deepEqual(result.stationAliases, {});
+  }
+});

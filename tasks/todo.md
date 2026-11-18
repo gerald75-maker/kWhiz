@@ -338,3 +338,16 @@ Deux causes dans `initServiceWorker()` :
 - [x] `tests/pwa-update.test.js` : vérificateur, surveillance du worker, garde-fou sur le texte source de `initServiceWorker()`.
 - [x] Version 2.35.3 (`package.json`, `package-lock.json`, test de cohérence).
 - [ ] Gérald : mise en ligne FTP, push GitHub Desktop, puis vérifier sur iPhone qu'un retour dans l'app affiche le bandeau.
+
+## Regroupement IRVE (2026-11-18) : stations déclarées deux fois à plus de 150 m
+
+Échec du run hebdomadaire n° 36 : « Identifiants associés à plusieurs stations : hausse anormale (629 → 1229) ». QualiCharge a changé les coordonnées des stations Lidl entre le 11 et le 18/11 ; 284 stations Lidl présentes dans les deux jeux (Lidl et QualiCharge) étaient à plus de 150 m l'une de l'autre et n'étaient plus fusionnées.
+
+- [x] `scripts/irve-station-groups.mjs` : troisième règle de fusion certaine (même réseau, mêmes points, même `id_station_itinerance`, 5 km au plus) ; la station fusionnée liste ses positions déclarées (`coordinateCandidates`).
+- [x] `scripts/irve-station-identity.mjs` : l'identifiant publié survit tant qu'une déclaration reste à moins de 500 m ; `keepPublishedPositions` garde la déclaration la plus proche de la position déjà publiée.
+- [x] Règle « déclaration la plus récente » essayée puis abandonnée : 256 stations Lidl se déplaçaient de plus de 150 m, et le géocodage de 115 adresses au numéro donnait la plus ancienne plus proche 95 fois.
+- [x] Tests : groupes, identité, cas Limoux de bout en bout (`tests/irve-pan-source.test.js`).
+- [x] `docs/weekly-irve-update.md` : trois cas de fusion, règle de position.
+- [x] Validé sur la consolidation du 18/11 : validateur vert, 4 565 → 4 629 stations, Lidl 944 → 1 002, identifiants multi-stations 629 → 631, aucune station publiée déplacée de plus de 500 m.
+- [ ] Gérald : push GitHub Desktop, puis Actions → « Actualisation hebdomadaire IRVE » → Run workflow sur `main`.
+- [ ] Non traité : `consolidated_commune` absent du CSV du PAN (contrôle de commune toujours vrai) ; noms codés `LFR…` gardés quand un nom lisible existe dans l'autre jeu.

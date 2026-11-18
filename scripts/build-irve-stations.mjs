@@ -4,7 +4,7 @@ import { parse } from 'csv-parse';
 import { IRVE_NETWORKS, resolveIrveDate } from './irve-networks.mjs';
 import { buildStatusAssociations } from './irve-status-associations.mjs';
 import { groupCertainStations } from './irve-station-groups.mjs';
-import { preservePublishedStationIds, stabilizeStationAliases } from './irve-station-identity.mjs';
+import { keepPublishedPositions, preservePublishedStationIds, stabilizeStationAliases } from './irve-station-identity.mjs';
 import { loadAtlanteCatalog, mergeAtlanteCatalog, formatAtlanteReport } from './irve-atlante-connector.mjs';
 import { qualifyFastStation } from './irve-fast-qualification.mjs';
 
@@ -156,7 +156,9 @@ for (const [alias, canonical] of Object.entries(grouped.stationAliases)) {
 const stabilized = previousStations && previousStatus
   ? preservePublishedStationIds(grouped.stations, previousStations, previousStatus)
   : { stations: grouped.stations, renames: {} };
-grouped.stations = stabilized.stations;
+grouped.stations = previousStations
+  ? keepPublishedPositions(stabilized.stations, previousStations)
+  : stabilized.stations;
 for (const item of atlante.audit) {
   item.stationIds = item.stationIds.map(id => stabilized.renames[id] || id).sort();
 }

@@ -53,3 +53,5 @@ Un « glisser pour fermer » doit vérifier que le contenu était en haut AU DÉ
 ## Gestes globaux : vérifier toutes les zones qui défilent (2026-11-12)
 
 Un écouteur `touchmove` non passif posé sur `document` (tirer pour actualiser) bloque le défilement de tout conteneur interne. En 2.33.3 j'ai corrigé le geste de fermeture sans voir ce second intercepteur : chercher tous les `touchmove` avant de conclure sur un problème de défilement.
+
+[2026-11-18] | Pour une station déclarée deux fois avec des coordonnées divergentes, la règle « garder la déclaration la plus récente » paraissait évidente ; contrôlée par géocodage, elle déplaçait 256 stations Lidl vers la position la moins précise | Avant de coder une règle de choix entre deux sources, la mesurer sur les données réelles avec une référence indépendante (géocodage au numéro) ; à défaut de preuve, ne pas déplacer ce qui est déjà publié.

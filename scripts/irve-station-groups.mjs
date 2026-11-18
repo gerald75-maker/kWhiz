@@ -3,6 +3,10 @@ export const MAX_CERTAIN_GROUP_DISTANCE_METERS = 100;
 // décalées) : tous les points de l'une figurent dans l'autre. L'identifiant de point
 // étant unique dans la base nationale, la fusion est sûre jusqu'à cette distance.
 export const MAX_SAME_POINTS_DISTANCE_METERS = 150;
+// Même identifiant de station source ET tous les points de l'une dans l'autre : c'est la
+// même station déclarée deux fois, même quand les coordonnées d'une déclaration sont
+// fausses. La borne de 5 km écarte les erreurs grossières (station placée dans une autre région).
+export const MAX_SAME_STATION_DISTANCE_METERS = 5000;
 export const MAX_VISUAL_CANDIDATE_DISTANCE_METERS = 500;
 
 function normalized(value = '') {
@@ -79,6 +83,9 @@ export function visualDuplicateEvidence(a, b) {
     category = 'certain';
   } else if (sameOperator && distanceMeters <= MAX_SAME_POINTS_DISTANCE_METERS && samePoints) {
     category = 'certain';
+  } else if (sameOperator && samePoints && sharedStationId
+      && distanceMeters <= MAX_SAME_STATION_DISTANCE_METERS) {
+    category = 'certain';
   } else if (sameOperator && distanceMeters <= MAX_CERTAIN_GROUP_DISTANCE_METERS && compatibleCity
       && ((sharedStationId && (compatibleName || compatibleAddress))
         || (!sharedPointId && compatibleName && compatibleAddress))) {
@@ -136,6 +143,9 @@ function mergeCertainGroup(members) {
   return {
     station: {
       ...canonical,
+      // Toutes les positions déclarées : servent à conserver l'identifiant et la
+      // position déjà publiés (irve-station-identity.mjs).
+      coordinateCandidates: sorted.map(member => ({ lat: member.lat, lon: member.lon })),
       points,
       pointIds: new Set(points.keys()),
       sourceStationIds,
