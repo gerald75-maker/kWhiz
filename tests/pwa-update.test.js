@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { getInstallEnvironment } from '../src/pwa/pwa-manager.js';
+import { createUpdateChecker, getInstallEnvironment, watchInstallingWorker } from '../src/pwa/pwa-manager.js';
 
 const source = await readFile(new URL('../src/pwa/pwa-manager.js', import.meta.url), 'utf8');
 
@@ -55,4 +55,72 @@ test('le mode PWA masque uniquement la fonction d’installation', async () => {
     const appSource = await readFile(new URL('../app.js', import.meta.url), 'utf8');
     assert.match(appSource, /installSection\.hidden = isStandalone/);
     assert.doesNotMatch(appSource, /page-settings[^\n]*hidden = isStandalone/);
+});
+
+test('createUpdateChecker : vérifie, espace les vérifications et ignore les cas inutiles', async () => {
+    let calls = 0;
+    let time = 1_000_000;
+    const registration = { waiting: null, update: async () => { calls += 1; } };
+    const base = { registration, isOnline: () => true, isBusy: () => false, now: () => time, minIntervalMs: 60000 };
+    const check = createUpdateChecker(base);
+
+    assert.equal(await check({ force: true }), true);
+    assert.equal(calls, 1);
+    time += 10_000;
+    assert.equal(await check(), false);
+    assert.equal(calls, 1);
+    time += 51_000;
+    assert.equal(await check(), true);
+    assert.equal(calls, 2);
+
+    assert.equal(await createUpdateChecker({ ...base, isOnline: () => false })({ force: true }), false);
+    assert.equal(await createUpdateChecker({ ...base, isBusy: () => true })({ force: true }), false);
+    assert.equal(await createUpdateChecker({ ...base, registration: { ...registration, waiting: {} } })({ force: true }), false);
+    assert.equal(calls, 2);
+});
+
+test('createUpdateChecker : une erreur de update() n’est jamais propagée', async () => {
+    const registration = { waiting: null, update: async () => { throw new Error('réseau'); } };
+    const check = createUpdateChecker({ registration, isOnline: () => true, isBusy: () => false, now: () => 0 });
+    assert.equal(await check({ force: true }), false);
+});
+
+test('watchInstallingWorker : appelle onReady quand la mise à jour est installée', () => {
+    const makeWorker = () => Object.assign(new EventTarget(), { state: 'installing' });
+    const install = worker => {
+        worker.state = 'installed';
+        worker.dispatchEvent(new Event('statechange'));
+    };
+
+    let ready = 0;
+    const worker = makeWorker();
+    watchInstallingWorker(worker, { hasController: () => true, isBusy: () => false, onReady: () => { ready += 1; } });
+    install(worker);
+    assert.equal(ready, 1);
+
+    ready = 0;
+    const first = makeWorker();
+    watchInstallingWorker(first, { hasController: () => false, isBusy: () => false, onReady: () => { ready += 1; } });
+    install(first);
+    const busy = makeWorker();
+    watchInstallingWorker(busy, { hasController: () => true, isBusy: () => true, onReady: () => { ready += 1; } });
+    install(busy);
+    assert.equal(ready, 0);
+
+    const twice = makeWorker();
+    const options = { hasController: () => true, isBusy: () => false, onReady: () => { ready += 1; } };
+    watchInstallingWorker(twice, options);
+    watchInstallingWorker(twice, options);
+    install(twice);
+    assert.equal(ready, 1);
+
+    assert.doesNotThrow(() => watchInstallingWorker(null));
+});
+
+test('initServiceWorker vérifie les mises à jour au démarrage et au retour dans l’app', () => {
+    const body = source.slice(source.indexOf('export function initServiceWorker'), source.indexOf('export function initPwa'));
+    assert.ok(body.includes('check({ force: true })'));
+    assert.ok(body.includes('visibilitychange'));
+    assert.ok(body.includes('pageshow'));
+    assert.ok(body.includes('watchInstallingWorker(registration.installing)'));
 });

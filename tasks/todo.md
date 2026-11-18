@@ -324,3 +324,17 @@ Accord d'EV Database du 18/11/2026 : conditions 2 (source citée avec lien), 3 (
 - [x] `.htaccess` : `/calculateur` redirigé vers l'accueil de kWhiz (ve.aubard.net ne se résout plus). Constaté le 18/11 : aucun `.htaccess` n'était en ligne avant ce jour, fichier caché sur Mac jamais envoyé.
 - [ ] Gérald : remplacer la première ligne du `.htaccess` sur le serveur (ou envoyer `htaccess-A-RENOMMER.txt` du paquet).
 - [x] Volvo EX30 de retour dans la liste (35 modèles), sous le nom EX30 P5 Long Range : fiche `3480` et valeurs (178 Wh/km, 65,0 kWh) relevées à la main par Gérald le 18/11. L'ancienne fiche `1910` correspond à un véhicule arrêté.
+
+## Livraison 2.35.3 (2026-11-18) : détection des mises à jour
+
+Demande de Gérald : après la mise en ligne de la 2.35.2, il a dû ouvrir l'app quatre fois avant de voir le bandeau « Mise à jour disponible ».
+
+Deux causes dans `initServiceWorker()` :
+1. L'app ne demandait jamais elle-même la vérification de `sw.js` ; sur iPhone, une app ressortie de la mémoire sans rechargement n'en déclenche aucune.
+2. L'écouteur `updatefound` était posé après `register()` : si l'installation avait déjà commencé (`registration.installing`), l'événement était passé et le bandeau n'apparaissait pas.
+
+- [x] `createUpdateChecker()` : `registration.update()` au démarrage (forcé), au retour au premier plan, au retour du cache de navigation (`pageshow`) et au retour du réseau ; une vérification par minute au plus, jamais d'exception.
+- [x] `watchInstallingWorker()` : surveille aussi le worker déjà en cours d'installation, une seule fois par worker (`WeakSet`).
+- [x] `tests/pwa-update.test.js` : vérificateur, surveillance du worker, garde-fou sur le texte source de `initServiceWorker()`.
+- [x] Version 2.35.3 (`package.json`, `package-lock.json`, test de cohérence).
+- [ ] Gérald : mise en ligne FTP, push GitHub Desktop, puis vérifier sur iPhone qu'un retour dans l'app affiche le bandeau.

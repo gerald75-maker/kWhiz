@@ -283,20 +283,67 @@ export async function updateApplication() {
     return result;
 }
 
+const UPDATE_CHECK_MIN_INTERVAL_MS = 60_000;
+const watchedInstallingWorkers = new WeakSet();
+
+// Demande au navigateur de revérifier sw.js, sans jamais lever d'exception. Les vérifications
+// non forcées sont espacées d'au moins une minute pour ne pas marteler le serveur.
+export function createUpdateChecker({
+    registration,
+    isOnline = () => navigator.onLine,
+    isBusy = () => updateInProgress,
+    now = () => Date.now(),
+    minIntervalMs = UPDATE_CHECK_MIN_INTERVAL_MS
+} = {}) {
+    let lastCheckAt = null;
+    return async function check({ force = false } = {}) {
+        if (!registration || registration.waiting || isBusy() || !isOnline()) return false;
+        const currentTime = now();
+        if (!force && lastCheckAt !== null && currentTime - lastCheckAt < minIntervalMs) return false;
+        lastCheckAt = currentTime;
+        try {
+            await registration.update();
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+}
+
+// Affiche le bandeau quand un nouveau Service Worker finit de s'installer alors qu'un autre
+// contrôle déjà la page. Un même worker n'est surveillé qu'une fois.
+export function watchInstallingWorker(worker, {
+    hasController = () => Boolean(navigator.serviceWorker.controller),
+    isBusy = () => updateInProgress,
+    onReady = showUpdateBanner
+} = {}) {
+    if (!worker || watchedInstallingWorkers.has(worker)) return;
+    watchedInstallingWorkers.add(worker);
+    worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed' && hasController() && !isBusy()) onReady();
+    });
+}
+
 export function initServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
 
     getServiceWorkerRegistration().then(registration => {
         if (registration.waiting) showUpdateBanner();
+        watchInstallingWorker(registration.installing);
+        registration.addEventListener('updatefound', () => watchInstallingWorker(registration.installing));
 
-        registration.addEventListener('updatefound', () => {
-            const worker = registration.installing;
-            worker?.addEventListener('statechange', () => {
-                if (worker.state === 'installed' && navigator.serviceWorker.controller && !updateInProgress) {
-                    showUpdateBanner();
-                }
-            });
+        // Une PWA installée sur iPhone revient souvent de la mémoire sans recharger la page :
+        // le navigateur ne revérifie alors pas sw.js. On le demande nous-mêmes au démarrage,
+        // au retour au premier plan, au retour du cache de navigation et au retour du réseau.
+        const check = createUpdateChecker({ registration });
+        check({ force: true });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') check();
         });
+        window.addEventListener('pageshow', event => {
+            if (event.persisted) check();
+        });
+        window.addEventListener('online', () => check());
     }).catch(error => {
         if (import.meta.env?.DEV) console.warn('[kWhiz] Service Worker non enregistré', error);
     });
