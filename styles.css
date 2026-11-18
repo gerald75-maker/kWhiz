@@ -265,6 +265,11 @@ h1 {
 .vehicle-model-select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .vehicle-model-source { grid-column:1 / -1; margin:0; font-size:var(--fs-xs); line-height:1.35; color:var(--text-secondary); }
 .vehicle-model-source a { color:var(--accent-text); }
+.vehicle-model-detail { grid-column:1 / -1; margin:0; font-size:var(--fs-xs); line-height:1.35; color:var(--text-secondary); }
+.offer-source { margin:10px 0 0; font-size:var(--fs-sm); line-height:1.45; color:var(--text-secondary); }
+.vehicle-model-source a,
+.vehicle-model-detail a,
+.offer-source a { color:var(--accent-text); text-decoration:underline; font-weight:650; }
 
 /* Header sticky avec consommation */
 .params-card {
@@ -3305,6 +3310,7 @@ body.sheet-open { position:fixed; left:0; right:0; overflow:hidden; }
 .landing-select, .landing-input { width:100%; min-width:0; height:56px; box-sizing:border-box; padding:0 16px; border:1px solid rgba(148, 163, 184, .35); border-radius:var(--radius-lg); background:rgba(255, 255, 255, .04); color:inherit; font:inherit; font-size:16px; }
 .landing-select:focus-visible, .landing-input:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
 .landing-note { margin:12px 2px 0; color:#94a3b8; font-size:var(--fs-base); line-height:1.45; }
+.landing-source a { color:inherit; text-decoration:underline; }
 .landing-status:empty { display:none; }
 .landing-choices--grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
 .landing-choice { min-height:72px; border:1px solid rgba(0, 194, 255, 0.22); border-radius:var(--radius-lg); background:rgba(0, 194, 255, 0.07); color:inherit; font:inherit; font-size:var(--fs-xl); cursor:pointer; }

@@ -140,6 +140,7 @@
 <p class="offer-intro" id="offer-intro"></p>
 <!-- Les trois réseaux les moins chers, à égalité : prix au kWh, recharge, 100 km, abonnement -->
 <div class="offer-trio" id="offer-trio"></div>
+<p class="offer-source" id="offer-source" hidden=""></p>
 <section aria-labelledby="offer-month-title" class="offer-month" hidden="" id="offer-month"></section>
 <button class="profile-all-offers" id="profile-all-offers" type="button"><span data-i18n="profile.allOffers" id="profile-all-offers-label">Toutes les offres, avec filtres et détails</span> <span aria-hidden="true">›</span></button>
 </div>
@@ -201,6 +202,7 @@
 <label class="vehicle-model-label" for="vehicle-model" data-i18n="consumption.model.label">Mon modèle</label>
 <select class="vehicle-model-select" id="vehicle-model"><option value="" data-i18n="consumption.model.placeholder">Choisir (facultatif)</option></select>
 <p class="vehicle-model-source"><span data-i18n="consumption.model.source">Consommation réelle estimée, hors pertes de recharge. Source :</span> <a href="https://ev-database.org/" rel="noopener" target="_blank">EV Database</a> <span id="vehicle-model-asof"></span></p>
+<p class="vehicle-model-detail" id="vehicle-model-detail" hidden=""></p>
 </div>
 <div class="conso-slider-wrap">
 <label class="conso-slider-label" data-i18n="consumption.title">Consommation du véhicule</label>
@@ -302,6 +304,7 @@
 <label class="sr-only" data-i18n="landing.car.label" for="landing-car-select">Modèle de voiture</label>
 <select class="landing-select" id="landing-car-select"><option data-i18n="landing.car.placeholder" value="">Choisir mon modèle</option></select>
 <p class="landing-note" data-i18n="landing.car.note">La consommation réelle du modèle sert au calcul. Vous pourrez l’ajuster dans Mon profil.</p>
+<p class="landing-note landing-source"><span data-i18n="landing.car.source">Source des consommations :</span> <a href="https://ev-database.org/" rel="noopener noreferrer" target="_blank">EV Database</a></p>
 <div class="landing-actions">
 <button class="landing-btn" data-i18n="landing.next" data-landing-next="" type="button">Continuer</button>
 <a class="landing-link" data-i18n="landing.car.unknown" data-landing-skip="" href="#">Je ne trouve pas mon modèle</a>
@@ -421,7 +424,7 @@
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.profileTitle">Votre profil</strong></div><p data-i18n="help.plan.profile">Touchez la ligne de profil en haut de l’écran pour choisir votre voiture, votre kilométrage, votre part de recharge rapide et votre ville.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.trioTitle">Vos 3 réseaux</strong></div><p data-i18n="help.plan.trio">Mon offre présente vos trois réseaux les moins chers, à égalité, car vous rechargez chez celui qui se trouve sur votre route. Chaque carte donne le prix au kWh, le coût d’une recharge 10 → 80 % de votre modèle (50 kWh sans modèle choisi), le coût aux 100 km et l’abonnement.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.monthTitle">Votre mois</strong></div><p data-i18n="help.plan.month">« Votre mois » indique vos kWh et le budget selon le réseau utilisé, recharge à la maison comprise, et à partir de combien de kWh un abonnement se rembourse.</p></li>
-<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.vehicleTitle">La consommation</strong></div><p data-i18n="help.plan.vehicle">La consommation de chaque modèle est une estimation en conditions réelles publiée par EV Database. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p></li>
+<li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.vehicleTitle">La consommation</strong></div><p data-i18n="help.plan.vehicle">La consommation et la capacité utile de chaque modèle viennent d’EV Database (estimation en conditions réelles). Une fois votre modèle choisi, Mon profil et Mon offre affichent ces valeurs telles qu’elles sont publiées, avec un lien vers la fiche du modèle. kWhiz arrondit la consommation au kWh/100 km pour son calcul. Elle exclut les pertes de recharge : la borne facture un peu plus d’énergie que ce chiffre.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.zoneTitle">Votre ville</strong></div><p data-i18n="help.plan.zone">Avec une ville, Mon offre ne classe que les réseaux ayant au moins une station à moins de 20 km, hors autoroute. Le détail du calcul est dans « Pourquoi cet ordre ? ».</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.timingTitle">L’heure de recharge</strong></div><p data-i18n="help.plan.timing">Pour les réseaux dont le prix varie selon l’heure, comme Electra, kWhiz retient le milieu de la fourchette publiée. Dans Mon profil, « Quand rechargez-vous ? » permet de retenir le bas (heures creuses) ou le haut (heures de pointe). Le détail de l’offre indique le prix utilisé.</p></li>
 <li class="help-tip"><div class="help-tip-title"><strong data-i18n="help.plan.offersTitle">Toutes les offres</strong></div><p data-i18n="help.plan.offers">Offres classe toutes les formules par coût mensuel estimé, abonnement compris. Chaque ligne affiche d’abord le prix du kWh retenu pour votre profil, puis ce coût mensuel.</p><p data-i18n="help.plan.filters">Dans Offres, le filtre Sans abonnement ne garde que les formules sans frais fixes et Réseaux près de chez moi les réseaux présents dans votre ville. Par réseau regroupe les formules de chaque opérateur. Touchez une ligne pour son détail : seuil de rentabilité, ChargeBack, notes et source.</p></li>

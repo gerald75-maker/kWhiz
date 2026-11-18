@@ -1,4 +1,4 @@
-import { VEHICLES, VEHICLE_SOURCE, findVehicle, vehicleLabel, vehicleSliderValue } from '../../config/vehicles.js';
+import { VEHICLES, VEHICLE_SOURCE, findVehicle, vehicleLabel, vehicleSliderValue, vehicleSourceUrl } from '../../config/vehicles.js';
 import { formatDate, formatNumber, t } from '../../i18n/i18n.js';
 
 export function initConsumptionController({ initialValue = 18, onChange, storageKey, vehicleStorageKey }) {
@@ -9,6 +9,7 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
     const valueEl = document.getElementById('consumption-value');
     const modelSelect = document.getElementById('vehicle-model');
     const asOfEl = document.getElementById('vehicle-model-asof');
+    const detailEl = document.getElementById('vehicle-model-detail');
 
     // Modèle choisi : il reste actif tant que le curseur garde sa valeur.
     let vehicle = vehicleStorageKey ? findVehicle(readStorage(vehicleStorageKey)) : null;
@@ -23,6 +24,7 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
 
         if (vehicle && vehicleSliderValue(vehicle) !== value) setVehicle(null);
         if (modelSelect) modelSelect.value = vehicle?.id || '';
+        renderVehicleDetail();
 
         let closest = null;
         let minDiff = Infinity;
@@ -80,7 +82,7 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
             items.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item.id;
-                option.textContent = `${item.model} · ${formatNumber(item.whKm / 10, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kWh/100 km`;
+                option.textContent = item.model;
                 group.append(option);
             });
             modelSelect.append(group);
@@ -89,6 +91,34 @@ export function initConsumptionController({ initialValue = 18, onChange, storage
 
     function renderAsOf() {
         if (asOfEl) asOfEl.textContent = `(${t('consumption.model.asOf', { date: formatDate(VEHICLE_SOURCE.asOf) })})`;
+    }
+
+    // Valeurs publiées par EV Database, telles quelles, avec lien vers la fiche.
+    function renderVehicleDetail() {
+        if (!detailEl) return;
+        if (!vehicle) {
+            detailEl.hidden = true;
+            detailEl.replaceChildren();
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = vehicleSourceUrl(vehicle) || VEHICLE_SOURCE.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.setAttribute('aria-label', t('consumption.model.sheetLabel', { model: vehicleLabel(vehicle) }));
+        const arrow = document.createElement('span');
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = ' ↗';
+        link.append(t('consumption.model.sheet'), arrow);
+        detailEl.replaceChildren(
+            document.createTextNode(`${t('consumption.model.detail', {
+                whKm: vehicle.whKm,
+                kwh: formatNumber(vehicle.usableKwh, { maximumFractionDigits: 1 })
+            })} `),
+            link,
+            document.createTextNode(` ${t('consumption.model.rounded', { value: vehicleSliderValue(vehicle) })}`)
+        );
+        detailEl.hidden = false;
     }
 
     function notify() {

@@ -308,3 +308,16 @@ Demande de Gérald : corriger les quatre points relevés par Lighthouse (mobile 
 - [x] Trouvé en vérifiant : titres « iOS / iPhone » et « Android » presque invisibles en thème clair (`.text-strong` codé en dur à `#e2e8f0`).
 - [x] 445 tests verts ; build OK, cache kwhiz-23123fec.
 - [ ] Gérald : `dist/` garde les anciens fichiers (`emptyOutDir: false`, voulu) ; les images supprimées peuvent être effacées à la main sur le serveur après la mise en ligne.
+
+## Livraison 2.35.2 (2026-11-18) : conditions EV Database
+
+Accord d'EV Database du 18/11/2026 : conditions 2 (source citée avec lien), 3 (lien vers la fiche du véhicule) et 5 (données d'origine).
+
+- [x] `src/config/vehicles.js` : chemin de fiche (`evdbPath`) et `sourceUrl` pour les 34 modèles ; `vehicleSourceUrl()`. Volvo EX30 retirée (fiche inconnue), décision de Gérald.
+- [x] Mon profil : menu limité au nom du modèle ; ligne `#vehicle-model-detail` avec Wh/km et kWh utiles d'origine, lien vers la fiche, valeur arrondie utilisée par kWhiz.
+- [x] Mon offre : ligne `#offer-source` sous le trio (`offerSourceHtml`).
+- [x] Premier lancement : source des consommations citée dans l'étape voiture.
+- [x] Textes FR et EN, aide `help.plan.vehicle` réécrite.
+- [x] Tests : chemins, adresses, textes, garde-fous (aucune collecte automatique, aucune image EV Database).
+- [x] `docs/ev-database.md` : conditions de l'accord et tableau des 34 modèles.
+- [ ] Gérald : ouvrir à la main les liens de `docs/ev-database.md` et valider chaque fiche (en priorité Renault 4 et Tesla Model 3 Propulsion) ; noter l'adresse de la fiche de la Volvo EX30 pour la remettre dans la liste.

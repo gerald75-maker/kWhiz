@@ -1,5 +1,6 @@
 import { atlanteSteadyStateRate, chargebackChangeWithinYear, computeProfileAnnualCost, computeProfileMonthlyCost } from '../../domain/pricing.js';
 import { escapeHtml, safeUrl } from '../../shared/dom.js';
+import { VEHICLE_SOURCE, vehicleLabel, vehicleSliderValue } from '../../config/vehicles.js';
 import { shareResult } from '../share-result.js';
 import { formatCurrency, formatDate, formatNumber, formatPercentage, formatTariffsVerifiedOn, localizeCommercialLabel, t } from '../../i18n/i18n.js';
 import { offerDetailCalculationNote, offerDetailSubscriptionLabel } from './offer-detail-view.js';
@@ -317,11 +318,27 @@ function bindWhy(why, { best, second, fastPercentage, favorites, ranked, km }) {
     });
 }
 
+// Valeurs EV Database telles que publiées, avec lien vers la fiche du modèle.
+export function offerSourceHtml(vehicle) {
+    if (!vehicle) return '';
+    const model = vehicleLabel(vehicle);
+    const text = t('offer.source', {
+        model,
+        whKm: vehicle.whKm,
+        kwh: formatNumber(vehicle.usableKwh, { maximumFractionDigits: 1 }),
+        value: vehicleSliderValue(vehicle)
+    });
+    const href = safeUrl(vehicle.sourceUrl || VEHICLE_SOURCE.url);
+    const label = escapeHtml(t('offer.source.linkLabel', { model }));
+    return `${escapeHtml(text)} <a href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${label}">${escapeHtml(t('offer.source.link'))} <span aria-hidden="true">↗</span></a>`;
+}
+
 export function renderProfileView({ formulasData, consumption, fastPercentage, homeRate, logos, favorites = new Set(), onDetail, mapOperators = [], onShowOperatorMap, coverage = null, vehicle = null, km: kmOverride }) {
     const title = document.getElementById('offer-context');
     const intro = document.getElementById('offer-intro');
     const list = document.getElementById('offer-trio');
     const month = document.getElementById('offer-month');
+    const sourceEl = document.getElementById('offer-source');
     const allOffers = document.getElementById('profile-all-offers-label');
     if (allOffers) allOffers.textContent = t('offer.allCount', { count: number(formulasData.length) });
     if (!list) return [];
@@ -331,6 +348,7 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
         if (month) { month.innerHTML = ''; month.hidden = true; }
         if (title) title.textContent = '';
         if (intro) intro.innerHTML = '';
+        if (sourceEl) { sourceEl.innerHTML = ''; sourceEl.hidden = true; }
         return [];
     };
     if (formulasData.length === 0) return setEmpty(t('profile.loadingPrices'));
@@ -340,6 +358,11 @@ export function renderProfileView({ formulasData, consumption, fastPercentage, h
     if (!ranked.length) return setEmpty(t('profile.noPlans'));
     const trio = topNetworks(ranked, 3);
     const charge = chargeSize(vehicle);
+    if (sourceEl) {
+        const sourceHtml = offerSourceHtml(vehicle);
+        sourceEl.innerHTML = sourceHtml;
+        sourceEl.hidden = !sourceHtml;
+    }
 
     if (title) {
         const key = trio.length === 1 ? 'offer.trio.titleOne' : 'offer.trio.title';
