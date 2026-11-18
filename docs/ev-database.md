@@ -12,7 +12,7 @@ Accord d’EV Database du 18/11/2026, sous cinq conditions :
 
 Les valeurs (Wh/km, kWh utiles) sont relevées à la main sur chaque fiche et saisies dans `src/config/vehicles.js`. Aucun script, aucune tâche planifiée et aucun workflow ne doit interroger ev-database.org. `tests/vehicles.test.js` le contrôle.
 
-## Modèles (34)
+## Modèles (35)
 
 | Modèle | Wh/km | kWh utiles | Fiche |
 |---|---|---|---|
@@ -48,9 +48,12 @@ Les valeurs (Wh/km, kWh utiles) sont relevées à la main sur chaque fiche et sa
 | Tesla Model Y Propulsion | 158 | 60 | [Fiche](https://ev-database.org/car/3741/Tesla-Model-Y-RWD) |
 | Tesla Model Y Grande Autonomie Propulsion | 159 | 74 | [Fiche](https://ev-database.org/car/3595/Tesla-Model-Y-Premium-RWD) |
 | Toyota bZ4X 73 kWh traction | 179 | 69 | [Fiche](https://ev-database.org/car/3134/Toyota-bZ4X-FWD-731-kWh) |
+| Volvo EX30 P5 Long Range | 178 | 65 | [Fiche](https://ev-database.org/car/3480/Volvo-EX30-P5-Long-Range) |
 | Volkswagen ID.3 58 kWh | 159 | 58 | [Fiche](https://ev-database.org/car/3521/Volkswagen-ID3-Neo-140-kW---58-kWh) |
 | Volkswagen ID.4 Pro 77 kWh | 171 | 77 | [Fiche](https://ev-database.org/car/3875/Volkswagen-ID4-Pro-77-kWh) |
 
-Un modèle n'entre dans la liste que si l'adresse de sa fiche est connue. La Volvo EX30 Extended Range (178 Wh/km, 65 kWh utiles relevés le 11/11/2026) a été retirée le 18/11/2026 : elle reviendra quand Gérald aura noté l'adresse de sa fiche.
+Un modèle n'entre dans la liste que si l'adresse de sa fiche est connue. Volvo EX30 : fiche et valeurs relevées à la main par Gérald le 18/11/2026 (EX30 P5 Long Range MY27, 178 Wh/km, 65,0 kWh utiles). L'ancienne fiche `1910` (EX30 Single Motor ER) décrit un véhicule qui n'est plus vendu.
+
+Lors d'une validation, regarder aussi si la fiche annonce un véhicule arrêté et remplacé : dans ce cas, pointer vers la fiche du remplaçant et reprendre ses valeurs.
 
 À valider à la main en priorité : Renault 4 E-Tech 52 kWh et Tesla Model 3 Propulsion, pour lesquelles deux fiches existaient lors du relevé.

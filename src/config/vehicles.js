@@ -5,8 +5,8 @@
 // Accord d'EV Database du 18/11/2026 : relevé et mise à jour strictement
 // manuels (aucune collecte automatique), valeurs publiées sans modification,
 // source citée avec un lien vers la fiche du véhicule là où la donnée sert.
-// evdbPath : chemin de la fiche sur EV Database. Un modèle sans fiche connue
-// n'entre pas dans la liste (Volvo EX30 retirée le 18/11/2026 pour cette raison).
+// evdbPath : chemin de la fiche sur EV Database, relevé à la main. Un modèle
+// sans fiche connue n'entre pas dans la liste.
 export const VEHICLE_SOURCE = Object.freeze({
     name: 'EV Database',
     url: 'https://ev-database.org/',
@@ -46,6 +46,7 @@ const list = [
     ['tesla-modely-rwd', 'Tesla', 'Model Y Propulsion', 158, 60, '3741/Tesla-Model-Y-RWD'],
     ['tesla-modely-lr-rwd', 'Tesla', 'Model Y Grande Autonomie Propulsion', 159, 74, '3595/Tesla-Model-Y-Premium-RWD'],
     ['toyota-bz4x-73', 'Toyota', 'bZ4X 73 kWh traction', 179, 69, '3134/Toyota-bZ4X-FWD-731-kWh'],
+    ['volvo-ex30-lr', 'Volvo', 'EX30 P5 Long Range', 178, 65, '3480/Volvo-EX30-P5-Long-Range'],
     ['vw-id3-58', 'Volkswagen', 'ID.3 58 kWh', 159, 58, '3521/Volkswagen-ID3-Neo-140-kW---58-kWh'],
     ['vw-id4-77', 'Volkswagen', 'ID.4 Pro 77 kWh', 171, 77, '3875/Volkswagen-ID4-Pro-77-kWh']
 ];

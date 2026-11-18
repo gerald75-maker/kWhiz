@@ -323,3 +323,4 @@ Accord d'EV Database du 18/11/2026 : conditions 2 (source citée avec lien), 3 (
 - [ ] Gérald : ouvrir à la main les liens de `docs/ev-database.md` et valider chaque fiche (en priorité Renault 4 et Tesla Model 3 Propulsion) ; noter l'adresse de la fiche de la Volvo EX30 pour la remettre dans la liste.
 - [x] `.htaccess` : `/calculateur` redirigé vers l'accueil de kWhiz (ve.aubard.net ne se résout plus). Constaté le 18/11 : aucun `.htaccess` n'était en ligne avant ce jour, fichier caché sur Mac jamais envoyé.
 - [ ] Gérald : remplacer la première ligne du `.htaccess` sur le serveur (ou envoyer `htaccess-A-RENOMMER.txt` du paquet).
+- [x] Volvo EX30 de retour dans la liste (35 modèles), sous le nom EX30 P5 Long Range : fiche `3480` et valeurs (178 Wh/km, 65,0 kWh) relevées à la main par Gérald le 18/11. L'ancienne fiche `1910` correspond à un véhicule arrêté.
